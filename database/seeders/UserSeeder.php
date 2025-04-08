@@ -24,31 +24,31 @@ class UserSeeder extends Seeder
             'role'              => 'admin',
             'remember_token'    => Str::random(10),
         ]);
-        //default pemilik users
+        //default owner users
         $user = User::create([
-            'name'              => 'pemilik',
-            'email'             => 'pemilik@example.com',
+            'name'              => 'owner',
+            'email'             => 'owner@example.com',
             'email_verified_at' => now(),
             'password'          => Hash::make('password'),
-            'role'              => 'pemilik',
+            'role'              => 'owner',
             'remember_token'    => Str::random(10),
         ]);
-        //default manajer users
+        //default manager_project users
         $user = User::create([
-            'name'              => 'manajer',
-            'email'             => 'manajer@example.com',
+            'name'              => 'manager_project',
+            'email'             => 'manager_project@example.com',
             'email_verified_at' => now(),
             'password'          => Hash::make('password'),
-            'role'              => 'manajer',
+            'role'              => 'manager_project',
             'remember_token'    => Str::random(10),
         ]);
-        //default users
+        //default finance
         $user = User::create([
-            'name'              => 'user1',
-            'email'             => 'user1@example.com',
+            'name'              => 'finance',
+            'email'             => 'finance@example.com',
             'email_verified_at' => now(),
             'password'          => Hash::make('password'),
-            'role'              => 'user',
+            'role'              => 'finance',
             'remember_token'    => Str::random(10),
         ]);
     }
