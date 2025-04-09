@@ -17,7 +17,7 @@ class Setting extends Model
     ];
 
     //simpan setting
-    public function set($key, $value)
+    public static function set($key, $value)
     {
         if (is_array($value)) {
             $value      = json_encode($value);
@@ -27,16 +27,18 @@ class Setting extends Model
         }
 
         //createorupdate by key
-        $setting = self::updateOrCreate([
-            'key'       => $key,
-            'value'     => $value,
-            'is_array'  => $is_array
-        ]);
+        $setting = self::updateOrCreate(
+            ['key'       => $key],
+            [
+                'value'     => $value,
+                'is_array'  => $is_array
+            ]
+        );
         return $setting;
     }
 
     //ambil setting
-    public function get($key, $default = null)
+    public static function get($key, $default = null)
     {
         $setting = self::where('key', $key)->first();
         if ($setting) {

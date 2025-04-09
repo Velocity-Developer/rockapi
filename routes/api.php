@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\OptionsController;
 use App\Http\Controllers\UsersController;
 
@@ -17,4 +18,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     ]);
 
     Route::get('option/{key}', [OptionsController::class, 'get']);
+    Route::post('setconfig', [ConfigController::class, 'setconfig']);
 });
+
+Route::get('config', [ConfigController::class, 'index']);
