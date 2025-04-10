@@ -5,12 +5,14 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, SoftDeletes, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -21,7 +23,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
         'status',
         'avatar',
     ];
@@ -49,7 +50,18 @@ class User extends Authenticatable
         ];
     }
 
-    protected $appends = ['avatar_url'];
+    protected $appends = ['avatar_url', 'user_roles'];
+
+    //accessor untuk roles
+    public function getUserRolesAttribute()
+    {
+        $roles = $this->roles()->get();
+        $result = [];
+        foreach ($roles as $role) {
+            $result[] = $role->name;
+        }
+        return $result;
+    }
 
     // Accessor untuk avatar URL
     public function getAvatarUrlAttribute()

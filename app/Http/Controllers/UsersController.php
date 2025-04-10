@@ -41,8 +41,8 @@ class UsersController extends Controller
             'email'     => $request->email,
             'status'    => $request->status,
             'password'  => bcrypt($request->password),
-            'role'      => $request->role
         ]);
+        $user->assignRole($request->role);
 
         return response()->json($user);
     }
@@ -77,8 +77,8 @@ class UsersController extends Controller
             'email'     => $request->email,
             'status'    => $request->status,
             // 'password'  => bcrypt($request->password),
-            'role'      => $request->role
         ]);
+        $user->assignRole($request->role);
 
         return response()->json($user);
     }
