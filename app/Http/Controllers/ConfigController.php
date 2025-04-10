@@ -33,6 +33,14 @@ class ConfigController extends Controller
             $results['app_favicon'] = asset('storage/' . $app_favicon);
         }
 
+        //bg welcome
+        $bg_welcome = Setting::get('bg_welcome');
+        if ($bg_welcome) {
+            $results['bg_welcome'] = asset('storage/' . $bg_welcome);
+        } else {
+            $results['bg_welcome'] = asset('assets/images/bg-welcome.webp');
+        }
+
         //data user login
         $results['user'] = $request->user();
 
@@ -53,6 +61,7 @@ class ConfigController extends Controller
             'app_logo'          => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:1048',
             'app_logo_small'    => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:1048',
             'app_favicon'       => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg,ico|max:1048',
+            'bg_welcome'        => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:2048',
         ]);
 
         //save setting
@@ -96,6 +105,19 @@ class ConfigController extends Controller
             $file = $request->file('app_favicon');
             $path = $file->store('app', 'public');
             Setting::set('app_favicon', $path);
+        }
+
+        //simpan bg welcome
+        if ($request->hasFile('bg_welcome')) {
+
+            //hapus logo lama
+            if (Setting::get('bg_welcome')) {
+                Storage::disk('public')->delete(Setting::get('bg_welcome'));
+            }
+
+            $file = $request->file('bg_welcome');
+            $path = $file->store('app', 'public');
+            Setting::set('bg_welcome', $path);
         }
 
         $results = $this->getConfig($request);
