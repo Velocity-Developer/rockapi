@@ -48,4 +48,15 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    protected $appends = ['avatar_url'];
+
+    // Accessor untuk avatar URL
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->avatar && $this->avatar) {
+            return asset('storage/' . $this->avatar);
+        }
+        return asset('assets/images/default-avatar.jpg');
+    }
 }

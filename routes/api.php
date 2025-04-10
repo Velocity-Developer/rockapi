@@ -17,6 +17,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'users' => UsersController::class,
     ]);
 
+    Route::put('user/updatepassword/{id}', [UsersController::class, 'updatePassword']);
+    Route::put('user/updateavatar/{id}', [UsersController::class, 'updateAvatar']);
     Route::get('option/{key}', [OptionsController::class, 'get']);
     Route::post('setconfig', [ConfigController::class, 'setconfig']);
 });

@@ -52,7 +52,7 @@ class ConfigController extends Controller
             'app_description'   => 'required',
             'app_logo'          => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:1048',
             'app_logo_small'    => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:1048',
-            'app_favicon'       => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:1048',
+            'app_favicon'       => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg,ico|max:1048',
         ]);
 
         //save setting
