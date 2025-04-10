@@ -78,6 +78,14 @@ class UsersController extends Controller
             'status'    => $request->status,
             // 'password'  => bcrypt($request->password),
         ]);
+
+        //hapus role lama
+        if ($user->user_roles) {
+            foreach ($user->user_roles as $role) {
+                $user->removeRole($role);
+            }
+        }
+
         $user->assignRole($request->role);
 
         return response()->json($user);
