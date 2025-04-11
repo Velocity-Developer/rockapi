@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\OptionsController;
 use App\Http\Controllers\RolesController;
+use App\Http\Controllers\PermissionsController;
 use App\Http\Controllers\UsersController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
@@ -16,7 +17,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::apiResources([
         'users' => UsersController::class,
-        'roles' => RolesController::class
+        'roles' => RolesController::class,
+        'permissions' => PermissionsController::class
     ]);
 
     Route::put('user/updatepassword/{id}', [UsersController::class, 'updatePassword']);
