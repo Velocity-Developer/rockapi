@@ -22,6 +22,9 @@ class RolesController extends Controller
                 'name'          => $role->name,
                 'guard_name'    => $role->guard_name,
                 'user_count'    => $role->users() ? $role->users()->count() : 0, // Menghitung jumlah user
+                'permissions'   => $role->permissions->map(function ($permission) {
+                    return $permission->name;
+                }), // Mengambil daftar permissions
             ];
         });
 
@@ -35,10 +38,12 @@ class RolesController extends Controller
     {
         $request->validate([
             'name' => 'required',
+            'permissions' => 'required|array',
         ]);
 
         //simpan role
         $role = Role::create(['name' => $request->name, 'guard_name' => 'web']);
+        $role->syncPermissions($request->permissions);
 
         return response()->json($role);
     }
@@ -62,6 +67,7 @@ class RolesController extends Controller
         //
         $request->validate([
             'name' => 'required',
+            'permissions' => 'required|array',
         ]);
 
         //jika id = 'admin'
@@ -71,7 +77,10 @@ class RolesController extends Controller
 
         $role = Role::findByName($id, 'web');
         $role->name = $request->name;
+        $role->syncPermissions($request->permissions);
         $role->save();
+
+        return response()->json($role);
     }
 
     /**

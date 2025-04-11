@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class OptionsController extends Controller
 {
@@ -15,6 +16,9 @@ class OptionsController extends Controller
         switch ($key) {
             case 'roles':
                 $result = $this->roles();
+                break;
+            case 'permissions':
+                $result = $this->permissions();
                 break;
             default:
                 $result = [];
@@ -33,6 +37,23 @@ class OptionsController extends Controller
             $result[] = [
                 'value' => $role->name,
                 'label' => $role->name
+            ];
+        }
+
+        return $result;
+    }
+
+    private function permissions()
+    {
+        //get all permissions
+        $permissions = Permission::all();
+
+        //convert to array
+        $result = [];
+        foreach ($permissions as $permission) {
+            $result[] = [
+                'value' => $permission->name,
+                'label' => $permission->name
             ];
         }
 
