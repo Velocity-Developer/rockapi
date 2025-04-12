@@ -8,6 +8,8 @@ use App\Http\Controllers\RolesController;
 use App\Http\Controllers\PermissionsController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\PostsController;
+use App\Http\Controllers\TermsController;
+
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -20,7 +22,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'users'         => UsersController::class,
         'roles'         => RolesController::class,
         'permissions'   => PermissionsController::class,
-        'posts'         => PostsController::class
+        'posts'         => PostsController::class,
+        'terms'         => TermsController::class
     ]);
 
     Route::put('user/updatepassword/{id}', [UsersController::class, 'updatePassword']);

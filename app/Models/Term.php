@@ -29,13 +29,13 @@ class Term extends Model
         parent::boot();
 
         static::creating(function ($post) {
-            $post->slug = Str::slug($post->name) . '-' . Str::random(5);
+            $post->slug = Str::slug($post->name);
         });
 
         static::updating(function ($post) {
             //jika name berubah
             if ($post->isDirty('name')) {
-                $post->slug = Str::slug($post->name) . '-' . Str::random(5);
+                $post->slug = Str::slug($post->name);
             }
         });
     }

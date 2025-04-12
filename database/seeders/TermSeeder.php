@@ -28,12 +28,12 @@ class TermSeeder extends Seeder
         Term::create([
             'name'      => 'story',
             'slug'      => 'story',
-            'taxonomy'  => 'post_tag',
+            'taxonomy'  => 'tag',
         ]);
         Term::create([
             'name'      => 'Velocity Developer',
             'slug'      => 'velocity-developer',
-            'taxonomy'  => 'post_tag',
+            'taxonomy'  => 'tag',
         ]);
     }
 }
