@@ -11,11 +11,17 @@ class PostsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $count = $request->input('count', 20);
+        $title_search = $request->input('title');
+
         $Posts = Post::with('author:id,name,avatar')
+            ->when($title_search, function ($query) use ($title_search) {
+                $query->where('title', 'like', '%' . $title_search . '%');
+            })
             ->orderBy('date', 'desc')
-            ->paginate(20);
+            ->paginate($count);
 
         return response()->json($Posts);
     }
