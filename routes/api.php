@@ -9,6 +9,7 @@ use App\Http\Controllers\PermissionsController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\TermsController;
+use App\Http\Controllers\DashboardController;
 
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
@@ -30,6 +31,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('user/updateavatar/{id}', [UsersController::class, 'updateAvatar']);
     Route::get('option/{key}', [OptionsController::class, 'get']);
     Route::post('setconfig', [ConfigController::class, 'setconfig']);
+
+    //dashboard
+    Route::get('dashboard/datatable', [DashboardController::class, 'datatable']);
 });
 
 Route::get('config', [ConfigController::class, 'index']);
