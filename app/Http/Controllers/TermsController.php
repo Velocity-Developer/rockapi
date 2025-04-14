@@ -14,10 +14,11 @@ class TermsController extends Controller
     public function index(Request $request)
     {
         //
+        $count = $request->input('count', 20);
         $taxonomy = $request->input('taxonomy');
         $terms = Term::where('taxonomy', $taxonomy)
             ->orderBy('name', 'desc')
-            ->paginate(20);
+            ->paginate($count);
 
         return response()->json($terms);
     }

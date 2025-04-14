@@ -23,6 +23,14 @@ class Term extends Model
         'taxonomy',
     ];
 
+    protected $hidden = ['created_at', 'updated_at', 'pivot'];
+
+    // Relasi many-to-many dengan Post
+    public function posts()
+    {
+        return $this->belongsToMany(Post::class, 'post_term', 'term_id', 'post_id');
+    }
+
     //boot
     public static function boot()
     {

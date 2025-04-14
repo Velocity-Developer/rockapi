@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Post;
+use App\Models\Term;
 
 class PostsController extends Controller
 {
@@ -99,6 +100,8 @@ class PostsController extends Controller
             'date'      => 'nullable|date',
             'featured_image'    => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:2048',
             'status'    => 'required|string',
+            'category'  => 'nullable|string',
+            'tags'      => 'nullable|string',
         ]);
 
         //if date is null, set date to now
@@ -130,6 +133,41 @@ class PostsController extends Controller
                 'featured_image' => $path
             ]);
         }
+
+        //category
+        $post->terms()->detach();
+
+        //tags
+        if ($request->tags) {
+            // Pisahkan string tags menjadi array
+            $tagNames = array_map('trim', explode(',', $request->tags));
+
+            // Array untuk menyimpan ID term
+            $termIds = [];
+
+            // Loop untuk mencari atau membuat term
+            foreach ($tagNames as $tagName) {
+                if (!empty($tagName)) { // Pastikan nama tag tidak kosong
+
+                    $term = Term::firstOrCreate(
+                        ['name'     => $tagName], // Cari term berdasarkan nama
+                        ['taxonomy' => 'tag'] // Jika tidak ada, buat baru dengan taxonomy 'tags'
+                    );
+
+                    // Simpan ID term ke array
+                    $termIds[] = $term->id;
+                }
+            }
+
+            // Sinkronisasi relasi antara post dan term
+            $post->terms()->sync($termIds);
+        }
+
+        if ($request->category) {
+            $category = explode(',', $request->category);
+            $post->terms()->attach($category);
+        }
+
 
         return response()->json($post);
     }

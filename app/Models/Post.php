@@ -26,12 +26,23 @@ class Post extends Model
         'featured_image',
     ];
 
-    protected $appends = ['featured_image_url', 'author_data'];
+    protected $appends = [
+        'featured_image_url',
+        'author_data',
+        'category',
+        'tags',
+    ];
 
     //relasi author
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    // Relasi many-to-many dengan Term
+    public function terms()
+    {
+        return $this->belongsToMany(Term::class, 'post_term', 'post_id', 'term_id');
     }
 
     // Accessor untuk author_data
@@ -47,6 +58,20 @@ class Post extends Model
             return asset('storage/' . $this->featured_image);
         }
         return asset('assets/images/default-featured_image.jpg');
+    }
+
+    // Accessor untuk category
+    public function getCategoryAttribute()
+    {
+        $terms = $this->terms()->where('taxonomy', 'category')->get();
+        return $terms;
+    }
+
+    // Accessor untuk tags
+    public function getTagsAttribute()
+    {
+        $terms = $this->terms()->where('taxonomy', 'tag')->get();
+        return $terms;
     }
 
     //boot
