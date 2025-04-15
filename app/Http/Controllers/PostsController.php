@@ -35,6 +35,14 @@ class PostsController extends Controller
      */
     public function store(Request $request)
     {
+        // 🔐 Cek apakah user punya permission 'create-post'
+        $user = auth()->user();
+        if (! $user->can('create-post')) {
+            return response()->json([
+                'message' => 'You do not have permission.',
+            ], 422);
+        }
+
         $request->validate([
             'title'     => 'required|min:4|string',
             'content'   => 'required|min:4',
@@ -97,6 +105,15 @@ class PostsController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $user = auth()->user();
+
+        // 🔐 Cek apakah user punya permission 'edit-post'
+        if (! $user->can('edit-post')) {
+            return response()->json([
+                'message' => 'You do not have permission.',
+            ], 422);
+        }
+
         $request->validate([
             'title'     => 'required|min:4|string',
             'content'   => 'required|min:4',
@@ -180,6 +197,15 @@ class PostsController extends Controller
      */
     public function destroy(string $id)
     {
+
+        // 🔐 Cek apakah user punya permission 'edit-post'
+        $user = auth()->user();
+        if (! $user->can('delete-post')) {
+            return response()->json([
+                'message' => 'You do not have permission.',
+            ], 422);
+        }
+
         //get post
         $post = Post::find($id);
 

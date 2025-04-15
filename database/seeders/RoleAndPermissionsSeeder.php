@@ -14,30 +14,67 @@ class RoleAndPermissionsSeeder extends Seeder
      */
     public function run(): void
     {
-        //buat default permission
-        Permission::create(['name' => 'view-dashboard']);
-        Permission::create(['name' => 'edit-setting']);
-        Permission::create(['name' => 'create-post']);
-        Permission::create(['name' => 'edit-post']);
-        Permission::create(['name' => 'delete-post']);
-
-        //buat default role
-        $role_admin = Role::create(['name' => 'admin']);
-        $role_admin->givePermissionTo(Permission::all());
-
-        $role_owner = Role::create(['name' => 'owner']);
-        $role_owner->givePermissionTo([
-            'view-dashboard',
-            'edit-setting',
+        //buat permission jika belum ada
+        $permissions = [
+            'page-dashboard',
+            'page-users',
+            'view-other-user',
+            'edit-other-user',
+            'create-other-user',
+            'edit-user',
+            'delete-user',
+            'edit-settings',
             'create-post',
             'edit-post',
             'delete-post',
-        ]);
+            'edit-term'
+        ];
 
-        $role_user = Role::create(['name' => 'user']);
-        $role_user->givePermissionTo([
-            'view-dashboard',
-        ]);
+        foreach ($permissions as $permission) {
+            //check permission
+            if (!Permission::where('name', $permission)->exists()) {
+                Permission::create(['name' => $permission]);
+                $this->command->info('Permission created: ' . $permission);
+            }
+        }
+
+        //buat default role
+        $roles = [
+            'admin',
+            'owner',
+            'user',
+        ];
+
+        foreach ($roles as $role) {
+            //check role
+            if (!Role::where('name', $role)->exists()) {
+                Role::create(['name' => $role]);
+                $this->command->info('Role created: ' . $role);
+            }
+
+            if ($role == 'admin') {
+                $role_admin = Role::where('name', $role)->first();
+                $role_admin->givePermissionTo(Permission::all());
+            } elseif ($role == 'owner') {
+                $role_owner = Role::where('name', $role)->first();
+                $role_owner->givePermissionTo([
+                    'page-dashboard',
+                    'edit-settings',
+                    'create-post',
+                    'edit-post',
+                    'delete-post',
+                    'edit-user',
+                    'delete-user',
+                ]);
+            } else {
+                $role_user = Role::where('name', $role)->first();
+                $role_user->givePermissionTo([
+                    'page-dashboard',
+                    'edit-user',
+                    'delete-user',
+                ]);
+            }
+        }
 
         // Role::create(['name' => 'manager_project']);
         // Role::create(['name' => 'manager_advertising']);

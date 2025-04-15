@@ -28,6 +28,14 @@ class TermsController extends Controller
      */
     public function store(Request $request)
     {
+        // 🔐 Cek apakah user punya permission 'edit-term'
+        $user = auth()->user();
+        if (! $user->can('edit-term')) {
+            return response()->json([
+                'message' => 'You do not have permission.',
+            ], 422);
+        }
+
         $request->validate([
             'name'          => 'required|string',
             'description'   => 'nullable|string',
@@ -70,6 +78,15 @@ class TermsController extends Controller
      */
     public function update(Request $request, string $id)
     {
+
+        // 🔐 Cek apakah user punya permission 'edit-term'
+        $user = auth()->user();
+        if (! $user->can('edit-term')) {
+            return response()->json([
+                'message' => 'You do not have permission.',
+            ], 422);
+        }
+
         $request->validate([
             'name'          => 'required|string',
             'description'   => 'nullable|string',
@@ -88,6 +105,13 @@ class TermsController extends Controller
      */
     public function destroy(string $id)
     {
+        // 🔐 Cek apakah user punya permission 'edit-term'
+        $user = auth()->user();
+        if (! $user->can('edit-term')) {
+            return response()->json([
+                'message' => 'You do not have permission.',
+            ], 422);
+        }
         //
         $term = Term::find($id);
         $term->delete();

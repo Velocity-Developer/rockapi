@@ -52,6 +52,12 @@ class User extends Authenticatable
 
     protected $appends = ['avatar_url', 'user_roles'];
 
+    //permissions
+    public function get_permissions()
+    {
+        return $this->getPermissionNames();
+    }
+
     //accessor untuk roles
     public function getUserRolesAttribute()
     {

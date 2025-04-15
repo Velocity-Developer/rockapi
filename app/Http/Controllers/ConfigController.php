@@ -44,6 +44,15 @@ class ConfigController extends Controller
         //data user login
         $results['user'] = $request->user();
 
+        //jika user login
+        if ($request->user()) {
+            // Dapatkan semua permissions
+            $permissons = $request->user()->getPermissionsViaRoles();
+
+            //collection permissions
+            $results['permissions'] = collect($permissons)->pluck('name');
+        }
+
         return $results;
     }
 
@@ -55,6 +64,15 @@ class ConfigController extends Controller
 
     public function setconfig(Request $request)
     {
+
+        // 🔐 Cek apakah user punya permission 'edit-settings'
+        $user = auth()->user();
+        if (! $user->can('edit-settings')) {
+            return response()->json([
+                'message' => 'You do not have permission.',
+            ], 422);
+        }
+
         $request->validate([
             'app_name'          => 'required',
             'app_description'   => 'required',
