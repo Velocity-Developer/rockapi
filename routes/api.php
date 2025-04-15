@@ -10,7 +10,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\TermsController;
 use App\Http\Controllers\DashboardController;
-
+use App\Http\Controllers\NotificationsController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -34,6 +34,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //dashboard
     Route::get('dashboard/datatable', [DashboardController::class, 'datatable']);
+
+    //notifications
+    Route::get('notifications', [NotificationsController::class, 'index']);
+    Route::post('notifications/mark-as-read', [NotificationsController::class, 'markAsRead']);
 });
 
 Route::get('config', [ConfigController::class, 'index']);

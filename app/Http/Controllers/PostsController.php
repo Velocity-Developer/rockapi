@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Notifications\PostBaruNotification;
+use Illuminate\Support\Facades\Notification;
 use App\Models\Post;
 use App\Models\Term;
+use App\Models\User;
 
 class PostsController extends Controller
 {
