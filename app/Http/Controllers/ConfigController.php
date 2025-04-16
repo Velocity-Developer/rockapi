@@ -12,12 +12,13 @@ class ConfigController extends Controller
     {
 
         $results = [
-            'year' => date('Y'),
-            'app_name' => Setting::get('app_name'),
-            'app_description' => Setting::get('app_description'),
-            'app_logo' => '',
-            'app_logo_small' => '',
-            'app_favicon' => '',
+            'year'              => date('Y'),
+            'app_name'          => Setting::get('app_name'),
+            'app_description'   => Setting::get('app_description'),
+            'app_logo'          => '',
+            'app_logo_small'    => '',
+            'app_favicon'       => '',
+            'app_menus'         => ''
         ];
 
         $app_logo = Setting::get('app_logo');
@@ -51,6 +52,17 @@ class ConfigController extends Controller
 
             //collection permissions
             $results['permissions'] = collect($permissons)->pluck('name');
+
+            //get user role
+            $role = $request->user()->roles()->first();
+            $role = $role ? $role->name : null;
+            $results['role'] = $role;
+
+            //get menus by role
+            $path = resource_path("menus/{$role}.json");
+            if (file_exists($path)) {
+                $results['app_menus'] = json_decode(file_get_contents($path));
+            }
         }
 
         return $results;

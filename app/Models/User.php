@@ -50,7 +50,10 @@ class User extends Authenticatable
         ];
     }
 
-    protected $appends = ['avatar_url', 'user_roles'];
+    protected $appends = [
+        'avatar_url',
+        'user_roles',
+    ];
 
     //permissions
     public function get_permissions()
