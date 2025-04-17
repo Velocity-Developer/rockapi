@@ -5,11 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\Image\Enums\Fit;
 
-class Post extends Model
+class Post extends Model implements HasMedia
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
+
+    use InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.
@@ -23,14 +29,17 @@ class Post extends Model
         'status',
         'author_id',
         'date',
-        'featured_image',
     ];
 
     protected $appends = [
-        'featured_image_url',
+        'featured_image',
         'author_data',
         'category',
         'tags',
+    ];
+
+    protected $hidden = [
+        'media'
     ];
 
     //relasi author
@@ -51,13 +60,25 @@ class Post extends Model
         return $this->author;
     }
 
-    // Accessor untuk featured_image_url
-    public function getFeaturedImageUrlAttribute()
+    // Accessor untuk featured_image
+    public function getFeaturedImageAttribute()
     {
-        if ($this->featured_image) {
-            return asset('storage/' . $this->featured_image);
+
+        $media = $this->getFirstMedia('featured_image');
+
+        if (! $media) {
+            return [
+                'full'      => null,
+                'thumbnail' => null,
+                'default'   => asset('assets/images/default-featured_image.jpg')
+            ];
         }
-        return asset('assets/images/default-featured_image.jpg');
+
+        return [
+            'full'      => $media->getFullUrl(), // URL gambar asli
+            'thumbnail' => $media->getFullUrl('thumbnail'), // URL versi thumbnail
+            'default'   => asset('assets/images/default-featured_image.jpg')
+        ];
     }
 
     // Accessor untuk category
@@ -74,6 +95,19 @@ class Post extends Model
         return $terms;
     }
 
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('featured_image');
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        // Thumbnail 150x150 seperti WordPress
+        $this->addMediaConversion('thumbnail')
+            ->fit(Fit::Contain, 150, 150)
+            ->nonQueued();
+    }
+
     //boot
     public static function boot()
     {
@@ -88,6 +122,10 @@ class Post extends Model
             if ($post->isDirty('title')) {
                 $post->slug = Str::slug($post->title) . '-' . Str::random(5);
             }
+        });
+
+        static::deleting(function ($post) {
+            $post->clearMediaCollection('featured_image'); // hapus media dari koleksi 'featured_image'
         });
     }
 }

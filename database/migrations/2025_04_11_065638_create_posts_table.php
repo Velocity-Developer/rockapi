@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('status')->default('draft');
             $table->unsignedBigInteger('author_id')->nullable();
             $table->timestamp('date')->nullable();
-            $table->string('featured_image')->nullable();
             $table->timestamps();
         });
     }
