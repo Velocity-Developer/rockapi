@@ -70,6 +70,7 @@ class Post extends Model implements HasMedia
             return [
                 'full'      => null,
                 'thumbnail' => null,
+                'medium'    => null,
                 'default'   => asset('assets/images/default-featured_image.jpg')
             ];
         }
@@ -77,6 +78,7 @@ class Post extends Model implements HasMedia
         return [
             'full'      => $media->getFullUrl(), // URL gambar asli
             'thumbnail' => $media->getFullUrl('thumbnail'), // URL versi thumbnail
+            'medium'    => $media->getFullUrl('medium'),
             'default'   => asset('assets/images/default-featured_image.jpg')
         ];
     }
@@ -105,6 +107,11 @@ class Post extends Model implements HasMedia
         // Thumbnail 150x150 seperti WordPress
         $this->addMediaConversion('thumbnail')
             ->fit(Fit::Contain, 150, 150)
+            ->nonQueued();
+
+        // Medium 300x300 seperti WordPress
+        $this->addMediaConversion('medium')
+            ->fit(Fit::Contain, 300, 300)
             ->nonQueued();
     }
 

@@ -52,3 +52,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 
 Route::get('config', [ConfigController::class, 'index']);
+
+require __DIR__ . '/api-dash.php';

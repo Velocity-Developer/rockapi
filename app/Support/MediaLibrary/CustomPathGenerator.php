@@ -19,7 +19,7 @@ class CustomPathGenerator implements PathGenerator
 
     public function getPathForConversions(Media $media): string
     {
-        return $this->getPath($media) . 'conversions/';
+        return $this->getPath($media);
     }
 
     public function getPathForResponsiveImages(Media $media): string

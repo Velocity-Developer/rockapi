@@ -18,6 +18,12 @@
         "route": "/users"
     },
     {
+        "key": "media",
+        "label": "Media",
+        "icon": "lucide:images",
+        "route": "/dash/media"
+    },
+    {
         "key": "posts",
         "label": "Posts",
         "icon": "lucide:newspaper",

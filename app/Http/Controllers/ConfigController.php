@@ -62,6 +62,9 @@ class ConfigController extends Controller
             $path = resource_path("menus/{$role}.json");
             if (file_exists($path)) {
                 $results['app_menus'] = json_decode(file_get_contents($path));
+            } else {
+                $path = resource_path("menus/user.json");
+                $results['app_menus'] = json_decode(file_get_contents($path));
             }
         }
 
