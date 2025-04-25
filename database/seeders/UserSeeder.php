@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 use App\Models\User;
 
 class UserSeeder extends Seeder
@@ -15,34 +16,24 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        //default admin users
-        $user = User::create([
-            'name'              => 'admin',
-            'email'             => 'admin@example.com',
-            'email_verified_at' => now(),
-            'password'          => Hash::make('password'),
-            'remember_token'    => Str::random(10),
-        ]);
-        $user->assignRole('admin');
 
-        //default owner users
-        $owner = User::create([
-            'name'              => 'owner',
-            'email'             => 'owner@example.com',
-            'email_verified_at' => now(),
-            'password'          => Hash::make('password'),
-            'remember_token'    => Str::random(10),
-        ]);
-        $owner->assignRole('owner');
+        //get all roles
+        $roles = Role::all();
 
-        //default users
-        $user = User::create([
-            'name'              => 'user',
-            'email'             => 'user@example.com',
-            'email_verified_at' => now(),
-            'password'          => Hash::make('password'),
-            'remember_token'    => Str::random(10),
-        ]);
-        $user->assignRole('user');
+        //create user by looping roles
+        foreach ($roles as $role) {
+
+            //create user
+            $user = User::create([
+                'name'              => $role->name,
+                'email'             => $role->name . '@example.com',
+                'email_verified_at' => now(),
+                'password'          => Hash::make('password'),
+                'remember_token'    => Str::random(10),
+            ]);
+
+            //assign role
+            $user->assignRole($role);
+        }
     }
 }

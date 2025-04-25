@@ -43,6 +43,15 @@ class RoleAndPermissionsSeeder extends Seeder
             'admin',
             'owner',
             'user',
+            'manager_project',
+            'manager_advertising',
+            'finance',
+            'support',
+            'revisi',
+            'advertising',
+            'webdeveloper',
+            'advertising_internal',
+            'budi',
         ];
 
         foreach ($roles as $role) {
@@ -75,16 +84,5 @@ class RoleAndPermissionsSeeder extends Seeder
                 ]);
             }
         }
-
-        // Role::create(['name' => 'manager_project']);
-        // Role::create(['name' => 'manager_advertising']);
-        // Role::create(['name' => 'finance']);
-        // Role::create(['name' => 'support']);
-        // Role::create(['name' => 'revisi']);
-        // Role::create(['name' => 'advertising']);
-        // Role::create(['name' => 'webdev']);
-        // Role::create(['name' => 'advertising_internal']);
-        // Role::create(['name' => 'budi']);
-
     }
 }
