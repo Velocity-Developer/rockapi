@@ -38,4 +38,10 @@ class Webhost extends Model
         'jenis_kelamin',
         'usia',
     ];
+
+    //relasi one ke tabel paket
+    public function paket()
+    {
+        return $this->belongsTo(Paket::class, 'id_paket');
+    }
 }
