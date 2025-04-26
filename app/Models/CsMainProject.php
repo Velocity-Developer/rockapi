@@ -31,4 +31,11 @@ class CsMainProject extends Model
     {
         return $this->belongsTo(Webhost::class, 'id_webhost');
     }
+
+    //relasi ke karyawan menggunakan pivot table cs_main_project_karyawan
+    public function karyawans()
+    {
+        return $this->belongsToMany(Karyawan::class, 'cs_main_project_karyawan')
+            ->withPivot('porsi');
+    }
 }

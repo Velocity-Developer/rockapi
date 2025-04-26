@@ -18,7 +18,8 @@ class DatabaseSeeder extends Seeder
             SettingSeeder::class,
             UserSeeder::class,
             TermSeeder::class,
-            PostSeeder::class
+            PostSeeder::class,
+            CsMainProjectKaryawanSeeder::class,
         ]);
     }
 }
