@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\TermsController;
+use App\Http\Controllers\BillingController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -25,6 +26,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'posts'         => PostsController::class,
         'terms'         => TermsController::class
     ]);
+
+    //billing
+    Route::get('billing', [BillingController::class, 'index']);
 });
 
 require __DIR__ . '/api-dash.php';
