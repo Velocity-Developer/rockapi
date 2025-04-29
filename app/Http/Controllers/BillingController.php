@@ -16,8 +16,15 @@ class BillingController extends Controller
         $order              = $request->input('order', 'desc');
 
         //get cs_main_project
-        $query = CsMainProject::with('webhost', 'webhost.paket')
-            ->orderBy($order_by, $order);
+        $query = CsMainProject::with('webhost', 'webhost.paket', 'karyawans:nama');
+
+        // Check if order_by is 'webhost.hpads'
+        if ($order_by == 'webhost.hpads') {
+            $query->join('tb_webhosts', 'cs_main_projects.webhost_id', '=', 'webhosts.id')
+                ->orderBy('webhosts.hpads', $order);
+        } else {
+            $query->orderBy($order_by, $order);
+        }
 
         // Apply date filter if both start and end dates are provided
         $tgl_masuk_start    = $request->input('tgl_masuk_start');

@@ -11,6 +11,7 @@ class Karyawan extends Model
 
     // Nama primary key yang tidak konvensional
     protected $primaryKey = 'id_karyawan';
+    protected $keyType = 'int';
 
     //hidden
     protected $hidden = [

@@ -35,7 +35,14 @@ class CsMainProject extends Model
     //relasi ke karyawan menggunakan pivot table cs_main_project_karyawan
     public function karyawans()
     {
-        return $this->belongsToMany(Karyawan::class, 'cs_main_project_karyawan')
+        return $this->belongsToMany(
+            Karyawan::class,
+            'cs_main_project_karyawan',
+            'cs_main_project_id', // foreign pivot key
+            'karyawan_id',        // related pivot key
+            'id',                 // local key di tb_cs_main_project
+            'id_karyawan'         // local key di tb_karyawan
+        )
             ->withPivot('porsi');
     }
 }
