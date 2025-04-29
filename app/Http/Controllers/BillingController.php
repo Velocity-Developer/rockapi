@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Webhost;
 use App\Models\CsMainProject;
+use Carbon\Carbon;
 
 class BillingController extends Controller
 {
@@ -111,5 +112,41 @@ class BillingController extends Controller
 
         //return json
         return response()->json($data);
+    }
+
+    //prediksi_bulanini
+    public function prediksi_bulanini(Request $request)
+    {
+
+        //total hari bulan ini
+        $total_hari_bulan_ini = Carbon::now()->daysInMonth;
+
+        //total hari bulan kemarin
+        $total_hari_bulan_kemarin = Carbon::now()->subDay()->daysInMonth;
+
+        //tanggal hari ini
+        $tanggal_hari_ini = Carbon::now()->format('d');
+
+        /*
+        * total cs_main_project bulan ini,
+        * dimana biaya > 150.000,
+        * jenis IN('Pembuatan', 'Pembuatan apk','Pembuatan apk custom','Pembuatan Tanpa Domain','Pembuatan Tanpa Hosting','Pembuatan Tanpa Domain+Hosting')
+        */
+        $total_cs_main_project = CsMainProject::where('biaya', '>=', 150000)
+            ->whereIn('jenis', ['Pembuatan', 'Pembuatan apk', 'Pembuatan apk custom', 'Pembuatan Tanpa Domain', 'Pembuatan Tanpa Hosting', 'Pembuatan Tanpa Domain+Hosting'])
+            ->whereMonth('tgl_masuk', Carbon::now()->month)
+            ->count();
+
+        /*
+        * hitung prediksi ini , dengan rumus:
+        * (total_cs_main_project / tanggal_hari_ini) * total_hari_bulan_ini
+        */
+        $prediksi = round(($total_cs_main_project / $tanggal_hari_ini) * $total_hari_bulan_ini);
+
+        //return json
+        return response()->json([
+            'total' => $total_cs_main_project,
+            'prediksi' => $prediksi,
+        ]);
     }
 }

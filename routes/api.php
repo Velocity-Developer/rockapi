@@ -29,6 +29,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //billing
     Route::get('billing', [BillingController::class, 'index']);
+    Route::get('billing_prediksi_bulanini', [BillingController::class, 'prediksi_bulanini']);
 });
 
 require __DIR__ . '/api-dash.php';
