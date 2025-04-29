@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\TermsController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\BillDataWebController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -30,6 +31,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //billing
     Route::get('billing', [BillingController::class, 'index']);
     Route::get('billing_prediksi_bulanini', [BillingController::class, 'prediksi_bulanini']);
+
+    //bill_dataweb
+    Route::get('bill_dataweb', [BillDataWebController::class, 'index']);
 });
 
 require __DIR__ . '/api-dash.php';

@@ -12,6 +12,12 @@
         "route": "/billing"
     },
     {
+        "key": "bill_dataweb",
+        "label": "Database Web",
+        "icon": "lucide:globe",
+        "route": "/bill_dataweb"
+    },
+    {
         "key": "posts",
         "label": "Posts",
         "icon": "lucide:newspaper",
