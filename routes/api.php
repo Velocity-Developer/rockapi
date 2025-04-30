@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\TermsController;
+use App\Http\Controllers\WebhostController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\BillDataWebController;
 
@@ -25,7 +26,8 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResources([
         'posts'         => PostsController::class,
-        'terms'         => TermsController::class
+        'terms'         => TermsController::class,
+        'webhost'       => WebhostController::class
     ]);
 
     //billing
