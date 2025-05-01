@@ -30,6 +30,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'webhost'       => WebhostController::class
     ]);
 
+    //search webhost
+    Route::get('webhost_search/{keyword}', [WebhostController::class, 'search']);
+
     //billing
     Route::get('billing', [BillingController::class, 'index']);
     Route::get('billing_prediksi_bulanini', [BillingController::class, 'prediksi_bulanini']);

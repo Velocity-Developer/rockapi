@@ -47,6 +47,21 @@ class WebhostController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        //get by id
+        $webhost = Webhost::find($id);
+        $webhost->delete();
+        return response()->json($webhost);
+    }
+
+    //search by keyword
+    public function search(string $keyword)
+    {
+        //get nama_web by keyword, ambil kolom nama_web dan id_webhost
+        $webhosts = Webhost::where('nama_web', 'like', '%' . $keyword . '%')
+            ->select('nama_web', 'id_webhost')
+            ->get();
+
+        // $webhosts = Webhost::where('nama_web', 'like', '%' . $keyword . '%')->get();
+        return response()->json($webhosts);
     }
 }
