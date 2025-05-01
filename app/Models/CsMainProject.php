@@ -26,6 +26,12 @@ class CsMainProject extends Model
         'tanda',
     ];
 
+    protected $casts = [
+        'biaya'     => 'integer',
+        'dibayar'   => 'integer',
+        'trf'       => 'integer',
+    ];
+
     //relasi ke tabel webhost
     public function webhost()
     {
