@@ -7,6 +7,7 @@ use App\Http\Controllers\TermsController;
 use App\Http\Controllers\WebhostController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\BillDataWebController;
+use App\Http\Controllers\TransaksiIklanGoogleController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -39,6 +40,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //bill_dataweb
     Route::get('bill_dataweb', [BillDataWebController::class, 'index']);
+
+    //transaksi_iklan_google
+    Route::get('transaksi_iklan_google', [TransaksiIklanGoogleController::class, 'index']);
 });
 
 require __DIR__ . '/api-dash.php';
