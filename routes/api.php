@@ -8,6 +8,7 @@ use App\Http\Controllers\WebhostController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\BillDataWebController;
 use App\Http\Controllers\TransaksiIklanGoogleController;
+use App\Http\Controllers\JenisBlmTerpilihController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -43,6 +44,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //transaksi_iklan_google
     Route::get('transaksi_iklan_google', [TransaksiIklanGoogleController::class, 'index']);
+    //jenis_blm_terpilih
+    Route::get('jenis_blm_terpilih', [JenisBlmTerpilihController::class, 'index']);
 });
 
 require __DIR__ . '/api-dash.php';

@@ -18,6 +18,12 @@
         "route": "/bill_dataweb"
     },
     {
+        "key": "jenis_blm_terpilih",
+        "label": "Jenis Belum Terpilih",
+        "icon": "lucide:file-scan",
+        "route": "/jenis_blm_terpilih"
+    },
+    {
         "key": "transaksi_iklan_google",
         "label": "Transaksi Iklan Google",
         "icon": "lucide:file-chart-line",
