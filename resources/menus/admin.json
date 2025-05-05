@@ -18,6 +18,12 @@
         "route": "/bill_dataweb"
     },
     {
+        "key": "bank_transaksi",
+        "label": "Bank Transaksi",
+        "icon": "lucide:wallet",
+        "route": "/bank_transaksi"
+    },
+    {
         "key": "jenis_blm_terpilih",
         "label": "Jenis Belum Terpilih",
         "icon": "lucide:file-scan",

@@ -4,11 +4,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\TermsController;
+use App\Http\Controllers\DataOpsiController;
 use App\Http\Controllers\WebhostController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\BillDataWebController;
 use App\Http\Controllers\TransaksiIklanGoogleController;
 use App\Http\Controllers\JenisBlmTerpilihController;
+use App\Http\Controllers\BankTransaksiController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -32,6 +34,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'webhost'       => WebhostController::class
     ]);
 
+    //data_opsi
+    Route::get('data_opsi/{key}', [DataOpsiController::class, 'get']);
+
     //search webhost
     Route::get('webhost_search/{keyword}', [WebhostController::class, 'search']);
 
@@ -46,6 +51,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('transaksi_iklan_google', [TransaksiIklanGoogleController::class, 'index']);
     //jenis_blm_terpilih
     Route::get('jenis_blm_terpilih', [JenisBlmTerpilihController::class, 'index']);
+    //bank_transaksi
+    Route::get('bank_transaksi', [BankTransaksiController::class, 'index']);
 });
 
 require __DIR__ . '/api-dash.php';

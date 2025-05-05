@@ -4,6 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/*
+ * Model CsMainProject
+ * untuk tabel 'tb_cs_main_project'
+ *
+ * Tabel ini berisi data project yang masuk
+ * menggunakan relasi ke Webhost untuk data Web / Customer nya
+ *
+*/
+
 class CsMainProject extends Model
 {
     // Nama tabel di database
@@ -50,5 +59,13 @@ class CsMainProject extends Model
             'id_karyawan'         // local key di tb_karyawan
         )
             ->withPivot('porsi');
+    }
+
+    //relasi ke tabel bank_cs_main_project
+    public function bank()
+    {
+        return $this->belongsToMany(Bank::class, 'bank_cs_main_project')
+            ->withPivot('tipe')
+            ->withTimestamps();
     }
 }
