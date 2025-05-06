@@ -60,25 +60,49 @@ class BankCsMainProjectSeeder extends Seeder
                 //explode
                 $jns = $item ? explode('-', $item) : '';
 
-                // Cek dulu apakah data pivot sudah ada
-                $exists = DB::table('bank_cs_main_project')
-                    ->where('bank_id', $bank->id)
-                    ->where('cs_main_project_id', $jns[1])
-                    ->exists();
+                //jika $jns[0] = keluar, maka proses di 'bank_transaksi_keluar'
+                if ($jns[0] == 'keluar') {
 
-                if (!$exists) {
-                    // Kalau belum ada, baru insert
-                    DB::table('bank_cs_main_project')->insert([
-                        'bank_id' => $bank->id,
-                        'cs_main_project_id' => $jns[1],
-                        'tipe' => $jns[0],
-                    ]);
+                    // Cek dulu apakah data pivot sudah ada
+                    $exists = DB::table('bank_transaksi_keluar')
+                        ->where('bank_id', $bank->id)
+                        ->where('transaksi_keluar_id', $jns[1])
+                        ->exists();
 
-                    //message info
-                    $message = 'Bank id: ' . $bank->id . ' Pivot created';
+                    if (!$exists) {
+                        // Kalau belum ada, baru insert
+                        DB::table('bank_transaksi_keluar')->insert([
+                            'bank_id' => $bank->id,
+                            'transaksi_keluar_id' => $jns[1],
+                        ]);
+                        //message info
+                        $message = 'Bank id: ' . $bank->id . ' & transaksi_keluar_id: ' . $jns[1] . ', Pivot created';
+                    } else {
+                        //message info
+                        $message = 'Bank id: ' . $bank->id . ' & transaksi_keluar_id: ' . $jns[1] . ', Pivot already exists';
+                    }
                 } else {
-                    //message info
-                    $message = 'Bank id: ' . $bank->id . ' Pivot already exists';
+                    //jika $jns[0] = masuk, maka proses di 'bank_cs_main_project'
+
+                    // Cek dulu apakah data pivot sudah ada
+                    $exists = DB::table('bank_cs_main_project')
+                        ->where('bank_id', $bank->id)
+                        ->where('cs_main_project_id', $jns[1])
+                        ->exists();
+
+                    if (!$exists) {
+                        // Kalau belum ada, baru insert
+                        DB::table('bank_cs_main_project')->insert([
+                            'bank_id' => $bank->id,
+                            'cs_main_project_id' => $jns[1]
+                        ]);
+
+                        //message info
+                        $message = 'Bank id: ' . $bank->id . ' & cs_main_project_id: ' . $jns[1] . ', Pivot created';
+                    } else {
+                        //message info
+                        $message = 'Bank id: ' . $bank->id . ' & cs_main_project_id: ' . $jns[1] . ', Pivot already exists';
+                    }
                 }
             }
 

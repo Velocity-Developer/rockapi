@@ -33,6 +33,10 @@ class Bank extends Model
         'status'
     ];
 
+    protected $casts = [
+        'nominal'   => 'integer',
+    ];
+
     //accessor jenis
     public function getJenisArrayAttribute()
     {
@@ -57,9 +61,20 @@ class Bank extends Model
     //relasi ke CsMainProject
     public function CsMainProject()
     {
-        return $this->belongsToMany(CsMainProject::class, 'bank_cs_main_project')
-            ->withPivot('tipe')
-            ->withTimestamps();
+        return $this->belongsToMany(CsMainProject::class, 'bank_cs_main_project');
+    }
+
+    //relasi ke TransaksiKeluar
+    public function TransaksiKeluar()
+    {
+        return $this->belongsToMany(
+            TransaksiKeluar::class,
+            'bank_transaksi_keluar',
+            'bank_id',              // foreign pivot key
+            'transaksi_keluar_id',  // related pivot key
+            'id',                   // local key di tb_cs_main_project
+            'id_transaksi_keluar'   // local key di tb_transaksi_keluar
+        );
     }
 
     //relasi one ke tabel webhost

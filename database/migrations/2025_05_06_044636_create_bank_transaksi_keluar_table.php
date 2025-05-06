@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('bank_cs_main_project', function (Blueprint $table) {
+        Schema::create('bank_transaksi_keluar', function (Blueprint $table) {
             $table->id();
             $table->integer('bank_id');
-            $table->integer('cs_main_project_id');
+            $table->integer('transaksi_keluar_id');
         });
     }
 
@@ -23,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bank_cs_main_project');
+        Schema::dropIfExists('bank_transaksi_keluar');
     }
 };

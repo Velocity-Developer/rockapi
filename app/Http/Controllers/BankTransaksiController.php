@@ -19,25 +19,58 @@ class BankTransaksiController extends Controller
         $req_bulan = $request->input('bulan') ?? date('Y-m');
         $req_bank = $request->input('bank');
 
-        //get data sorting
-        $sorting = BankSorting::all();
-
-        //get data bank, berdasarkan LIKE tahun-bulan di tgl
-        $banks = Bank::orderBy('tgl', 'desc')
-            ->where('tgl', 'like', '%' . $req_bulan . '%')
-            ->where('bank', $req_bank)
-            ->with('CsMainProject', 'CsMainProject.Webhost', 'CsMainProject.Webhost.Paket')
-            ->get();
+        //get data sorting, by bank dan bulan
+        $sorting = BankSorting::where('bulan', 'like', '%' . $req_bulan . '%')
+            ->where('bank', $req_bank)->get();
 
         //get saldo bank, berdasarkan bulan dan bank
         $saldo_bank = SaldoBank::where('bulan', $req_bulan)
             ->where('bank', $req_bank)
             ->first();
 
+        //jika tidak ada data saldo, set default 0
+        if (!$saldo_bank) {
+            $saldo_bank = [
+                'bank'      => $req_bank,
+                'bulan'     => $req_bulan,
+                'nominal'   => (int) 0,
+            ];
+        };
+
+        //get data bank, berdasarkan LIKE tahun-bulan di tgl
+        $banks = Bank::orderBy('tgl', 'asc')
+            ->where('tgl', 'like', '%' . $req_bulan . '%')
+            ->where('bank', $req_bank)
+            ->with('TransaksiKeluar', 'CsMainProject', 'CsMainProject.Webhost', 'CsMainProject.Webhost.Paket')
+            ->get();
+
+        $saldo = $saldo_bank->nominal ?? 0;
+        $total_masuk = 0;
+        $total_keluar = 0;
+
+        // tambahkan total nominal saldo di banks
+        if ($banks) {
+            foreach ($banks as $key => $bank) {
+
+                //jika jenis transaksi adalah 'masuk'
+                if ($bank->jenis_transaksi == 'masuk') {
+                    $saldo += $bank->nominal;
+                    $total_masuk += $bank->nominal;
+                } else {
+                    $saldo -= $bank->nominal;
+                    $total_keluar += $bank->nominal;
+                }
+
+                $bank->saldo = $saldo;
+            }
+        }
+
         return response()->json([
-            'sorting'   => $sorting,
-            'data'      => $banks,
-            'saldo'     => $saldo_bank,
+            'sorting'       => $sorting,
+            'data'          => $banks,
+            'saldo'         => $saldo_bank,
+            'total_masuk'   => $total_masuk,
+            'total_keluar'  => $total_keluar,
         ]);
     }
 }

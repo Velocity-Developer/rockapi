@@ -64,8 +64,6 @@ class CsMainProject extends Model
     //relasi ke tabel bank_cs_main_project
     public function bank()
     {
-        return $this->belongsToMany(Bank::class, 'bank_cs_main_project')
-            ->withPivot('tipe')
-            ->withTimestamps();
+        return $this->belongsToMany(Bank::class, 'bank_cs_main_project');
     }
 }

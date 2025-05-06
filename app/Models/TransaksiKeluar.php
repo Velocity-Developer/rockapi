@@ -23,4 +23,11 @@ class TransaksiKeluar extends Model
     protected $casts = [
         'jml' => 'integer',
     ];
+
+
+    //relasi ke tabel bank
+    public function bank()
+    {
+        return $this->belongsToMany(Bank::class, 'bank_transaksi_keluar', 'transaksi_keluar_id', 'bank_id');
+    }
 }
