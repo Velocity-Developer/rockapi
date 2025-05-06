@@ -41,7 +41,14 @@ class BankTransaksiController extends Controller
         $banks = Bank::orderBy('tgl', 'asc')
             ->where('tgl', 'like', '%' . $req_bulan . '%')
             ->where('bank', $req_bank)
-            ->with('TransaksiKeluar', 'CsMainProject', 'CsMainProject.Webhost', 'CsMainProject.Webhost.Paket')
+            ->with(
+                'TransaksiKeluar',
+                'TransaksiKeluar.bank',
+                'CsMainProject',
+                'CsMainProject.bank',
+                'CsMainProject.Webhost',
+                'CsMainProject.Webhost.Paket'
+            )
             ->get();
 
         $saldo = $saldo_bank->nominal ?? 0;
@@ -51,6 +58,8 @@ class BankTransaksiController extends Controller
         // tambahkan total nominal saldo di banks
         if ($banks) {
             foreach ($banks as $key => $bank) {
+
+                $bank->nomor = $bank->tgl . '-' . $key;
 
                 //jika jenis transaksi adalah 'masuk'
                 if ($bank->jenis_transaksi == 'masuk') {
