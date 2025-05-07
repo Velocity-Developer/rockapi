@@ -29,9 +29,10 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResources([
-        'posts'         => PostsController::class,
-        'terms'         => TermsController::class,
-        'webhost'       => WebhostController::class
+        'posts'             => PostsController::class,
+        'terms'             => TermsController::class,
+        'webhost'           => WebhostController::class,
+        'bank_transaksi'    => BankTransaksiController::class,
     ]);
 
     //data_opsi
@@ -51,8 +52,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('transaksi_iklan_google', [TransaksiIklanGoogleController::class, 'index']);
     //jenis_blm_terpilih
     Route::get('jenis_blm_terpilih', [JenisBlmTerpilihController::class, 'index']);
-    //bank_transaksi
-    Route::get('bank_transaksi', [BankTransaksiController::class, 'index']);
 });
 
 require __DIR__ . '/api-dash.php';

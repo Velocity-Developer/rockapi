@@ -82,4 +82,46 @@ class BankTransaksiController extends Controller
             'total_keluar'  => $total_keluar,
         ]);
     }
+
+    /**
+     * Store data baru di Bank.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'bank'              => 'required',
+            'tgl'               => 'required',
+            'jenis'             => 'nullable',
+            'jenis_transaksi'   => 'required',
+            'nominal'           => 'required',
+            'keterangan_bank'   => 'nullable',
+        ]);
+
+        //create
+        $bank = Bank::create($request->all());
+
+        return response()->json($bank);
+    }
+
+    /**
+     * Edit data baru di Bank.
+     */
+    public function update(Request $request, string $id)
+    {
+        $request->validate([
+            'bank'              => 'required',
+            'tgl'               => 'required',
+            'jenis'             => 'nullable',
+            'jenis_transaksi'   => 'required',
+            'nominal'           => 'required',
+            'keterangan_bank'   => 'nullable',
+        ]);
+
+        //get by id
+        $bank = Bank::find($request->id);
+        //update
+        $bank->update($request->all());
+
+        return response()->json($bank);
+    }
 }

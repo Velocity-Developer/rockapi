@@ -20,6 +20,9 @@ class Bank extends Model
     // Nama tabel di database
     protected $table = 'tb_bank';
 
+    //disable timestamps
+    public $timestamps = false;
+
     protected $appends = ['jenis_array'];
 
     protected $fillable = [
@@ -40,8 +43,8 @@ class Bank extends Model
     //accessor jenis
     public function getJenisArrayAttribute()
     {
-        //jika jenis null
-        if ($this->attributes['jenis'] == null) {
+        //jika jenis null / kosong, return array kosong
+        if (!$this->jenis) {
             return [];
         }
 
