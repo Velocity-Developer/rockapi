@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Bank;
 use App\Models\SaldoBank;
 use App\Models\BankSorting;
+use App\Models\CsMainProject;
+use App\Models\TransaksiKeluar;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class BankTransaksiController extends Controller
 {
@@ -123,5 +127,41 @@ class BankTransaksiController extends Controller
         $bank->update($request->all());
 
         return response()->json($bank);
+    }
+
+    /**
+     * Search data di Transaksi Keluar dan CsMainProject.
+     */
+    public function search_jenis(string $keyword)
+    {
+        //get tanggal sekarang, format Y-m-d
+        $tgl_sekarang = Carbon::now()->format('Y-m-d');
+        //get 30 hari terakhir
+        $tgl_30_hari_terakhir = Carbon::now()->subDays(30)->format('Y-m-d');
+
+        //search TransaksiKeluar: jenis by keyword, 30 hari terakhir
+        $transaksi_keluar = TransaksiKeluar::where('jenis', 'like', '%' . $keyword . '%')
+            ->where('tgl', '>=', $tgl_30_hari_terakhir)
+            ->orderBy('tgl', 'desc')
+            ->limit(30)
+            ->get();
+
+        //search CsMainProject with webhost: webhost.nama_web by keyword, limit 10
+        $cs_main_project = CsMainProject::with('Webhost')
+            ->whereHas('Webhost', function ($query) use ($keyword) {
+                $query->where('nama_web', 'like', '%' . $keyword . '%');
+            })
+            ->where('tgl_masuk', '>=', date('Y-m-d', strtotime('-30 days')))
+            ->orderBy('tgl_masuk', 'desc')
+            ->limit(30)
+            ->get();
+
+        $gabungan = $cs_main_project->merge($transaksi_keluar)->sortByDesc('tanggal')->values();
+
+        return response()->json([
+            // 'transaksi_keluar' => $transaksi_keluar,
+            // 'cs_main_project'  => $cs_main_project,
+            'data'             => $gabungan,
+        ]);
     }
 }

@@ -52,6 +52,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('transaksi_iklan_google', [TransaksiIklanGoogleController::class, 'index']);
     //jenis_blm_terpilih
     Route::get('jenis_blm_terpilih', [JenisBlmTerpilihController::class, 'index']);
+
+    //bank_transaksi/search_jenis
+    Route::get('bank_transaksi_search_jenis/{keyword}', [BankTransaksiController::class, 'search_jenis']);
 });
 
 require __DIR__ . '/api-dash.php';
