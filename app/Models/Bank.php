@@ -37,7 +37,7 @@ class Bank extends Model
     ];
 
     protected $casts = [
-        'nominal'   => 'integer',
+        'nominal'   => 'float',
     ];
 
     //accessor jenis

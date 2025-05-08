@@ -253,40 +253,35 @@ class BankTransaksiController extends Controller
                 //buat keterangan jenis dari loop transaksi_keluar dan cs_main_project
                 $ket_jenis = '';
 
-                if ($bank->cs_main_project) {
-                    $ket_jenis .= ' ada cs_main_project ';
-                    foreach ($bank->cs_main_project as $key => $value) {
+                if ($bank->CsMainProject) {
+                    foreach ($bank->CsMainProject as $key => $value) {
                         $ket_jenis .= $value->tgl_masuk . ' - ';
                         $ket_jenis .= $value->jenis . ' - ';
                         $ket_jenis .= $value->webhost->nama_web . ' - ';
                         $ket_jenis .= $value->dibayar;
                     }
                 }
-                if ($bank->transaksi_keluar) {
-                    $ket_jenis .= ' ada transaksi_keluar ';
-                    foreach ($bank->transaksi_keluar as $key => $value) {
+                if ($bank->TransaksiKeluar) {
+                    foreach ($bank->TransaksiKeluar as $key => $value) {
                         $ket_jenis .= $value->tgl . ' - ';
                         $ket_jenis .= $value->jenis . ' - ';
                         $ket_jenis .= $value->jml;
                     }
                 }
 
-                $results[] = $bank->cs_main_project;
-                // $results[] = [
-                //     'No'                => $key + 1,
-                //     'Tanggal'           => $bank->tgl,
-                //     'cs_main_project'   => $bank->cs_main_project,
-                //     'transaksi_keluar'  => $bank->transaksi_keluar,
-                //     'Bank'              => $bank->bank,
-                //     'Jenis'             => $ket_jenis,
-                //     'Keterangan'        => $bank->keterangan_bank,
-                //     'Masuk'             => $bank->jenis_transaksi == 'masuk' ? number_format($bank->nominal, 2, ",", ".") : '',
-                //     'Keluar'            => $bank->jenis_transaksi == 'keluar' ? number_format($bank->nominal, 2, ",", ".") : '',
-                //     'Saldo'             => 'Rp ' . number_format($saldo, 2, ",", "."),
-                // ];
+                $results[] = [
+                    'No'                => $key + 1,
+                    'Tanggal'           => $bank->tgl,
+                    'Bank'              => $bank->bank,
+                    'Jenis'             => $ket_jenis,
+                    'Keterangan'        => $bank->keterangan_bank,
+                    'Masuk'             => $bank->jenis_transaksi == 'masuk' ? number_format($bank->nominal, 2, ",", ".") : '',
+                    'Keluar'            => $bank->jenis_transaksi == 'keluar' ? number_format($bank->nominal, 2, ",", ".") : '',
+                    'Saldo'             => 'Rp ' . number_format($saldo, 2, ",", "."),
+                ];
             }
         }
 
-        return response()->json([$banks, $results]);
+        return response()->json($results);
     }
 }
