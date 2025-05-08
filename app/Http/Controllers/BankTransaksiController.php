@@ -123,8 +123,25 @@ class BankTransaksiController extends Controller
 
         //get by id
         $bank = Bank::find($request->id);
+
+        //jika ada input'newjenis_array'
+        if ($request->has('newjenis_array')) {
+            $jenis_array = $request->newjenis_array;
+            //serialize array
+            $jenis_array = serialize($jenis_array);
+            //set jenis
+            $bank->jenis = $jenis_array;
+        }
+
         //update
-        $bank->update($request->all());
+        $bank->update([
+            'bank'              => $request->bank,
+            'tgl'               => $request->tgl,
+            'jenis'             => $bank->jenis,
+            'jenis_transaksi'   => $request->jenis_transaksi,
+            'nominal'           => $request->nominal,
+            'keterangan_bank'   => $request->keterangan_bank,
+        ]);
 
         return response()->json($bank);
     }

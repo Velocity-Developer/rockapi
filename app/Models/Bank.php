@@ -55,7 +55,7 @@ class Bank extends Model
         $results = [];
         foreach ($jenis as $key => $value) {
             $jns = $value ? explode('-', $value) : '';
-            $results[] = $jns[1];
+            $results[$jns[0]][] = $jns[1];
         }
 
         return $results;
@@ -84,5 +84,36 @@ class Bank extends Model
     public function webhost()
     {
         return $this->belongsTo(Webhost::class, 'id_webhost');
+    }
+
+    //sync jenis pivots
+    public function syncJenisPivots()
+    {
+        //jika jenis null / kosong, return array kosong
+        if (!$this->jenis) {
+            return [];
+        }
+
+        //unserialize jenis
+        $jenis = unserialize($this->attributes['jenis']);
+
+        // Kosongkan relasi lama (opsional, jika ingin replace total)
+        $this->CsMainProject()->sync([]);
+        $this->TransaksiKeluar()->sync([]);
+
+        //loop
+        foreach ($jenis as $key => $value) {
+            $jns = $value ? explode('-', $value) : '';
+
+            //jika jenis 'masuk', maka proses di 'bank_cs_main_project'
+            //jika jenis'keluar', maka proses di 'bank_transaksi_keluar
+            if ($jns[0] == 'masuk') {
+                //sync
+                $this->CsMainProject()->syncWithoutDetaching([$jns[1]]);
+            } else {
+                //sync
+                $this->TransaksiKeluar()->syncWithoutDetaching([$jns[1]]);
+            }
+        }
     }
 }
