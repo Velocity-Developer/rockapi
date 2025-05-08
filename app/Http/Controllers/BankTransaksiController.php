@@ -192,4 +192,101 @@ class BankTransaksiController extends Controller
             'data'             => $gabungan,
         ]);
     }
+
+
+    /*
+    * json export data bank
+    */
+    public function export(Request $request)
+    {
+        //request
+        $req_bulan = $request->input('bulan') ?? date('Y-m');
+        $req_bank = $request->input('bank');
+
+        //get saldo bank, berdasarkan bulan dan bank
+        $saldo_bank = SaldoBank::where('bulan', $req_bulan)
+            ->where('bank', $req_bank)
+            ->first();
+
+        //jika tidak ada data saldo, set default 0
+        if (!$saldo_bank) {
+            $saldo_bank = [
+                'bank'      => $req_bank,
+                'bulan'     => $req_bulan,
+                'nominal'   => (int) 0,
+            ];
+        };
+
+        //get data bank, berdasarkan LIKE tahun-bulan di tgl
+        $banks = Bank::orderBy('tgl', 'asc')
+            ->where('tgl', 'like', '%' . $req_bulan . '%')
+            ->where('bank', $req_bank)
+            ->with(
+                'TransaksiKeluar',
+                'TransaksiKeluar.bank',
+                'CsMainProject',
+                'CsMainProject.bank',
+                'CsMainProject.Webhost',
+                'CsMainProject.Webhost.Paket'
+            )
+            ->get();
+
+        $saldo = $saldo_bank->nominal ?? 0;
+        $total_masuk = 0;
+        $total_keluar = 0;
+
+        //susun ulang data untuk export
+
+        if ($banks) {
+            $results = [];
+            foreach ($banks as $key => $bank) {
+
+                //jika jenis transaksi adalah 'masuk'
+                if ($bank->jenis_transaksi == 'masuk') {
+                    $saldo += $bank->nominal;
+                    $total_masuk += $bank->nominal;
+                } else {
+                    $saldo -= $bank->nominal;
+                    $total_keluar += $bank->nominal;
+                }
+
+                //buat keterangan jenis dari loop transaksi_keluar dan cs_main_project
+                $ket_jenis = '';
+
+                if ($bank->cs_main_project) {
+                    $ket_jenis .= ' ada cs_main_project ';
+                    foreach ($bank->cs_main_project as $key => $value) {
+                        $ket_jenis .= $value->tgl_masuk . ' - ';
+                        $ket_jenis .= $value->jenis . ' - ';
+                        $ket_jenis .= $value->webhost->nama_web . ' - ';
+                        $ket_jenis .= $value->dibayar;
+                    }
+                }
+                if ($bank->transaksi_keluar) {
+                    $ket_jenis .= ' ada transaksi_keluar ';
+                    foreach ($bank->transaksi_keluar as $key => $value) {
+                        $ket_jenis .= $value->tgl . ' - ';
+                        $ket_jenis .= $value->jenis . ' - ';
+                        $ket_jenis .= $value->jml;
+                    }
+                }
+
+                $results[] = $bank->cs_main_project;
+                // $results[] = [
+                //     'No'                => $key + 1,
+                //     'Tanggal'           => $bank->tgl,
+                //     'cs_main_project'   => $bank->cs_main_project,
+                //     'transaksi_keluar'  => $bank->transaksi_keluar,
+                //     'Bank'              => $bank->bank,
+                //     'Jenis'             => $ket_jenis,
+                //     'Keterangan'        => $bank->keterangan_bank,
+                //     'Masuk'             => $bank->jenis_transaksi == 'masuk' ? number_format($bank->nominal, 2, ",", ".") : '',
+                //     'Keluar'            => $bank->jenis_transaksi == 'keluar' ? number_format($bank->nominal, 2, ",", ".") : '',
+                //     'Saldo'             => 'Rp ' . number_format($saldo, 2, ",", "."),
+                // ];
+            }
+        }
+
+        return response()->json([$banks, $results]);
+    }
 }
