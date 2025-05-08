@@ -7,6 +7,8 @@ use Illuminate\Support\ServiceProvider;
 
 use App\Models\Post;
 use App\Observers\PostObserver;
+use App\Models\Bank;
+use App\Observers\BankObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,5 +29,6 @@ class AppServiceProvider extends ServiceProvider
             return config('app.frontend_url') . "/password-reset/$token?email={$notifiable->getEmailForPasswordReset()}";
         });
         Post::observe(PostObserver::class);
+        Bank::observe(BankObserver::class);
     }
 }

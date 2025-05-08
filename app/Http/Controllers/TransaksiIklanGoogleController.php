@@ -6,8 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\CsMainProject;
 use Carbon\Carbon;
 
-class BillingController extends Controller
+class TransaksiIklanGoogleController extends Controller
 {
+
     //index
     public function index(Request $request)
     {
@@ -16,7 +17,10 @@ class BillingController extends Controller
         $order              = $request->input('order', 'desc');
 
         //get cs_main_project
-        $query = CsMainProject::with('webhost', 'webhost.paket', 'karyawans:nama');
+        $query = CsMainProject::with('webhost:id_webhost,nama_web,hp,wa,email');
+
+        //hanya ambil data kolom
+        $query->select('id_webhost', 'jenis', 'deskripsi', 'trf', 'dibayar', 'tgl_masuk', 'tgl_deadline');
 
         // Check if order_by is 'webhost.hpads'
         if ($order_by == 'webhost.hpads') {
@@ -25,6 +29,9 @@ class BillingController extends Controller
         } else {
             $query->orderBy($order_by, $order);
         }
+
+        //where by jenis in = ('Iklan Google', 'Deposit Iklan Google', 'Jasa update iklan google')
+        $query->whereIn('jenis', ['Iklan Google', 'Deposit Iklan Google', 'Jasa update iklan google']);
 
         // Apply date filter if both start and end dates are provided
         $tgl_masuk_start    = $request->input('tgl_masuk_start');
@@ -41,20 +48,6 @@ class BillingController extends Controller
             });
         }
 
-        //filter by webhost.paket.nama_paket
-        $nama_paket = $request->input('paket');
-        if ($nama_paket) {
-            $query->whereHas('webhost.paket', function ($query) use ($nama_paket) {
-                $query->where('paket', 'like', '%' . $nama_paket . '%');
-            });
-        }
-
-        //filter by jenis
-        $jenis = $request->input('jenis');
-        if ($jenis) {
-            $query->where('jenis', 'like', '%' . $jenis . '%');
-        }
-
         //filter by deskripsi
         $deskripsi = $request->input('deskripsi');
         if ($deskripsi) {
@@ -64,7 +57,7 @@ class BillingController extends Controller
         //filter by trf
         $trf = $request->input('trf');
         if ($trf) {
-            $query->where('trf', 'like', '%' . $trf . '%');
+            $query->where('trf', $trf);
         }
 
         //filter by webhost.hp
@@ -109,43 +102,26 @@ class BillingController extends Controller
 
         $data = $query->paginate($per_page);
 
+        //set url for pagination
+        $data->setPath('transaksi_iklan_google');
+
+        //buat collection baru untuk nama_web, hp, email, wa
+        $data->getCollection()->transform(function ($item) {
+
+            $item->nama_web = $item->webhost->nama_web ?? '';
+            $item->hp = $item->webhost->hp ?? '';
+            $item->email = $item->webhost->email ?? '';
+            $item->wa = $item->webhost->wa ?? '';
+
+            return $item;
+        });
+
+        //remove webhost
+        $data->getCollection()->each(function ($item) {
+            unset($item->webhost);
+        });
+
         //return json
         return response()->json($data);
-    }
-
-    //prediksi_bulanini
-    public function prediksi_bulanini(Request $request)
-    {
-
-        //total hari bulan ini
-        $total_hari_bulan_ini = Carbon::now()->daysInMonth;
-
-        //total hari bulan kemarin
-        $total_hari_bulan_kemarin = Carbon::now()->subDay()->daysInMonth;
-
-        //tanggal hari ini
-        $tanggal_hari_ini = Carbon::now()->format('d');
-
-        /*
-        * total cs_main_project bulan ini,
-        * dimana biaya > 150.000,
-        * jenis IN('Pembuatan', 'Pembuatan apk','Pembuatan apk custom','Pembuatan Tanpa Domain','Pembuatan Tanpa Hosting','Pembuatan Tanpa Domain+Hosting')
-        */
-        $total_cs_main_project = CsMainProject::where('biaya', '>=', 150000)
-            ->whereIn('jenis', ['Pembuatan', 'Pembuatan apk', 'Pembuatan apk custom', 'Pembuatan Tanpa Domain', 'Pembuatan Tanpa Hosting', 'Pembuatan Tanpa Domain+Hosting'])
-            ->whereMonth('tgl_masuk', Carbon::now()->month)
-            ->count();
-
-        /*
-        * hitung prediksi ini , dengan rumus:
-        * (total_cs_main_project / tanggal_hari_ini) * total_hari_bulan_ini
-        */
-        $prediksi = round(($total_cs_main_project / $tanggal_hari_ini) * $total_hari_bulan_ini);
-
-        //return json
-        return response()->json([
-            'total' => $total_cs_main_project,
-            'prediksi' => $prediksi,
-        ]);
     }
 }

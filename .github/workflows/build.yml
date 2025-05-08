@@ -3,7 +3,7 @@ name: Deploy Laravel to Hosting
 on:
   push:
     branches:
-      - main  # ganti sesuai branch yang kamu gunakan
+      - prod  # ganti sesuai branch yang kamu gunakan
 
 jobs:
   deploy:

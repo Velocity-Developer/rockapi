@@ -45,9 +45,9 @@ class Webhost extends Model
         return $this->belongsTo(Paket::class, 'id_paket');
     }
 
-    //relasi one ke tabel cs_main_project
-    public function csMainProject()
+    //relasi many ke tabel cs_main_project
+    public function csMainProjects()
     {
-        return $this->hasOne(CsMainProject::class, 'id_webhost');
+        return $this->hasMany(CsMainProject::class, 'id_webhost');
     }
 }
