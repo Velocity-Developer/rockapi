@@ -147,6 +147,17 @@ class BankTransaksiController extends Controller
     }
 
     /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //get by id
+        $bank = Bank::find($id);
+        $bank->delete();
+        return response()->json($bank);
+    }
+
+    /**
      * Search data di Transaksi Keluar dan CsMainProject.
      */
     public function search_jenis(string $keyword)

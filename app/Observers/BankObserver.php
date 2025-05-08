@@ -31,8 +31,8 @@ class BankObserver
     public function deleted(Bank $bank): void
     {
         // Hapus semua relasi pivot saat Bank dihapus
-        $bank->csMainProjects()->detach();
-        $bank->transaksiKeluars()->detach();
+        $bank->CsMainProject()->detach();
+        $bank->TransaksiKeluar()->detach();
     }
 
     /**
