@@ -11,6 +11,7 @@ use App\Http\Controllers\BillDataWebController;
 use App\Http\Controllers\TransaksiIklanGoogleController;
 use App\Http\Controllers\JenisBlmTerpilihController;
 use App\Http\Controllers\BankTransaksiController;
+use App\Http\Controllers\SaldoBankController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -33,6 +34,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'terms'             => TermsController::class,
         'webhost'           => WebhostController::class,
         'bank_transaksi'    => BankTransaksiController::class,
+        'saldo_bank'        => SaldoBankController::class,
     ]);
 
     //data_opsi
