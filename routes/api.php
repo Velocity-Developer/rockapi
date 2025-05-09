@@ -57,6 +57,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //bank_transaksi/search_jenis
     Route::get('bank_transaksi_search_jenis/{keyword}', [BankTransaksiController::class, 'search_jenis']);
+    //bank_transaksi_last_transaksi
+    Route::get('bank_transaksi_last_transaksi', [BankTransaksiController::class, 'get_last_transaksi']);
+
     //bank_transaksi_export
     Route::get('bank_transaksi_export', [BankTransaksiController::class, 'export']);
 });
