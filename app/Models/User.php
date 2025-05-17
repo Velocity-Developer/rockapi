@@ -26,7 +26,8 @@ class User extends Authenticatable
         'status',
         'avatar',
         'hp',
-        'alamat'
+        'alamat',
+        'tgl_masuk'
     ];
 
     /**

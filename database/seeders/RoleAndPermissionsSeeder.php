@@ -51,6 +51,7 @@ class RoleAndPermissionsSeeder extends Seeder
             'advertising',
             'webdeveloper',
             'advertising_internal',
+            'customer_service',
             'budi',
         ];
 
