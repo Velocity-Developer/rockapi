@@ -29,8 +29,9 @@ class JenisBlmTerpilihController extends Controller
         //ambil data CsMainProject
         $dataCsMainProject = CsMainProject::with('webhost', 'bank')
             ->whereBetween('tgl_masuk', [$dari, $sampai])
-            //->whereDoesntHave('bank') // tidak memiliki relasi ke bank
+            ->whereDoesntHave('bank') // tidak memiliki relasi ke bank
             ->get()
+            ->makeHidden('dikerjakan_oleh')
             ->map(function ($item) {
                 // Tambahkan properti virtual 'tanggal' agar bisa di-sort bersamaan
                 $item->tanggal = $item->tgl_masuk;
@@ -42,7 +43,7 @@ class JenisBlmTerpilihController extends Controller
         //ambil data TransaksiKeluar
         $dataTransaksiKeluar = TransaksiKeluar::with('bank')
             ->whereBetween('tgl', [$dari, $sampai])
-            //->whereDoesntHave('bank') // tidak memiliki relasi ke bank
+            ->whereDoesntHave('bank') // tidak memiliki relasi ke bank
             ->get()
             ->map(function ($item) {
                 // Tambahkan properti virtual 'tanggal'
