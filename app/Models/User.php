@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -27,7 +28,8 @@ class User extends Authenticatable
         'avatar',
         'hp',
         'alamat',
-        'tgl_masuk'
+        'tgl_masuk',
+        'username'
     ];
 
     /**
@@ -82,5 +84,18 @@ class User extends Authenticatable
             return asset('storage/' . $this->avatar);
         }
         return asset('assets/images/default-avatar.jpg');
+    }
+
+    //boot
+    protected static function boot()
+    {
+        parent::boot();
+
+        //jika create, dan username kosong, maka generate username dari name
+        static::creating(function ($model) {
+            if (empty($model->username)) {
+                $model->username = Str::replace('-', '_', Str::slug($model->name));
+            }
+        });
     }
 }

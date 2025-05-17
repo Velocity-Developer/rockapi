@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-class KaryawanUserSeeeder extends Seeder
+class KaryawanUserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -61,7 +61,7 @@ class KaryawanUserSeeeder extends Seeder
         $karyawans = \App\Models\Karyawan::all();
 
         //command info progress
-        $this->command->info('Run KaryawanUserSeeeder for ' . count($karyawans) . ' Karyawan');
+        $this->command->info('Run KaryawanUserSeeder for ' . count($karyawans) . ' Karyawan');
 
         //create user by looping Karyawan
         $counter = 1;
@@ -84,6 +84,7 @@ class KaryawanUserSeeeder extends Seeder
                 'hp'                => $karyawan->hp,
                 'alamat'            => $karyawan->alamat,
                 'tgl_masuk'         => $karyawan->tgl_masuk,
+                'username'          => $username,
             ]);
 
             //assign role
@@ -94,7 +95,7 @@ class KaryawanUserSeeeder extends Seeder
             }
 
             //command info
-            $this->command->info(count($karyawans) . ' / ' . $counter . ', Karyawan ' . $username . ' berhasil ');
+            $this->command->info(count($karyawans) . ' / ' . $counter . ', Karyawan ' . $username . ' berhasil dibuat');
 
             $counter++;
         }
