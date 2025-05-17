@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             TermSeeder::class,
             PostSeeder::class,
             CsMainProjectKaryawanSeeder::class,
+            BankRelasiJenisSeeder::class,
         ]);
     }
 }

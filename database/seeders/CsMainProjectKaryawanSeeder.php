@@ -16,6 +16,10 @@ class CsMainProjectKaryawanSeeder extends Seeder
         // Ambil semua project
         $projects = DB::table('tb_cs_main_project')->get();
 
+        //total project
+        $totalProjects = count($projects);
+
+        $counter_project = 1;
         foreach ($projects as $project) {
 
             if (!$project->dikerjakan_oleh) {
@@ -55,9 +59,11 @@ class CsMainProjectKaryawanSeeder extends Seeder
                     }
 
                     //command info
-                    $this->command->info("Berhasil pivot project {$project->id} dan karyawan {$karyawanId} dengan porsi {$porsi}");
+                    $this->command->info("{$counter_project} / {$counter_project} = Berhasil pivot project {$project->id} dan karyawan {$karyawanId} dengan porsi {$porsi}");
                 }
             }
+
+            $counter_project++;
         }
     }
 }

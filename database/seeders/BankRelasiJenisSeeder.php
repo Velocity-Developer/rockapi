@@ -6,7 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Seeder;
 
-class BankCsMainProjectSeeder extends Seeder
+class BankRelasiJenisSeeder extends Seeder
 {
     /**
      * Seeder untuk membuat PIVOT relasi antara model 'Bank' dan 'CsMainProject'
@@ -17,7 +17,7 @@ class BankCsMainProjectSeeder extends Seeder
         $banks = DB::table('tb_bank')->get();
 
         //command info progress
-        $this->command->info('Run BankCsMainProjectSeeder');
+        $this->command->info('Run BankRelasiJenisSeeder');
 
         $counter = 0;
 
