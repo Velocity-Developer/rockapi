@@ -89,13 +89,14 @@ class KaryawanUserSeeder extends Seeder
 
             //assign role
             if (isset($karyawans_roles[$username])) {
-                $user->assignRole($karyawans_roles[$username]);
+                $role = $karyawans_roles[$username] ?? 'user';
             } else {
-                $user->assignRole('user');
+                $role = 'user';
             }
+            $user->assignRole($role);
 
             //command info
-            $this->command->info(count($karyawans) . ' / ' . $counter . ', Karyawan ' . $username . ' berhasil dibuat');
+            $this->command->info(count($karyawans) . ' / ' . $counter . ', Karyawan ' . $username . ' dengan role ' . $role . ' berhasil dibuat');
 
             $counter++;
         }
