@@ -72,7 +72,7 @@ class KaryawanUserSeeder extends Seeder
             $username   = $karyawan->username ?? Str::lower($karyawan->username);
             $email      = $karyawan->email;
 
-            if ($email == 0 || $email == 1 || !$email || $email == '' || $email == 'a' || $email == '-') {
+            if ($username == 'billing'  || $email == 0 || $email == 1 || !$email || $email == '' || $email == 'a' || $email == '-') {
                 $email = $username . '@example.com';
             }
 

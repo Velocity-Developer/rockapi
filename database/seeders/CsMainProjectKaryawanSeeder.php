@@ -59,7 +59,7 @@ class CsMainProjectKaryawanSeeder extends Seeder
                     }
 
                     //command info
-                    $this->command->info("{$counter_project} / {$counter_project} = Berhasil pivot project {$project->id} dan karyawan {$karyawanId} dengan porsi {$porsi}");
+                    $this->command->info("{$counter_project} / {$totalProjects} = Berhasil pivot project {$project->id} dan karyawan {$karyawanId} dengan porsi {$porsi}");
                 }
             }
 
