@@ -27,7 +27,8 @@ class RoleAndPermissionsSeeder extends Seeder
             'create-post',
             'edit-post',
             'delete-post',
-            'edit-term'
+            'edit-term',
+            'add-billing',
         ];
 
         foreach ($permissions as $permission) {

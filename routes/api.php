@@ -12,6 +12,7 @@ use App\Http\Controllers\TransaksiIklanGoogleController;
 use App\Http\Controllers\JenisBlmTerpilihController;
 use App\Http\Controllers\BankTransaksiController;
 use App\Http\Controllers\SaldoBankController;
+use App\Http\Controllers\CsMainProjectController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -35,6 +36,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'webhost'           => WebhostController::class,
         'bank_transaksi'    => BankTransaksiController::class,
         'saldo_bank'        => SaldoBankController::class,
+        'cs_main_project'   => CsMainProjectController::class,
     ]);
 
     //data_opsi
