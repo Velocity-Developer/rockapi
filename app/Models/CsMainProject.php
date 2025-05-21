@@ -40,6 +40,30 @@ class CsMainProject extends Model
         'dibayar'   => 'integer',
         'trf'       => 'integer',
     ];
+    protected $appends = [
+        'raw_dikerjakan',
+    ];
+
+    //accessor dikerjakan
+    public function getRawDikerjakanAttribute()
+    {
+        $dikerjakan_oleh = $this->dikerjakan_oleh;
+        if ($dikerjakan_oleh == null) {
+            return null;
+        }
+        $data = explode(",", $dikerjakan_oleh);
+        $result = [];
+        foreach ($data as $item) {
+            //jika kosong, skip
+            if ($item == '') {
+                continue;
+            }
+            if (preg_match('/^(\d+)\[(\d+)\]$/', $item, $matches)) {
+                $result[$matches[1]] = $matches[2];
+            }
+        }
+        return $result;
+    }
 
     //relasi ke tabel webhost
     public function webhost()
