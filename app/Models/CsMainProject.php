@@ -66,4 +66,16 @@ class CsMainProject extends Model
     {
         return $this->belongsToMany(Bank::class, 'bank_cs_main_project');
     }
+
+    //relasi one ke tabel pm_project
+    public function pm_project()
+    {
+        return $this->hasOne(PmProject::class, 'id');
+    }
+
+    //relasi many ke tabel transaksi_masuk
+    public function transaksi_masuk()
+    {
+        return $this->hasMany(TransaksiMasuk::class, 'id');
+    }
 }

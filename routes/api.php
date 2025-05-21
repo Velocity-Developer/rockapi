@@ -41,6 +41,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //data_opsi
     Route::get('data_opsi/{key}', [DataOpsiController::class, 'get']);
+    Route::get('data_opsis', [DataOpsiController::class, 'gets']);
 
     //search webhost
     Route::get('webhost_search/{keyword}', [WebhostController::class, 'search']);

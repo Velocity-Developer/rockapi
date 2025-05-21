@@ -3,9 +3,22 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Paket;
 
 class DataOpsiController extends Controller
 {
+
+    //gets
+    public function gets(Request $request)
+    {
+        $keys = $request->input('keys');
+        $result = [];
+        foreach ($keys as $key) {
+            $result[$key] = $this->get($key);
+        }
+        return response()->json($result);
+    }
+
     //get
     public function get(string $key)
     {
@@ -13,8 +26,8 @@ class DataOpsiController extends Controller
 
         //switch key        
         switch ($key) {
-            case 'jenis':
-                $result = $this->jenis();
+            case 'jenis_project':
+                $result = $this->jenis_project();
                 break;
             case 'bank':
                 $result = $this->bank();
@@ -73,6 +86,38 @@ class DataOpsiController extends Controller
                 'value' => 'jenius',
                 'label' => 'Jenius'
             ]
+        ];
+    }
+
+    private function jenis_project()
+    {
+        return [
+            'Lain - Lain',
+            'Iklan Google',
+            'Deposit Iklan Google',
+            'Jasa update iklan google',
+            'Pembuatan apk',
+            'Pembuatan apk biasa',
+            'Pembuatan apk custom',
+            'Pembuatan',
+            'Perpanjangan',
+            'Tambah Space',
+            'Pembuatan Tanpa Domain',
+            'Pembuatan Tanpa Hosting',
+            'Pembuatan Tanpa Domain+Hosting',
+            'Jasa Input Produk',
+            'Jasa Update Web',
+            'Jasa Buat Email',
+            'Jasa Ganti Domain',
+            'Jasa SEO',
+            'Jasa Buat Facebook',
+            'Jasa Buat Akun Sosmed',
+            'Jasa rating google maps',
+            'Jasa buat google maps',
+            'Redesign',
+            'Jasa Pembuatan Logo',
+            'Compro PDF',
+            'Lain-lain'
         ];
     }
 }
