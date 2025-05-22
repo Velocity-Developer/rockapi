@@ -144,7 +144,11 @@ class CsMainProjectController extends Controller
      */
     public function show(string $id)
     {
-        //
+        //get
+        $cs_main_project = CsMainProject::find($id)
+            ->with('webhost', 'webhost.paket', 'karyawans', 'transaksi_masuk', 'pm_project')
+            ->get();
+        return response()->json($cs_main_project);
     }
 
     /**
@@ -160,6 +164,13 @@ class CsMainProjectController extends Controller
      */
     public function destroy(string $id)
     {
+        //delete cs_main_project_karyawan
+        DB::table('cs_main_project_karyawan')->where('cs_main_project_id', $id)->delete();
+        //delete transaksi_masuk
+        TransaksiMasuk::where('id', $id)->delete();
+        //delete pm_project
+        PmProject::where('id', $id)->delete();
+
         //get cs_main_project
         $cs_main_project = CsMainProject::find($id);
         //delete cs_main_project
