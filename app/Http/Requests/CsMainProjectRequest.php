@@ -33,7 +33,7 @@ class CsMainProjectRequest extends FormRequest
             'tgl_masuk'         => 'required|string',
             'tgl_deadline'      => 'required|string',
             'biaya'             => 'required|integer',
-            'dibayar'           => 'required|integer',
+            'dibayar'           => 'nullable|integer',
             'saldo'             => 'nullable|string',
             'hp'                => 'required|string',
             'telegram'          => 'nullable|string',

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\CsMainProject;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +15,10 @@ class CsMainProjectKaryawanSeeder extends Seeder
     public function run(): void
     {
         // Ambil semua project
-        $projects = DB::table('tb_cs_main_project')->get();
+        // $projects = DB::table('tb_cs_main_project')->get();
+
+        // Ambil semua CsMainProjectKaryawan yang belum memiliki relasi ke karyawan
+        $projects = CsMainProject::doesntHave('karyawans')->get();
 
         //total project
         $totalProjects = count($projects);
