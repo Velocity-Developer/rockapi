@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('cs_main_project_id');
             $table->integer('karyawan_id');
-            $table->unsignedInteger('porsi'); // dalam persen
+            $table->unsignedInteger('porsi')->nullable(); // dalam persen
             $table->timestamps();
         });
     }

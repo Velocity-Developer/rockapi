@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\CsMainProjectRequest;
 use App\Models\CsMainProject;
 use App\Models\Webhost;
+use App\Models\TransaksiMasuk;
+use App\Models\PmProject;
 
 /**
  * @catatan CsMainProject
@@ -50,12 +53,12 @@ class CsMainProjectController extends Controller
                 'hpads'             => $request->input('hpads'),
                 'wa'                => $request->input('wa'),
                 'email'             => $request->input('email'),
-                'tgl_exp'           => '0000-00-00',
-                'tgl_update'        => '0000-00-00',
+                'tgl_exp'           => null,
+                'tgl_update'        => date('Y-m-d'),
                 'server_luar'       => $request->input('server') && $request->input('server') == '4' ? '0' : '1',
                 'saldo'             => $request->input('saldo'),
                 'kategori'          => '',
-                'waktu'             => '0000-00-00',
+                'waktu'             => date('Y-m-d H:i:s'),
                 'via'               => '',
                 'konfirmasi_order'  => '',
                 'kata_kunci'        => '',
@@ -70,7 +73,12 @@ class CsMainProjectController extends Controller
 
         //olah data di_kerjakan_oleh
         $di_kerjakan_oleh = '';
-        if ($request->input('di_kerjakan_oleh')) {
+        if ($request->input('dikerjakan_oleh')) {
+            $count = count($request->input('dikerjakan_oleh'));
+            $persen = 100 / $count;
+            foreach ($request->input('dikerjakan_oleh') as $value) {
+                $di_kerjakan_oleh .= ',' . $value . '[' . $persen . ']';
+            }
         }
 
         //simpan data ke tabel cs_main_project
@@ -92,12 +100,43 @@ class CsMainProjectController extends Controller
 
         //simpan relasi ke cs_main_project_karyawan
         if ($di_kerjakan_oleh) {
-            $cs_main_project->csMainProjectKaryawan()->create([
-                'id_karyawan' => $request->input('di_kerjakan_oleh'),
-            ]);
+            $count = count($request->input('dikerjakan_oleh'));
+            $persen = 100 / $count;
+            foreach ($request->input('dikerjakan_oleh') as $value) {
+                DB::table('cs_main_project_karyawan')->insert([
+                    'cs_main_project_id' => $cs_main_project->id,
+                    'karyawan_id' => $value,
+                    'porsi' => $persen ?? 100,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
         }
 
-        return response()->json($cs_main_project);
+        //menyimpan log transaksi ke TransaksiMasuk
+        $transaksi_masuk = TransaksiMasuk::create([
+            'id'            => $cs_main_project->id,
+            'tgl'           => $cs_main_project->tgl_masuk,
+            'total_biaya'   => $cs_main_project->biaya,
+            'bayar'         => $cs_main_project->dibayar,
+            'pelunasan'     => 'N',
+        ]);
+
+        //simpan data ke tabel pm_project
+        $pm_project = PmProject::create([
+            'id' => $cs_main_project->id,
+        ]);
+
+        // $new_cs_main_project = CsMainProject::find($cs_main_project->id)
+        // ->with('webhost', 'webhost.paket', 'karyawans', 'transaksi_masuk', 'pm_project')
+        // ->get();
+
+        return response()->json([
+            'cs_main_project' => $cs_main_project,
+            'webhost' => $webhost,
+            'transaksi_masuk' => $transaksi_masuk,
+            'pm_project' => $pm_project
+        ]);
     }
 
     /**

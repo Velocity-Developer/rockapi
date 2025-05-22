@@ -12,6 +12,9 @@ class TransaksiMasuk extends Model
     // Nama primary key yang tidak konvensional
     protected $primaryKey = 'id_transaksi_masuk';
 
+    // tidak menggunakan timestamps
+    public $timestamps = false;
+
     protected $fillable = [
         'id',
         'tgl',

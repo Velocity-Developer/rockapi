@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Karyawan;
 use App\Models\Paket;
 
 class DataOpsiController extends Controller
@@ -12,15 +13,28 @@ class DataOpsiController extends Controller
     public function gets(Request $request)
     {
         $keys = $request->input('keys');
+        //jika kosong, return empty array
+
+        if ($keys == null || !is_array($keys)) {
+            return response()->json([]);
+        }
+
         $result = [];
         foreach ($keys as $key) {
-            $result[$key] = $this->get($key);
+            $result[$key] = $this->get_data($key);
         }
+
         return response()->json($result);
     }
 
     //get
     public function get(string $key)
+    {
+        return $this->get_data($key);
+    }
+
+    //get
+    public function get_data(string $key)
     {
         $result = [];
 
@@ -29,6 +43,12 @@ class DataOpsiController extends Controller
             case 'jenis_project':
                 $result = $this->jenis_project();
                 break;
+            case 'karyawan':
+                $result = $this->karyawan();
+                break;
+            case 'paket':
+                $result = $this->paket();
+                break;
             case 'bank':
                 $result = $this->bank();
                 break;
@@ -36,7 +56,34 @@ class DataOpsiController extends Controller
                 $result = [];
         }
 
-        return response()->json($result);
+        return $result;
+    }
+
+    private function paket()
+    {
+        $paket = Paket::all();
+        $result = [];
+        foreach ($paket as $item) {
+            $result[] = [
+                'value' => $item->id_paket,
+                'label' => $item->paket
+            ];
+        }
+        return $result;
+    }
+
+    private function karyawan()
+    {
+        //get all karyawan
+        $karyawan = Karyawan::all();
+        $result = [];
+        foreach ($karyawan as $item) {
+            $result[] = [
+                'value' => $item->id_karyawan,
+                'label' => $item->nama
+            ];
+        }
+        return $result;
     }
 
     private function bank()

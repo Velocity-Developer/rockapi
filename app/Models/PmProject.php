@@ -12,6 +12,9 @@ class PmProject extends Model
     // Nama primary key yang tidak konvensional
     protected $primaryKey = 'id_pm_project';
 
+    // tidak menggunakan timestamps
+    public $timestamps = false;
+
     protected $fillable = [
         'id',
         'konfirm_revisi_1',

@@ -11,7 +11,10 @@ class CsMainProjectRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        //return false;
+
+        //jika user memiliki hak akses add-billing, maka bisa
+        return auth()->check() && auth()->user()->can('add-billing');
     }
 
     /**
@@ -24,20 +27,20 @@ class CsMainProjectRequest extends FormRequest
         return [
             'jenis'             => 'required|string',
             'nama_web'          => 'required|string',
-            'paket'             => 'required|string',
+            'paket'             => 'nullable|integer',
             'deskripsi'         => 'nullable|string',
-            'trf'               => 'nullable|string',
+            'trf'               => 'nullable|integer',
             'tgl_masuk'         => 'required|string',
             'tgl_deadline'      => 'required|string',
-            'biaya'             => 'required|string',
-            'dibayar'           => 'required|string',
+            'biaya'             => 'required|integer',
+            'dibayar'           => 'required|integer',
             'saldo'             => 'nullable|string',
             'hp'                => 'required|string',
             'telegram'          => 'nullable|string',
             'hpads'             => 'nullable|string',
             'wa'                => 'required|string',
             'email'             => 'nullable|string',
-            'di_kerjakan_oleh'  => 'nullable|string',
+            'dikerjakan_oleh'   => 'required|array',
         ];
     }
 }

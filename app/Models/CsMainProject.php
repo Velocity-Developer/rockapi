@@ -18,6 +18,9 @@ class CsMainProject extends Model
     // Nama tabel di database
     protected $table = 'tb_cs_main_project';
 
+    // tidak menggunakan timestamps
+    public $timestamps = false;
+
     protected $fillable = [
         'id_webhost',
         'jenis',
@@ -59,7 +62,7 @@ class CsMainProject extends Model
                 continue;
             }
             if (preg_match('/^(\d+)\[(\d+)\]$/', $item, $matches)) {
-                $result[$matches[1]] = $matches[2];
+                $result[] = (int) $matches[1];
             }
         }
         return $result;

@@ -13,6 +13,9 @@ class Karyawan extends Model
     protected $primaryKey = 'id_karyawan';
     protected $keyType = 'int';
 
+    // tidak menggunakan timestamps
+    public $timestamps = false;
+
     //hidden
     protected $hidden = [
         'password',
