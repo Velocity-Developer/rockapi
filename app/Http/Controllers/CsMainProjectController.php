@@ -9,6 +9,7 @@ use App\Models\CsMainProject;
 use App\Models\Webhost;
 use App\Models\TransaksiMasuk;
 use App\Models\PmProject;
+use App\Models\WmProject;
 
 /**
  * @catatan CsMainProject
@@ -244,6 +245,7 @@ class CsMainProjectController extends Controller
 
         //cek perubahan total biaya dan uang yang dibayar,
         //jika terjadi perubahan pada kolom dibayar maka simpan perubahan di log transaksi masuk
+        $transaksi_masuk = '';
         if ($request->input('dibayar') && $cs_main_project->dibayar != $request->input('dibayar')) {
             if ($cs_main_project->dibayar > $request->input('dibayar')) {
                 $dibayar = $cs_main_project->dibayar - $request->input('dibayar');
@@ -255,7 +257,7 @@ class CsMainProjectController extends Controller
             $tgl = date("Y-m-d");
             $biaya = $cs_main_project->biaya - $cs_main_project->dibayar;
             //simpan transaksi masuk baru
-            TransaksiMasuk::create([
+            $transaksi_masuk = TransaksiMasuk::create([
                 'id'            => $cs_main_project->id,
                 'tgl'           => $tgl,
                 'total_biaya'   => $biaya,
@@ -269,9 +271,39 @@ class CsMainProjectController extends Controller
                 //hapus data transaksi_masuk where id = $cs_main_project->id dan pelunasan = Y
                 TransaksiMasuk::where('id', $cs_main_project->id)->where('pelunasan', 'Y')->delete();
             }
-
-            //TODO update ke tb_wm_project
         }
+
+        //chek PmProject
+        $pm_project = PmProject::where('id', $cs_main_project->id)->first();
+        if (!$pm_project) {
+            //create
+            $pm_project = PmProject::create([
+                'id' => $cs_main_project->id,
+            ]);
+        }
+
+        //check input 'dikerjakan_oleh' dengan $cs_main_project->raw_dikerjakan
+        //jika tidak sama, maka update
+        if ($cs_main_project->raw_dikerjakan && $request->input('dikerjakan_oleh') && $cs_main_project->raw_dikerjakan != $request->input('dikerjakan_oleh')) {
+            //dapatkan perbedaan
+            $diff = array_diff($cs_main_project->raw_dikerjakan, $request->input('dikerjakan_oleh'));
+            //loop
+            foreach ($diff as $value) {
+                //hapus data WmProject where id = $cs_main_project->id dan karyawan_id = $value
+                WmProject::where('id', $cs_main_project->id)->where('karyawan_id', $value)->delete();
+            }
+        }
+
+        //get WmProject where id = $cs_main_project->id
+        $wm_project = WmProject::where('id', $cs_main_project->id)->get();
+
+        return response()->json([
+            'cs_main_project' => $cs_main_project,
+            'webhost' => $webhost,
+            'pm_project' => $pm_project,
+            'transaksi_masuk' => $transaksi_masuk,
+            'wm_project' => $wm_project
+        ]);
     }
 
     /**
