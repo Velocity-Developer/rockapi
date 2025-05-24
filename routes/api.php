@@ -11,6 +11,8 @@ use App\Http\Controllers\BillDataWebController;
 use App\Http\Controllers\TransaksiIklanGoogleController;
 use App\Http\Controllers\JenisBlmTerpilihController;
 use App\Http\Controllers\BankTransaksiController;
+use App\Http\Controllers\SaldoBankController;
+use App\Http\Controllers\CsMainProjectController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -33,10 +35,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'terms'             => TermsController::class,
         'webhost'           => WebhostController::class,
         'bank_transaksi'    => BankTransaksiController::class,
+        'saldo_bank'        => SaldoBankController::class,
+        'cs_main_project'   => CsMainProjectController::class,
     ]);
 
     //data_opsi
     Route::get('data_opsi/{key}', [DataOpsiController::class, 'get']);
+    Route::get('data_opsis', [DataOpsiController::class, 'gets']);
 
     //search webhost
     Route::get('webhost_search/{keyword}', [WebhostController::class, 'search']);
@@ -55,6 +60,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //bank_transaksi/search_jenis
     Route::get('bank_transaksi_search_jenis/{keyword}', [BankTransaksiController::class, 'search_jenis']);
+    //bank_transaksi_last_transaksi
+    Route::get('bank_transaksi_last_transaksi', [BankTransaksiController::class, 'get_last_transaksi']);
+
     //bank_transaksi_export
     Route::get('bank_transaksi_export', [BankTransaksiController::class, 'export']);
 });

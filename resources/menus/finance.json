@@ -1,0 +1,39 @@
+[
+    
+    {
+        "key": "dashboard",
+        "label": "Dashboard",
+        "icon": "lucide:layout-grid",
+        "route": "/"
+    },
+    {
+        "key": "billing",
+        "label": "Billing",
+        "icon": "lucide:briefcase",
+        "route": "/billing"
+    },
+    {
+        "key": "bill_dataweb",
+        "label": "Database Web",
+        "icon": "lucide:globe",
+        "route": "/bill_dataweb"
+    },
+    {
+        "key": "bank_transaksi",
+        "label": "Bank Transaksi",
+        "icon": "lucide:wallet",
+        "route": "/bank_transaksi"
+    },
+    {
+        "key": "jenis_blm_terpilih",
+        "label": "Jenis Belum Terpilih",
+        "icon": "lucide:file-scan",
+        "route": "/jenis_blm_terpilih"
+    },
+    {
+        "key": "transaksi_iklan_google",
+        "label": "Transaksi Iklan Google",
+        "icon": "lucide:file-chart-line",
+        "route": "/transaksi_iklan_google"
+    }
+]

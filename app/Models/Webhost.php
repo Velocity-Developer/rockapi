@@ -12,6 +12,9 @@ class Webhost extends Model
     // Nama primary key yang tidak konvensional
     protected $primaryKey = 'id_webhost';
 
+    // tidak menggunakan timestamps
+    public $timestamps = false;
+
     protected $fillable = [
         'nama_web',
         'id_paket',

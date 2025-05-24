@@ -27,7 +27,8 @@ class RoleAndPermissionsSeeder extends Seeder
             'create-post',
             'edit-post',
             'delete-post',
-            'edit-term'
+            'edit-term',
+            'add-billing',
         ];
 
         foreach ($permissions as $permission) {
@@ -51,6 +52,7 @@ class RoleAndPermissionsSeeder extends Seeder
             'advertising',
             'webdeveloper',
             'advertising_internal',
+            'customer_service',
             'budi',
         ];
 

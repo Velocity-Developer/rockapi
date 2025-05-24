@@ -18,6 +18,9 @@ class CsMainProject extends Model
     // Nama tabel di database
     protected $table = 'tb_cs_main_project';
 
+    // tidak menggunakan timestamps
+    public $timestamps = false;
+
     protected $fillable = [
         'id_webhost',
         'jenis',
@@ -40,6 +43,30 @@ class CsMainProject extends Model
         'dibayar'   => 'integer',
         'trf'       => 'integer',
     ];
+    protected $appends = [
+        'raw_dikerjakan',
+    ];
+
+    //accessor dikerjakan
+    public function getRawDikerjakanAttribute()
+    {
+        $dikerjakan_oleh = $this->dikerjakan_oleh;
+        if ($dikerjakan_oleh == null) {
+            return null;
+        }
+        $data = explode(",", $dikerjakan_oleh);
+        $result = [];
+        foreach ($data as $item) {
+            //jika kosong, skip
+            if ($item == '') {
+                continue;
+            }
+            if (preg_match('/^(\d+)\[(\d+)\]$/', $item, $matches)) {
+                $result[] = (int) $matches[1];
+            }
+        }
+        return $result;
+    }
 
     //relasi ke tabel webhost
     public function webhost()
@@ -65,5 +92,17 @@ class CsMainProject extends Model
     public function bank()
     {
         return $this->belongsToMany(Bank::class, 'bank_cs_main_project');
+    }
+
+    //relasi one ke tabel pm_project
+    public function pm_project()
+    {
+        return $this->hasOne(PmProject::class, 'id');
+    }
+
+    //relasi many ke tabel transaksi_masuk
+    public function transaksi_masuk()
+    {
+        return $this->hasMany(TransaksiMasuk::class, 'id');
     }
 }

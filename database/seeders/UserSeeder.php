@@ -33,7 +33,10 @@ class UserSeeder extends Seeder
             ]);
 
             //assign role
-            $user->assignRole($role);
+            $user->assignRole($role->name);
+
+            //command info
+            $this->command->info('User ' . $role->name . ' dengan role ' . $role->name . ' berhasil dibuat');
         }
     }
 }

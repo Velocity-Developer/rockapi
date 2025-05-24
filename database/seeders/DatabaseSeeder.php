@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -19,7 +18,9 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             TermSeeder::class,
             PostSeeder::class,
+            KaryawanUserSeeder::class,
             CsMainProjectKaryawanSeeder::class,
+            BankRelasiJenisSeeder::class,
         ]);
     }
 }

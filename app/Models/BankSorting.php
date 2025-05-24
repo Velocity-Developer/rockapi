@@ -9,6 +9,9 @@ class BankSorting extends Model
     // Nama tabel di database
     protected $table = 'tb_bank_sorting';
 
+    //disable timestamps
+    public $timestamps = false;
+
     protected $fillable = [
         'bank',
         'bulan',

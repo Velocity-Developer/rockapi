@@ -157,6 +157,36 @@ class BankTransaksiController extends Controller
         return response()->json($bank);
     }
 
+    //get Transaksi Keluar dan CsMainProject 20 terakhir
+    public function get_last_transaksi()
+    {
+        //get tanggal sekarang, format Y-m-d
+        $tgl_sekarang = Carbon::now()->format('Y-m-d');
+        //get 30 hari terakhir
+        $tgl_30_hari_terakhir = Carbon::now()->subDays(30)->format('Y-m-d');
+
+        //search TransaksiKeluar: jenis by keyword, 30 hari terakhir
+        $transaksi_keluar = TransaksiKeluar::where('tgl', '>=', $tgl_30_hari_terakhir)
+            ->orderBy('tgl', 'desc')
+            ->limit(20)
+            ->get();
+
+        //search CsMainProject with webhost: webhost.nama_web by keyword, limit 10
+        $cs_main_project = CsMainProject::with('Webhost')
+            ->where('tgl_masuk', '>=', date('Y-m-d', strtotime('-30 days')))
+            ->orderBy('tgl_masuk', 'desc')
+            ->limit(20)
+            ->get();
+
+        $gabungan = $cs_main_project->merge($transaksi_keluar)->sortByDesc('tanggal')->values();
+
+        return response()->json([
+            // 'transaksi_keluar' => $transaksi_keluar,
+            // 'cs_main_project'  => $cs_main_project,
+            'data'             => $gabungan,
+        ]);
+    }
+
     /**
      * Search data di Transaksi Keluar dan CsMainProject.
      */

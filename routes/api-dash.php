@@ -19,6 +19,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     ]);
 
     //dashboard
+    Route::get('dashboard/welcome', [DashboardController::class, 'welcome']);
+    Route::get('dashboard/chart_bulanini', [DashboardController::class, 'chart_bulanini']);
+    Route::get('dashboard/chart_tahunini', [DashboardController::class, 'chart_tahunini']);
+    Route::get('dashboard/chart_hariini', [DashboardController::class, 'chart_hariini']);
     Route::get('dashboard/datatable', [DashboardController::class, 'datatable']);
 
     //options
