@@ -13,11 +13,24 @@ class BankRelasiJenisSeeder extends Seeder
      */
     public function run(): void
     {
-        //ambil semua data dari model 'Bank'
-        $banks = DB::table('tb_bank')->get();
+
+        //ambil data bank yang belum memiliki relasi di bank_transaksi_keluar atau bank_cs_main_project
+        $banks = DB::table('tb_bank')
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('bank_transaksi_keluar')
+                    ->whereColumn('bank_transaksi_keluar.bank_id', 'tb_bank.id');
+            })
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('bank_cs_main_project')
+                    ->whereColumn('bank_cs_main_project.bank_id', 'tb_bank.id');
+            })
+            ->get();
 
         //command info progress
         $this->command->info('Run BankRelasiJenisSeeder');
+        $this->command->info('Jumlah bank yang akan diproses: ' . $banks->count());
 
         $counter = 0;
 
