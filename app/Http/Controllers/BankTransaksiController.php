@@ -166,13 +166,14 @@ class BankTransaksiController extends Controller
         $tgl_30_hari_terakhir = Carbon::now()->subDays(30)->format('Y-m-d');
 
         //search TransaksiKeluar: jenis by keyword, 30 hari terakhir
-        $transaksi_keluar = TransaksiKeluar::where('tgl', '>=', $tgl_30_hari_terakhir)
+        $transaksi_keluar = TransaksiKeluar::with('bank')
+            ->where('tgl', '>=', $tgl_30_hari_terakhir)
             ->orderBy('tgl', 'desc')
             ->limit(20)
             ->get();
 
         //search CsMainProject with webhost: webhost.nama_web by keyword, limit 10
-        $cs_main_project = CsMainProject::with('Webhost')
+        $cs_main_project = CsMainProject::with('Webhost', 'bank')
             ->where('tgl_masuk', '>=', date('Y-m-d', strtotime('-30 days')))
             ->orderBy('tgl_masuk', 'desc')
             ->limit(20)
@@ -198,14 +199,15 @@ class BankTransaksiController extends Controller
         $tgl_30_hari_terakhir = Carbon::now()->subDays(30)->format('Y-m-d');
 
         //search TransaksiKeluar: jenis by keyword, 30 hari terakhir
-        $transaksi_keluar = TransaksiKeluar::where('jenis', 'like', '%' . $keyword . '%')
+        $transaksi_keluar = TransaksiKeluar::with('bank')
+            ->where('jenis', 'like', '%' . $keyword . '%')
             ->where('tgl', '>=', $tgl_30_hari_terakhir)
             ->orderBy('tgl', 'desc')
             ->limit(30)
             ->get();
 
         //search CsMainProject with webhost: webhost.nama_web by keyword, limit 10
-        $cs_main_project = CsMainProject::with('Webhost')
+        $cs_main_project = CsMainProject::with('Webhost', 'bank')
             ->whereHas('Webhost', function ($query) use ($keyword) {
                 $query->where('nama_web', 'like', '%' . $keyword . '%');
             })
