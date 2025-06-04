@@ -1,0 +1,26 @@
+[
+    {
+        "key": "dashboard",
+        "label": "Dashboard",
+        "icon": "lucide:layout-grid",
+        "route": "/"
+    },
+    {
+        "key": "billing",
+        "label": "Billing",
+        "icon": "lucide:briefcase",
+        "route": "/billing"
+    },
+    {
+        "key": "bill_dataweb",
+        "label": "Database Web",
+        "icon": "lucide:globe",
+        "route": "/bill_dataweb"
+    },
+    {
+        "key": "project_list",
+        "label": "Daftar Project",
+        "icon": "lucide:layout-panel-top",
+        "route": "/project_list"
+    }
+]

@@ -18,6 +18,12 @@
         "route": "/bill_dataweb"
     },
     {
+        "key": "project_list",
+        "label": "Daftar Project",
+        "icon": "lucide:layout-panel-top",
+        "route": "/project_list"
+    },
+    {
         "key": "bank_transaksi",
         "label": "Bank Transaksi",
         "icon": "lucide:wallet",
@@ -34,6 +40,12 @@
         "label": "Transaksi Iklan Google",
         "icon": "lucide:file-chart-line",
         "route": "/transaksi_iklan_google"
+    },
+    {
+        "key": "users",
+        "label": "Users",
+        "icon": "lucide:users",
+        "route": "/dash/users"
     },
     {
         "key": "posts",
@@ -63,18 +75,6 @@
         ]
     },
     {
-        "key": "users",
-        "label": "Users",
-        "icon": "lucide:users",
-        "route": "/dash/users"
-    },
-    {
-        "key": "media",
-        "label": "Media",
-        "icon": "lucide:images",
-        "route": "/dash/media"
-    },
-    {
         "key": "settings",
         "label": "Settings",
         "icon": "lucide:settings",
@@ -88,6 +88,12 @@
                 "key": "setting_roles",
                 "label": "Roles",
                 "route": "/dash/settings/roles"
+            },
+            {
+                "key": "media",
+                "label": "Media",
+                "icon": "lucide:images",
+                "route": "/dash/media"
             }
         ]
     }
