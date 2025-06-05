@@ -105,4 +105,10 @@ class CsMainProject extends Model
     {
         return $this->hasMany(TransaksiMasuk::class, 'id');
     }
+
+    //relasi ke WmProject
+    public function wm_project()
+    {
+        return $this->hasOne(WmProject::class, 'id');
+    }
 }

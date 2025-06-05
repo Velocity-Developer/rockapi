@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\CsMainProject;
+use App\Models\Quality;
 
 class ProjectListController extends Controller
 {
@@ -15,7 +16,13 @@ class ProjectListController extends Controller
         $order              = $request->input('order', 'desc');
 
         //get cs_main_project
-        $query = CsMainProject::with('webhost', 'webhost.paket', 'karyawans:nama');
+        $query = CsMainProject::with(
+            'webhost:id_webhost,nama_web,id_paket',
+            'webhost.paket:id_paket,paket',
+            'wm_project'
+        );
+
+        $query->select('id', 'id_webhost', 'jenis', 'deskripsi', 'tgl_deadline');
 
         //order by
         $query->orderBy($order_by, $order);

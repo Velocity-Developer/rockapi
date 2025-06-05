@@ -15,6 +15,11 @@ class WmProject extends Model
     // tidak menggunakan timestamps
     public $timestamps = false;
 
+    //append
+    protected $appends = [
+        'progress',
+    ];
+
     protected $fillable = [
         'id_karyawan',
         'id',
@@ -28,6 +33,21 @@ class WmProject extends Model
         'catatan',
         'status_multi',
     ];
+
+    //accessor progress
+    public function getProgressAttribute()
+    {
+        $qc = $this->qc ? unserialize($this->qc) : [];
+        if ($qc) {
+            //hitung total Quality
+            $total_q    = Quality::count();
+            $total_qc   = count($qc);
+            $percentage = round((($total_qc / $total_q) * 100), 2);
+            return (int) $percentage;
+        } else {
+            return (int) 0;
+        }
+    }
 
     //relasi one ke tabel cs_main_project
     public function cs_main_project()
