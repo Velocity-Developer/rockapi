@@ -37,6 +37,10 @@ class WmProject extends Model
     //accessor progress
     public function getProgressAttribute()
     {
+        if ($this->status_multi == 'selesai') {
+            return (int) 100;
+        }
+
         $qc = $this->qc ? unserialize($this->qc) : [];
         if ($qc) {
             //hitung total Quality
