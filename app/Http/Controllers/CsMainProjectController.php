@@ -142,9 +142,15 @@ class CsMainProjectController extends Controller
     public function show(string $id)
     {
         //get
-        $cs_main_project = CsMainProject::find($id)
-            ->with('webhost', 'webhost.paket', 'karyawans', 'transaksi_masuk', 'pm_project')
-            ->get();
+        $cs_main_project = CsMainProject::with(
+            'webhost',
+            'webhost.paket',
+            'karyawans',
+            'transaksi_masuk',
+            'pm_project',
+            'wm_project'
+        )
+            ->find($id);
         return response()->json($cs_main_project);
     }
 

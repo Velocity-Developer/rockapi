@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Karyawan;
 use App\Models\Paket;
+use App\Models\Quality;
+use Illuminate\Support\Facades\App;
 
 class DataOpsiController extends Controller
 {
@@ -51,6 +53,12 @@ class DataOpsiController extends Controller
                 break;
             case 'bank':
                 $result = $this->bank();
+                break;
+            case 'webmaster':
+                $result = $this->webmaster();
+                break;
+            case 'quality':
+                $result = $this->quality();
                 break;
             default:
                 $result = [];
@@ -166,5 +174,50 @@ class DataOpsiController extends Controller
             'Compro PDF',
             'Lain-lain'
         ];
+    }
+
+    private function webmaster()
+    {
+        $result = [
+            [
+                'value' => 'Irawan',
+                'label' => 'Irawan'
+            ],
+            [
+                'value' => 'Dita',
+                'label' => 'Dita'
+            ],
+            [
+                'value' => 'Aditya k',
+                'label' => 'Aditya k'
+            ],
+            [
+                'value' => 'Aditya',
+                'label' => 'Aditya'
+            ],
+            [
+                'value' => 'Lingga',
+                'label' => 'Lingga'
+            ],
+            [
+                'value' => 'Shudqi',
+                'label' => 'Shudqi'
+            ]
+        ];
+        return $result;
+    }
+
+    private function quality()
+    {
+        //get all Quality
+        $Quality = Quality::all();
+        $result = [];
+        foreach ($Quality as $item) {
+            $result[] = [
+                'value' => $item->detail,
+                'label' => $item->detail
+            ];
+        }
+        return $result;
     }
 }

@@ -13,6 +13,7 @@ use App\Http\Controllers\JenisBlmTerpilihController;
 use App\Http\Controllers\BankTransaksiController;
 use App\Http\Controllers\SaldoBankController;
 use App\Http\Controllers\CsMainProjectController;
+use App\Http\Controllers\WmProjectController;
 use App\Http\Controllers\ProjectListController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
@@ -38,6 +39,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'bank_transaksi'    => BankTransaksiController::class,
         'saldo_bank'        => SaldoBankController::class,
         'cs_main_project'   => CsMainProjectController::class,
+        'wm_project'        => WmProjectController::class,
     ]);
 
     //data_opsi

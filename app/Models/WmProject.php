@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class WmProject extends Model
 {
@@ -17,7 +18,10 @@ class WmProject extends Model
 
     //append
     protected $appends = [
+        'quality_control',
         'progress',
+        'date_mulai_formatted',
+        'date_selesai_formatted',
     ];
 
     protected $fillable = [
@@ -51,6 +55,26 @@ class WmProject extends Model
         } else {
             return (int) 0;
         }
+    }
+
+    //accessor quality_control
+    public function getQualityControlAttribute()
+    {
+        if (!$this->qc) {
+            return null;
+        }
+
+        return $this->qc ? unserialize($this->qc) : [];
+    }
+
+    public function getDateMulaiFormattedAttribute()
+    {
+        return $this->date_mulai ? Carbon::parse($this->date_mulai)->format('Y-m-d H:i:s') : null;
+    }
+
+    public function getDateSelesaiFormattedAttribute()
+    {
+        return $this->date_selesai ? Carbon::parse($this->date_selesai)->format('Y-m-d H:i:s') : null;
     }
 
     //relasi one ke tabel cs_main_project
