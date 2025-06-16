@@ -95,6 +95,6 @@ class WmProjectController extends Controller
     public function destroy(string $id)
     {
         //hapus wm_project
-        WmProject::where('id', $id)->delete();
+        WmProject::where('id_wm_project', $id)->delete();
     }
 }
