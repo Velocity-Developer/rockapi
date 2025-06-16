@@ -29,7 +29,11 @@ class UsersController extends Controller
     {
         $request->validate([
             'name'      => 'required|min:3',
-            'email'     => 'required|email|unique:users,email',
+            'username'  => 'required|min:3',
+            'email'     => 'required|email',
+            'hp'        => 'nullable',
+            'alamat'    => 'nullable|string',
+            'tgl_masuk' => 'nullable|string',
             'status'    => 'required',
             'password'  => ['required', 'confirmed', Rules\Password::defaults()],
             'role'      => 'required|min:2',
@@ -40,6 +44,10 @@ class UsersController extends Controller
             'name'      => $request->name,
             'email'     => $request->email,
             'status'    => $request->status,
+            'username'  => $request->username,
+            'hp'        => $request->hp,
+            'alamat'    => $request->alamat,
+            'tgl_masuk' => $request->tgl_masuk,
             'password'  => bcrypt($request->password),
         ]);
         $user->assignRole($request->role);
@@ -65,9 +73,13 @@ class UsersController extends Controller
         //
         $request->validate([
             'name'      => 'required|min:3',
+            'username'  => 'required|min:3',
             'email'     => 'required|email',
+            'hp'        => 'nullable',
+            'alamat'    => 'nullable|string',
+            'tgl_masuk' => 'nullable|string',
             'status'    => 'required',
-            // 'password'  => ['required', 'confirmed', Rules\Password::defaults()],
+            'password'  => ['nullable', 'confirmed', Rules\Password::defaults()],
             'role'      => 'required|min:2',
         ]);
 
@@ -76,8 +88,18 @@ class UsersController extends Controller
             'name'      => $request->name,
             'email'     => $request->email,
             'status'    => $request->status,
-            // 'password'  => bcrypt($request->password),
+            'username'  => $request->username,
+            'hp'        => $request->hp,
+            'alamat'    => $request->alamat,
+            'tgl_masuk' => $request->tgl_masuk,
         ]);
+
+        //jika ada password baru
+        if ($request->password) {
+            $user->update([
+                'password'  => bcrypt($request->password),
+            ]);
+        }
 
         //hapus role lama
         if ($user->user_roles) {

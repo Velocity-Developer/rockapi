@@ -29,6 +29,7 @@ class User extends Authenticatable
         'hp',
         'alamat',
         'tgl_masuk',
+        'id_karyawan',
         'username'
     ];
 
