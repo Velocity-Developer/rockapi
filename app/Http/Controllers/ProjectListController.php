@@ -19,10 +19,10 @@ class ProjectListController extends Controller
         $query = CsMainProject::with(
             'webhost:id_webhost,nama_web,id_paket',
             'webhost.paket:id_paket,paket',
-            'wm_project'
+            'wm_project:id_wm_project,id_karyawan,id,date_mulai,date_selesai,catatan,status_multi,webmaster'
         );
 
-        $query->select('id', 'id_webhost', 'jenis', 'deskripsi', 'tgl_deadline');
+        $query->select('id', 'id_webhost', 'jenis', 'deskripsi', 'tgl_deadline', 'dikerjakan_oleh');
 
         //order by
         $query->orderBy($order_by, $order);

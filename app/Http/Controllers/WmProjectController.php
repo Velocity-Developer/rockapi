@@ -21,25 +21,29 @@ class WmProjectController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'catatan' => 'nullable|text',
-            'date_mulai' => 'required|date',
-            'date_selesai' => 'nullable|date',
-            'status_multi' => 'required|string',
-            'id_cs_main_project' => 'required|integer',
-            'qc' => 'nullable|array',
-            'webmaster' => 'required|string',
+            'id_karyawan'           => 'required|integer',
+            'id_cs_main_project'    => 'required|integer',
+            'webmaster'             => 'required|string',
+            'date_mulai'            => 'required|date',
+            'date_selesai'          => 'nullable|date',
+            'qc'                    => 'nullable|array',
+            'catatan'               => 'nullable|string',
+            'status_multi'          => 'required|string|in:pending,selesai',
         ]);
 
         //create wm_project
         $wm_project = WmProject::create([
-            'catatan' => $request->catatan,
-            'date_mulai' => $request->date_mulai,
-            'date_selesai' => $request->date_selesai,
-            'status_multi' => $request->status_multi,
-            'id' => $request->id_cs_main_project,
-            'qc' => $request->qc,
-            'webmaster' => $request->webmaster
+            'id_karyawan'   => $request->id_karyawan,
+            'id'            => $request->id_cs_main_project,
+            'webmaster'     => $request->webmaster,
+            'date_mulai'    => $request->date_mulai,
+            'date_selesai'  => $request->date_selesai,
+            'qc'            => $request->qc,
+            'catatan'       => $request->catatan,
+            'status_multi'  => $request->status_multi,
+            'start'         => now(),
         ]);
+
         return response()->json($wm_project);
     }
 
@@ -58,7 +62,31 @@ class WmProjectController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'id_karyawan'           => 'required|integer',
+            'id_cs_main_project'    => 'required|integer',
+            'webmaster'             => 'required|string',
+            'date_mulai'            => 'required|date',
+            'date_selesai'          => 'nullable|date',
+            'qc'                    => 'nullable|array',
+            'catatan'               => 'nullable|string',
+            'status_multi'          => 'required|string|in:pending,selesai',
+        ]);
+
+        //update wm_project
+        $wm_project = WmProject::find($id);
+        $wm_project->update([
+            'id_karyawan'   => $request->id_karyawan,
+            'id'            => $request->id_cs_main_project,
+            'webmaster'     => $request->webmaster,
+            'date_mulai'    => $request->date_mulai,
+            'date_selesai'  => $request->date_selesai,
+            'qc'            => $request->qc ? serialize($request->qc) : '',
+            'catatan'       => $request->catatan,
+            'status_multi'  => $request->status_multi,
+        ]);
+
+        return response()->json($wm_project);
     }
 
     /**
