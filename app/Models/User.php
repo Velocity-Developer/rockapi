@@ -84,7 +84,11 @@ class User extends Authenticatable
         if ($this->avatar && $this->avatar) {
             return asset('storage/' . $this->avatar);
         }
-        return asset('assets/images/default-avatar.jpg');
+        // return asset('assets/images/default-avatar.jpg');
+        //samarkan id
+        $id = str_replace(['=', '/', '+'], '', base64_encode($this->id));
+        //tampilkan avatar dari dicebear
+        return 'https://api.dicebear.com/9.x/bottts-neutral/svg?seed=' . $id . '9v0';
     }
 
     //boot

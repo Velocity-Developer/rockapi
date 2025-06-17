@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Karyawan;
 use App\Models\Paket;
 use App\Models\Quality;
+use App\Models\User;
+
 use Illuminate\Support\Facades\App;
 
 class DataOpsiController extends Controller
@@ -59,6 +61,9 @@ class DataOpsiController extends Controller
                 break;
             case 'quality':
                 $result = $this->quality();
+                break;
+            case 'users':
+                $result = $this->users();
                 break;
             default:
                 $result = [];
@@ -216,6 +221,21 @@ class DataOpsiController extends Controller
             $result[] = [
                 'value' => $item->detail,
                 'label' => $item->detail
+            ];
+        }
+        return $result;
+    }
+
+    private function users()
+    {
+        //get all user, status = active
+        $users = User::where('status', 'active')->get();
+        $result = [];
+        foreach ($users as $item) {
+            $result[] = [
+                'value'     => $item->id,
+                'label'     => $item->name,
+                'avatar'    => $item->avatar_url
             ];
         }
         return $result;

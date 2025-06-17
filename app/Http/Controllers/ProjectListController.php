@@ -19,7 +19,8 @@ class ProjectListController extends Controller
         $query = CsMainProject::with(
             'webhost:id_webhost,nama_web,id_paket',
             'webhost.paket:id_paket,paket',
-            'wm_project:id_wm_project,id_karyawan,id,date_mulai,date_selesai,catatan,status_multi,webmaster'
+            'wm_project:id_wm_project,id_karyawan,user_id,id,date_mulai,date_selesai,catatan,status_multi,webmaster',
+            'wm_project.user:id,name,avatar',
         );
 
         $query->select('id', 'id_webhost', 'jenis', 'deskripsi', 'tgl_deadline', 'dikerjakan_oleh');

@@ -16,6 +16,11 @@ class WmProject extends Model
     // tidak menggunakan timestamps
     public $timestamps = false;
 
+    //cast
+    protected $casts = [
+        'user_id' => 'integer',
+    ];
+
     //append
     protected $appends = [
         'quality_control',
@@ -88,5 +93,11 @@ class WmProject extends Model
     public function karyawan()
     {
         return $this->belongsTo(Karyawan::class, 'id_karyawan');
+    }
+
+    //relasi one ke tabel user
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }
