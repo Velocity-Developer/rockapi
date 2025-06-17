@@ -26,6 +26,7 @@ class WmProject extends Model
 
     protected $fillable = [
         'id_karyawan',
+        'user_id',
         'id',
         'start',
         'stop',
