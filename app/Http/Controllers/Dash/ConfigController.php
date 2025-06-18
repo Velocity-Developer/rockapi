@@ -59,14 +59,25 @@ class ConfigController extends Controller
             $role = $role ? $role->name : null;
             $results['role'] = $role;
 
-            //get menus by role
-            $path = resource_path("menus/{$role}.json");
-            if (file_exists($path)) {
-                $results['app_menus'] = json_decode(file_get_contents($path));
-            } else {
-                $path = resource_path("menus/user.json");
-                $results['app_menus'] = json_decode(file_get_contents($path));
-            }
+            // get menus
+            $results['app_menus'] = $this->get_menus($results['user']['user_roles']);
+        }
+
+        //unset results user
+        $unsets = [
+            'roles',
+            'user_roles',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+            'alamat',
+            'hp',
+            'email_verified_at',
+            'tgl_masuk',
+            'id_karyawan',
+        ];
+        foreach ($unsets as $unset) {
+            unset($results['user'][$unset]);
         }
 
         return $results;
@@ -156,5 +167,36 @@ class ConfigController extends Controller
 
         $results = $this->getConfig($request);
         return response()->json($results);
+    }
+
+    private function get_menus($roles)
+    {
+        $path = resource_path("menus.json");
+
+        // Jika file utama tidak ada, gunakan fallback
+        if (!file_exists($path)) {
+            return [];
+        }
+
+        // Decode ke array asosiatif (true sebagai parameter kedua)
+        $results = json_decode(file_get_contents($path), true);
+
+        //jika roles = admin, skip seleksi
+        if (in_array('admin', $roles)) {
+            return $results;
+        }
+
+        // Seleksi menu berdasarkan role
+        foreach ($results as $key => $menu) {
+            // Pastikan key 'roles' ada dan user role tidak ada di dalamnya
+            if (isset($menu['roles']) && array_intersect($menu['roles'], $roles) === []) {
+                unset($results[$key]);
+            }
+        }
+
+        // Reindex array agar tetap menjadi indexed array
+        $results = array_values($results);
+
+        return $results;
     }
 }

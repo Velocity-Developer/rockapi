@@ -9,48 +9,63 @@
         "key": "billing",
         "label": "Billing",
         "icon": "lucide:briefcase",
-        "route": "/billing"
+        "route": "/billing",
+        "roles": ["admin", "manager_project", "finance"]
     },
     {
         "key": "bill_dataweb",
         "label": "Database Web",
         "icon": "lucide:globe",
-        "route": "/bill_dataweb"
+        "route": "/bill_dataweb",
+        "roles": ["admin", "manager_project", "finance"]
     },
     {
         "key": "project_list",
         "label": "Daftar Project",
         "icon": "lucide:layout-panel-top",
-        "route": "/project_list"
+        "route": "/project_list",
+        "roles": ["admin", "manager_project","webdeveloper"]
+    },
+    {
+        "key": "laporannilai",
+        "label": "Laporan Tim",
+        "icon": "lucide:chart-column-stacked",
+        "route": "/laporannilai",
+        "roles": ["admin", "manager_project","webdeveloper"]
     },
     {
         "key": "bank_transaksi",
         "label": "Bank Transaksi",
         "icon": "lucide:wallet",
-        "route": "/bank_transaksi"
+        "route": "/bank_transaksi",
+        "roles": ["admin", "finance"]
     },
     {
         "key": "jenis_blm_terpilih",
         "label": "Jenis Belum Terpilih",
         "icon": "lucide:file-scan",
-        "route": "/jenis_blm_terpilih"
+        "route": "/jenis_blm_terpilih",
+        "roles": ["admin", "finance"]
     },
     {
         "key": "transaksi_iklan_google",
         "label": "Transaksi Iklan Google",
         "icon": "lucide:file-chart-line",
-        "route": "/transaksi_iklan_google"
+        "route": "/transaksi_iklan_google",
+        "roles": ["admin", "finance"]
     },
     {
         "key": "users",
         "label": "Users",
         "icon": "lucide:users",
-        "route": "/dash/users"
+        "route": "/dash/users",
+        "roles": ["admin"]
     },
     {
         "key": "posts",
         "label": "Posts",
         "icon": "lucide:newspaper",
+        "roles": ["admin"],
         "items": [
             {
                 "key": "posts_all",
@@ -78,6 +93,7 @@
         "key": "settings",
         "label": "Settings",
         "icon": "lucide:settings",
+        "roles": ["admin"],
         "items": [
             {
                 "key": "setting_app",
