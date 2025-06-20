@@ -61,6 +61,18 @@ class User extends Authenticatable
         'user_roles',
     ];
 
+    //relasi ke karyawan
+    public function karyawan()
+    {
+        return $this->belongsTo(Karyawan::class, 'id_karyawan');
+    }
+
+    //relasi ke WmProject
+    public function wm_project()
+    {
+        return $this->hasMany(WmProject::class, 'user_id');
+    }
+
     //permissions
     public function get_permissions()
     {
