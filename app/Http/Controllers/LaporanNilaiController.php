@@ -10,101 +10,78 @@ class LaporanNilaiController extends Controller
 {
     public function index(Request $request)
     {
-        $bulan = $request->input('bulan');
-        //pecah bulan
-        $bulan = explode('-', $bulan);
-        $bulan = $bulan[1];
-        $tahun = $bulan[0];
+        [$tahun, $bulan] = explode('-', $request->input('bulan'));
 
-        $jenis_project = $request->input('jenis_project');
+        $jenisProject = $request->input('jenis_project');
+        $results = ['users' => [], 'data' => []];
 
-        $results = [];
-
-        //get users, roles = webdeveloper, status = active, kecuali name : webdeveloper,Web Custom,Web Biasa
-        $users = User::whereHas('roles', function ($query) {
-            $query->where('name', 'webdeveloper');
-        })
+        // Fetch valid webdeveloper users
+        $users = User::whereHas('roles', fn($query) =>
+        $query->where('name', 'webdeveloper'))
             ->where('status', 'active')
             ->whereNotIn('name', ['webdeveloper', 'Web Custom', 'Web Biasa'])
             ->select('id', 'name', 'avatar')
             ->get();
 
-        //susun data users
-        foreach ($users as $i => $user) {
+        foreach ($users as $user) {
             $results['users'][$user->id] = [
-                'id'    => $user->id,
-                'name'  => $user->name,
+                'id' => $user->id,
+                'name' => $user->name,
                 'avatar' => $user->avatar_url,
-                'total' => 0,
+                'total' => 0
             ];
             $results['data'][$user->id] = [
-                'id'    => $user->id,
-                'name'  => $user->name,
+                'id' => $user->id,
+                'name' => $user->name,
                 'avatar' => $user->avatar_url,
-                'projects'  => []
+                'projects' => []
             ];
         }
 
-        //get cs_main_project
-        $query = CsMainProject::with(
+        // CsMainProject
+        $CsMainProject = CsMainProject::with([
             'webhost:id_webhost,nama_web,id_paket',
             'webhost.paket:id_paket,paket',
             'wm_project:id_wm_project,id_karyawan,user_id,id,date_mulai,date_selesai,catatan,status_multi,webmaster',
-            'wm_project.user:id,name,avatar',
-        );
+            'wm_project.user:id,name,avatar'
+        ])
+            ->select('id', 'id_webhost', 'jenis', 'deskripsi', 'tgl_deadline', 'dikerjakan_oleh')
+            ->whereIn('jenis', [
+                'Jasa Update Web',
+                'Pembuatan',
+                'Pembuatan apk custom',
+                'Pembuatan Tanpa Domain',
+                'Pembuatan Tanpa Hosting',
+                'Pembuatan Tanpa Domain+Hosting',
+                'Redesign'
+            ])
+            ->when($jenisProject == 0, function ($q) {
+                $q->where(function ($query) {
+                    $query->where('dikerjakan_oleh', 'LIKE', '%,12%')
+                        ->orWhere('dikerjakan_oleh', 'LIKE', '%,10%');
+                });
+            })
+            ->when($jenisProject != 0, function ($q) use ($jenisProject) {
+                $q->where('dikerjakan_oleh', 'LIKE', "%,$jenisProject%");
+            })
+            ->whereHas('wm_project', function ($q) use ($bulan, $tahun) {
+                $q->where(function ($query) use ($bulan, $tahun) {
+                    $query->whereMonth('date_selesai', $bulan)
+                        ->whereYear('date_selesai', $tahun)
+                        ->orWhereNull('date_selesai');
+                });
+            })
+            ->orderBy('tgl_masuk', 'desc')
+            ->get();
+        $results['raw'] = $CsMainProject;
 
-        $query->select('id', 'id_webhost', 'jenis', 'deskripsi', 'tgl_deadline', 'dikerjakan_oleh');
-
-        //filter jenis
-        $query->where('jenis', '!=', 'perpanjangan');
-
-        //filter jenis_project
-        if ($request->input('jenis_project')) {
-            $query->where('dikerjakan_oleh', 'LIKE', '%,' . $jenis_project . '%');
-        }
-
-        //filter wm_project.date_mulai
-        // $query->whereHas('wm_project', function ($query) use ($bulan, $tahun) {
-        //     $query->whereMonth('date_mulai', $bulan)
-        //         ->whereYear('date_mulai', $tahun);
-        // });
-
-        //limit
-        $query->limit(100);
-
-        //order by
-        $query->orderBy('tgl_masuk', 'desc');
-
-        //ambil data CsMainProject tiap user
-        foreach ($results['users'] as $i => $user) {
-
-            $id_user = $user['id'];
-
-            //clone query
-            $query_clone = $query->clone();
-
-            //filter wm_project.user_id
-            $query_clone->whereHas('wm_project', function ($query) use ($id_user) {
-                $query->where('user_id', $id_user);
-            });
-
-            //ambil data
-            $CsMainProject = $query_clone->get();
-
-            //jika kosong, skip
-            if ($CsMainProject->isEmpty()) {
-                continue;
+        //susun data
+        foreach ($CsMainProject as $project) {
+            $user_id = $project->wm_project->user_id;
+            if (isset($results['users'][$user_id])) {
+                $results['users'][$user_id]['total']++;
+                $results['data'][$user_id]['projects'][] = $project;
             }
-
-            //hitung total
-            $results['users'][$i]['total'] = $CsMainProject->count();
-
-            if ($CsMainProject->isEmpty()) {
-                $results['data'][$id_user]['projects'] = [];
-                continue;
-            }
-
-            // $results['data'][$id_user]['projects'] = $CsMainProject;
         }
 
         $results['users'] = array_values($results['users']);
