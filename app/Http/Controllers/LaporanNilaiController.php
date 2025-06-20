@@ -43,36 +43,37 @@ class LaporanNilaiController extends Controller
                     ->where(function ($query) use ($bulan, $tahun) {
                         $query->whereMonth('date_selesai', $bulan)
                             ->whereYear('date_selesai', $tahun)
-                            ->orWhereNull('date_selesai');
+                            ->orWhereNull('date_selesai')
+                            ->orWhere('date_selesai', '');
                     })
                     ->with(['cs_main_project' => function ($q) {
-                        $q->select('id', 'jenis', 'deskripsi', 'tgl_deadline', 'dikerjakan_oleh', 'id_webhost');
+                        $q->select('id', 'jenis', 'deskripsi', 'tgl_deadline', 'dikerjakan_oleh', 'id_webhost')
+                            ->with('webhost', 'webhost.paket');
                     }]);
             }])
             ->get();
 
         foreach ($users as $user) {
+
+            $total_selesai = $user->wm_project->where('date_selesai', '!=', null)->where('date_selesai', '!=', '')->count();
+            $total_progress = $user->wm_project->filter(function ($project) {
+                return $project->date_selesai === null || $project->date_selesai === '';
+            })->count();
+
             $results['users'][] = [
-                'id' => $user->id,
-                'name' => $user->name,
-                'avatar' => $user->avatar_url,
-                'total' => $user->wm_project->count()
+                'id'        => $user->id,
+                'name'      => $user->name,
+                'avatar'    => $user->avatar_url,
+                'total'     => $user->wm_project->count(),
+                'selesai'   => $total_selesai,
+                'progress'  => $total_progress
             ];
 
-            // Group project berdasarkan jenis
-            $grouped = $user->wm_project
-                ->filter(fn($wm) => $wm->cs_main_project)
-                ->groupBy(fn($wm) => $wm->cs_main_project->jenis)
-                ->map(function ($projects) {
-                    // Ambil cs_main_project saja
-                    return $projects->map(fn($wm) => $wm->cs_main_project)->values();
-                });
-
             $results['data'][$user->id] = [
-                'id' => $user->id,
-                'name' => $user->name,
-                'avatar' => $user->avatar_url,
-                'projects' => $grouped
+                'id'        => $user->id,
+                'name'      => $user->name,
+                'avatar'    => $user->avatar_url,
+                'projects'  => $user->wm_project
             ];
         }
 
