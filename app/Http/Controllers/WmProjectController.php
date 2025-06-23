@@ -31,12 +31,19 @@ class WmProjectController extends Controller
             'catatan'               => 'nullable|string',
             'status_multi'          => 'required|string|in:pending,selesai',
             'user_id'               => 'required|integer',
+            'status_project'        => 'nullable|string',
         ]);
 
         if ($request->user_id) {
             $webmaster = $this->user_get_webmaster($request->user_id);
         } elseif ($request->webmaster && !$request->user_id) {
             $webmaster = $request->webmaster;
+        }
+
+        //status_project
+        $status_project = 'Belum dikerjakan';
+        if ($request->date_mulai && $request->user_id) {
+            $status_project = 'Dalam pengerjaan';
         }
 
         //create wm_project
@@ -51,6 +58,7 @@ class WmProjectController extends Controller
             'status_multi'  => $request->status_multi,
             'user_id'       => $request->user_id,
             'start'         => now(),
+            'status_project' => $status_project,
         ]);
 
         return response()->json($wm_project);
@@ -81,12 +89,18 @@ class WmProjectController extends Controller
             'catatan'               => 'nullable|string',
             'status_multi'          => 'required|string|in:pending,selesai',
             'user_id'               => 'required|integer',
+            'status_project'        => 'nullable|string',
         ]);
 
         if ($request->user_id) {
             $webmaster = $this->user_get_webmaster($request->user_id);
         } elseif ($request->webmaster && !$request->user_id) {
             $webmaster = $request->webmaster;
+        }
+
+        $status_multi = $request->status_multi ?? 'pending';
+        if ($request->date_mulai && $request->date_selesai && $request->status_project == 'Selesai') {
+            $status_multi = 'selesai';
         }
 
         //update wm_project
@@ -99,8 +113,9 @@ class WmProjectController extends Controller
             'date_selesai'  => $request->date_selesai,
             'qc'            => $request->qc ? serialize($request->qc) : '',
             'catatan'       => $request->catatan,
-            'status_multi'  => $request->status_multi,
+            'status_multi'  => $status_multi,
             'user_id'       => $request->user_id,
+            'status_project' => $request->status_project,
         ]);
 
         return response()->json($wm_project);

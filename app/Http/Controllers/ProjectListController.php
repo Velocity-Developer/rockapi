@@ -19,7 +19,7 @@ class ProjectListController extends Controller
         $query = CsMainProject::with(
             'webhost:id_webhost,nama_web,id_paket',
             'webhost.paket:id_paket,paket',
-            'wm_project:id_wm_project,id_karyawan,user_id,id,date_mulai,date_selesai,catatan,status_multi,webmaster',
+            'wm_project:id_wm_project,id_karyawan,user_id,id,date_mulai,date_selesai,catatan,status_multi,webmaster,status_project',
             'wm_project.user:id,name,avatar',
         );
 
@@ -41,6 +41,47 @@ class ProjectListController extends Controller
         $tgl_masuk_end      = $request->input('tgl_masuk_end');
         if ($tgl_masuk_start && $tgl_masuk_end) {
             $query->whereBetween('tgl_masuk', [$tgl_masuk_start, $tgl_masuk_end]);
+        }
+
+        //filter by wm_project.status_multi
+        $status_pengerjaan = $request->input('status_pengerjaan');
+        if ($status_pengerjaan) {
+
+            //jika status_pengerjaan = Belum dikerjakan, maka wm_project = null
+            if ($status_pengerjaan == 'Belum dikerjakan') {
+                $query->whereDoesntHave('wm_project');
+            }
+
+            //jika status_pengerjaan = selesai, maka wm_project = selesai
+            if ($status_pengerjaan == 'Selesai') {
+                $query->whereHas('wm_project', function ($query) {
+                    $query->where('status_multi', 'selesai');
+                });
+            }
+
+            //jika status_pengerjaan = 'Dalam pengerjaan', maka wm_project = pending dan date_selesai = null/'' dan date_mulai != null
+            if ($status_pengerjaan == 'Dalam pengerjaan') {
+                $query->whereHas('wm_project', function ($query) {
+                    $query->where('status_multi', 'pending')
+                        ->whereNotNull('date_mulai')
+                        ->whereNull('date_selesai')
+                        ->orWhere('date_selesai', '');
+                });
+            }
+
+            //jika status_pengerjaan = 'Proses koreksi', maka wm_project = pending dan date_selesai != null
+            if ($status_pengerjaan == 'Menunggu koreksi' || $status_pengerjaan == 'Proses koreksi' || $status_pengerjaan == 'Kurang konfirmasi') {
+                $query->whereHas('wm_project', function ($query) use ($status_pengerjaan) {
+                    $query->where('status_multi', 'pending')
+                        ->whereNotNull('date_mulai')
+                        ->whereNotNull('date_selesai')
+                        ->Where('date_selesai', '!=', '')
+                        ->where(function ($q) use ($status_pengerjaan) {
+                            $q->where('status_project', $status_pengerjaan)
+                                ->orWhereNull('status_project');
+                        });
+                });
+            }
         }
 
         $data = $query->paginate($per_page);

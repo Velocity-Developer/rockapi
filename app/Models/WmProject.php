@@ -42,6 +42,7 @@ class WmProject extends Model
         'qc',
         'catatan',
         'status_multi',
+        'status_project',
     ];
 
     //accessor progress
