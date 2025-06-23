@@ -59,13 +59,16 @@ class ProjectListController extends Controller
                 });
             }
 
-            //jika status_pengerjaan = 'Dalam pengerjaan', maka wm_project = pending dan date_selesai = null/'' dan date_mulai != null
+            //jika status_pengerjaan = 'Dalam pengerjaan', maka wm_project = pending dan date_selesai = null/'' dan date_mulai != null dan user_id != null
             if ($status_pengerjaan == 'Dalam pengerjaan') {
                 $query->whereHas('wm_project', function ($query) {
                     $query->where('status_multi', 'pending')
+                        ->whereNotNull('user_id')
                         ->whereNotNull('date_mulai')
-                        ->whereNull('date_selesai')
-                        ->orWhere('date_selesai', '');
+                        ->where(function ($q) {
+                            $q->whereNull('date_selesai')
+                                ->orWhere('date_selesai', '');
+                        });
                 });
             }
 
