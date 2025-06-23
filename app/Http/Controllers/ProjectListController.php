@@ -28,8 +28,27 @@ class ProjectListController extends Controller
         //order by
         $query->orderBy($order_by, $order);
 
-        //filter jenis
-        $query->where('jenis', '!=', 'perpanjangan');
+        //jika ada request jenis, maka filter by jenis
+        if ($request->input('jenis')) {
+            // $query->where('jenis', 'like', '%' . $request->input('jenis') . '%');
+            $query->where('jenis', '=', $request->input('jenis'));
+        } else {
+            $query->where('jenis', '!=', 'perpanjangan');
+        }
+
+        //filter webhost.nama_web
+        if ($request->input('nama_web')) {
+            $query->whereHas('webhost', function ($query) use ($request) {
+                $query->where('nama_web', 'like', '%' . $request->input('nama_web') . '%');
+            });
+        }
+
+        //filter webhost.paket
+        if ($request->input('paket')) {
+            $query->whereHas('webhost.paket', function ($query) use ($request) {
+                $query->where('id_paket', $request->input('paket'));
+            });
+        }
 
         //filter jenis_project
         if ($request->input('jenis_project')) {
