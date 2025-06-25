@@ -13,7 +13,7 @@ class TransaksiIklanGoogleController extends Controller
     public function index(Request $request)
     {
         $per_page           = $request->input('per_page', 50);
-        $order_by           = $request->input('order_by', 'tgl_masuk');
+        $order_by           = $request->input('order_by', 'tgl_deadline');
         $order              = $request->input('order', 'desc');
 
         //get cs_main_project
@@ -26,9 +26,10 @@ class TransaksiIklanGoogleController extends Controller
         if ($order_by == 'webhost.hpads') {
             $query->join('tb_webhosts', 'cs_main_projects.webhost_id', '=', 'webhosts.id')
                 ->orderBy('webhosts.hpads', $order);
-        } else {
-            $query->orderBy($order_by, $order);
         }
+        // else {
+        //     $query->orderBy($order_by, $order);
+        // }
 
         //where by jenis in = ('Iklan Google', 'Deposit Iklan Google', 'Jasa update iklan google')
         $query->whereIn('jenis', ['Iklan Google', 'Deposit Iklan Google', 'Jasa update iklan google']);
@@ -37,7 +38,11 @@ class TransaksiIklanGoogleController extends Controller
         $tgl_masuk_start    = $request->input('tgl_masuk_start');
         $tgl_masuk_end      = $request->input('tgl_masuk_end');
         if ($tgl_masuk_start && $tgl_masuk_end) {
-            $query->whereBetween('tgl_masuk', [$tgl_masuk_start, $tgl_masuk_end]);
+            // $query->whereBetween('tgl_masuk', [$tgl_masuk_start, $tgl_masuk_end]);
+            // $query->whereBetween('tgl_masuk', [$tgl_masuk_start, $tgl_masuk_end])
+            //     ->orWhereBetween('tgl_deadline', [$tgl_masuk_start, $tgl_masuk_end]);
+            $query->where('tgl_deadline', '>=', $tgl_masuk_start)
+                ->where('tgl_deadline', '<=', $tgl_masuk_end);
         }
 
         //filter by webhost.nama_web
@@ -58,6 +63,8 @@ class TransaksiIklanGoogleController extends Controller
         $trf = $request->input('trf');
         if ($trf) {
             $query->where('trf', $trf);
+        } else {
+            $query->where('trf', '!=', 0);
         }
 
         //filter by webhost.hp
