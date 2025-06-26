@@ -59,7 +59,7 @@ class CsMainProjectController extends Controller
                 'server_luar'       => $request->input('server') && $request->input('server') == '4' ? '0' : '1',
                 'saldo'             => $request->input('saldo'),
                 'kategori'          => '',
-                'waktu'             => '0000-00-00 00:00:00',
+                'waktu'             => null,
                 'via'               => '',
                 'konfirmasi_order'  => '',
                 'kata_kunci'        => '',
