@@ -56,12 +56,21 @@ class WebhostController extends Controller
     //search by keyword
     public function search(string $keyword)
     {
+        //jika keyword kosong, atau kurang dari 3 karakter
+        if (empty($keyword) || $keyword && strlen($keyword) < 3) {
+            return response()->json(['message' => 'Keyword minimal 3 karakter'], 404);
+        }
+
         //get nama_web by keyword, ambil kolom nama_web dan id_webhost
         $webhosts = Webhost::where('nama_web', 'like', '%' . $keyword . '%')
             ->select('nama_web', 'id_webhost')
             ->get();
 
-        // $webhosts = Webhost::where('nama_web', 'like', '%' . $keyword . '%')->get();
+        //jika kosong
+        if ($webhosts->isEmpty()) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        }
+
         return response()->json($webhosts);
     }
 }
