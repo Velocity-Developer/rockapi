@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\CsMainProject;
 use App\Models\Quality;
+use Carbon\Carbon;
 
 class ProjectListController extends Controller
 {
@@ -12,7 +13,7 @@ class ProjectListController extends Controller
     {
 
         $per_page           = $request->input('per_page', 50);
-        $order_by           = $request->input('order_by', 'tgl_masuk');
+        $order_by           = $request->input('order_by', 'tgl_deadline');
         $order              = $request->input('order', 'desc');
 
         //get cs_main_project
@@ -69,6 +70,9 @@ class ProjectListController extends Controller
             //jika status_pengerjaan = Belum dikerjakan, maka wm_project = null
             if ($status_pengerjaan == 'Belum dikerjakan') {
                 $query->whereDoesntHave('wm_project');
+
+                //tgl_masuk minimal satu tahun sebelum sekarang
+                $query->whereYear('tgl_masuk', '>=', Carbon::now()->subYear());
             }
 
             //jika status_pengerjaan = selesai, maka wm_project = selesai
