@@ -22,9 +22,16 @@
     {
         "key": "project_list",
         "label": "Daftar Project",
-        "icon": "lucide:layout-panel-top",
+        "icon": "lucide:folder-code",
         "route": "/project_list",
         "roles": ["admin", "manager_project","webdeveloper"]
+    },
+    {
+        "key": "project_manager",
+        "label": "Project Selesai",
+        "icon": "lucide:folder-check",
+        "route": "/project_manager",
+        "roles": ["admin", "manager_project"]
     },
     {
         "key": "laporannilai",
