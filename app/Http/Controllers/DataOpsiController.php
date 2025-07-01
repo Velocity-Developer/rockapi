@@ -25,7 +25,11 @@ class DataOpsiController extends Controller
 
         $result = [];
         foreach ($keys as $key) {
-            $result[$key] = $this->get_data($key);
+            if ($result[$key] == 'bank') {
+                $result[$key] = $this->get_data($key, $request->kategori ?? '');
+            } else {
+                $result[$key] = $this->get_data($key);
+            }
         }
 
         return response()->json($result);
@@ -99,54 +103,124 @@ class DataOpsiController extends Controller
         return $result;
     }
 
-    private function bank()
+    private function bank($kategori = null)
     {
-        return [
+        $data_banks = [
             [
-                'value' => 'bca',
-                'label' => 'BCA'
+                'value'     => 'bca',
+                'label'     => 'BCA',
+                'kategori'  => 'umum'
             ],
             [
-                'value' => 'bca stok',
-                'label' => 'BCA Stok'
+                'value'     => 'bca stok',
+                'label'     => 'BCA Stok',
+                'kategori'  => 'umum'
             ],
             [
-                'value' => 'mandiri',
-                'label' => 'Mandiri'
+                'value'     => 'mandiri',
+                'label'     => 'Mandiri',
+                'kategori'  => 'umum'
             ],
             [
-                'value' => 'bni',
-                'label' => 'BNI'
+                'value'     => 'bni',
+                'label'     => 'BNI',
+                'kategori'  => 'umum'
             ],
             [
-                'value' => 'bri',
-                'label' => 'BRI'
+                'value'     => 'bri',
+                'label'     => 'BRI',
+                'kategori'  => 'umum'
             ],
             [
-                'value' => 'dbs',
-                'label' => 'DBS'
+                'value'     => 'dbs',
+                'label'     => 'DBS',
+                'kategori'  => 'umum'
             ],
             [
-                'value' => 'jago',
-                'label' => 'Jago'
+                'value'     => 'jago',
+                'label'     => 'Jago',
+                'kategori'  => 'umum'
             ],
             [
-                'value' => 'gopay',
-                'label' => 'Gopay'
+                'value'     => 'gopay',
+                'label'     => 'Gopay',
+                'kategori'  => 'umum'
             ],
             [
-                'value' => 'resellercamp',
-                'label' => 'RESELLERCAMP'
+                'value'     => 'resellercamp',
+                'label'     => 'RESELLERCAMP',
+                'kategori'  => 'umum'
             ],
             [
-                'value' => 'srsx',
-                'label' => 'SRSX'
+                'value'     => 'srsx',
+                'label'     => 'SRSX',
+                'kategori'  => 'umum'
             ],
             [
-                'value' => 'jenius',
-                'label' => 'Jenius'
+                'value'     => 'jenius',
+                'label'     => 'Jenius',
+                'kategori'  => 'umum'
+            ],
+            [
+                'value'     => 'bca_vd_1',
+                'label'     => 'BCA1 Velocity Developer',
+                'kategori'  => 'vd'
+            ],
+            [
+                'value'     => 'bca_vd_2',
+                'label'     => 'BCA2 Velocity Developer',
+                'kategori'  => 'vd'
+            ],
+            [
+                'value'     => 'mandiri_vd',
+                'label'     => 'Mandiri Velocity Developer',
+                'kategori'  => 'vd'
+            ],
+            [
+                'value'     => 'bri_vd',
+                'label'     => 'BRI Velocity Developer',
+                'kategori'  => 'vd'
+            ],
+            [
+                'value'     => 'bni_vd',
+                'label'     => 'BNI Velocity Developer',
+                'kategori'  => 'vd'
+            ],
+            [
+                'value'     => 'bca_vcm',
+                'label'     => 'BCA Velocity Cyber Media',
+                'kategori'  => 'vcm'
+            ],
+            [
+                'value'     => 'mandiri_vcm',
+                'label'     => 'Mandiri Velocity Cyber Media',
+                'kategori'  => 'vcm'
+            ],
+            [
+                'value'     => 'bri_vcm',
+                'label'     => 'BRI Velocity Cyber Media',
+                'kategori'  => 'vcm'
+            ],
+            [
+                'value'     => 'bni_vcm',
+                'label'     => 'BNI Velocity Cyber Media',
+                'kategori'  => 'vcm'
             ]
         ];
+
+        //return array by kategori
+        if ($kategori != null) {
+            return array_filter($data_banks, function ($item) use ($kategori) {
+                return $item['kategori'] == $kategori;
+            });
+        } else {
+            //jika kategori null, return kategori umum
+            return array_filter($data_banks, function ($item) {
+                return $item['kategori'] == 'umum';
+            });
+        }
+
+        return $data_banks;
     }
 
     private function jenis_project()
