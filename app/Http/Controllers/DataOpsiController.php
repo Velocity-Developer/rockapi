@@ -36,13 +36,19 @@ class DataOpsiController extends Controller
     }
 
     //get
-    public function get(string $key)
+    public function get(string $key, Request $request)
     {
-        return $this->get_data($key);
+        if ($key == 'bank') {
+            $get = $this->get_data($key, $request->kategori ?? '');
+        } else {
+            $get = $this->get_data($key, $request);
+        }
+
+        return response()->json($get);
     }
 
     //get
-    public function get_data(string $key)
+    public function get_data(string $key, $request = null)
     {
         $result = [];
 
@@ -58,7 +64,7 @@ class DataOpsiController extends Controller
                 $result = $this->paket();
                 break;
             case 'bank':
-                $result = $this->bank();
+                $result = $this->bank($request);
                 break;
             case 'webmaster':
                 $result = $this->webmaster();
@@ -209,18 +215,18 @@ class DataOpsiController extends Controller
         ];
 
         //return array by kategori
-        if ($kategori != null) {
-            return array_filter($data_banks, function ($item) use ($kategori) {
-                return $item['kategori'] == $kategori;
-            });
-        } else {
-            //jika kategori null, return kategori umum
-            return array_filter($data_banks, function ($item) {
-                return $item['kategori'] == 'umum';
-            });
+        $kategori = $kategori ?? 'umum';
+        $new_array = [];
+        foreach ($data_banks as $item) {
+            ///jika katgori != kategori, skip
+            if ($item['kategori'] != $kategori) {
+                continue;
+            }
+
+            $new_array[] = $item;
         }
 
-        return $data_banks;
+        return $new_array;
     }
 
     private function jenis_project()

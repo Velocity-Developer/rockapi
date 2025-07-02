@@ -44,8 +44,24 @@
         "key": "bank_transaksi",
         "label": "Bank Transaksi",
         "icon": "lucide:wallet",
-        "route": "/bank_transaksi",
-        "roles": ["admin", "finance"]
+        "roles": ["admin", "finance"],
+        "items": [
+            {
+                "key": "bank_transaksi_umum",
+                "label": "Umum",
+                "route": "/bank_transaksi/umum"
+            },
+            {
+                "key": "bank_transaksi_vd",
+                "label": "Velocity Developer",
+                "route": "/bank_transaksi/vd"
+            },
+            {
+                "key": "bank_transaksi_vcm",
+                "label": "Velocity Cyber Media",
+                "route": "/bank_transaksi/vcm"
+            }
+        ]
     },
     {
         "key": "jenis_blm_terpilih",
