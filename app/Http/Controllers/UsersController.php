@@ -73,7 +73,7 @@ class UsersController extends Controller
         //
         $request->validate([
             'name'      => 'required|min:3',
-            'username'  => 'required|min:3',
+            'username'  => 'nullable|min:3',
             'email'     => 'required|email',
             'hp'        => 'nullable',
             'alamat'    => 'nullable|string',
@@ -88,7 +88,7 @@ class UsersController extends Controller
             'name'      => $request->name,
             'email'     => $request->email,
             'status'    => $request->status,
-            'username'  => $request->username,
+            'username'  => $request->username ?? $user->username,
             'hp'        => $request->hp,
             'alamat'    => $request->alamat,
             'tgl_masuk' => $request->tgl_masuk,

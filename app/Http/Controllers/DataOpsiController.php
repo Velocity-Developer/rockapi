@@ -25,7 +25,7 @@ class DataOpsiController extends Controller
 
         $result = [];
         foreach ($keys as $key) {
-            if ($result[$key] == 'bank') {
+            if ($key == 'bank') {
                 $result[$key] = $this->get_data($key, $request->kategori ?? '');
             } else {
                 $result[$key] = $this->get_data($key);

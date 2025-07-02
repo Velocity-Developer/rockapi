@@ -78,6 +78,13 @@
         "roles": ["admin", "finance"]
     },
     {
+        "key": "laporan_project_profit",
+        "label": "Laporan Porject Profit",
+        "icon": "lucide:file-chart-line",
+        "route": "/laporan/project_profit",
+        "roles": ["admin", "manager_advertising"]
+    },
+    {
         "key": "users",
         "label": "Users",
         "icon": "lucide:users",
