@@ -10,7 +10,7 @@
         "label": "Billing",
         "icon": "lucide:briefcase",
         "route": "/billing",
-        "roles": ["admin", "manager_project", "finance"]
+        "roles": ["admin", "manager_project", "finance","manager_advertising"]
     },
     {
         "key": "bill_dataweb",
