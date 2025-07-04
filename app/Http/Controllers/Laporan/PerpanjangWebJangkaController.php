@@ -95,6 +95,8 @@ class PerpanjangWebJangkaController extends Controller
                     if ($jenis == 'Pembuatan Web' || $jenis == 'Pembuatan' || $jenis == 'Pembuatan Tanpa Domain') {
                         $profit = $biaya_sum - $harga_domain;
                         $total_profit_kotor_pembuatan += $biaya_sum;
+                    } else if ($jenis == 'Perpanjangan') {
+                        $profit = $biaya_sum - $harga_domain;
                     }
 
                     $total_profit_kotor     += $biaya_sum;
@@ -116,6 +118,14 @@ class PerpanjangWebJangkaController extends Controller
 
         $total_net_profit = $total_profit_kotor - $biaya_ads;
 
+        $start_date = null;
+        $end_date = null;
+        if ($request->filled('bulan')) {
+            [$year, $month] = explode('-', $request->input('bulan'));
+            $start_date = Carbon::create($year, $month, 1)->startOfMonth();
+            $end_date = $start_date->copy()->addYears($jangka_waktu)->endOfMonth();
+        }
+
         return response()->json([
             'data'                      => $data,
             'bulan'                     => $bulan_formatted,
@@ -128,6 +138,8 @@ class PerpanjangWebJangkaController extends Controller
                 'Profit Bersih'                     => $total_profit_bersih,
                 'Pertumbuhan Profit ' . $jangka_waktu . ' tahun'    => ($total_net_profit - $total_profit_kotor_pembuatan),
             ],
+            'start_date'                => $start_date,
+            'end_date'                  => $end_date
         ]);
     }
 }
