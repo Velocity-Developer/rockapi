@@ -9,6 +9,7 @@ use App\Services\TanggalFormatterService;
 
 use App\Models\CsMainProject;
 use App\Models\HargaDomain;
+use App\Models\BiayaAds;
 
 class PerpanjangWebJangkaController extends Controller
 {
@@ -26,6 +27,9 @@ class PerpanjangWebJangkaController extends Controller
         //get harga domain by bulan
         $harga_domain = HargaDomain::where('bulan', $bulan_formatted)->first();
         $harga_domain = $harga_domain ? $harga_domain->biaya_normalized : 0;
+
+        //get total biaya ads by bulan
+        $biaya_ads = BiayaAds::where('bulan', $bulan)->sum('biaya');
 
         $query = CsMainProject::with([
             'webhost:id_webhost,nama_web,id_paket',
@@ -99,14 +103,19 @@ class PerpanjangWebJangkaController extends Controller
             }
         });
 
+        $total_net_profit = $total_profit_kotor - $biaya_ads;
+
         return response()->json([
             'data'                      => $data,
             'bulan'                     => $bulan_formatted,
             'info'                      => [
-                'Harga Domain ' . $bulan_formatted    => $harga_domain,
-                'Total Profit Kotor Pembuatan'      => $total_profit_kotor_pembuatan,
-                'Total Profit Kotor'                => $total_profit_kotor,
-                'Total Profit Bersih'               => $total_profit_bersih,
+                'Harga Domain ' . $bulan_formatted  => $harga_domain,
+                'Biaya Ads ' . $bulan_formatted     => $biaya_ads,
+                'Profit Kotor Pembuatan'            => $total_profit_kotor_pembuatan,
+                'Net Profit Pembuatan'              => $total_net_profit,
+                'Profit Kotor'                      => $total_profit_kotor,
+                'Profit Bersih'                     => $total_profit_bersih,
+                'Pertumbuhan Profit ' . $jangka_waktu . ' tahun'    => ($total_net_profit - $total_profit_kotor_pembuatan),
             ],
         ]);
     }
