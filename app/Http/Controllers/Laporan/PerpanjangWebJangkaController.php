@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Services\TanggalFormatterService;
+use App\Services\ConvertDataLamaService;
 
 use App\Models\CsMainProject;
 use App\Models\HargaDomain;
@@ -30,6 +31,16 @@ class PerpanjangWebJangkaController extends Controller
 
         //get total biaya ads by bulan
         $biaya_ads = BiayaAds::where('bulan', $bulan)->sum('biaya');
+
+        //jika kosong, maka jalankan fungsi service ConvertDataLamaService::handle_biaya_ads
+        if (!$biaya_ads) {
+            try {
+                (new ConvertDataLamaService())->handle_biaya_ads();
+                $biaya_ads = BiayaAds::where('bulan', $bulan)->sum('biaya');
+            } catch (\Exception $e) {
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
+        }
 
         $query = CsMainProject::with([
             'webhost:id_webhost,nama_web,id_paket',
