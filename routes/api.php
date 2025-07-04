@@ -18,6 +18,7 @@ use App\Http\Controllers\ProjectListController;
 use App\Http\Controllers\LaporanNilaiController;
 use App\Http\Controllers\ProjectManagerController;
 use App\Http\Controllers\Laporan\ProjectProfitController as LaporanProjectProfitController;
+use App\Http\Controllers\Laporan\PerpanjangWebJangkaController as LaporanPerpanjangWebJangkaController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -83,6 +84,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //group laporan
     Route::get('laporan/project_profit', [LaporanProjectProfitController::class, 'index']);
+    Route::get('laporan/perpanjang_web_jangka', [LaporanPerpanjangWebJangkaController::class, 'index']);
 });
 
 require __DIR__ . '/api-dash.php';

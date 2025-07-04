@@ -78,10 +78,10 @@
         "roles": ["admin", "finance"]
     },
     {
-        "key": "laporan_project_profit",
-        "label": "Laporan Porject Profit",
+        "key": "perpanjang_web_jangka",
+        "label": "Laporan Perpanjang Web Jangka",
         "icon": "lucide:file-chart-line",
-        "route": "/laporan/project_profit",
+        "route": "/laporan/perpanjang_web_jangka",
         "roles": ["admin", "manager_advertising"]
     },
     {
