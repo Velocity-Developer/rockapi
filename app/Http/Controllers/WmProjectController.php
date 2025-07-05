@@ -46,20 +46,24 @@ class WmProjectController extends Controller
             $status_project = 'Dalam pengerjaan';
         }
 
-        //create wm_project
-        $wm_project = WmProject::create([
-            'id_karyawan'   => $request->id_karyawan,
-            'id'            => $request->id_cs_main_project,
-            'webmaster'     => $webmaster,
-            'date_mulai'    => $request->date_mulai,
-            'date_selesai'  => $request->date_selesai,
-            'qc'            => $request->qc,
-            'catatan'       => $request->catatan,
-            'status_multi'  => $request->status_multi,
-            'user_id'       => $request->user_id,
-            'start'         => now(),
-            'status_project' => $status_project,
-        ]);
+        // update or create WmProject, untuk menghindari duplikasi
+        $wm_project = WmProject::updateOrCreate(
+            [
+                'id'            => $request->id_cs_main_project,
+                'id_karyawan'   => $request->id_karyawan,
+                'user_id'       => $request->user_id,
+            ],
+            [
+                'webmaster'     => $webmaster,
+                'date_mulai'    => $request->date_mulai,
+                'date_selesai'  => $request->date_selesai,
+                'qc'            => $request->qc,
+                'catatan'       => $request->catatan,
+                'status_multi'  => $request->status_multi,
+                'start'         => now(),
+                'status_project' => $status_project,
+            ],
+        );
 
         return response()->json($wm_project);
     }
