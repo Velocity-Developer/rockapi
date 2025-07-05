@@ -174,7 +174,7 @@ class DataOpsiController extends Controller
             ],
             [
                 'value'     => 'bca_vd_2',
-                'label'     => 'BCA2 Velocity Developer',
+                'label'     => 'BCA Stock',
                 'kategori'  => 'vd'
             ],
             [
