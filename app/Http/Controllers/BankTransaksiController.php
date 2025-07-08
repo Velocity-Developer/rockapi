@@ -53,6 +53,7 @@ class BankTransaksiController extends Controller
                 'CsMainProject.Webhost',
                 'CsMainProject.Webhost.Paket'
             )
+            ->orderBy('id', 'asc')
             ->get();
 
         $saldo = $saldo_bank->nominal ?? 0;
@@ -63,7 +64,8 @@ class BankTransaksiController extends Controller
         if ($banks) {
             foreach ($banks as $key => $bank) {
 
-                $bank->nomor = $bank->tgl . '-' . $key;
+                $nomor = str_replace('-', '', $bank->tgl);
+                $bank->nomor = $nomor . $bank->id;
 
                 //jika jenis transaksi adalah 'masuk'
                 if ($bank->jenis_transaksi == 'masuk') {
