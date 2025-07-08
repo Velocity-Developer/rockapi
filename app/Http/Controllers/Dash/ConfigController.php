@@ -171,32 +171,50 @@ class ConfigController extends Controller
 
     private function get_menus($roles)
     {
-        $path = resource_path("menus.json");
+        ///roles ready menu
+        $ready = ['finance', 'webdeveloper', 'manager_advertising', 'manager_project', 'admin'];
 
-        // Jika file utama tidak ada, gunakan fallback
-        if (!file_exists($path)) {
-            return [];
-        }
+        if (array_intersect($ready, $roles)) {
+            //get menus by role
+            $results = [];
+            foreach ($roles as $role) {
+                //get file json
+                $path = resource_path("menus/" . $role . ".json");
 
-        // Decode ke array asosiatif (true sebagai parameter kedua)
-        $results = json_decode(file_get_contents($path), true);
+                // Decode ke array asosiatif (true sebagai parameter kedua)
+                $results = json_decode(file_get_contents($path), true);
+            }
 
-        //jika roles = admin, skip seleksi
-        if (in_array('admin', $roles)) {
+            return $results;
+        } else {
+
+            $path = resource_path("menus.json");
+
+            // Jika file utama tidak ada, gunakan fallback
+            if (!file_exists($path)) {
+                return [];
+            }
+
+            // Decode ke array asosiatif (true sebagai parameter kedua)
+            $results = json_decode(file_get_contents($path), true);
+
+            //jika roles = admin, skip seleksi
+            if (in_array('admin', $roles)) {
+                return $results;
+            }
+
+            // Seleksi menu berdasarkan role
+            foreach ($results as $key => $menu) {
+                // Pastikan key 'roles' ada dan user role tidak ada di dalamnya
+                if (isset($menu['roles']) && array_intersect($menu['roles'], $roles) === []) {
+                    unset($results[$key]);
+                }
+            }
+
+            // Reindex array agar tetap menjadi indexed array
+            $results = array_values($results);
+
             return $results;
         }
-
-        // Seleksi menu berdasarkan role
-        foreach ($results as $key => $menu) {
-            // Pastikan key 'roles' ada dan user role tidak ada di dalamnya
-            if (isset($menu['roles']) && array_intersect($menu['roles'], $roles) === []) {
-                unset($results[$key]);
-            }
-        }
-
-        // Reindex array agar tetap menjadi indexed array
-        $results = array_values($results);
-
-        return $results;
     }
 }

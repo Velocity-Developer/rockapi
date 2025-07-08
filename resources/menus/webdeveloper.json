@@ -1,0 +1,20 @@
+[
+    {
+        "key": "dashboard",
+        "label": "Dashboard",
+        "icon": "lucide:layout-grid",
+        "route": "/"
+    },
+    {
+        "key": "project_list",
+        "label": "Daftar Project",
+        "icon": "lucide:folder-code",
+        "route": "/project_list"
+    },
+    {
+        "key": "laporannilai",
+        "label": "Laporan Tim",
+        "icon": "lucide:chart-column-stacked",
+        "route": "/laporannilai"
+    }
+]

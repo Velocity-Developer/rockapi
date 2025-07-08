@@ -1,0 +1,38 @@
+[
+    {
+        "key": "dashboard",
+        "label": "Dashboard",
+        "icon": "lucide:layout-grid",
+        "route": "/"
+    },
+    {
+        "key": "bank_transaksi_umum",
+        "label": "Bank Umum",
+        "icon": "lucide:wallet",
+        "route": "/bank_transaksi/umum"
+    },
+    {
+        "key": "bank_transaksi_vd",
+        "label": "Bank Velocity Developer",
+        "icon": "lucide:wallet",
+        "route": "/bank_transaksi/vd"
+    },
+    {
+        "key": "bank_transaksi_vcm",
+        "label": "Bank Velocity Cyber Media",
+        "icon": "lucide:wallet",
+        "route": "/bank_transaksi/vcm"
+    },
+    {
+        "key": "jenis_blm_terpilih",
+        "label": "Jenis Belum Terpilih",
+        "icon": "lucide:file-scan",
+        "route": "/jenis_blm_terpilih"
+    },
+    {
+        "key": "transaksi_iklan_google",
+        "label": "Transaksi Iklan Google",
+        "icon": "lucide:file-chart-line",
+        "route": "/transaksi_iklan_google"
+    }
+]

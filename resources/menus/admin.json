@@ -37,14 +37,12 @@
         "key": "laporannilai",
         "label": "Laporan Tim",
         "icon": "lucide:chart-column-stacked",
-        "route": "/laporannilai",
-        "roles": ["admin", "manager_project","webdeveloper"]
+        "route": "/laporannilai"
     },
     {
         "key": "bank_transaksi",
         "label": "Bank Transaksi",
         "icon": "lucide:wallet",
-        "roles": ["admin", "finance"],
         "items": [
             {
                 "key": "bank_transaksi_umum",
@@ -60,29 +58,30 @@
                 "key": "bank_transaksi_vcm",
                 "label": "Velocity Cyber Media",
                 "route": "/bank_transaksi/vcm"
+            },
+            {
+                "key": "jenis_blm_terpilih",
+                "label": "Jenis Belum Terpilih",
+                "route": "/jenis_blm_terpilih"
+            },
+            {
+                "key": "transaksi_iklan_google",
+                "label": "Transaksi Iklan Google",
+                "route": "/transaksi_iklan_google"
             }
         ]
-    },
+    },   
     {
-        "key": "jenis_blm_terpilih",
-        "label": "Jenis Belum Terpilih",
-        "icon": "lucide:file-scan",
-        "route": "/jenis_blm_terpilih",
-        "roles": ["admin", "finance"]
-    },
-    {
-        "key": "transaksi_iklan_google",
-        "label": "Transaksi Iklan Google",
-        "icon": "lucide:file-chart-line",
-        "route": "/transaksi_iklan_google",
-        "roles": ["admin", "finance"]
-    },
-    {
-        "key": "perpanjang_web_jangka",
-        "label": "Laporan Perpanjang Web Jangka",
-        "icon": "lucide:file-chart-line",
-        "route": "/laporan/perpanjang_web_jangka",
-        "roles": ["admin", "manager_advertising"]
+        "key": "laporan",
+        "label": "Laporan Man.Adv",
+        "icon": "lucide:file-chart-line",    
+        "items": [
+            {
+                "key": "perpanjang_web_jangka",
+                "label": "Perpanjang Web Jangka",
+                "route": "/laporan/perpanjang_web_jangka"
+            }
+        ]
     },
     {
         "key": "users",

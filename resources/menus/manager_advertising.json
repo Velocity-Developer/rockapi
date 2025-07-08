@@ -1,0 +1,20 @@
+[
+    {
+        "key": "dashboard",
+        "label": "Dashboard",
+        "icon": "lucide:layout-grid",
+        "route": "/"
+    },
+    {
+        "key": "billing",
+        "label": "Billing",
+        "icon": "lucide:briefcase",
+        "route": "/billing"
+    },
+    {
+        "key": "perpanjang_web_jangka",
+        "label": "Perpanjang Web Jangka",
+        "icon": "lucide:file-chart-line",
+        "route": "/laporan/perpanjang_web_jangka"
+    }
+]
