@@ -57,6 +57,21 @@ class PerpanjangWebJangkaController extends Controller
             }
         ]);
 
+        // filter relasi webhost via
+        $query->whereHas('webhost', function ($q) {
+            $q->whereIn('via', ['Whatsapp', 'Tidio Chat', 'Telegram']);
+        });
+
+        // filter jenis pada cs_main_project
+        $query->whereIn('jenis', [
+            'Pembuatan',
+            'Pembuatan apk',
+            'Pembuatan apk custom',
+            'Pembuatan Tanpa Domain',
+            'Pembuatan Tanpa Hosting',
+            'Pembuatan Tanpa Domain+Hosting'
+        ]);
+
         // Filter utama
         $query->where('jenis', 'like', '%Pembuatan%');
 
@@ -81,18 +96,39 @@ class PerpanjangWebJangkaController extends Controller
             $webhost = $project->webhost;
 
             if ($webhost && $webhost->relationLoaded('csMainProjects')) {
+
+                $jenis_pembuatan = [
+                    'Pembuatan',
+                    'Pembuatan apk',
+                    'Pembuatan apk custom',
+                    'Pembuatan Tanpa Domain',
+                    'Pembuatan Tanpa Hosting',
+                    'Pembuatan Tanpa Domain+Hosting'
+                ];
+
+                // Ambil project pertama dari webhost
+                $firstProject = $webhost->csMainProjects->sortBy('tgl_masuk')->first();
+                $firstJenis = $firstProject?->jenis;
+
+                // Skip perhitungan jika project pertama bukan termasuk jenis pembuatan
+                if (!$firstProject || !in_array($firstProject->jenis, $jenis_pembuatan)) {
+                    return; // keluar dari each
+                }
+
                 $grouped = $webhost->csMainProjects->groupBy('jenis');
 
                 $rekap = [];
                 $profit_web = 0;
+                $urutan = 1;
 
                 foreach ($grouped as $jenis => $projects) {
+
                     $biaya_sum  = $projects->sum('biaya');
                     $profit     = $biaya_sum;
 
                     //logic profit
-                    //jika jenis = 'Pembuatan Web'
-                    if ($jenis == 'Pembuatan Web' || $jenis == 'Pembuatan' || $jenis == 'Pembuatan Tanpa Domain') {
+                    //jika jenis in array jenis_pembuatan
+                    if (in_array($jenis, $jenis_pembuatan) && $urutan == 1) {
                         $profit = $biaya_sum - $harga_domain;
                         $total_profit_kotor_pembuatan += $biaya_sum;
                     } else if ($jenis == 'Perpanjangan') {
@@ -103,9 +139,13 @@ class PerpanjangWebJangkaController extends Controller
                     $total_profit_bersih    += $profit;
                     $profit_web             += $profit;
 
+                    $rekap['jenis'][$jenis]['label'] = $urutan . '.' . $jenis;
                     $rekap['jenis'][$jenis]['total'] = $projects->count();
                     $rekap['jenis'][$jenis]['biaya'] = $biaya_sum;
                     $rekap['jenis'][$jenis]['profit'] = $profit;
+                    $rekap['jenis'][$jenis]['tanggal'] = $projects->first()->tgl_masuk;
+
+                    $urutan++;
                 }
 
                 //total profit
