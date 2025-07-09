@@ -54,6 +54,9 @@ class ConfigController extends Controller
             //collection permissions
             $results['permissions'] = collect($permissons)->pluck('name');
 
+            //get user roles
+            $results['roles'] = $request->user()->roles()->pluck('name')->toArray();
+
             //get user role
             $role = $request->user()->roles()->first();
             $role = $role ? $role->name : null;

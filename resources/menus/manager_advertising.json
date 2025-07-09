@@ -16,5 +16,11 @@
         "label": "Perpanjang Web Jangka",
         "icon": "lucide:file-chart-line",
         "route": "/laporan/perpanjang_web_jangka"
+    },
+    {
+        "key": "net_profit",
+        "label": "Net Profit",
+        "icon": "lucide:file-chart-line",
+        "route": "/laporan/net_profit"
     }
 ]

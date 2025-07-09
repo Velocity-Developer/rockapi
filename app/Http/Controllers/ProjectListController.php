@@ -76,27 +76,27 @@ class ProjectListController extends Controller
             }
 
             //jika status_pengerjaan = selesai, maka wm_project = selesai
-            if ($status_pengerjaan == 'Selesai') {
+            else if ($status_pengerjaan == 'Selesai') {
                 $query->whereHas('wm_project', function ($query) {
                     $query->where('status_multi', 'selesai');
                 });
             }
 
             //jika status_pengerjaan = 'Dalam pengerjaan', maka wm_project = pending dan date_selesai = null/'' dan date_mulai != null dan user_id != null
-            if ($status_pengerjaan == 'Dalam pengerjaan') {
+            else if ($status_pengerjaan == 'Dalam pengerjaan') {
                 $query->whereHas('wm_project', function ($query) {
                     $query->where('status_multi', 'pending')
                         ->whereNotNull('user_id')
                         ->whereNotNull('date_mulai')
                         ->where(function ($q) {
                             $q->whereNull('date_selesai')
-                                ->orWhere('date_selesai', '');
+                                ->orWhereRaw("TRIM(date_selesai) = ''");
                         });
                 });
             }
 
             //jika status_pengerjaan = 'Proses koreksi', maka wm_project = pending dan date_selesai != null
-            if ($status_pengerjaan == 'Menunggu koreksi' || $status_pengerjaan == 'Proses koreksi' || $status_pengerjaan == 'Kurang konfirmasi') {
+            else if ($status_pengerjaan == 'Menunggu koreksi' || $status_pengerjaan == 'Proses koreksi' || $status_pengerjaan == 'Kurang konfirmasi') {
                 $query->whereHas('wm_project', function ($query) use ($status_pengerjaan) {
                     $query->where('status_multi', 'pending')
                         ->whereNotNull('date_mulai')

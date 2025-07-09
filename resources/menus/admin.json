@@ -80,6 +80,11 @@
                 "key": "perpanjang_web_jangka",
                 "label": "Perpanjang Web Jangka",
                 "route": "/laporan/perpanjang_web_jangka"
+            },
+            {
+                "key": "net_profit",
+                "label": "Net Profit",
+                "route": "/laporan/net_profit"
             }
         ]
     },
