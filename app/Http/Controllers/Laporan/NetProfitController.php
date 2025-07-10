@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Laporan;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Services\TanggalFormatterService;
 
 use App\Models\CsMainProject;
 use App\Models\HargaDomain;
@@ -15,6 +16,8 @@ class NetProfitController extends Controller
     //
     public function index(Request $request)
     {
+
+        $formatter = new TanggalFormatterService();
 
         $dari = $request->input('bulan_dari'); //format = YYYY-MMM
         //dapatkan hari pertama dari bulan $dari
@@ -44,21 +47,64 @@ class NetProfitController extends Controller
         //filter by tgl_masuk
         $query->whereBetween('tgl_masuk', [$dari, $sampai]);
 
+
+        // filter relasi webhost via
+        $query->whereHas('webhost', function ($query) use ($dari, $sampai) {
+            $query->whereIn('via', ['Whatsapp', 'Tidio Chat', 'Telegram'])
+                ->whereBetween('waktu', [$dari, $sampai]);
+        });
+
         $raw_data = $query->get();
 
-        //kelola data
-        $data = [];
-        foreach ($raw_data as $row) {
-            $data[$row->id_wm_project]['id_wm_project'] = $row->id_wm_project;
-            $data[$row->id_wm_project]['id_webhost'] = $row->id_webhost;
-            $data[$row->id_wm_project]['id_paket'] = $row->id_paket;
-        }
+        //group by tgl_masuk: year and month
+        $raw_data = $raw_data->groupBy(function ($item) {
+            return Carbon::parse($item->tgl_masuk)->format('Ym');
+        });
+
+        //hitung total biaya
+        $raw_data = $raw_data->map(function ($item) use ($formatter) {
+
+            $the_bulan = Carbon::parse($item->first()->tgl_masuk)->format('Y-m');
+
+            //format bulan
+            $bulan_formatted = $formatter->toIndonesianMonthYear($the_bulan);
+
+            //get harga domain by bulan
+            $harga_domain = HargaDomain::where('bulan', $bulan_formatted)->first();
+            $harga_domain = $harga_domain ? $harga_domain->biaya_normalized : 0;
+
+            //get total biaya ads by bulan
+            $biaya_ads = BiayaAds::where('bulan', $the_bulan)->sum('biaya');
+            $omzet = 0;
+
+            foreach ($item as $value) {
+                $omzet += $value->biaya;
+            }
+
+            $total_project = $item->count();
+            $biaya_domain = $harga_domain * $total_project;
+            $profit_kotor = $omzet - $biaya_domain;
+
+            return [
+                'label'         => $formatter->toIndonesianMonthYear($item->first()->tgl_masuk),
+                'omzet'         => $omzet,
+                'order'         => $total_project,
+                'biaya_iklan'   => $biaya_ads,
+                'harga_domain'  => $harga_domain,
+                'biaya_domain'  => $biaya_domain,
+                'profit_kotor'  => $profit_kotor,
+                'projects'      => $item,
+            ];
+        });
+
+        //array remove key
+        // $raw_data = $raw_data->values();
+        $raw_data = $raw_data->toArray();
 
         return response()->json([
             'dari'          => $dari,
             'sampai'        => $sampai,
-            'raw_data'      => $raw_data,
-            'data'          => $data
+            'data'          => $raw_data
         ]);
     }
 }
