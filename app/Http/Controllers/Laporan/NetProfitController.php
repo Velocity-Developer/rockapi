@@ -21,10 +21,10 @@ class NetProfitController extends Controller
 
         $dari = $request->input('bulan_dari'); //format = YYYY-MMM
         //dapatkan hari pertama dari bulan $dari
-        $dari = Carbon::parse($dari)->startOfMonth()->format('Y-m-d');
+        $dari = Carbon::parse($dari)->startOfMonth()->format('Y-m-d 00:00:00');
         $sampai = $request->input('bulan_sampai'); //format = YYYY-MMM
         //dapatkan hari terakhir dari bulan $sampai
-        $sampai = Carbon::parse($sampai)->endOfMonth()->format('Y-m-d');
+        $sampai = Carbon::parse($sampai)->endOfMonth()->format('Y-m-d 23:59:59');
 
         $jenis_pembuatan = [
             'Pembuatan',
@@ -37,7 +37,7 @@ class NetProfitController extends Controller
 
         //query
         $query = CsMainProject::with([
-            'webhost:id_webhost,nama_web,id_paket',
+            'webhost:id_webhost,nama_web,id_paket,via,waktu',
             'webhost.paket:id_paket,paket',
         ]);
 
@@ -47,12 +47,14 @@ class NetProfitController extends Controller
         //filter by tgl_masuk
         $query->whereBetween('tgl_masuk', [$dari, $sampai]);
 
-
         // filter relasi webhost via
         $query->whereHas('webhost', function ($query) use ($dari, $sampai) {
             $query->whereIn('via', ['Whatsapp', 'Tidio Chat', 'Telegram'])
                 ->whereBetween('waktu', [$dari, $sampai]);
         });
+
+        //order by tgl_masuk
+        $query->orderBy('tgl_masuk', 'desc');
 
         $raw_data = $query->get();
 
@@ -75,13 +77,33 @@ class NetProfitController extends Controller
 
             //get total biaya ads by bulan
             $biaya_ads = BiayaAds::where('bulan', $the_bulan)->sum('biaya');
+
             $omzet = 0;
+            $total_order = 0;
+            $projects = [];
 
             foreach ($item as $value) {
-                $omzet += $value->biaya;
+
+                //waktu chat pertama
+                $waktu_chat_pertama = $value->webhost->waktu;
+                //ubah format
+                $waktu_chat_pertama = Carbon::parse($waktu_chat_pertama)->format('Y-m');
+                //sisipkan ke dalam item
+                $value->waktu_chat_pertama = Carbon::parse($waktu_chat_pertama)->format('Y-m-d');
+
+                //ubah format tgl_masuk
+                $bln_masuk = Carbon::parse($value->tgl_masuk)->format('Y-m');
+
+                //jika waktu_chat_pertama = tgl_masuk
+                if ($waktu_chat_pertama == $bln_masuk) {
+                    $omzet += $value->dibayar;
+                    $total_order += 1;
+                    $projects[] = $value;
+                }
             }
 
-            $total_project = $item->count();
+            // $total_project = $item->count();
+            $total_project = $total_order;
             $biaya_domain = $harga_domain * $total_project;
             $profit_kotor = $omzet - $biaya_domain;
 
@@ -93,12 +115,11 @@ class NetProfitController extends Controller
                 'harga_domain'  => $harga_domain,
                 'biaya_domain'  => $biaya_domain,
                 'profit_kotor'  => $profit_kotor,
-                'projects'      => $item,
+                'projects'      => $projects
             ];
         });
 
         //array remove key
-        // $raw_data = $raw_data->values();
         $raw_data = $raw_data->toArray();
 
         return response()->json([
