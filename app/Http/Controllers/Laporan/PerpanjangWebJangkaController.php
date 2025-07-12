@@ -19,7 +19,7 @@ class PerpanjangWebJangkaController extends Controller
     {
         $data = [];
         $jangka_waktu = (int) $request->input('jangka') ?? 1;
-        $bulan = $request->input('bulan');
+        $bulan          = $request->input('bulan');
 
         //format bulan
         $formatter = new TanggalFormatterService();
@@ -43,7 +43,7 @@ class PerpanjangWebJangkaController extends Controller
         }
 
         $query = CsMainProject::with([
-            'webhost:id_webhost,nama_web,id_paket',
+            'webhost:id_webhost,nama_web,id_paket,via,waktu',
             'webhost.paket:id_paket,paket',
             'webhost.csMainProjects' => function ($q) use ($jangka_waktu, $request) {
                 if ($request->filled('bulan')) {
@@ -58,8 +58,10 @@ class PerpanjangWebJangkaController extends Controller
         ]);
 
         // filter relasi webhost via
-        $query->whereHas('webhost', function ($q) {
+        $query->whereHas('webhost', function ($q) use ($bulan) {
             $q->whereIn('via', ['Whatsapp', 'Tidio Chat', 'Telegram']);
+            //waktu chat pertama = $bulan
+            $q->where('waktu', 'like', '%' . $bulan . '%');
         });
 
         // filter jenis pada cs_main_project
@@ -93,78 +95,90 @@ class PerpanjangWebJangkaController extends Controller
             &$harga_domain,
             &$total_profit_kotor_pembuatan
         ) {
+
             $webhost = $project->webhost;
 
-            if ($webhost && $webhost->relationLoaded('csMainProjects')) {
+            // Ambil project pertama dari webhost
+            $firstProject = $webhost->csMainProjects->sortBy('tgl_masuk')->first();
 
-                $jenis_pembuatan = [
-                    'Pembuatan',
-                    'Pembuatan apk',
-                    'Pembuatan apk custom',
-                    'Pembuatan Tanpa Domain',
-                    'Pembuatan Tanpa Hosting',
-                    'Pembuatan Tanpa Domain+Hosting'
-                ];
+            //waktu chat pertama
+            $waktu_chat_pertama = $webhost->waktu;
+            $waktu_chat_pertama = Carbon::parse($waktu_chat_pertama)->format('Y-m');
 
-                // Ambil project pertama dari webhost
-                $firstProject = $webhost->csMainProjects->sortBy('tgl_masuk')->first();
-                $firstJenis = $firstProject?->jenis;
+            //waktu tanggal masuk pertama
+            $waktu_tanggal_masuk_pertama = $firstProject->tgl_masuk;
+            $waktu_tanggal_masuk_pertama = Carbon::parse($waktu_tanggal_masuk_pertama)->format('Y-m');
 
-                // Skip perhitungan jika project pertama bukan termasuk jenis pembuatan
-                if (!$firstProject || !in_array($firstProject->jenis, $jenis_pembuatan)) {
-                    return; // keluar dari each
-                }
+            $webhost->waktu_chat_pertama = $waktu_chat_pertama;
+            $webhost->waktu_tanggal_masuk_pertama = $waktu_tanggal_masuk_pertama;
 
-                $grouped = $webhost->csMainProjects->groupBy('jenis');
+            //     if ($webhost && $webhost->relationLoaded('csMainProjects')) {
 
-                $rekap = [];
-                $profit_web = 0;
-                $urutan = 1;
+            //         $jenis_pembuatan = [
+            //             'Pembuatan',
+            //             'Pembuatan apk',
+            //             'Pembuatan apk custom',
+            //             'Pembuatan Tanpa Domain',
+            //             'Pembuatan Tanpa Hosting',
+            //             'Pembuatan Tanpa Domain+Hosting'
+            //         ];
 
-                foreach ($grouped as $jenis => $projects) {
+            //         // Ambil project pertama dari webhost
+            //         $firstProject = $webhost->csMainProjects->sortBy('tgl_masuk')->first();
+            //         $firstJenis = $firstProject?->jenis;
 
-                    $biaya_sum  = $projects->sum('biaya');
-                    $profit     = $biaya_sum;
+            //         // Skip perhitungan jika project pertama bukan termasuk jenis pembuatan
+            //         if (!$firstProject || !in_array($firstProject->jenis, $jenis_pembuatan)) {
+            //             return; // keluar dari each
+            //         }
 
-                    //logic profit
-                    //jika jenis in array jenis_pembuatan
-                    if (in_array($jenis, $jenis_pembuatan) && $urutan == 1) {
-                        $profit = $biaya_sum - $harga_domain;
-                        $total_profit_kotor_pembuatan += $biaya_sum;
-                    } else if ($jenis == 'Perpanjangan') {
-                        $profit = $biaya_sum - $harga_domain;
-                    }
+            //         $grouped = $webhost->csMainProjects->groupBy('jenis');
 
-                    $total_profit_kotor     += $biaya_sum;
-                    $total_profit_bersih    += $profit;
-                    $profit_web             += $profit;
 
-                    $rekap['jenis'][$jenis]['label'] = $urutan . '.' . $jenis;
-                    $rekap['jenis'][$jenis]['total'] = $projects->count();
-                    $rekap['jenis'][$jenis]['biaya'] = $biaya_sum;
-                    $rekap['jenis'][$jenis]['profit'] = $profit;
-                    $rekap['jenis'][$jenis]['tanggal'] = $projects->first()->tgl_masuk;
+            //         $rekap = [];
+            //         $profit_web = 0;
+            //         $urutan = 1;
 
-                    $urutan++;
-                }
+            //         foreach ($grouped as $jenis => $projects) {
 
-                //total profit
-                $rekap['total'] = $profit_web;
+            //             $biaya_sum  = $projects->sum('dibayar');
+            //             // $biaya_sum  = 0;
+            //             $profit     = $biaya_sum;
 
-                // Tambahkan hasil ke properti virtual
-                $webhost->rekap_biaya = $rekap;
-            }
+            //             //hitung profit
+            //             foreach ($projects as $i => $project) {
+            //                 //jika jenis in array jenis_pembuatan
+            //                 if (in_array($project->jenis, $jenis_pembuatan) && $i == 0) {
+            //                     $profit = $biaya_sum - $harga_domain;
+            //                     // $total_profit_kotor_pembuatan += $project->dibayar;
+            //                     $total_profit_kotor_pembuatan += 1;
+            //                 } else {
+            //                     $profit = $biaya_sum - $harga_domain;
+            //                 }
+            //             }
+
+            //             $total_profit_kotor     += $biaya_sum;
+            //             $total_profit_bersih    += $profit;
+            //             $profit_web             += $profit;
+
+            //             $rekap['jenis'][$jenis]['label'] = $urutan . '.' . $jenis;
+            //             $rekap['jenis'][$jenis]['total'] = $projects->count();
+            //             $rekap['jenis'][$jenis]['biaya'] = $biaya_sum;
+            //             $rekap['jenis'][$jenis]['profit'] = $profit;
+
+            //             $urutan++;
+            //         }
+
+            //         //total profit
+            //         $rekap['total'] = $profit_web;
+
+            //         // Tambahkan hasil ke properti virtual
+            //         $webhost->rekap_biaya = $rekap;
+            //     }
         });
 
         $total_net_profit = $total_profit_kotor - $biaya_ads;
 
-        $start_date = null;
-        $end_date = null;
-        if ($request->filled('bulan')) {
-            [$year, $month] = explode('-', $request->input('bulan'));
-            $start_date = Carbon::create($year, $month, 1)->startOfMonth();
-            $end_date = $start_date->copy()->addYears($jangka_waktu)->endOfMonth();
-        }
 
         return response()->json([
             'data'                      => $data,
@@ -177,9 +191,7 @@ class PerpanjangWebJangkaController extends Controller
                 'Profit Kotor'                      => $total_profit_kotor,
                 'Profit Bersih'                     => $total_profit_bersih,
                 'Pertumbuhan Profit ' . $jangka_waktu . ' tahun'    => ($total_net_profit - $total_profit_kotor_pembuatan),
-            ],
-            'start_date'                => $start_date,
-            'end_date'                  => $end_date
+            ]
         ]);
     }
 }
