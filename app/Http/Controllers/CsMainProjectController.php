@@ -36,8 +36,8 @@ class CsMainProjectController extends Controller
     public function store(CsMainProjectRequest $request)
     {
 
-        //get webhost by nama_web
-        $webhost = Webhost::where('nama_web', $request->input('nama_web'))->first();
+        //get webhost by id_webhost
+        $webhost = Webhost::where('id_webhost', $request->input('id_webhost'))->first();
 
         //jika webhost tidak ditemukan , buat webhost baru
         if (!$webhost) {
@@ -63,6 +63,17 @@ class CsMainProjectController extends Controller
                 'via'               => '',
                 'konfirmasi_order'  => '',
                 'kata_kunci'        => '',
+            ]);
+        } else {
+            $webhost->update([
+                'nama_web'          => str_replace(' ', '', $request->input('nama_web')),
+                'id_paket'          => $request->input('paket'),
+                'hp'                => $request->input('hp'),
+                'telegram'          => $request->input('telegram'),
+                'hpads'             => $request->input('hpads'),
+                'wa'                => $request->input('wa'),
+                'email'             => $request->input('email'),
+                'saldo'             => $request->input('saldo'),
             ]);
         }
 
@@ -162,7 +173,7 @@ class CsMainProjectController extends Controller
         //get cs_main_project
         $cs_main_project = CsMainProject::find($id);
 
-        //get webhost by nama_web
+        //get webhost by id_webhost
         $webhost = Webhost::where('id_webhost', $cs_main_project->id_webhost)->first();
 
         //jika webhost tidak ditemukan, error

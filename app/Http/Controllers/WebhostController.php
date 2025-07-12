@@ -64,6 +64,7 @@ class WebhostController extends Controller
         //get nama_web by keyword, ambil kolom nama_web dan id_webhost
         $webhosts = Webhost::where('nama_web', 'like', '%' . $keyword . '%')
             ->select('nama_web', 'id_webhost')
+            ->limit(200)
             ->get();
 
         //jika kosong
