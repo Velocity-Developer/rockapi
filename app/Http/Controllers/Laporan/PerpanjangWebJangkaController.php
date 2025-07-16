@@ -150,6 +150,7 @@ class PerpanjangWebJangkaController extends Controller
                     $total_dibayar += $project->dibayar;
                 }
 
+
                 $data_jenis[$jenis]['label']    = $jenis;
                 $data_jenis[$jenis]['dibayar']  = $total_dibayar;
                 $data_jenis[$jenis]['profit']   = $total_profit;
@@ -159,17 +160,19 @@ class PerpanjangWebJangkaController extends Controller
                 $total_profit_kotor += $total_dibayar;
 
                 //kelompokkan per jenis
-                if (!isset($data_order_jenis[$jenis])) {
-                    $data_order_jenis[$jenis] = [
-                        'label'     => $jenis,
-                        'dibayar'   => 0,
-                        'total'     => 0,
-                        'profit'    => 0
-                    ];
+                if (!in_array($jenis, $this->jenis_pembuatan)) {
+                    if (!isset($data_order_jenis[$jenis])) {
+                        $data_order_jenis[$jenis] = [
+                            'label'     => $jenis,
+                            'dibayar'   => 0,
+                            'total'     => 0,
+                            'profit'    => 0
+                        ];
+                    }
+                    $data_order_jenis[$jenis]['dibayar'] += $project->dibayar;
+                    $data_order_jenis[$jenis]['profit'] += $total_profit;
+                    $data_order_jenis[$jenis]['total'] += 1;
                 }
-                $data_order_jenis[$jenis]['dibayar'] += $project->dibayar;
-                $data_order_jenis[$jenis]['profit'] += $total_profit;
-                $data_order_jenis[$jenis]['total'] += 1;
             }
 
             $webhost->data_jenis                        = $data_jenis;
@@ -180,6 +183,7 @@ class PerpanjangWebJangkaController extends Controller
         $total_net_profit_pembuatan = $total_profit_bersih_pembuatan - $biaya_ads;
 
         $kumulatif = $this->kumulatif($bulan, $jangka_waktu);
+        $order_kumulatif = $kumulatif['total_order'];
         $net_profit_kumulatif = $kumulatif['net_profit'];
 
         return response()->json([
@@ -196,9 +200,8 @@ class PerpanjangWebJangkaController extends Controller
                 'Biaya Ads '                        => 'Rp ' . number_format($biaya_ads, 0, ",", "."),
                 'Harga Domain '                     => 'Rp ' . number_format($harga_domain, 0, ",", "."),
                 'Order'                             => $total_order_pembuatan,
-                'Profit Kotor'                      => 'Rp ' . number_format($total_profit_kotor_pembuatan, 0, ",", "."),
-                'Profit Bersih'                     => 'Rp ' . number_format($total_profit_bersih_pembuatan, 0, ",", "."),
                 'Net Profit'                        => 'Rp ' . number_format($total_net_profit_pembuatan, 0, ",", "."),
+                'Order Kumulatif'                   => $order_kumulatif,
                 'Net Profit Kumulatif'              => 'Rp ' . number_format($net_profit_kumulatif, 0, ",", "."),
                 'Pertumbuhan Pembuatan Kumulatif '  => 'Rp ' . number_format($net_profit_kumulatif - $total_net_profit_pembuatan, 0, ",", "."),
             ]
@@ -222,7 +225,17 @@ class PerpanjangWebJangkaController extends Controller
     {
 
         $query = CsMainProject::with([
-            'webhost'
+            'webhost',
+            'webhost.csMainProjects' => function ($q) use ($jangka_waktu, $bulan) {
+                if ($bulan) {
+                    [$year, $month] = explode('-', $bulan);
+                    $start = Carbon::create($year, $month, 1)->startOfMonth();
+                    $end = $start->copy()->addYears($jangka_waktu)->endOfMonth();
+
+                    $q->whereBetween('tgl_masuk', [$start, $end])
+                        ->orderBy('tgl_masuk');
+                }
+            }
         ]);
 
         // filter relasi webhost via
@@ -247,21 +260,70 @@ class PerpanjangWebJangkaController extends Controller
             return Carbon::parse($item->webhost->waktu)->format('Y-m');
         });
 
+        //ambil data berdasarkan bulan
         $data = $grouped_data[$bulan] ?? [];
 
         //hitung total
-        $total_omzet = $data->sum('dibayar');
-        $total_order = $data->count();
-        $harga_domain = $this->harga_domain($bulan);
-        $biaya_domain = $harga_domain * $total_order;
-        $profit_kotor = $total_omzet - $biaya_domain;
+        $total_omzet    = $data->sum('dibayar');
+        $total_order    = $data->count();
+        $harga_domain   = $this->harga_domain($bulan);
+        $biaya_domain   = $harga_domain * $total_order;
+        $profit_kotor   = $total_omzet - $biaya_domain;
         $biaya_ads      = BiayaAds::where('bulan', $bulan)->sum('biaya');
         $net_profit     = $profit_kotor - $biaya_ads;
+
+        $data->each(function ($project) {
+            $webhost = $project->webhost;
+
+            // Kelompokkan hanya sekali per webhost
+            $data_jenis = [];
+            $grouped = $webhost->csMainProjects->groupBy('jenis');
+            $total_profit_webhost = 0;
+            foreach ($grouped as $jenis => $projects) {
+
+                $total_dibayar  = 0;
+                $total_profit   = 0;
+                $harga_domain   = $this->harga_domain($project->webhost->waktu);
+
+                //loop projects
+                foreach ($projects as $project) {
+                    if (in_array($project->jenis, $this->jenis_pembuatan)) {
+                        $total_profit += $project->dibayar - $harga_domain;
+                    } else {
+                        $total_profit += $project->dibayar;
+                    }
+                    $total_dibayar += $project->dibayar;
+                }
+
+                $data_jenis[$jenis]['label']    = $jenis;
+                $data_jenis[$jenis]['dibayar']  = $total_dibayar;
+                $data_jenis[$jenis]['profit']   = $total_profit;
+                $data_jenis[$jenis]['total']    = $projects->count();
+
+                $total_profit_webhost += $total_profit;
+
+                //kelompokkan per jenis
+                if (!isset($data_order_jenis[$jenis])) {
+                    $data_order_jenis[$jenis] = [
+                        'label'     => $jenis,
+                        'dibayar'   => 0,
+                        'total'     => 0,
+                        'profit'    => 0
+                    ];
+                }
+                $data_order_jenis[$jenis]['dibayar'] += $project->dibayar;
+                $data_order_jenis[$jenis]['profit'] += $total_profit;
+                $data_order_jenis[$jenis]['total'] += 1;
+            }
+
+            $webhost->data_jenis                        = $data_jenis;
+            $webhost->total_profit                      = $total_profit_webhost;
+        });
 
         return [
             'dari'              => $dari,
             'sampai'            => $sampai,
-            // 'result'            => $data,
+            'data'              => $data,
             'total_omzet'       => $total_omzet,
             'total_order'       => $total_order,
             'biaya_domain'      => $biaya_domain,
