@@ -21,8 +21,7 @@ use App\Http\Controllers\Laporan\ProjectProfitController as LaporanProjectProfit
 use App\Http\Controllers\Laporan\PerpanjangWebJangkaController as LaporanPerpanjangWebJangkaController;
 use App\Http\Controllers\Laporan\NetProfitController as LaporanNetProfitController;
 use App\Http\Controllers\CheckPaketController;
-
-
+use App\Http\Controllers\ServerController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -93,6 +92,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //lain_lain
     Route::get('/check_paket', CheckPaketController::class);
+
+    // Server
+    Route::apiResource('servers', ServerController::class);
 });
 
 require __DIR__ . '/api-dash.php';
