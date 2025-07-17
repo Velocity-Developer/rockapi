@@ -20,6 +20,10 @@ use App\Http\Controllers\ProjectManagerController;
 use App\Http\Controllers\Laporan\ProjectProfitController as LaporanProjectProfitController;
 use App\Http\Controllers\Laporan\PerpanjangWebJangkaController as LaporanPerpanjangWebJangkaController;
 use App\Http\Controllers\Laporan\NetProfitController as LaporanNetProfitController;
+use App\Http\Controllers\CheckPaketController;
+
+Route::get('/check-paket', CheckPaketController::class);
+
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
