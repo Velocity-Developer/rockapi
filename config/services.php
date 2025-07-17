@@ -42,6 +42,7 @@ return [
     ],
 
     'directadmin' => [
+        'relay_url' => env('DIRECTADMIN_RELAY_URL'),
         'url' => env('DIRECTADMIN_URL'),
         'username' => env('DIRECTADMIN_USERNAME'),
         'password' => env('DIRECTADMIN_PASSWORD'),
