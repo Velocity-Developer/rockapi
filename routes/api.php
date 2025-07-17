@@ -22,7 +22,6 @@ use App\Http\Controllers\Laporan\PerpanjangWebJangkaController as LaporanPerpanj
 use App\Http\Controllers\Laporan\NetProfitController as LaporanNetProfitController;
 use App\Http\Controllers\CheckPaketController;
 
-Route::get('/check-paket', CheckPaketController::class);
 
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
@@ -91,6 +90,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('laporan/project_profit', [LaporanProjectProfitController::class, 'index']);
     Route::get('laporan/perpanjang_web_jangka', [LaporanPerpanjangWebJangkaController::class, 'index']);
     Route::get('laporan/net_profit', [LaporanNetProfitController::class, 'index']);
+
+    //lain_lain
+    Route::get('/check-paket', CheckPaketController::class);
 });
 
 require __DIR__ . '/api-dash.php';

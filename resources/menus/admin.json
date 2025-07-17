@@ -10,7 +10,7 @@
         "label": "Billing",
         "icon": "lucide:briefcase",
         "route": "/billing",
-        "roles": ["admin", "manager_project", "finance","manager_advertising"]
+        "roles": ["admin", "manager_project", "finance", "manager_advertising"]
     },
     {
         "key": "bill_dataweb",
@@ -24,7 +24,7 @@
         "label": "Daftar Project",
         "icon": "lucide:folder-code",
         "route": "/project_list",
-        "roles": ["admin", "manager_project","webdeveloper"]
+        "roles": ["admin", "manager_project", "webdeveloper"]
     },
     {
         "key": "project_manager",
@@ -70,11 +70,11 @@
                 "route": "/transaksi_iklan_google"
             }
         ]
-    },   
+    },
     {
         "key": "laporan",
         "label": "Laporan Man.Adv",
-        "icon": "lucide:file-chart-line",    
+        "icon": "lucide:file-chart-line",
         "items": [
             {
                 "key": "perpanjang_web_jangka",
@@ -94,6 +94,18 @@
         "icon": "lucide:users",
         "route": "/dash/users",
         "roles": ["admin"]
+    },
+    {
+        "key": "lain_lain",
+        "label": "Lain-lain",
+        "icon": "lucide:more-horizontal",
+        "items": [
+            {
+                "key": "check_paket",
+                "label": "Check Paket",
+                "route": "/check_paket"
+            }
+        ]
     },
     {
         "key": "settings",
