@@ -103,7 +103,7 @@
             {
                 "key": "check_paket",
                 "label": "Check Paket",
-                "route": "/check_paket"
+                "route": "/other/check_paket"
             }
         ]
     },
