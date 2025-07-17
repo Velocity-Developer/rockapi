@@ -33,25 +33,29 @@ class PerpanjangWebJangkaController extends Controller
     public function index(Request $request)
     {
         $data = [];
-        $jangka_waktu = (int) $request->input('jangka') ?? 1;
-        $bulan  = $request->input('bulan');
+        $bulan_start  = $request->input('bulan_start');
+        $bulan_end    = $request->input('bulan_end');
+
+        //hitung jangka waktu dari bulan_start sampai bulan_end
+        $jangka_waktu = Carbon::parse($bulan_end)->diffInMonths(Carbon::parse($bulan_start));
+        $jangka_waktu_tahun = floor($jangka_waktu / 12);
 
         //format bulan
         $formatter = new TanggalFormatterService();
-        $bulan_formatted = $formatter->toIndonesianMonthYear($bulan);
+        $bulan_formatted = $formatter->toIndonesianMonthYear($bulan_start);
 
         //get harga domain by bulan
         $harga_domain = HargaDomain::where('bulan', $bulan_formatted)->first();
         $harga_domain = $harga_domain ? $harga_domain->biaya_normalized : 0;
 
         //get total biaya ads by bulan
-        $biaya_ads = BiayaAds::where('bulan', $bulan)->sum('biaya');
+        $biaya_ads = BiayaAds::where('bulan', $bulan_start)->sum('biaya');
 
         //jika kosong, maka jalankan fungsi service ConvertDataLamaService::handle_biaya_ads
         if (!$biaya_ads) {
             try {
                 (new ConvertDataLamaService())->handle_biaya_ads();
-                $biaya_ads = BiayaAds::where('bulan', $bulan)->sum('biaya');
+                $biaya_ads = BiayaAds::where('bulan', $bulan_start)->sum('biaya');
             } catch (\Exception $e) {
                 return response()->json(['error' => $e->getMessage()], 500);
             }
@@ -60,11 +64,10 @@ class PerpanjangWebJangkaController extends Controller
         $query = CsMainProject::with([
             'webhost:id_webhost,nama_web,id_paket,via,waktu',
             'webhost.paket:id_paket,paket',
-            'webhost.csMainProjects' => function ($q) use ($jangka_waktu, $request) {
-                if ($request->filled('bulan')) {
-                    [$year, $month] = explode('-', $request->input('bulan'));
-                    $start = Carbon::create($year, $month, 1)->startOfMonth();
-                    $end = $start->copy()->addYears($jangka_waktu)->endOfMonth();
+            'webhost.csMainProjects' => function ($q) use ($bulan_start, $bulan_end, $request) {
+                if ($bulan_start && $bulan_end) {
+                    $start = Carbon::create($bulan_start)->startOfMonth();
+                    $end = Carbon::create($bulan_end)->endOfMonth();
 
                     $q->whereBetween('tgl_masuk', [$start, $end])
                         ->orderBy('tgl_masuk');
@@ -73,17 +76,17 @@ class PerpanjangWebJangkaController extends Controller
         ]);
 
         // filter relasi webhost via
-        $query->whereHas('webhost', function ($q) use ($bulan) {
+        $query->whereHas('webhost', function ($q) use ($bulan_start) {
             $q->whereIn('via', ['Whatsapp', 'Tidio Chat', 'Telegram']);
             //waktu chat pertama = $bulan
-            $q->where('waktu', 'like', '%' . $bulan . '%');
+            $q->where('waktu', 'like', '%' . $bulan_start . '%');
         });
 
         // filter jenis pada cs_main_project
         $query->whereIn('jenis', $this->jenis_pembuatan);
 
-        if ($request->filled('bulan')) {
-            [$year, $month] = explode('-', $request->input('bulan'));
+        if ($bulan_start) {
+            [$year, $month] = explode('-', $bulan_start);
             $query->whereYear('tgl_masuk', $year)
                 ->whereMonth('tgl_masuk', $month);
         }
@@ -182,9 +185,12 @@ class PerpanjangWebJangkaController extends Controller
 
         $total_net_profit_pembuatan = $total_profit_bersih_pembuatan - $biaya_ads;
 
-        $kumulatif = $this->kumulatif($bulan, $jangka_waktu);
-        $order_kumulatif = $kumulatif['total_order'];
-        $net_profit_kumulatif = $kumulatif['net_profit'];
+        $kumulatif              = $this->kumulatif($bulan_start, $bulan_end);
+        $order_kumulatif        = $kumulatif['total_order'];
+        $net_profit_kumulatif   = $kumulatif['net_profit'];
+
+        //replace total_profit_bersih dengan total_profit_bersih dari kumulatif
+        $total_profit_bersih = $kumulatif['total_profit_bersih'];
 
         return response()->json([
             'kumulatif'                 => $kumulatif,
@@ -194,7 +200,7 @@ class PerpanjangWebJangkaController extends Controller
             'info'                      => [
                 'Total profit '                     => $total_profit_bersih,
                 'Net Profit pembuatan'              => $total_net_profit_pembuatan,
-                'Pertumbuhan profit selama ' . $jangka_waktu . 'tahun' => $total_profit_bersih - $total_net_profit_pembuatan,
+                'Pertumbuhan profit selama ' . $jangka_waktu_tahun . 'tahun' => $total_profit_bersih - $total_net_profit_pembuatan,
             ],
             'info_pembuatan'                        => [
                 'Biaya Ads '                        => 'Rp ' . number_format($biaya_ads, 0, ",", "."),
@@ -221,16 +227,15 @@ class PerpanjangWebJangkaController extends Controller
         return $harga_domain;
     }
 
-    public function kumulatif($bulan, $jangka_waktu)
+    public function kumulatif($bulan_start, $bulan_end)
     {
 
         $query = CsMainProject::with([
             'webhost',
-            'webhost.csMainProjects' => function ($q) use ($jangka_waktu, $bulan) {
-                if ($bulan) {
-                    [$year, $month] = explode('-', $bulan);
-                    $start = Carbon::create($year, $month, 1)->startOfMonth();
-                    $end = $start->copy()->addYears($jangka_waktu)->endOfMonth();
+            'webhost.csMainProjects' => function ($q) use ($bulan_start, $bulan_end) {
+                if ($bulan_start && $bulan_end) {
+                    $start = Carbon::create($bulan_start)->startOfMonth();
+                    $end = Carbon::create($bulan_end)->endOfMonth();
 
                     $q->whereBetween('tgl_masuk', [$start, $end])
                         ->orderBy('tgl_masuk');
@@ -247,8 +252,8 @@ class PerpanjangWebJangkaController extends Controller
         $query->whereIn('jenis', $this->jenis_pembuatan);
 
         //filter waktu
-        $dari = Carbon::parse($bulan)->startOfMonth()->format('Y-m-01 00:00:00');
-        $sampai = Carbon::parse($bulan . ' + ' . $jangka_waktu . ' year')->endOfMonth()->format('Y-m-d 23:59:59');
+        $dari = Carbon::parse($bulan_start)->startOfMonth()->format('Y-m-01 00:00:00');
+        $sampai = Carbon::parse($bulan_end)->endOfMonth()->format('Y-m-d 23:59:59');
 
         //filter csMainProjects.tgl_masuk
         $query->whereBetween('tgl_masuk', [$dari, $sampai]);
@@ -261,18 +266,19 @@ class PerpanjangWebJangkaController extends Controller
         });
 
         //ambil data berdasarkan bulan
-        $data = $grouped_data[$bulan] ?? [];
+        $data = $grouped_data[$bulan_start] ?? [];
 
         //hitung total
         $total_omzet    = $data->sum('dibayar');
         $total_order    = $data->count();
-        $harga_domain   = $this->harga_domain($bulan);
+        $harga_domain   = $this->harga_domain($bulan_start);
         $biaya_domain   = $harga_domain * $total_order;
         $profit_kotor   = $total_omzet - $biaya_domain;
-        $biaya_ads      = BiayaAds::where('bulan', $bulan)->sum('biaya');
+        $biaya_ads      = BiayaAds::where('bulan', $bulan_start)->sum('biaya');
         $net_profit     = $profit_kotor - $biaya_ads;
+        $total_profit_bersih    = 0;
 
-        $data->each(function ($project) {
+        $data->each(function ($project) use (&$total_profit_bersih) {
             $webhost = $project->webhost;
 
             // Kelompokkan hanya sekali per webhost
@@ -318,6 +324,8 @@ class PerpanjangWebJangkaController extends Controller
 
             $webhost->data_jenis                        = $data_jenis;
             $webhost->total_profit                      = $total_profit_webhost;
+
+            $total_profit_bersih += $total_profit_webhost;
         });
 
         return [
@@ -329,7 +337,8 @@ class PerpanjangWebJangkaController extends Controller
             'biaya_domain'      => $biaya_domain,
             'profit_kotor'      => $profit_kotor,
             'biaya_ads'         => $biaya_ads,
-            'net_profit'        => $net_profit
+            'net_profit'        => $net_profit,
+            'total_profit_bersih'   => $total_profit_bersih
         ];
     }
 }
