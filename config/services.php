@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+    'whmcs' => [
+        'url'       => env('WHMCS_API_URL'),
+        'identifier' => env('WHMCS_IDENTIFIER'),
+        'secret'    => env('WHMCS_SECRET'),
+    ],
+
+    'directadmin' => [
+        'url' => env('DIRECTADMIN_URL'),
+        'username' => env('DIRECTADMIN_USERNAME'),
+        'password' => env('DIRECTADMIN_PASSWORD'),
+    ],
+
 ];
