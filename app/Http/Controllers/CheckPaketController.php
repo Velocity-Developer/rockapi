@@ -11,31 +11,34 @@ class CheckPaketController extends Controller
 {
   public function __invoke(DirectAdminService $whm, WHMCSService $whmcs): JsonResponse
   {
-    $products = $whmcs->getProducts();
-    $packages = collect($whm->getPackages())->pluck('name')->map(fn($v) => strtolower($v));
+    $products = $whmcs->getProducts() ?? [];
 
-    $results = [];
+    // Ambil semua configoption1 (kode paket) dan buat lowercase
+    $productPackageCodes = collect($products)
+      ->pluck('configoption1')
+      ->filter() // hilangkan null atau kosong
+      ->map(fn($code) => strtolower(trim($code)));
 
-    foreach ($products as $product) {
-      $name = strtolower($product['name']);
-      $price = $product['pricing']['USD']['monthly'] ?? 'N/A';
+    // Ambil semua nama paket dari DirectAdmin
+    $packages = collect($whm->getPackages());
 
-      $exists = $packages->contains($name);
+    // Cek apakah setiap paket ada di WHMCS
+    $results = $packages->map(function ($package) use ($productPackageCodes) {
+      $normalized = strtolower(trim($package));
+      $exists = $productPackageCodes->contains($normalized);
 
-      $results[] = [
-        'product_name' => $product['name'],
-        'exists_in_whm' => $exists,
-        'price_usd_monthly' => $price,
-        'status' => $exists ? 'OK' : 'NOT FOUND IN WHM',
+      return [
+        'package_name' => $package,
+        'exists_in_whmcs' => $exists,
+        'status' => $exists ? 'OK' : 'NOT REGISTERED IN WHMCS',
+        'icon' => $exists ? '✅' : '❌',
       ];
-    }
+    });
 
-    return response()->json(
-      [
-        'products' => $products,
-        'packages' => $packages,
-        'results' => $results
-      ]
-    );
+    return response()->json([
+      'results' => $results,
+      // 'products' => $products,
+      // 'packages' => $packages->toArray(),
+    ]);
   }
 }
