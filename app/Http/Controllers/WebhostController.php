@@ -29,7 +29,12 @@ class WebhostController extends Controller
     public function show(string $id)
     {
         //get by id, with paket,csMainProjects
-        $webhost = Webhost::with('paket', 'csMainProjects')->find($id);
+        $webhost = Webhost::with(
+            'paket',
+            'csMainProjects',
+            'csMainProjects.wm_project:id_wm_project,id_karyawan,user_id,id,date_mulai,date_selesai,catatan,status_multi,webmaster,status_project',
+            'csMainProjects.wm_project.user:id,name,avatar',
+        )->find($id);
 
         return response()->json($webhost);
     }

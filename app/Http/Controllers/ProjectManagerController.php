@@ -26,8 +26,8 @@ class ProjectManagerController extends Controller
         $order              = $request->input('order', 'desc');
         $query->orderBy($order_by, $order);
 
-        $per_page = $request->input('per_page', 50);
-        $data = $query->paginate($per_page);
+        $per_page   = $request->input('per_page', 50);
+        $data       = $query->paginate($per_page);
 
         return response()->json($data);
     }
