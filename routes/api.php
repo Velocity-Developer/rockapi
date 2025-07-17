@@ -92,7 +92,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('laporan/net_profit', [LaporanNetProfitController::class, 'index']);
 
     //lain_lain
-    Route::get('/check-paket', CheckPaketController::class);
+    Route::get('/check_paket', CheckPaketController::class);
 });
 
 require __DIR__ . '/api-dash.php';

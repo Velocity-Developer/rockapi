@@ -6,23 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Services\DirectAdminService;
 use App\Services\WHMCSService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+use Illuminate\Http\Request;
 
 class CheckPaketController extends Controller
 {
-  public function __invoke(DirectAdminService $whm, WHMCSService $whmcs): JsonResponse
+  public function __invoke(Request $request, DirectAdminService $whm, WHMCSService $whmcs): JsonResponse
   {
     $products = $whmcs->getProducts() ?? [];
 
-    // Ambil semua configoption1 (kode paket) dan buat lowercase
     $productPackageCodes = collect($products)
       ->pluck('configoption1')
-      ->filter() // hilangkan null atau kosong
+      ->filter()
       ->map(fn($code) => strtolower(trim($code)));
 
-    // Ambil semua nama paket dari DirectAdmin
     $packages = collect($whm->getPackages());
 
-    // Cek apakah setiap paket ada di WHMCS
     $results = $packages->map(function ($package) use ($productPackageCodes) {
       $normalized = strtolower(trim($package));
       $exists = $productPackageCodes->contains($normalized);
@@ -35,10 +35,18 @@ class CheckPaketController extends Controller
       ];
     });
 
-    return response()->json([
-      'results' => $results,
-      // 'products' => $products,
-      // 'packages' => $packages->toArray(),
-    ]);
+    // PAGINASI
+    $page = (int) $request->input('page', 1);
+    $perPage = (int) $request->input('per_page', 50);
+    $sliced = $results->forPage($page, $perPage)->values();
+    $paginator = new LengthAwarePaginator(
+      $sliced,
+      $results->count(),
+      $perPage,
+      $page,
+      ['path' => $request->url(), 'query' => $request->query()]
+    );
+
+    return response()->json($paginator);
   }
 }
