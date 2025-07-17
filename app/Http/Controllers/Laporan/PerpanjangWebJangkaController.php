@@ -37,7 +37,7 @@ class PerpanjangWebJangkaController extends Controller
         $bulan_end    = $request->input('bulan_end');
 
         //hitung jangka waktu dari bulan_start sampai bulan_end
-        $jangka_waktu = Carbon::parse($bulan_end)->diffInMonths(Carbon::parse($bulan_start));
+        $jangka_waktu = Carbon::parse($bulan_start)->diffInMonths(Carbon::parse($bulan_end));
         $jangka_waktu_tahun = floor($jangka_waktu / 12);
 
         //format bulan
@@ -183,8 +183,6 @@ class PerpanjangWebJangkaController extends Controller
             $total_profit_bersih                        += $total_profit_webhost;
         });
 
-        $total_net_profit_pembuatan = $total_profit_bersih_pembuatan - $biaya_ads;
-
         $kumulatif              = $this->kumulatif($bulan_start, $bulan_end);
         $order_kumulatif        = $kumulatif['total_order'];
         $net_profit_kumulatif   = $kumulatif['net_profit'];
@@ -192,15 +190,19 @@ class PerpanjangWebJangkaController extends Controller
         //replace total_profit_bersih dengan total_profit_bersih dari kumulatif
         $total_profit_bersih = $kumulatif['total_profit_bersih'];
 
+        $total_net_profit_pembuatan = $total_profit_bersih_pembuatan - $biaya_ads;
+        $total_net_profit = $total_profit_bersih - $biaya_ads;
+        $persen_pertumbuhan = round(($total_net_profit - $total_net_profit_pembuatan) / $total_net_profit * 100, 2);
+
         return response()->json([
             'kumulatif'                 => $kumulatif,
             'data'                      => $data,
             'data_order_jenis'          => $data_order_jenis,
             'bulan'                     => $bulan_formatted,
             'info'                      => [
-                'Total profit '                     => $total_profit_bersih,
-                'Net Profit pembuatan'              => $total_net_profit_pembuatan,
-                'Pertumbuhan profit selama ' . $jangka_waktu_tahun . 'tahun' => $total_profit_bersih - $total_net_profit_pembuatan,
+                'Total profit '             => 'Rp ' . number_format($total_profit_bersih, 0, ",", "."),
+                'Total Net Profit '         => 'Rp ' . number_format($total_net_profit, 0, ",", "."),
+                'Pertumbuhan profit selama ' . $jangka_waktu_tahun . ' tahun' => $persen_pertumbuhan . '%',
             ],
             'info_pembuatan'                        => [
                 'Biaya Ads '                        => 'Rp ' . number_format($biaya_ads, 0, ",", "."),
@@ -329,15 +331,15 @@ class PerpanjangWebJangkaController extends Controller
         });
 
         return [
-            'dari'              => $dari,
-            'sampai'            => $sampai,
-            'data'              => $data,
-            'total_omzet'       => $total_omzet,
-            'total_order'       => $total_order,
-            'biaya_domain'      => $biaya_domain,
-            'profit_kotor'      => $profit_kotor,
-            'biaya_ads'         => $biaya_ads,
-            'net_profit'        => $net_profit,
+            'dari'                  => $dari,
+            'sampai'                => $sampai,
+            'data'                  => $data,
+            'total_omzet'           => $total_omzet,
+            'total_order'           => $total_order,
+            'biaya_domain'          => $biaya_domain,
+            'profit_kotor'          => $profit_kotor,
+            'biaya_ads'             => $biaya_ads,
+            'net_profit'            => $net_profit,
             'total_profit_bersih'   => $total_profit_bersih
         ];
     }
