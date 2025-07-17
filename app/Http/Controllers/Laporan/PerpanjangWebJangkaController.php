@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Laporan;
 
+use Illuminate\Support\Collection;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -99,6 +100,7 @@ class PerpanjangWebJangkaController extends Controller
         $total_profit_bersih_pembuatan = 0;
         $total_order_pembuatan = 0;
         $data_order_jenis = [];
+        $data_order_jenis_total = 0;
 
         $data->each(function ($project) use (
             &$total_profit_kotor,
@@ -107,7 +109,8 @@ class PerpanjangWebJangkaController extends Controller
             &$total_profit_kotor_pembuatan,
             &$total_profit_bersih_pembuatan,
             &$total_order_pembuatan,
-            &$data_order_jenis
+            &$data_order_jenis,
+            &$data_order_jenis_total
         ) {
 
             $webhost = $project->webhost;
@@ -175,6 +178,7 @@ class PerpanjangWebJangkaController extends Controller
                     $data_order_jenis[$jenis]['dibayar'] += $project->dibayar;
                     $data_order_jenis[$jenis]['profit'] += $total_profit;
                     $data_order_jenis[$jenis]['total'] += 1;
+                    $data_order_jenis_total += $total_profit;
                 }
             }
 
@@ -194,10 +198,18 @@ class PerpanjangWebJangkaController extends Controller
         $total_net_profit = $total_profit_bersih - $biaya_ads;
         $persen_pertumbuhan = round(($total_net_profit - $total_net_profit_pembuatan) / $total_net_profit * 100, 2);
 
+        $data_order_jenis['Total'] = [
+            'label'     => 'Total',
+            'dibayar'   => '',
+            'total'     => collect($data_order_jenis)->sum('total'),
+            'profit'    => $data_order_jenis_total
+        ];
+
         return response()->json([
             'kumulatif'                 => $kumulatif,
             'data'                      => $data,
             'data_order_jenis'          => $data_order_jenis,
+            'data_order_jenis_total'    => $data_order_jenis_total,
             'bulan'                     => $bulan_formatted,
             'info'                      => [
                 'Total profit '             => 'Rp ' . number_format($total_profit_bersih, 0, ",", "."),
