@@ -93,6 +93,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //lain_lain
     Route::get('/check_paket', CheckPaketController::class);
+
+    //server
+    Route::get('/servers_packages/{id}', [ServerController::class, 'get_packages']);
 });
 
 require __DIR__ . '/api-dash.php';

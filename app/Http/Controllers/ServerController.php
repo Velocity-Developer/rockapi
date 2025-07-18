@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Server;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Services\ServerServices;
 
 class ServerController extends Controller
 {
@@ -32,19 +33,19 @@ class ServerController extends Controller
     public function show($id)
     {
         $server = Server::findOrFail($id);
-
-        return response()->json([
-            'id' => $server->id,
-            'name' => $server->name,
-            'type' => $server->type,
-            'ip_address' => $server->ip_address,
-            'hostname' => $server->hostname,
-            'port' => $server->port,
-            'username' => $server->username,
-            'password' => $server->password,
-            'options' => $server->options,
-            'is_active' => $server->is_active,
-        ]);
+        return response()->json($server);
+        // return response()->json([
+        //     'id'    => $server->id,
+        //     'name'  => $server->name,
+        //     'type'      => $server->type,
+        //     'ip_address' => $server->ip_address,
+        //     'hostname'  => $server->hostname,
+        //     'port'      => $server->port,
+        //     'username'  => $server->username,
+        //     'password'  => $server->password,
+        //     'options'   => $server->options,
+        //     'is_active' => $server->is_active,
+        // ]);
     }
 
     public function store(Request $request)
@@ -107,5 +108,14 @@ class ServerController extends Controller
         $server->delete();
 
         return response()->json(['message' => 'Server deleted']);
+    }
+
+    public function get_packages($id)
+    {
+        $serverService = ServerServices::make($id);
+        $server = $serverService->get();
+        // $packages = $serverService->getPackages();
+
+        return response()->json($server);
     }
 }

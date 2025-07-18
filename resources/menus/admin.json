@@ -108,7 +108,7 @@
             {
                 "key": "other_servers",
                 "label": "Servers",
-                "route": "/other/servers"
+                "route": "/servers"
             }
         ]
     },
