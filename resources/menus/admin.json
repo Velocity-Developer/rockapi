@@ -101,9 +101,14 @@
         "icon": "lucide:more-horizontal",
         "items": [
             {
-                "key": "check_paket",
+                "key": "other_check_paket",
                 "label": "Check Paket",
                 "route": "/other/check_paket"
+            },
+            {
+                "key": "other_servers",
+                "label": "Servers",
+                "route": "/other/servers"
             }
         ]
     },

@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Validator;
 
 class ServerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Server::select([
+        $query = Server::select([
             'id',
             'name',
             'type',
@@ -19,7 +19,14 @@ class ServerController extends Controller
             'hostname',
             'port',
             'is_active'
-        ])->get());
+        ]);
+
+        //pagination
+        $per_page = $request->input('per_page', 20);
+
+        $servers = $query->paginate($per_page);
+
+        return response()->json($servers);
     }
 
     public function show($id)
@@ -43,15 +50,15 @@ class ServerController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
+            'name' => 'required|string|unique:servers,name',
             'type' => 'required|string|in:directadmin,cpanel,plesk,other',
             'ip_address' => 'nullable|ip',
-            'hostname' => 'nullable|string',
-            'port' => 'required|integer',
-            'username' => 'required|string',
-            'password' => 'required|string',
-            'options' => 'nullable|array',
-            'is_active' => 'boolean',
+            'hostname'  => 'nullable|string',
+            'port'      => 'required|integer',
+            'username'  => 'required|string',
+            'password'  => 'required|string',
+            'options'   => 'nullable|array',
+            'is_active' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -70,15 +77,15 @@ class ServerController extends Controller
         $server = Server::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|string',
-            'type' => 'sometimes|string|in:directadmin,cpanel,plesk,other',
-            'ip_address' => 'nullable|ip',
-            'hostname' => 'nullable|string',
-            'port' => 'sometimes|integer',
-            'username' => 'sometimes|string',
-            'password' => 'nullable|string',
-            'options' => 'nullable|array',
-            'is_active' => 'boolean',
+            'name'          => 'sometimes|string',
+            'type'          => 'sometimes|string|in:directadmin,cpanel,plesk,other',
+            'ip_address'    => 'nullable|ip',
+            'hostname'      => 'nullable|string',
+            'port'          => 'sometimes|integer',
+            'username'      => 'nullable|string',
+            'password'      => 'nullable|string',
+            'options'       => 'nullable|array',
+            'is_active'     => 'required|boolean',
         ]);
 
         if ($validator->fails()) {

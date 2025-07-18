@@ -47,6 +47,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'saldo_bank'        => SaldoBankController::class,
         'cs_main_project'   => CsMainProjectController::class,
         'wm_project'        => WmProjectController::class,
+        'servers'           => ServerController::class
     ]);
 
     //data_opsi
@@ -92,9 +93,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //lain_lain
     Route::get('/check_paket', CheckPaketController::class);
-
-    // Server
-    Route::apiResource('servers', ServerController::class);
 });
 
 require __DIR__ . '/api-dash.php';
