@@ -24,8 +24,15 @@ class Server extends Model
         'is_active' => 'boolean',
     ];
 
+    //hidden
+    protected $hidden = [
+        'password',
+        'created_at',
+        'updated_at',
+    ];
+
     // Accessor untuk ambil password terdekripsi
-    public function getPasswordAttribute(): ?string
+    public function getRawPasswordAttribute(): ?string
     {
         return $this->password ? Crypt::decryptString($this->password) : null;
     }

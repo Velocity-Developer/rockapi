@@ -113,9 +113,24 @@ class ServerController extends Controller
     public function get_packages($id)
     {
         $serverService = ServerServices::make($id);
-        $server = $serverService->get();
-        // $packages = $serverService->getPackages();
+        $packages = $serverService->getPackages();
 
-        return response()->json($server);
+        if (isset($packages['error'])) {
+            return response()->json($packages, 500);
+        }
+
+        return response()->json($packages);
+    }
+
+    public function get_users($id)
+    {
+        $serverService = ServerServices::make($id);
+        $users = $serverService->getUsers();
+
+        if (isset($accounts['error'])) {
+            return response()->json($users, 500);
+        }
+
+        return response()->json($users);
     }
 }
