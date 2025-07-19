@@ -96,6 +96,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //server
     Route::get('/servers_packages/{id}', [ServerController::class, 'get_packages']);
+    Route::get('/servers_package_detail/{id}/{packageName}', [ServerController::class, 'get_packageDetail']);
     Route::get('/servers_users/{id}', [ServerController::class, 'get_users']);
 });
 

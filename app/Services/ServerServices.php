@@ -91,6 +91,39 @@ class ServerServices
         }
     }
 
+    public function getPackageDetail($packageName): array
+    {
+        //jika url kosong
+        if (empty($this->server->url)) {
+            return ['error' => true, 'message' => 'Server URL is empty'];
+        }
+
+        $url = $this->server->url . '/CMD_API_PACKAGES_USER?json=yes&package=' . $packageName;
+
+        try {
+            $response = Http::withHeaders($this->getAuthHeader())
+                ->timeout(30)
+                ->withOptions([
+                    'verify' => false,
+                ])
+                ->get($url);
+
+            if (!$response->successful()) {
+                throw new \Exception("HTTP Status: " . $response->status());
+            }
+
+            // Ubah dari string JSON menjadi array PHP
+            $body = $response->body();
+
+            //ubah dari json menjadi array php
+            $body = $body ? json_decode($body, true) : [];
+
+            return $body;
+        } catch (\Exception $e) {
+            return ['error' => true, 'message' => $e->getMessage(), 'url' => $url];
+        }
+    }
+
     public function getUsers()
     {
         $url = $this->server->url . '/CMD_API_SHOW_USERS?json=yes';
