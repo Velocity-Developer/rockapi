@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Laporan;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use App\Services\TanggalFormatterService;
+use App\Helpers\TanggalFormatterHelper;
 
 use App\Models\CsMainProject;
 use App\Models\HargaDomain;
@@ -18,7 +18,7 @@ class NetProfitController extends Controller
     public function index(Request $request)
     {
 
-        $formatter = new TanggalFormatterService();
+        $formatter = new TanggalFormatterHelper();
 
         $dari = $request->input('bulan_dari'); //format = YYYY-MMM
         //dapatkan hari pertama dari bulan $dari

@@ -6,7 +6,7 @@ use Illuminate\Support\Collection;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use App\Services\TanggalFormatterService;
+use App\Helpers\TanggalFormatterHelper;
 use App\Services\ConvertDataLamaService;
 
 use App\Models\CsMainProject;
@@ -42,7 +42,7 @@ class PerpanjangWebJangkaController extends Controller
         $jangka_waktu_tahun = floor($jangka_waktu / 12);
 
         //format bulan
-        $formatter = new TanggalFormatterService();
+        $formatter = new TanggalFormatterHelper();
         $bulan_formatted = $formatter->toIndonesianMonthYear($bulan_start);
 
         //get harga domain by bulan
@@ -231,7 +231,7 @@ class PerpanjangWebJangkaController extends Controller
     private function harga_domain($bulan)
     {
         //format bulan
-        $formatter = new TanggalFormatterService();
+        $formatter = new TanggalFormatterHelper();
         $bulan_formatted = $formatter->toIndonesianMonthYear($bulan);
 
         //get harga domain by bulan

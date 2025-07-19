@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services;
+namespace App\Helpers;
 
 use Carbon\Carbon;
 use Locale;
 
-class TanggalFormatterService
+class TanggalFormatterHelper
 {
     public function toIndonesianMonthYear(string $date): string
     {
