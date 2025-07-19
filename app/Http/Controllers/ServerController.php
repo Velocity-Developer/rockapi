@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Server;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Services\ServerServices;
+use App\Models\Server;
+use App\Models\ServerPackage;
 
 class ServerController extends Controller
 {
@@ -96,7 +97,7 @@ class ServerController extends Controller
         return response()->json(['message' => 'Server deleted']);
     }
 
-    public function get_packages($id)
+    public function sync_packages($id)
     {
         $serverService = ServerServices::make($id);
         $packages = $serverService->getPackages();
@@ -105,17 +106,37 @@ class ServerController extends Controller
             return response()->json($packages, 500);
         }
 
-        return response()->json($packages);
+        //loop
+        $newPackages = [];
+        foreach ($packages as $package) {
+            $package = ServerPackage::updateOrCreate([
+                'server_id' => $id,
+                'name'      => $package,
+            ]);
+            $newPackages[] = $package;
+        }
+
+        return response()->json($newPackages);
     }
 
-    public function get_packageDetail($id, $packageName)
+    public function sync_packageDetail($idpackage)
     {
-        $serverService = ServerServices::make($id);
+        //get serverPackage by id
+        $serverPackage = ServerPackage::find($idpackage);
+        $server_id = $serverPackage->server_id;
+        $packageName = $serverPackage->name;
+
+        $serverService = ServerServices::make($server_id);
         $packages = $serverService->getPackageDetail($packageName);
 
         if (isset($packages['error'])) {
             return response()->json($packages, 500);
         }
+
+        //save serverPackage
+        // $serverPackage->update([
+        //     'price' => $packages['price'],
+        // ]);
 
         return response()->json($packages);
     }

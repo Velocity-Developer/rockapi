@@ -22,6 +22,7 @@ use App\Http\Controllers\Laporan\PerpanjangWebJangkaController as LaporanPerpanj
 use App\Http\Controllers\Laporan\NetProfitController as LaporanNetProfitController;
 use App\Http\Controllers\CheckPaketController;
 use App\Http\Controllers\ServerController;
+use App\Http\Controllers\ServerPackageController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -47,7 +48,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'saldo_bank'        => SaldoBankController::class,
         'cs_main_project'   => CsMainProjectController::class,
         'wm_project'        => WmProjectController::class,
-        'servers'           => ServerController::class
+        'servers'           => ServerController::class,
+        'server_packages'   => ServerPackageController::class
     ]);
 
     //data_opsi
@@ -95,8 +97,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/check_paket', CheckPaketController::class);
 
     //server
-    Route::get('/servers_packages/{id}', [ServerController::class, 'get_packages']);
-    Route::get('/servers_package_detail/{id}/{packageName}', [ServerController::class, 'get_packageDetail']);
+    Route::get('/servers_sync_packages/{id}', [ServerController::class, 'sync_packages']);
+    Route::get('/servers_sync_package_detail/{idpackage}', [ServerController::class, 'sync_packageDetail']);
     Route::get('/servers_users/{id}', [ServerController::class, 'get_users']);
 });
 
