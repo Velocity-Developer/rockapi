@@ -15,12 +15,10 @@ class Server extends Model
         'port',
         'username',
         'password',
-        'options',
         'is_active',
     ];
 
     protected $casts = [
-        'options' => 'array',
         'is_active' => 'boolean',
     ];
 

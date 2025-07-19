@@ -34,18 +34,6 @@ class ServerController extends Controller
     {
         $server = Server::findOrFail($id);
         return response()->json($server);
-        // return response()->json([
-        //     'id'    => $server->id,
-        //     'name'  => $server->name,
-        //     'type'      => $server->type,
-        //     'ip_address' => $server->ip_address,
-        //     'hostname'  => $server->hostname,
-        //     'port'      => $server->port,
-        //     'username'  => $server->username,
-        //     'password'  => $server->password,
-        //     'options'   => $server->options,
-        //     'is_active' => $server->is_active,
-        // ]);
     }
 
     public function store(Request $request)
@@ -58,7 +46,6 @@ class ServerController extends Controller
             'port'      => 'required|integer',
             'username'  => 'required|string',
             'password'  => 'required|string',
-            'options'   => 'nullable|array',
             'is_active' => 'required|boolean',
         ]);
 
@@ -85,7 +72,6 @@ class ServerController extends Controller
             'port'          => 'sometimes|integer',
             'username'      => 'nullable|string',
             'password'      => 'nullable|string',
-            'options'       => 'nullable|array',
             'is_active'     => 'required|boolean',
         ]);
 
