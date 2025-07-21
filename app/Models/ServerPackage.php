@@ -20,4 +20,10 @@ class ServerPackage extends Model
     {
         return $this->belongsTo(Server::class, 'server_id');
     }
+
+    //relasi ke tabel server_user
+    public function server_user()
+    {
+        return $this->hasMany(ServerUser::class, 'server_package_id');
+    }
 }
