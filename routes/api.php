@@ -23,6 +23,7 @@ use App\Http\Controllers\Laporan\NetProfitController as LaporanNetProfitControll
 use App\Http\Controllers\CheckPaketController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\ServerPackageController;
+use App\Http\Controllers\ServerUserController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -49,7 +50,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'cs_main_project'   => CsMainProjectController::class,
         'wm_project'        => WmProjectController::class,
         'servers'           => ServerController::class,
-        'server_packages'   => ServerPackageController::class
+        'server_packages'   => ServerPackageController::class,
+        'server_users'      => ServerUserController::class
     ]);
 
     //data_opsi

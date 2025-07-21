@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Services\ServerServices;
 use App\Models\Server;
 use App\Models\ServerPackage;
+use App\Models\ServerUser;
 
 class ServerController extends Controller
 {
@@ -153,6 +154,16 @@ class ServerController extends Controller
             return response()->json($users, 500);
         }
 
-        return response()->json($users);
+        //loop simpan serverUser
+        $newUsers = [];
+        foreach ($users as $user) {
+            $user = ServerUser::updateOrCreate([
+                'server_id' => $id,
+                'username'  => $user,
+            ]);
+            $newUsers[] = $user;
+        }
+
+        return response()->json($newUsers);
     }
 }
