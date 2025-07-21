@@ -150,4 +150,31 @@ class ServerServices
             return ['error' => true, 'message' => $e->getMessage(), 'url' => $url];
         }
     }
+
+    public function getUserDetails($username)
+    {
+        $url = $this->server->url . '/api/users/' . $username . '/config';
+        try {
+            $response = Http::withHeaders($this->getAuthHeader())
+                ->timeout(30)
+                ->withOptions([
+                    'verify' => false,
+                ])
+                ->get($url);
+
+            if (!$response->successful()) {
+                throw new \Exception("HTTP Status: " . $response->status());
+            }
+
+            // Ubah dari string JSON menjadi array PHP
+            $body = $response->body();
+
+            //ubah dari json menjadi array php
+            $body = $body ? json_decode($body, true) : [];
+
+            return $body;
+        } catch (\Exception $e) {
+            return ['error' => true, 'message' => $e->getMessage(), 'url' => $url];
+        }
+    }
 }

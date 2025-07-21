@@ -144,7 +144,7 @@ class ServerController extends Controller
         return response()->json($serverPackage);
     }
 
-    public function get_users($id)
+    public function sync_users($id)
     {
         $serverService = ServerServices::make($id);
         $users = $serverService->getUsers();
