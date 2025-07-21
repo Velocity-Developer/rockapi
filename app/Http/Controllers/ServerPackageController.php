@@ -36,7 +36,9 @@ class ServerPackageController extends Controller
      */
     public function show(string $id)
     {
-        //
+        //get by id
+        $package = ServerPackage::with('server:id,name')->find($id);
+        return response()->json($package);
     }
 
     /**

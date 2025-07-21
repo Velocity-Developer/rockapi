@@ -134,11 +134,14 @@ class ServerController extends Controller
         }
 
         //save serverPackage
-        // $serverPackage->update([
-        //     'price' => $packages['price'],
-        // ]);
+        $serverPackage->update([
+            'bandwidth' => $packages['bandwidth'],
+            'email_daily_limit' => $packages['email_daily_limit'],
+            'inode' => $packages['inode'],
+            'quota' => $packages['quota'],
+        ]);
 
-        return response()->json($packages);
+        return response()->json($serverPackage);
     }
 
     public function get_users($id)
