@@ -16,6 +16,11 @@ class ServerPackageController extends Controller
         $packages = ServerPackage::where('server_id', $server_id);
         $packages = $packages->with('server:id,name');
 
+        //order by name
+        $order_by   = $request->input('order_by', 'name');
+        $order      = $request->input('order', 'asc');
+        $packages   = $packages->orderBy($order_by, $order);
+
         //pagination
         $per_page = $request->input('per_page', 20);
         $packages = $packages->paginate($per_page);
@@ -54,6 +59,8 @@ class ServerPackageController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        //get by id
+        $package = ServerPackage::find($id);
+        $package->delete();
     }
 }
