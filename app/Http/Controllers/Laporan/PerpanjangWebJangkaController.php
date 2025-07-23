@@ -203,7 +203,8 @@ class PerpanjangWebJangkaController extends Controller
         $total_net_profit_pembuatan = $total_profit_bersih_pembuatan - $biaya_ads;
         $total_net_profit           = $total_profit_bersih - $biaya_ads;
         $pertumbuhan                = ($total_net_profit - $total_net_profit_pembuatan);
-        $persen_pertumbuhan         = round(($total_net_profit - $total_net_profit_pembuatan) / $total_net_profit * 100, 2);
+        $persen_pertumbuhan         = ($total_net_profit - $total_net_profit_pembuatan) / $total_net_profit_pembuatan * 100;
+        $persen_pertumbuhan         = bcdiv($persen_pertumbuhan, '1', 2);
 
         /**
          * perubahan dari MUH, ambil dari kumulatif
@@ -240,7 +241,7 @@ class PerpanjangWebJangkaController extends Controller
                 'Net Profit'                        => 'Rp ' . number_format($total_net_profit_pembuatan, 0, ",", "."),
                 'Order Kumulatif'                   => $order_kumulatif,
                 'Net Profit Kumulatif'              => 'Rp ' . number_format($net_profit_kumulatif, 0, ",", "."),
-                'Pertumbuhan Pembuatan Kumulatif '  => 'Rp ' . number_format($net_profit_kumulatif - $total_net_profit_pembuatan, 0, ",", "."),
+                'Pertumbuhan Pembuatan Kumulatif'   => 'Rp ' . number_format($net_profit_kumulatif - $total_net_profit_pembuatan, 0, ",", "."),
             ]
         ]);
     }
