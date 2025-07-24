@@ -204,8 +204,10 @@ class ServerController extends Controller
 
         //get ServerPackage by name and id server
         $serverPackage = ServerPackage::where('server_id', $server_id)->where('name', $users['package'])->first();
-        $serverUser->server_package_id = $serverPackage->id ?? '';
-        $serverUser->save();
+        if ($serverPackage) {
+            $serverUser->server_package_id = $serverPackage->id ?? '';
+            $serverUser->save();
+        }
 
         $userServer = ServerUser::with('server:id,name', 'server_package:id,name')->find($serverUser->id);
 
