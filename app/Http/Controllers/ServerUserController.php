@@ -61,5 +61,7 @@ class ServerUserController extends Controller
     public function destroy(string $id)
     {
         //
+        $userServer = ServerUser::find($id);
+        $userServer->delete();
     }
 }
