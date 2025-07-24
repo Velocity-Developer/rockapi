@@ -150,7 +150,7 @@ class ServerController extends Controller
         $serverService = ServerServices::make($id);
         $users = $serverService->getUsers();
 
-        if (isset($accounts['error'])) {
+        if (isset($users['error']) && $users['error'] == true) {
             return response()->json($users, 500);
         }
 
@@ -165,5 +165,51 @@ class ServerController extends Controller
         }
 
         return response()->json($newUsers);
+    }
+
+    public function sync_userDetail($iduserserver)
+    {
+        //get serverUser by id
+        $serverUser = ServerUser::find($iduserserver);
+        $server_id = $serverUser->server_id;
+        $username = $serverUser->username;
+
+        $serverService = ServerServices::make($server_id);
+        $users = $serverService->getUserDetails($username);
+
+        if (isset($users['error'])) {
+            return response()->json($users, 500);
+        }
+
+        //save serverUser
+        $serverUser->update([
+            'cron'          => $users['cron'],
+            'domain'        => $users['domain'],
+            'domains'       => $users['domains'],
+            'ip'            => $users['ip'],
+            'lets_encrypt'  => $users['letsEncrypt'],
+            'name'          => $users['name'],
+            'ns1'           => $users['ns1'],
+            'ns2'           => $users['ns2'],
+            'package'       => $users['package'],
+            'php'           => $users['php'],
+            'spam'          => $users['spam'],
+            'ssh'           => $users['ssh'],
+            'ssl'           => $users['ssl'],
+            'suspended'     => $users['suspended'],
+            'user_type'     => $users['userType'],
+            'users'         => $users['users'],
+            'wordpress'     => $users['wordpress'],
+        ]);
+
+        //get ServerPackage by name and id server
+        $serverPackage = ServerPackage::where('server_id', $server_id)->where('name', $users['package'])->first();
+        $serverUser->server_package_id = $serverPackage->id;
+        $serverUser->save();
+
+
+        $userServer = ServerUser::with('server:id,name', 'server_package:id,name')->find($serverUser->id);
+
+        return response()->json($userServer);
     }
 }

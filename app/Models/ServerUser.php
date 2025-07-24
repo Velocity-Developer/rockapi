@@ -14,8 +14,6 @@ class ServerUser extends Model
         'domains',
         'ip',
         'lets_encrypt',
-        'memory_high',
-        'memory_low',
         'name',
         'ns1',
         'ns2',

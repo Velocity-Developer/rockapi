@@ -18,7 +18,7 @@ class ServerUserController extends Controller
         $users = $users->with('server:id,name', 'server_package:id,name');
 
         //order by name
-        $order_by   = $request->input('order_by', 'name');
+        $order_by   = $request->input('order_by', 'username');
         $order      = $request->input('order', 'asc');
         $users      = $users->orderBy($order_by, $order);
 
@@ -42,7 +42,9 @@ class ServerUserController extends Controller
      */
     public function show(string $id)
     {
-        //
+        //get by id
+        $userServer = ServerUser::with('server:id,name', 'server_package:id,name')->find($id);
+        return response()->json($userServer);
     }
 
     /**

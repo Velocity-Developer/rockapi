@@ -102,6 +102,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/servers_sync_packages/{id}', [ServerController::class, 'sync_packages']);
     Route::get('/servers_sync_package_detail/{idpackage}', [ServerController::class, 'sync_packageDetail']);
     Route::get('/servers_sync_users/{id}', [ServerController::class, 'sync_users']);
+    Route::get('/servers_sync_user_detail/{iduserserver}', [ServerController::class, 'sync_userDetail']);
 });
 
 require __DIR__ . '/api-dash.php';
