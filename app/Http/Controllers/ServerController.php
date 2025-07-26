@@ -212,6 +212,8 @@ class ServerController extends Controller
 
         $userServer = ServerUser::with('server:id,name', 'server_package:id,name')->find($serverUser->id);
 
-        return response()->json($userServer);
+        return response()->json(
+            $userServer
+        );
     }
 }
