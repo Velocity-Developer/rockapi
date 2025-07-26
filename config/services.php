@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
@@ -36,10 +35,11 @@ return [
     ],
 
     'whmcs' => [
-        'custom_url'       => env('WHMCS_CUSTOM_API_URL'),
-        'url'              => env('WHMCS_API_URL'),
-        'identifier'       => env('WHMCS_API_IDENTIFIER'),
-        'secret'           => env('WHMCS_SECRET'),
+        'api_url' => env('WHMCS_API_URL'),
+        'identifier' => env('WHMCS_API_IDENTIFIER'),
+        'secret' => env('WHMCS_API_SECRET'),
+        'access_key' => env('WHMCS_ACCESS_KEY'),
+        'custom_url' => env('WHMCS_CUSTOM_URL'),
     ],
 
     'directadmin' => [
@@ -48,5 +48,5 @@ return [
         'username' => env('DIRECTADMIN_USERNAME'),
         'password' => env('DIRECTADMIN_PASSWORD'),
     ],
-
+];
 ];
