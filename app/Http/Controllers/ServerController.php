@@ -200,6 +200,7 @@ class ServerController extends Controller
             'user_type'     => $users['userType'],
             'users'         => $users['users'],
             'wordpress'     => $users['wordpress'],
+            'quotaLim'     => $users['quotaLim'],
         ]);
 
         //get ServerPackage by name and id server

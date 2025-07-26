@@ -19,6 +19,7 @@ class ServerUser extends Model
         'ns2',
         'package',
         'server_package_id',
+        'quotaLim',
         'php',
         'spam',
         'ssh',
