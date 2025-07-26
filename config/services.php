@@ -49,4 +49,3 @@ return [
         'password' => env('DIRECTADMIN_PASSWORD'),
     ],
 ];
-];
