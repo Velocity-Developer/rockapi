@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Services\DirectAdminService;
-use App\Services\WHMCSService;
+use App\Services\WHMCSCustomService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 
 class CheckPaketController extends Controller
 {
-  public function __invoke(Request $request, DirectAdminService $whm, WHMCSService $whmcs): JsonResponse
+  public function __invoke(Request $request, DirectAdminService $whm, WHMCSCustomService $whmcs): JsonResponse
   {
     $products = $whmcs->getProducts() ?? [];
 

@@ -36,7 +36,10 @@ return [
     ],
 
     'whmcs' => [
-        'url'       => env('WHMCS_API_URL'),
+        'custom_url'       => env('WHMCS_CUSTOM_API_URL'),
+        'url'              => env('WHMCS_API_URL'),
+        'identifier'       => env('WHMCS_API_IDENTIFIER'),
+        'secret'           => env('WHMCS_SECRET'),
     ],
 
     'directadmin' => [
