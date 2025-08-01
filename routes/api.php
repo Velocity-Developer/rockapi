@@ -103,6 +103,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/servers_sync_package_detail/{idpackage}', [ServerController::class, 'sync_packageDetail']);
     Route::get('/servers_sync_users/{id}', [ServerController::class, 'sync_users']);
     Route::get('/servers_sync_user_detail/{iduserserver}', [ServerController::class, 'sync_userDetail']);
+
+    //journal
+    Route::apiResource('journals', App\Http\Controllers\JournalController::class);
+    Route::apiResource('journal-categories', App\Http\Controllers\JournalCategoryController::class);
 });
 
 require __DIR__ . '/api-dash.php';
