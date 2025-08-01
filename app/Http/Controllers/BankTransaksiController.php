@@ -217,15 +217,13 @@ class BankTransaksiController extends Controller
      */
     public function search_jenis(string $keyword)
     {
-        //get tanggal sekarang, format Y-m-d
-        $tgl_sekarang = Carbon::now()->format('Y-m-d');
-        //get 30 hari terakhir
-        $tgl_30_hari_terakhir = Carbon::now()->subDays(30)->format('Y-m-d');
+        //get 1 tahun terakhir
+        $tgl_1_tahun_terakhir = Carbon::now()->subDays(365)->format('Y-m-d');
 
-        //search TransaksiKeluar: jenis by keyword, 30 hari terakhir
+        //search TransaksiKeluar: jenis by keyword, 1 tahun terakhir
         $transaksi_keluar = TransaksiKeluar::with('bank')
             ->where('jenis', 'like', '%' . $keyword . '%')
-            ->where('tgl', '>=', $tgl_30_hari_terakhir)
+            // ->where('tgl', '>=', $tgl_1_tahun_terakhir)
             ->orderBy('tgl', 'desc')
             ->limit(30)
             ->get();
@@ -235,7 +233,7 @@ class BankTransaksiController extends Controller
             ->whereHas('Webhost', function ($query) use ($keyword) {
                 $query->where('nama_web', 'like', '%' . $keyword . '%');
             })
-            ->where('tgl_masuk', '>=', date('Y-m-d', strtotime('-30 days')))
+            // ->where('tgl_masuk', '>=', $tgl_1_tahun_terakhir)
             ->orderBy('tgl_masuk', 'desc')
             ->limit(30)
             ->get();
