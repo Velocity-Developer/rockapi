@@ -21,7 +21,8 @@ class DatabaseSeeder extends Seeder
             KaryawanUserSeeder::class,
             CsMainProjectKaryawanSeeder::class,
             BankRelasiJenisSeeder::class,
-            UserWmProject::class
+            UserWmProject::class,
+            JournalCategorySeeder::class,
         ]);
     }
 }
