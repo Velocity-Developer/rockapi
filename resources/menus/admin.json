@@ -85,6 +85,11 @@
                 "key": "net_profit",
                 "label": "Net Profit",
                 "route": "/laporan/net_profit"
+            },
+            {
+                "key": "laporan_siklus_layanan",
+                "label": "Siklus Layanan",
+                "route": "/laporan/siklus_layanan"
             }
         ]
     },

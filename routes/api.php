@@ -17,9 +17,6 @@ use App\Http\Controllers\WmProjectController;
 use App\Http\Controllers\ProjectListController;
 use App\Http\Controllers\LaporanNilaiController;
 use App\Http\Controllers\ProjectManagerController;
-use App\Http\Controllers\Laporan\ProjectProfitController as LaporanProjectProfitController;
-use App\Http\Controllers\Laporan\PerpanjangWebJangkaController as LaporanPerpanjangWebJangkaController;
-use App\Http\Controllers\Laporan\NetProfitController as LaporanNetProfitController;
 use App\Http\Controllers\CheckPaketController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\ServerPackageController;
@@ -90,11 +87,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //project_manager
     Route::get('project_manager', [ProjectManagerController::class, 'index']);
 
-    //group laporan
-    Route::get('laporan/project_profit', [LaporanProjectProfitController::class, 'index']);
-    Route::get('laporan/perpanjang_web_jangka', [LaporanPerpanjangWebJangkaController::class, 'index']);
-    Route::get('laporan/net_profit', [LaporanNetProfitController::class, 'index']);
-
     //lain_lain
     Route::get('/check_paket', CheckPaketController::class);
 
@@ -110,3 +102,4 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 
 require __DIR__ . '/api-dash.php';
+require __DIR__ . '/api-laporan.php';

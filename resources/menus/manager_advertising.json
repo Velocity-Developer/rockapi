@@ -22,5 +22,11 @@
         "label": "Net Profit",
         "icon": "lucide:file-chart-line",
         "route": "/laporan/net_profit"
+    },
+    {
+        "key": "siklus_layanan",
+        "label": "Net Profit",
+        "icon": "lucide:file-chart-line",
+        "route": "/laporan/siklus_layanan"
     }
 ]

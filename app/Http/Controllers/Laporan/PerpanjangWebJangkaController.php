@@ -301,8 +301,8 @@ class PerpanjangWebJangkaController extends Controller
         $data = $grouped_data[$bulan_start] ?? [];
 
         //hitung total
-        $total_omzet    = $data->sum('dibayar');
-        $total_order    = $data->count();
+        $total_omzet    = $data ? $data->sum('dibayar') : 0;
+        $total_order    = $data ? $data->count() : 0;
         $harga_domain   = $this->harga_domain($bulan_start);
         $biaya_domain   = $harga_domain * $total_order;
         $profit_kotor   = $total_omzet - $biaya_domain;
@@ -316,88 +316,90 @@ class PerpanjangWebJangkaController extends Controller
         $data_order_jenis       = [];
         $data_order_jenis_total = 0;
 
-        $data->each(function ($project) use (
-            &$total_order_pembuatan,
-            &$total_profit_kotor_pembuatan,
-            &$total_profit_bersih_pembuatan,
-            &$harga_domain,
-            &$total_profit_bersih,
-            &$data_order_jenis,
-            &$data_order_jenis_total
-        ) {
-            $webhost = $project->webhost;
+        if ($data) {
+            $data->each(function ($project) use (
+                &$total_order_pembuatan,
+                &$total_profit_kotor_pembuatan,
+                &$total_profit_bersih_pembuatan,
+                &$harga_domain,
+                &$total_profit_bersih,
+                &$data_order_jenis,
+                &$data_order_jenis_total
+            ) {
+                $webhost = $project->webhost;
 
-            //waktu chat pertama
-            $waktu_chat_pertama = $webhost->waktu;
-            $waktu_chat_pertama = Carbon::parse($waktu_chat_pertama)->format('Y-m');
+                //waktu chat pertama
+                $waktu_chat_pertama = $webhost->waktu;
+                $waktu_chat_pertama = Carbon::parse($waktu_chat_pertama)->format('Y-m');
 
-            $webhost->waktu_chat_pertama = $waktu_chat_pertama;
+                $webhost->waktu_chat_pertama = $waktu_chat_pertama;
 
-            // loop cs_main_projects
-            // Hitung profit_pembuatan (per project)
-            $projects = $webhost->CsMainProjects;
-            foreach ($projects as $project) {
-
-                $dibayar = $project->dibayar;
-                $tgl_masuk = $project->tgl_masuk ? Carbon::parse($project->tgl_masuk)->format('Y-m') : '';
-
-                //jika tgl masuk sama dengan waktu chat pertama dan termasuk jenis pembuatan
-                if ($tgl_masuk && $tgl_masuk == $waktu_chat_pertama && in_array($project->jenis, $this->jenis_pembuatan)) {
-                    $total_profit_kotor_pembuatan += $dibayar;
-                    $total_profit_bersih_pembuatan += $dibayar - $harga_domain;
-                    $total_order_pembuatan++;
-                }
-            }
-
-            // Kelompokkan hanya sekali per webhost
-            $data_jenis             = [];
-            $grouped                = $webhost->csMainProjects->groupBy('jenis');
-            $total_profit_webhost   = 0;
-            foreach ($grouped as $jenis => $projects) {
-
-                $total_dibayar  = 0;
-                $total_profit   = 0;
-                $harga_domain   = $this->harga_domain($project->webhost->waktu);
-
-                //loop projects
+                // loop cs_main_projects
+                // Hitung profit_pembuatan (per project)
+                $projects = $webhost->CsMainProjects;
                 foreach ($projects as $project) {
-                    if (in_array($project->jenis, $this->jenis_pembuatan)) {
-                        $total_profit += $project->dibayar - $harga_domain;
-                    } else {
-                        $total_profit += $project->dibayar;
+
+                    $dibayar = $project->dibayar;
+                    $tgl_masuk = $project->tgl_masuk ? Carbon::parse($project->tgl_masuk)->format('Y-m') : '';
+
+                    //jika tgl masuk sama dengan waktu chat pertama dan termasuk jenis pembuatan
+                    if ($tgl_masuk && $tgl_masuk == $waktu_chat_pertama && in_array($project->jenis, $this->jenis_pembuatan)) {
+                        $total_profit_kotor_pembuatan += $dibayar;
+                        $total_profit_bersih_pembuatan += $dibayar - $harga_domain;
+                        $total_order_pembuatan++;
                     }
-                    $total_dibayar += $project->dibayar;
                 }
 
-                $data_jenis[$jenis]['label']    = $jenis;
-                $data_jenis[$jenis]['dibayar']  = $total_dibayar;
-                $data_jenis[$jenis]['profit']   = $total_profit;
-                $data_jenis[$jenis]['total']    = $projects->count();
+                // Kelompokkan hanya sekali per webhost
+                $data_jenis             = [];
+                $grouped                = $webhost->csMainProjects->groupBy('jenis');
+                $total_profit_webhost   = 0;
+                foreach ($grouped as $jenis => $projects) {
 
-                $total_profit_webhost += $total_profit;
+                    $total_dibayar  = 0;
+                    $total_profit   = 0;
+                    $harga_domain   = $this->harga_domain($project->webhost->waktu);
 
-                //kelompokkan per jenis
-                if (!in_array($jenis, $this->jenis_pembuatan)) {
-                    if (!isset($data_order_jenis[$jenis])) {
-                        $data_order_jenis[$jenis] = [
-                            'label'     => $jenis,
-                            'dibayar'   => 0,
-                            'total'     => 0,
-                            'profit'    => 0
-                        ];
+                    //loop projects
+                    foreach ($projects as $project) {
+                        if (in_array($project->jenis, $this->jenis_pembuatan)) {
+                            $total_profit += $project->dibayar - $harga_domain;
+                        } else {
+                            $total_profit += $project->dibayar;
+                        }
+                        $total_dibayar += $project->dibayar;
                     }
-                    $data_order_jenis[$jenis]['dibayar'] += $project->dibayar;
-                    $data_order_jenis[$jenis]['profit'] += $total_profit;
-                    $data_order_jenis[$jenis]['total'] += 1;
-                    $data_order_jenis_total += $total_profit;
+
+                    $data_jenis[$jenis]['label']    = $jenis;
+                    $data_jenis[$jenis]['dibayar']  = $total_dibayar;
+                    $data_jenis[$jenis]['profit']   = $total_profit;
+                    $data_jenis[$jenis]['total']    = $projects->count();
+
+                    $total_profit_webhost += $total_profit;
+
+                    //kelompokkan per jenis
+                    if (!in_array($jenis, $this->jenis_pembuatan)) {
+                        if (!isset($data_order_jenis[$jenis])) {
+                            $data_order_jenis[$jenis] = [
+                                'label'     => $jenis,
+                                'dibayar'   => 0,
+                                'total'     => 0,
+                                'profit'    => 0
+                            ];
+                        }
+                        $data_order_jenis[$jenis]['dibayar'] += $project->dibayar;
+                        $data_order_jenis[$jenis]['profit'] += $total_profit;
+                        $data_order_jenis[$jenis]['total'] += 1;
+                        $data_order_jenis_total += $total_profit;
+                    }
                 }
-            }
 
-            $webhost->data_jenis                        = $data_jenis;
-            $webhost->total_profit                      = $total_profit_webhost;
+                $webhost->data_jenis                        = $data_jenis;
+                $webhost->total_profit                      = $total_profit_webhost;
 
-            $total_profit_bersih += $total_profit_webhost;
-        });
+                $total_profit_bersih += $total_profit_webhost;
+            });
+        }
 
         return [
             'dari'                  => $dari,
