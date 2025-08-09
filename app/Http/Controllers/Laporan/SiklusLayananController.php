@@ -41,6 +41,8 @@ class SiklusLayananController extends Controller
             'tahun_lalu' => $tahun_lalu,
         ];
 
+        $jenis_pembuatan_perpanjang = array_merge($this->jenis_pembuatan, ['Perpanjangan']);
+
         /**
          * Perpanjang Bulan Ini
          * mengambil data webhost yang memiliki cs_main_project dengan jenis = 'Perpanjangan' dengan tgl_masuk di bulan ini
@@ -108,14 +110,17 @@ class SiklusLayananController extends Controller
          * dan tidak memiliki cs_main_project dengan jenis = 'Perpanjangan' dengan tgl_masuk di bulan tahun ini
          */
         $tidak_perpanjang = Webhost::with([
-            'csMainProjects' => function ($query) use ($tahun, $tahun_lalu) {
-                $query->where(function ($q) use ($tahun, $tahun_lalu) {
-                    $q->whereYear('tgl_masuk', $tahun)
+            'csMainProjects' => function ($query) use ($jenis_pembuatan_perpanjang, $tahun, $tahun_lalu) {
+                // Perpanjangan hanya tahun ini atau tahun lalu
+                $query->where(function ($sub) use ($tahun, $tahun_lalu) {
+                    $sub->whereYear('tgl_masuk', $tahun)
                         ->orWhereYear('tgl_masuk', $tahun_lalu);
-                })->where(function ($q) {
-                    $q->whereIn('jenis', $this->jenis_pembuatan)
-                        ->orWhere('jenis', 'Perpanjangan');
-                });
+                })->where('jenis', 'Perpanjangan')
+
+                    // ATAU Pembuatan tanpa batas tahun
+                    ->orWhere(function ($sub) {
+                        $sub->where('jenis', 'Pembuatan');
+                    });
             }
         ])
             // Filter parent agar hanya yang memenuhi dua kondisi
@@ -126,7 +131,7 @@ class SiklusLayananController extends Controller
             })
             ->whereDoesntHave('csMainProjects', function ($query) use ($bulan, $tahun) {
                 $query->where('jenis', 'Perpanjangan')
-                    ->whereMonth('tgl_masuk', $bulan)
+                    // ->whereMonth('tgl_masuk', $bulan)
                     ->whereYear('tgl_masuk', $tahun);
             })
             ->get();
