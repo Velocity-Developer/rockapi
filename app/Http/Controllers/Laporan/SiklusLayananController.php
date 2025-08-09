@@ -45,53 +45,111 @@ class SiklusLayananController extends Controller
          * Perpanjang Bulan Ini
          * mengambil data webhost yang memiliki cs_main_project dengan jenis = 'Perpanjangan' dengan tgl_masuk di bulan ini
          */
-        $perpanjang_bulan_ini = Webhost::with('CsMainProject')
-            ->whereHas('cs_main_project', function ($query) use ($bulan, $tahun) {
+        $perpanjang_bulan_ini = Webhost::with([
+            'csMainProjects' => function ($query) use ($bulan, $tahun) {
+                $query->where('jenis', 'Perpanjangan')
+                    ->whereMonth('tgl_masuk', $bulan)
+                    ->whereYear('tgl_masuk', $tahun);
+            },
+        ])
+            ->whereHas('csMainProjects', function ($query) use ($bulan, $tahun) {
                 $query->where('jenis', 'Perpanjangan')
                     ->whereMonth('tgl_masuk', $bulan)
                     ->whereYear('tgl_masuk', $tahun);
             })
             ->get();
-        $total_perpanjang_bulan_ini = $perpanjang_bulan_ini->count();
-        $results['meta'][] = $perpanjang_bulan_ini;
+        $perpanjang_bulan_ini_total = $perpanjang_bulan_ini->count();
+        $results['meta']['perpanjang_bulan_ini'] = $perpanjang_bulan_ini;
+        $perpanjang_bulan_ini_nominal = $perpanjang_bulan_ini
+            ->flatMap->csMainProjects // gabungkan semua csMainProjects jadi satu collection
+            ->sum('dibayar');
+
+        /**
+         * Perpanjang Baru
+         * mengambil data webhost yang memiliki cs_main_project dengan jenis = 'Perpanjangan' dengan tgl_masuk di bulan ini
+         * dan tgl_masuk di tahun ini
+         * dan memiliki cs_main_project dengan jenis = $jenis_pembuatan dengan tgl_masuk di bulan tahun lalu
+         * dan tgl_masuk di tahun lalu
+         */
+        $perpanjang_baru = Webhost::with('csMainProjects')
+            // Filter parent agar hanya yang memenuhi dua kondisi
+            ->whereHas('csMainProjects', function ($query) use ($bulan, $tahun) {
+                $query->where('jenis', 'Perpanjangan')
+                    ->whereMonth('tgl_masuk', $bulan)
+                    ->whereYear('tgl_masuk', $tahun);
+            })
+            ->whereHas('csMainProjects', function ($query) use ($tahun_lalu) {
+                $query->whereIn('jenis', $this->jenis_pembuatan)
+                    ->whereYear('tgl_masuk', $tahun_lalu);
+            })
+            ->get();
+
+        $perpanjang_baru_total = $perpanjang_baru->count();
+        $results['meta']['perpanjang_baru'] = $perpanjang_baru;
+        $perpanjang_baru_nominal = $perpanjang_baru
+            ->flatMap->csMainProjects
+            ->where('jenis', 'Perpanjangan') // hanya ambil yang jenis perpanjangan            
+            ->filter(function ($item) use ($tahun, $bulan) { // filter perpanjangan bulan ini
+                return \Carbon\Carbon::parse($item->tgl_masuk)->year == $tahun
+                    && \Carbon\Carbon::parse($item->tgl_masuk)->month == $bulan;
+            })
+            ->sum('dibayar');
+
+
+        /**
+         * Tidak Perpanjang
+         * mengambil data webhost yang memiliki cs_main_project dengan jenis = 'Perpanjangan' dengan tgl_masuk di tahun lalu
+         * dan memiliki cs_main_project dengan jenis = $jenis_pembuatan dengan tgl_masuk di tahun lalu
+         * dan tidak memiliki cs_main_project dengan jenis = 'Perpanjangan' dengan tgl_masuk di bulan tahun ini
+         */
+        $tidak_perpanjang = Webhost::with([
+            'csMainProjects' => function ($query) use ($tahun, $tahun_lalu) {
+                $query->where(function ($q) use ($tahun, $tahun_lalu) {
+                    $q->whereYear('tgl_masuk', $tahun)
+                        ->orWhereYear('tgl_masuk', $tahun_lalu);
+                })->where(function ($q) {
+                    $q->whereIn('jenis', $this->jenis_pembuatan)
+                        ->orWhere('jenis', 'Perpanjangan');
+                });
+            }
+        ])
+            // Filter parent agar hanya yang memenuhi dua kondisi
+            ->whereHas('csMainProjects', function ($query) use ($tahun_lalu) {
+                $query->whereIn('jenis', $this->jenis_pembuatan)
+                    ->whereYear('tgl_masuk', $tahun_lalu);
+            })
+            ->whereDoesntHave('csMainProjects', function ($query) use ($bulan, $tahun) {
+                $query->where('jenis', 'Perpanjangan')
+                    ->whereMonth('tgl_masuk', $bulan)
+                    ->whereYear('tgl_masuk', $tahun);
+            })
+            ->get();
+        $tidak_perpanjang_total = $tidak_perpanjang->count();
+        $results['meta']['tidak_perpanjang'] = $tidak_perpanjang;
+        $tidak_perpanjang_nominal = $tidak_perpanjang
+            ->flatMap->csMainProjects
+            ->whereIn('jenis', $this->jenis_pembuatan)
+            ->sum('dibayar');
 
         $results['data'] = [
-            // 'perpanjang'        => [
-            //     'label'         => 'Perpanjang',
-            //     'total'         => $total_perpanjang_bulan_ini,
-            //     'nominal'       => $perpanjang_bulan_ini->sum('dibayar'),
-            //     'webhosts'      => $perpanjang_bulan_ini->whereNotNull('webhost')->groupBy('id_webhost')->map(function ($projects) {
-            //         $webhost = clone $projects->first()->webhost;
-            //         $webhost->cs_main_project = $projects->each(function ($project) {
-            //             unset($project->webhost);
-            //         })->values();
-            //         return $webhost;
-            //     })->values()
-            // ],
-            // 'perpanjang_baru'   => [
-            //     'label'         => 'Perpanjang Baru',
-            //     'total'         => $perpanjang_baru->count(),
-            //     'nominal'       => $perpanjang_baru->sum('dibayar'),
-            //     'webhosts'      => $perpanjang_baru->whereNotNull('webhost')->groupBy('id_webhost')->map(function ($projects) {
-            //         $webhost = clone $projects->first()->webhost;
-            //         $webhost->cs_main_project = $projects->each(function ($project) {
-            //             unset($project->webhost);
-            //         })->values();
-            //         return $webhost;
-            //     })->values()
-            // ],
-            // 'tidak_perpanjang'  => [
-            //     'label'         => 'Tidak Perpanjang',
-            //     'total'         => $tidak_perpanjang->count(),
-            //     'nominal'       => $tidak_perpanjang->sum('dibayar'),
-            //     'webhosts'      => $tidak_perpanjang->whereNotNull('webhost')->groupBy('id_webhost')->map(function ($projects) {
-            //         $webhost = clone $projects->first()->webhost;
-            //         $webhost->cs_main_project = $projects->each(function ($project) {
-            //             unset($project->webhost);
-            //         })->values();
-            //         return $webhost;
-            //     })->values()
-            // ]
+            'perpanjang'        => [
+                'label'         => 'Perpanjang',
+                'total'         => $perpanjang_bulan_ini_total,
+                'nominal'       => $perpanjang_bulan_ini_nominal,
+                'webhosts'      => $perpanjang_bulan_ini,
+            ],
+            'perpanjang_baru'   => [
+                'label'         => 'Perpanjang Baru',
+                'total'         => $perpanjang_baru_total,
+                'nominal'       => $perpanjang_baru_nominal,
+                'webhosts'      => $perpanjang_baru,
+            ],
+            'tidak_perpanjang'  => [
+                'label'         => 'Tidak Perpanjang',
+                'total'         => $tidak_perpanjang_total,
+                'nominal'       => $tidak_perpanjang_nominal,
+                'webhosts'      => $tidak_perpanjang,
+            ]
         ];
 
         return response()->json($results);
