@@ -71,7 +71,12 @@ class SiklusLayananController extends Controller
          * dan memiliki cs_main_project dengan jenis = $jenis_pembuatan dengan tgl_masuk di bulan tahun lalu
          * dan tgl_masuk di tahun lalu
          */
-        $perpanjang_baru = Webhost::with('csMainProjects')
+        $perpanjang_baru = Webhost::with([
+            'csMainProjects' => function ($query) use ($tahun, $bulan) {
+                $query->whereYear('tgl_masuk', $tahun)
+                    ->whereMonth('tgl_masuk', $bulan);
+            },
+        ])
             // Filter parent agar hanya yang memenuhi dua kondisi
             ->whereHas('csMainProjects', function ($query) use ($bulan, $tahun) {
                 $query->where('jenis', 'Perpanjangan')
@@ -114,8 +119,9 @@ class SiklusLayananController extends Controller
             }
         ])
             // Filter parent agar hanya yang memenuhi dua kondisi
-            ->whereHas('csMainProjects', function ($query) use ($tahun_lalu) {
-                $query->whereIn('jenis', $this->jenis_pembuatan)
+            ->whereHas('csMainProjects', function ($query) use ($bulan_lalu, $tahun_lalu) {
+                $query->where('jenis', 'Perpanjangan')
+                    ->whereMonth('tgl_masuk', $bulan_lalu)
                     ->whereYear('tgl_masuk', $tahun_lalu);
             })
             ->whereDoesntHave('csMainProjects', function ($query) use ($bulan, $tahun) {
@@ -124,11 +130,12 @@ class SiklusLayananController extends Controller
                     ->whereYear('tgl_masuk', $tahun);
             })
             ->get();
+
         $tidak_perpanjang_total = $tidak_perpanjang->count();
         $results['meta']['tidak_perpanjang'] = $tidak_perpanjang;
         $tidak_perpanjang_nominal = $tidak_perpanjang
             ->flatMap->csMainProjects
-            ->whereIn('jenis', $this->jenis_pembuatan)
+            ->where('jenis', 'Perpanjangan')
             ->sum('dibayar');
 
         $results['data'] = [
