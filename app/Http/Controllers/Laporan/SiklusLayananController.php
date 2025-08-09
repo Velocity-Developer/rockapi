@@ -48,10 +48,17 @@ class SiklusLayananController extends Controller
          * mengambil data webhost yang memiliki cs_main_project dengan jenis = 'Perpanjangan' dengan tgl_masuk di bulan ini
          */
         $perpanjang_bulan_ini = Webhost::with([
-            'csMainProjects' => function ($query) use ($bulan, $tahun) {
-                $query->where('jenis', 'Perpanjangan')
-                    ->whereMonth('tgl_masuk', $bulan)
-                    ->whereYear('tgl_masuk', $tahun);
+            'csMainProjects' => function ($query) use ($tahun, $bulan) {
+                $query->where(function ($q) use ($tahun, $bulan) {
+                    // Ambil semua project bulan & tahun tertentu
+                    $q->whereYear('tgl_masuk', $tahun)
+                        ->whereMonth('tgl_masuk', $bulan)
+                        ->where('jenis', 'Perpanjangan');
+                })
+                    // ATAU semua 'Pembuatan' tanpa filter waktu
+                    ->orWhere(function ($q) {
+                        $q->whereIn('jenis', $this->jenis_pembuatan);
+                    });
             },
         ])
             ->whereHas('csMainProjects', function ($query) use ($bulan, $tahun) {
@@ -64,6 +71,7 @@ class SiklusLayananController extends Controller
         $results['meta']['perpanjang_bulan_ini'] = $perpanjang_bulan_ini;
         $perpanjang_bulan_ini_nominal = $perpanjang_bulan_ini
             ->flatMap->csMainProjects // gabungkan semua csMainProjects jadi satu collection
+            ->where('jenis', 'Perpanjangan')
             ->sum('dibayar');
 
         /**
@@ -75,8 +83,15 @@ class SiklusLayananController extends Controller
          */
         $perpanjang_baru = Webhost::with([
             'csMainProjects' => function ($query) use ($tahun, $bulan) {
-                $query->whereYear('tgl_masuk', $tahun)
-                    ->whereMonth('tgl_masuk', $bulan);
+                $query->where(function ($q) use ($tahun, $bulan) {
+                    // Ambil semua project bulan & tahun tertentu
+                    $q->whereYear('tgl_masuk', $tahun)
+                        ->whereMonth('tgl_masuk', $bulan);
+                })
+                    // ATAU semua 'Pembuatan' tanpa filter waktu
+                    ->orWhere(function ($q) {
+                        $q->whereIn('jenis', $this->jenis_pembuatan);
+                    });
             },
         ])
             // Filter parent agar hanya yang memenuhi dua kondisi
@@ -110,17 +125,8 @@ class SiklusLayananController extends Controller
          * dan tidak memiliki cs_main_project dengan jenis = 'Perpanjangan' dengan tgl_masuk di bulan tahun ini
          */
         $tidak_perpanjang = Webhost::with([
-            'csMainProjects' => function ($query) use ($jenis_pembuatan_perpanjang, $tahun, $tahun_lalu) {
-                // Perpanjangan hanya tahun ini atau tahun lalu
-                $query->where(function ($sub) use ($tahun, $tahun_lalu) {
-                    $sub->whereYear('tgl_masuk', $tahun)
-                        ->orWhereYear('tgl_masuk', $tahun_lalu);
-                })->where('jenis', 'Perpanjangan')
-
-                    // ATAU Pembuatan tanpa batas tahun
-                    ->orWhere(function ($sub) {
-                        $sub->where('jenis', 'Pembuatan');
-                    });
+            'csMainProjects' => function ($query) use ($jenis_pembuatan_perpanjang) {
+                $query->whereIn('jenis', $jenis_pembuatan_perpanjang);
             }
         ])
             // Filter parent agar hanya yang memenuhi dua kondisi
@@ -141,6 +147,10 @@ class SiklusLayananController extends Controller
         $tidak_perpanjang_nominal = $tidak_perpanjang
             ->flatMap->csMainProjects
             ->where('jenis', 'Perpanjangan')
+            ->filter(function ($item) use ($tahun_lalu, $bulan_lalu) { // filter perpanjangan bulan ini
+                return \Carbon\Carbon::parse($item->tgl_masuk)->year == $tahun_lalu
+                    && \Carbon\Carbon::parse($item->tgl_masuk)->month == $bulan_lalu;
+            })
             ->sum('dibayar');
 
         $results['data'] = [
