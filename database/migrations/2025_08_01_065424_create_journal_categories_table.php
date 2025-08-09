@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('journal_categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->text('description')->nullable();
+            $table->string('role')->nullable();
+            $table->string('icon')->nullable();
             $table->timestamps();
         });
     }
