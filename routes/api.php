@@ -51,7 +51,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'servers'               => ServerController::class,
         'server_packages'       => ServerPackageController::class,
         'server_users'          => ServerUserController::class,
-        'journal_categories'    => JournalCategoryController::class,
+        'journal_category'      => JournalCategoryController::class,
         'journals'              => JournalController::class,
     ]);
 

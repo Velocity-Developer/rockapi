@@ -18,4 +18,10 @@ class JournalCategory extends Model
         'created_at',
         'updated_at',
     ];
+
+    //relasi ke journal
+    public function journals()
+    {
+        return $this->hasMany(Journal::class);
+    }
 }

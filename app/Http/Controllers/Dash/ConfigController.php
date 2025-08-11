@@ -175,7 +175,7 @@ class ConfigController extends Controller
     private function get_menus($roles)
     {
         ///roles ready menu
-        $ready = ['finance', 'webdeveloper', 'manager_advertising', 'manager_project', 'admin'];
+        $ready = ['finance', 'webdeveloper', 'manager_advertising', 'manager_project', 'admin', 'owner'];
 
         if (array_intersect($ready, $roles)) {
             //get menus by role

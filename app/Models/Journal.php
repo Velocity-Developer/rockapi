@@ -29,6 +29,24 @@ class Journal extends Model
         return $this->belongsTo(User::class);
     }
 
+    //relasi ke journal category
+    public function journalCategory()
+    {
+        return $this->belongsTo(JournalCategory::class);
+    }
+
+    //relasi ke webhost
+    public function webhost()
+    {
+        return $this->belongsTo(Webhost::class);
+    }
+
+    //relasi ke cs main project
+    public function csMainProject()
+    {
+        return $this->belongsTo(CsMainProject::class);
+    }
+
     public function scopeThisMonth($query)
     {
         return $query->whereMonth('start', Carbon::now()->month)
