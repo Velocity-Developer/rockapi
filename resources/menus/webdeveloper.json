@@ -16,5 +16,11 @@
         "label": "Laporan Tim",
         "icon": "lucide:chart-column-stacked",
         "route": "/laporannilai"
+    },
+    {
+        "key": "journal",
+        "label": "Jurnal",
+        "icon": "lucide:clipboard-list",
+        "route": "/journal"
     }
 ]

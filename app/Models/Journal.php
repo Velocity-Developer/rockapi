@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
 
 class Journal extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'title',
         'description',
@@ -15,6 +18,9 @@ class Journal extends Model
         'status',
         'priority',
         'user_id',
+        'webhost_id',
+        'cs_main_project_id',
+        'journal_category_id'
     ];
 
     //relasi ke user

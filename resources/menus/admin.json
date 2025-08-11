@@ -94,6 +94,24 @@
         ]
     },
     {
+        "key": "journals",
+        "label": "Jurnal",
+        "icon": "lucide:clipboard-list",
+        "roles": ["admin"],
+        "items": [
+            {
+                "key": "journals",
+                "label": "Semua Jurnal",
+                "route": "/journal"
+            },
+            {
+                "key": "journal_categories",
+                "label": "Kategori Jurnal",
+                "route": "/journal/category"
+            }
+        ]
+    },
+    {
         "key": "users",
         "label": "Users",
         "icon": "lucide:users",

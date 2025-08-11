@@ -21,6 +21,8 @@ use App\Http\Controllers\CheckPaketController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\ServerPackageController;
 use App\Http\Controllers\ServerUserController;
+use App\Http\Controllers\JournalCategoryController;
+use App\Http\Controllers\JournalController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -39,16 +41,18 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResources([
-        'posts'             => PostsController::class,
-        'terms'             => TermsController::class,
-        'webhost'           => WebhostController::class,
-        'bank_transaksi'    => BankTransaksiController::class,
-        'saldo_bank'        => SaldoBankController::class,
-        'cs_main_project'   => CsMainProjectController::class,
-        'wm_project'        => WmProjectController::class,
-        'servers'           => ServerController::class,
-        'server_packages'   => ServerPackageController::class,
-        'server_users'      => ServerUserController::class
+        'posts'                 => PostsController::class,
+        'terms'                 => TermsController::class,
+        'webhost'               => WebhostController::class,
+        'bank_transaksi'        => BankTransaksiController::class,
+        'saldo_bank'            => SaldoBankController::class,
+        'cs_main_project'       => CsMainProjectController::class,
+        'wm_project'            => WmProjectController::class,
+        'servers'               => ServerController::class,
+        'server_packages'       => ServerPackageController::class,
+        'server_users'          => ServerUserController::class,
+        'journal_categories'    => JournalCategoryController::class,
+        'journals'              => JournalController::class,
     ]);
 
     //data_opsi
@@ -95,10 +99,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/servers_sync_package_detail/{idpackage}', [ServerController::class, 'sync_packageDetail']);
     Route::get('/servers_sync_users/{id}', [ServerController::class, 'sync_users']);
     Route::get('/servers_sync_user_detail/{iduserserver}', [ServerController::class, 'sync_userDetail']);
-
-    //journal
-    Route::apiResource('journals', App\Http\Controllers\JournalController::class);
-    Route::apiResource('journal-categories', App\Http\Controllers\JournalCategoryController::class);
 });
 
 require __DIR__ . '/api-dash.php';

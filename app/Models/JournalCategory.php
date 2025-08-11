@@ -8,5 +8,14 @@ class JournalCategory extends Model
 {
     protected $fillable = [
         'name',
+        'description',
+        'role',
+        'icon'
+    ];
+
+    //sembunyikan
+    protected $hidden = [
+        'created_at',
+        'updated_at',
     ];
 }
