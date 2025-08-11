@@ -26,7 +26,7 @@ class JournalCategoryController extends Controller
         }
 
         //pagination
-        $per_page = $request->input('per_page', 20);
+        $per_page = $request->input('per_page', 100);
         $categories = $query->paginate($per_page);
 
         return response()->json($categories);
@@ -121,5 +121,19 @@ class JournalCategoryController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function option_by_role(Request $request): JsonResponse
+    {
+        $query = JournalCategory::orderBy('name');
+
+        //filter
+        if ($request->input('role')) {
+            $query->where('role', $request->input('role'));
+        }
+
+        $categories = $query->get();
+
+        return response()->json($categories);
     }
 }

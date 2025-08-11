@@ -52,7 +52,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'server_packages'       => ServerPackageController::class,
         'server_users'          => ServerUserController::class,
         'journal_category'      => JournalCategoryController::class,
-        'journals'              => JournalController::class,
+        'journal'               => JournalController::class,
     ]);
 
     //data_opsi

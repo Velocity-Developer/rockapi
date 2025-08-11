@@ -38,41 +38,38 @@ class JournalController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        try {
-            $validator = Validator::make($request->all(), [
-                'title' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'start' => 'required|date',
-                'end' => 'nullable|date|after:start',
-                'status' => 'in:ongoing,completed,cancelled,archived',
-                'priority' => 'in:low,medium,high',
-                'journal_category_id' => 'required|exists:journal_categories,id',
-                'user_id' => 'required|exists:users,id'
-            ]);
+        $request->validate([
+            'title'                 => 'required|string',
+            'description'           => 'nullable|string',
+            'start'                 => 'required|date',
+            'end'                   => 'nullable|date|after:start',
+            'status'                => 'required|string',
+            'priority'              => 'nullable|string',
+            'user_id'               => 'nullable|exists:users,id',
+            'webhost_id'            => 'nullable',
+            'cs_main_project_id'    => 'nullable',
+            'journal_category_id'   => 'nullable|exists:journal_categories,id',
+        ]);
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            $journal = Journal::create($validator->validated());
-            $journal->load(['user', 'journalCategory']);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Journal created successfully',
-                'data' => $journal
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to create journal',
-                'error' => $e->getMessage()
-            ], 500);
+        if (!$request->input('user_id')) {
+            $user_id = auth()->user()->id;
+            $request->merge(['user_id' => $user_id]);
         }
+
+        $journal = Journal::create([
+            'title'                 => $request->title,
+            'description'           => $request->description,
+            'start'                 => $request->start,
+            'end'                   => $request->end,
+            'status'                => $request->status,
+            'priority'              => $request->priority,
+            'user_id'               => $request->user_id,
+            'webhost_id'            => $request->webhost_id,
+            'cs_main_project_id'    => $request->cs_main_project_id,
+            'journal_category_id'   => $request->journal_category_id,
+        ]);
+
+        return response()->json($journal);
     }
 
     /**
@@ -80,26 +77,8 @@ class JournalController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        try {
-            $journal = Journal::with(['user', 'journalCategory'])->findOrFail($id);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Journal retrieved successfully',
-                'data' => $journal
-            ], 200);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Journal not found'
-            ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve journal',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        $journal = Journal::with(['user', 'journalCategory'])->findOrFail($id);
+        return response()->json($journal);
     }
 
     /**
@@ -107,48 +86,34 @@ class JournalController extends Controller
      */
     public function update(Request $request, string $id): JsonResponse
     {
-        try {
-            $journal = Journal::findOrFail($id);
+        $request->validate([
+            'title'                 => 'required|string',
+            'description'           => 'nullable|string',
+            'start'                 => 'required|date',
+            'end'                   => 'nullable|date|after:start',
+            'status'                => 'required|string',
+            'priority'              => 'nullable|string',
+            'user_id'               => 'required|exists:users,id',
+            'webhost_id'            => 'nullable',
+            'cs_main_project_id'    => 'nullable',
+            'journal_category_id'   => 'nullable|exists:journal_categories,id',
+        ]);
 
-            $validator = Validator::make($request->all(), [
-                'title' => 'sometimes|required|string|max:255',
-                'description' => 'nullable|string',
-                'start' => 'sometimes|required|date',
-                'end' => 'nullable|date|after:start',
-                'status' => 'in:ongoing,completed,cancelled,archived',
-                'priority' => 'in:low,medium,high',
-                'journal_category_id' => 'sometimes|required|exists:journal_categories,id',
-                'user_id' => 'sometimes|required|exists:users,id'
-            ]);
+        $journal = Journal::findOrFail($id);
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
+        $journal->update([
+            'title'                 => $request->title,
+            'description'           => $request->description,
+            'start'                 => $request->start,
+            'end'                   => $request->end,
+            'status'                => $request->status,
+            'priority'              => $request->priority,
+            'webhost_id'            => $request->webhost_id,
+            'cs_main_project_id'    => $request->cs_main_project_id,
+            'journal_category_id'   => $request->journal_category_id,
+        ]);
 
-            $journal->update($validator->validated());
-            $journal->load(['user', 'journalCategory']);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Journal updated successfully',
-                'data' => $journal
-            ], 200);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Journal not found'
-            ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update journal',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json($journal);
     }
 
     /**

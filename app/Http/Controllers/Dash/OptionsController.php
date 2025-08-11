@@ -27,6 +27,7 @@ class OptionsController extends Controller
 
         return response()->json($result);
     }
+
     private function roles()
     {
         //get roles
