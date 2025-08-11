@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('status', ['ongoing', 'completed', 'cancelled', 'archived'])->default('ongoing');
             $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
             $table->foreignId('user_id')->constrained();
-            $table->integer('webhost_id') > nullable();
+            $table->integer('webhost_id')->nullable();
             $table->integer('cs_main_project_id')->nullable();
             $table->timestamps();
         });
