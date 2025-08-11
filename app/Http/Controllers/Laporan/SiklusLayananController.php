@@ -48,18 +48,19 @@ class SiklusLayananController extends Controller
          * mengambil data webhost yang memiliki cs_main_project dengan jenis = 'Perpanjangan' dengan tgl_masuk di bulan ini
          */
         $perpanjang_bulan_ini = Webhost::with([
-            'csMainProjects' => function ($query) use ($tahun, $bulan) {
-                $query->where(function ($q) use ($tahun, $bulan) {
-                    // Ambil semua project bulan & tahun tertentu
-                    $q->whereYear('tgl_masuk', $tahun)
+            'csMainProjects' => function ($q) use ($bulan, $tahun) {
+                $q->where(function ($query) use ($bulan, $tahun) {
+                    // Perpanjangan di bulan & tahun ini
+                    $query->where('jenis', 'Perpanjangan')
                         ->whereMonth('tgl_masuk', $bulan)
-                        ->where('jenis', 'Perpanjangan');
+                        ->whereYear('tgl_masuk', $tahun);
                 })
-                    // ATAU semua 'Pembuatan' tanpa filter waktu
-                    ->orWhere(function ($q) {
-                        $q->whereIn('jenis', $this->jenis_pembuatan);
-                    });
-            },
+                    ->orWhere(function ($query) {
+                        // Semua Pembuatan tanpa filter waktu
+                        $query->whereIn('jenis', $this->jenis_pembuatan);
+                    })
+                    ->orderBy('tgl_masuk', 'asc'); // opsional, biar urut
+            }
         ])
             ->whereHas('csMainProjects', function ($query) use ($bulan, $tahun) {
                 $query->where('jenis', 'Perpanjangan')
@@ -67,6 +68,7 @@ class SiklusLayananController extends Controller
                     ->whereYear('tgl_masuk', $tahun);
             })
             ->get();
+
         $perpanjang_bulan_ini_total = $perpanjang_bulan_ini->count();
         $results['meta']['perpanjang_bulan_ini'] = $perpanjang_bulan_ini;
         $perpanjang_bulan_ini_nominal = $perpanjang_bulan_ini
@@ -82,17 +84,19 @@ class SiklusLayananController extends Controller
          * dan tgl_masuk di tahun lalu
          */
         $perpanjang_baru = Webhost::with([
-            'csMainProjects' => function ($query) use ($tahun, $bulan) {
-                $query->where(function ($q) use ($tahun, $bulan) {
-                    // Ambil semua project bulan & tahun tertentu
-                    $q->whereYear('tgl_masuk', $tahun)
-                        ->whereMonth('tgl_masuk', $bulan);
+            'csMainProjects' => function ($q) use ($bulan, $tahun) {
+                $q->where(function ($query) use ($bulan, $tahun) {
+                    // Perpanjangan di bulan & tahun ini
+                    $query->where('jenis', 'Perpanjangan')
+                        ->whereMonth('tgl_masuk', $bulan)
+                        ->whereYear('tgl_masuk', $tahun);
                 })
-                    // ATAU semua 'Pembuatan' tanpa filter waktu
-                    ->orWhere(function ($q) {
-                        $q->whereIn('jenis', $this->jenis_pembuatan);
-                    });
-            },
+                    ->orWhere(function ($query) {
+                        // Semua Pembuatan tanpa filter waktu
+                        $query->whereIn('jenis', $this->jenis_pembuatan);
+                    })
+                    ->orderBy('tgl_masuk', 'asc'); // opsional, biar urut
+            }
         ])
             // Filter parent agar hanya yang memenuhi dua kondisi
             ->whereHas('csMainProjects', function ($query) use ($bulan, $tahun) {
