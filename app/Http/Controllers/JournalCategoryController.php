@@ -27,7 +27,7 @@ class JournalCategoryController extends Controller
         }
 
         //pagination
-        $per_page = $request->input('per_page', 100);
+        $per_page = $request->input('per_page', 10);
         $categories = $query->paginate($per_page);
 
         return response()->json($categories);
