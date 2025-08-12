@@ -17,9 +17,10 @@ class JournalCategoryController extends Controller
         $query = JournalCategory::orderBy('name');
 
         //filter
-        if ($request->input('role')) {
+        if ($request->input('role') && $request->input('role') !== 'admin') {
             $query->where('role', $request->input('role'));
         }
+
         //search
         if ($request->input('search')) {
             $query->where('name', 'like', '%' . $request->input('search') . '%');
