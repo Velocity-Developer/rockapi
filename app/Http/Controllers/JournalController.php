@@ -14,7 +14,7 @@ class JournalController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Journal::with(['user:id,name,avatar', 'journalCategory'])
+        $query = Journal::with(['user:id,name,avatar', 'journalCategory', 'webhost:id_webhost,nama_web', 'csMainProject:id,jenis'])
             ->orderBy('created_at', 'desc');
 
         //filter role
@@ -47,15 +47,16 @@ class JournalController extends Controller
             $query->where('title', 'like', '%' . $request->input('search') . '%');
         }
 
-        //filter start
-        if ($request->input('start')) {
-            $query->where('start', 'like', '%' . $request->input('start') . '%');
+        //filter date_start & date_end
+        if ($request->input('date_start') && $request->input('date_end')) {
+            $start = $request->input('date_start') . ' 00:00:00';
+            $end = $request->input('date_end') . ' 23:59:59';
+
+            $query->whereBetween('start', [$start, $end]);
         }
 
-        //filter end
-        if ($request->input('end')) {
-            $query->where('end', 'like', '%' . $request->input('end') . '%');
-        }
+        //order by date_start
+        $query->orderBy('start', 'desc');
 
         //pagination
         $per_page = $request->input('per_page', 100);

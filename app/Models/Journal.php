@@ -38,13 +38,13 @@ class Journal extends Model
     //relasi ke webhost
     public function webhost()
     {
-        return $this->belongsTo(Webhost::class);
+        return $this->belongsTo(Webhost::class, 'webhost_id', 'id_webhost');
     }
 
     //relasi ke cs main project
     public function csMainProject()
     {
-        return $this->belongsTo(CsMainProject::class);
+        return $this->belongsTo(CsMainProject::class, 'cs_main_project_id');
     }
 
     public function scopeThisMonth($query)

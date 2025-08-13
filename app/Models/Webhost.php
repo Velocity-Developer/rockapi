@@ -53,4 +53,10 @@ class Webhost extends Model
     {
         return $this->hasMany(CsMainProject::class, 'id_webhost');
     }
+
+    //relasi many ke tabel journal
+    public function journals()
+    {
+        return $this->hasMany(Journal::class, 'webhost_id');
+    }
 }
