@@ -171,4 +171,39 @@ class UsersController extends Controller
         $user = User::find($id);
         $user->delete();
     }
+
+    /**
+     * Search users by keyword
+     */
+    public function search(string $keyword)
+    {
+        // Validasi keyword minimal 3 karakter
+        if (strlen($keyword) < 3) {
+            return response()->json([
+                'message' => 'Keyword pencarian harus minimal 3 karakter'
+            ], 400);
+        }
+
+        try {
+            $users = User::where('name', 'LIKE', '%' . $keyword . '%')
+                        ->orWhere('username', 'LIKE', '%' . $keyword . '%')
+                        ->orWhere('email', 'LIKE', '%' . $keyword . '%')
+                        ->select('id', 'name', 'username', 'email', 'status', 'hp', 'alamat')
+                        ->limit(20)
+                        ->get();
+
+            if ($users->isEmpty()) {
+                return response()->json([
+                    'message' => 'Tidak ada user yang ditemukan dengan keyword: ' . $keyword
+                ], 404);
+            }
+
+            return response()->json($users);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat mencari user',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

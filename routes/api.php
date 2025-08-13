@@ -23,6 +23,7 @@ use App\Http\Controllers\ServerPackageController;
 use App\Http\Controllers\ServerUserController;
 use App\Http\Controllers\JournalCategoryController;
 use App\Http\Controllers\JournalController;
+use App\Http\Controllers\UsersController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -101,6 +102,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/servers_sync_user_detail/{iduserserver}', [ServerController::class, 'sync_userDetail']);
     //search cs_main_project
     Route::get('cs_main_project_search/{keyword}', [CsMainProjectController::class, 'search']);
+
+    // User search route
+    Route::get('/user_search/{keyword}', [UsersController::class, 'search']);
 });
 
 require __DIR__ . '/api-dash.php';
