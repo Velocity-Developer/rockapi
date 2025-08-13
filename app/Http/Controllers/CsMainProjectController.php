@@ -340,4 +340,40 @@ class CsMainProjectController extends Controller
         //delete cs_main_project
         $cs_main_project->delete();
     }
+
+    //search by keyword
+    public function search(string $keyword, Request $request)
+    {
+        //jika keyword kosong, atau kurang dari 3 karakter
+        if (empty($keyword) || $keyword && strlen($keyword) < 3) {
+            return response()->json(['message' => 'Keyword minimal 3 karakter'], 404);
+        }
+
+        //query dasar
+        $query = CsMainProject::with('webhost:id_webhost,nama_web')
+            ->where(function($q) use ($keyword) {
+                $q->where('jenis', 'like', '%' . $keyword . '%')
+                  ->orWhere('deskripsi', 'like', '%' . $keyword . '%')
+                  ->orWhereHas('webhost', function($subQ) use ($keyword) {
+                      $subQ->where('nama_web', 'like', '%' . $keyword . '%');
+                  });
+            });
+
+        //filter berdasarkan webhost_id jika ada
+        if ($request->has('webhost_id') && $request->input('webhost_id')) {
+            $query->where('id_webhost', $request->input('webhost_id'));
+        }
+
+        //ambil data dengan limit
+        $csMainProjects = $query->select('id', 'jenis', 'deskripsi', 'tgl_masuk', 'status', 'id_webhost')
+            ->limit(200)
+            ->get();
+
+        //jika kosong
+        if ($csMainProjects->isEmpty()) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        }
+
+        return response()->json($csMainProjects);
+    }
 }

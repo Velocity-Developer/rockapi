@@ -99,6 +99,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/servers_sync_package_detail/{idpackage}', [ServerController::class, 'sync_packageDetail']);
     Route::get('/servers_sync_users/{id}', [ServerController::class, 'sync_users']);
     Route::get('/servers_sync_user_detail/{iduserserver}', [ServerController::class, 'sync_userDetail']);
+    //search cs_main_project
+    Route::get('cs_main_project_search/{keyword}', [CsMainProjectController::class, 'search']);
 });
 
 require __DIR__ . '/api-dash.php';
