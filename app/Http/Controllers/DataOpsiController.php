@@ -148,6 +148,11 @@ class DataOpsiController extends Controller
                 'kategori'  => 'umum'
             ],
             [
+                'value'     => 'vcc_jago_ads',
+                'label'     => 'VCC Jago Ads',
+                'kategori'  => 'umum'
+            ],
+            [
                 'value'     => 'gopay',
                 'label'     => 'Gopay',
                 'kategori'  => 'umum'
