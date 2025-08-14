@@ -47,6 +47,12 @@ class Journal extends Model
         return $this->belongsTo(CsMainProject::class, 'cs_main_project_id');
     }
 
+    //relasi ke journal detail support
+    public function journalDetailSupports()
+    {
+        return $this->hasMany(JournalDetailSupport::class);
+    }
+
     public function scopeThisMonth($query)
     {
         return $query->whereMonth('start', Carbon::now()->month)
