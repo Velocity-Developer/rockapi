@@ -143,16 +143,6 @@ class DataOpsiController extends Controller
                 'kategori'  => 'umum'
             ],
             [
-                'value'     => 'jago',
-                'label'     => 'Jago',
-                'kategori'  => 'umum'
-            ],
-            [
-                'value'     => 'vcc_jago_ads',
-                'label'     => 'VCC Jago Ads',
-                'kategori'  => 'umum'
-            ],
-            [
                 'value'     => 'gopay',
                 'label'     => 'Gopay',
                 'kategori'  => 'umum'
@@ -202,21 +192,31 @@ class DataOpsiController extends Controller
                 'label'     => 'BCA Velocity Cyber Media',
                 'kategori'  => 'vcm'
             ],
+            // [
+            //     'value'     => 'mandiri_vcm',
+            //     'label'     => 'Mandiri Velocity Cyber Media',
+            //     'kategori'  => 'vcm'
+            // ],
+            // [
+            //     'value'     => 'bri_vcm',
+            //     'label'     => 'BRI Velocity Cyber Media',
+            //     'kategori'  => 'vcm'
+            // ],
+            // [
+            //     'value'     => 'bni_vcm',
+            //     'label'     => 'BNI Velocity Cyber Media',
+            //     'kategori'  => 'vcm'
+            // ],
             [
-                'value'     => 'mandiri_vcm',
-                'label'     => 'Mandiri Velocity Cyber Media',
+                'value'     => 'jago',
+                'label'     => 'Jago',
                 'kategori'  => 'vcm'
             ],
             [
-                'value'     => 'bri_vcm',
-                'label'     => 'BRI Velocity Cyber Media',
+                'value'     => 'vcc_jago_ads',
+                'label'     => 'VCC Jago Ads',
                 'kategori'  => 'vcm'
             ],
-            [
-                'value'     => 'bni_vcm',
-                'label'     => 'BNI Velocity Cyber Media',
-                'kategori'  => 'vcm'
-            ]
         ];
 
         //return array by kategori
