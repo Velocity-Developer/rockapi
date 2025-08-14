@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\WmProject;
 use App\Models\User;
+use App\Models\Journal;
+use App\Models\JournalCategory;
+use App\Models\CsMainProject;
 
 class WmProjectController extends Controller
 {
@@ -65,6 +68,31 @@ class WmProjectController extends Controller
             ],
         );
 
+        //get info cs_main_project
+        $cs_main_project = CsMainProject::with('webhost')
+            ->where('id', $request->id_cs_main_project)->first();
+
+        //get journal category
+        $journal_category = JournalCategory::where('name', 'Project')->where('role', 'webdeveloper')->first();
+
+        //update or create Journal
+        Journal::updateOrCreate(
+            [
+                'webhost_id'            => $cs_main_project->id_webhost,
+                'cs_main_project_id'    => $request->id_cs_main_project,
+                'user_id'               => $request->user_id,
+            ],
+            [
+                'title'                 => 'Pengerjaan project ' . $cs_main_project->webhost->nama_web,
+                'description'           => 'Pengerjaan project ' . $cs_main_project->webhost->nama_web,
+                'start'                 => $request->date_mulai,
+                'end'                   => $request->date_selesai,
+                'status'                => 'ongoing',
+                'priority'              => 'medium',
+                'journal_category_id'   => $journal_category->id,
+            ],
+        );
+
         return response()->json($wm_project);
     }
 
@@ -122,6 +150,31 @@ class WmProjectController extends Controller
             'status_project' => $request->status_project,
         ]);
 
+        //get info cs_main_project
+        $cs_main_project = CsMainProject::with('webhost')
+            ->where('id', $wm_project->id)->first();
+
+        //get journal category
+        $journal_category = JournalCategory::where('name', 'Project')->where('role', 'webdeveloper')->first();
+
+        //update or create Journal
+        Journal::updateOrCreate(
+            [
+                'webhost_id'            => $cs_main_project->id_webhost,
+                'cs_main_project_id'    => $request->id_cs_main_project,
+                'user_id'               => $request->user_id,
+            ],
+            [
+                'title'                 => 'Pengerjaan project ' . $cs_main_project->webhost->nama_web,
+                'description'           => 'Pengerjaan project ' . $cs_main_project->webhost->nama_web,
+                'start'                 => $request->date_mulai,
+                'end'                   => $request->date_selesai,
+                'status'                => $request->date_selesai ? 'completed' : 'ongoing',
+                'priority'              => 'medium',
+                'journal_category_id'   => $journal_category->id,
+            ],
+        );
+
         return response()->json($wm_project);
     }
 
@@ -130,6 +183,11 @@ class WmProjectController extends Controller
      */
     public function destroy(string $id)
     {
+        $wm_project = WmProject::find($id);
+
+        //hapus journal
+        Journal::where('cs_main_project_id', $wm_project->id)->delete();
+
         //hapus wm_project
         WmProject::where('id_wm_project', $id)->delete();
     }
