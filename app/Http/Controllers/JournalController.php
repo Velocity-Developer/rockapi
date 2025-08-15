@@ -59,8 +59,16 @@ class JournalController extends Controller
         $query->orderBy('start', 'desc');
 
         //pagination
-        $per_page = $request->input('per_page', 10);
-        $journals = $query->paginate($per_page);
+        $pagination = $request->input('pagination', 'true');
+        if ($pagination == 'true') {
+            $per_page = $request->input('per_page', 10);
+            $journals = $query->paginate($per_page);
+        } else {
+            $get_journals = $query->get();
+            $journals = [
+                'data' => $get_journals,
+            ];
+        }
 
         return response()->json($journals);
     }
