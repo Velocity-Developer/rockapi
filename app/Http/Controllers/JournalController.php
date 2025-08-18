@@ -23,9 +23,13 @@ class JournalController extends Controller
             'detail_support'
         ]);
 
-        //filter role
+        //filter role - gunakan relasi ke user
         if ($request->input('role')) {
-            $query->where('role', $request->input('role'));
+            $query->whereHas('user', function($q) use ($request) {
+                $q->whereHas('roles', function($roleQuery) use ($request) {
+                    $roleQuery->where('name', $request->input('role'));
+                });
+            });
         }
 
         //filter user_id
@@ -83,7 +87,11 @@ class JournalController extends Controller
 
         // Terapkan filter yang sama seperti query utama (kecuali pagination)
         if ($request->input('role')) {
-            $allJournalsQuery->where('role', $request->input('role'));
+            $allJournalsQuery->whereHas('user', function($q) use ($request) {
+                $q->whereHas('roles', function($roleQuery) use ($request) {
+                    $roleQuery->where('name', $request->input('role'));
+                });
+            });
         }
         if ($request->input('user_id')) {
             $allJournalsQuery->where('user_id', $request->input('user_id'));
