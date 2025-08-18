@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Journal;
+use App\Models\JournalDetailSupport;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
@@ -191,13 +192,17 @@ class JournalController extends Controller
                 !empty($detailSupport['tanggal_bayar']);
 
             if ($hasData) {
-                $journal->detail_support()->create([
-                    'hp'            => $detailSupport['hp'] ?? '',
-                    'wa'            => $detailSupport['wa'] ?? '',
-                    'email'         => $detailSupport['email'] ?? '',
-                    'biaya'         => $detailSupport['biaya'] ?? '',
-                    'tanggal_bayar' => $detailSupport['tanggal_bayar'] ?? '',
-                ]);
+                //update or create
+                JournalDetailSupport::updateOrCreate(
+                    ['journal_id' => $journal->id],
+                    [
+                        'hp'            => $detailSupport['hp'] ?? '',
+                        'wa'            => $detailSupport['wa'] ?? '',
+                        'email'         => $detailSupport['email'] ?? '',
+                        'biaya'         => $detailSupport['biaya'] ?? null,
+                        'tanggal_bayar' => $detailSupport['tanggal_bayar'] ?? null,
+                    ]
+                );
             }
         }
 
@@ -266,8 +271,8 @@ class JournalController extends Controller
                         'hp'            => $detailSupport['hp'] ?? '',
                         'wa'            => $detailSupport['wa'] ?? '',
                         'email'         => $detailSupport['email'] ?? '',
-                        'biaya'         => $detailSupport['biaya'] ?? '',
-                        'tanggal_bayar' => $detailSupport['tanggal_bayar'] ?? '',
+                        'biaya'         => $detailSupport['biaya'] ?? null,
+                        'tanggal_bayar' => $detailSupport['tanggal_bayar'] ?? null,
                     ]);
                 } else {
                     $journal->detail_support()->create([
