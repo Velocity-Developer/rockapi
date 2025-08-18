@@ -79,7 +79,7 @@ class JournalController extends Controller
 
         // Hitung categoryStats dari semua data (tanpa paginasi) untuk statistik
         $allJournalsQuery = Journal::with(['journalCategory']);
-        
+
         // Terapkan filter yang sama seperti query utama (kecuali pagination)
         if ($request->input('role')) {
             $allJournalsQuery->where('role', $request->input('role'));
@@ -104,16 +104,16 @@ class JournalController extends Controller
             $end = $request->input('date_end') . ' 23:59:59';
             $allJournalsQuery->whereBetween('start', [$start, $end]);
         }
-        
+
         $allJournals = $allJournalsQuery->get();
-        
+
         // Hitung statistik kategori
         $categoryStats = [];
         foreach ($allJournals as $journal) {
             $categoryName = $journal->journalCategory->name ?? 'Uncategorized';
             $categoryIcon = $journal->journalCategory->icon ?? '📝';
             $categoryId = $journal->journalCategory->id ?? null;
-            
+
             if (!isset($categoryStats[$categoryName])) {
                 $categoryStats[$categoryName] = [
                     'category_id' => $categoryId,
@@ -122,16 +122,16 @@ class JournalController extends Controller
                     'icon' => $categoryIcon
                 ];
             }
-            
+
             $categoryStats[$categoryName]['jumlah']++;
         }
-        
+
         // Konversi ke array numerik dan urutkan berdasarkan jumlah
         $categoryStats = array_values($categoryStats);
-        usort($categoryStats, function($a, $b) {
+        usort($categoryStats, function ($a, $b) {
             return $b['jumlah'] - $a['jumlah'];
         });
-        
+
         // Tambahkan categoryStats ke response
         if (is_array($journals)) {
             $journals['categoryStats'] = $categoryStats;
@@ -181,13 +181,24 @@ class JournalController extends Controller
 
         //.simpan detail_support
         if ($request->detail_support) {
-            $journal->detail_support()->create([
-                'hp'            => $request->detail_support['hp'] ?? '',
-                'wa'            => $request->detail_support['wa'] ?? '',
-                'email'         => $request->detail_support['email'] ?? '',
-                'biaya'         => $request->detail_support['biaya'] ?? '',
-                'tanggal_bayar' => $request->detail_support['tanggal_bayar'] ?? '',
-            ]);
+            $detailSupport = $request->detail_support;
+
+            // Cek apakah minimal salah satu field memiliki nilai
+            $hasData = !empty($detailSupport['hp']) ||
+                !empty($detailSupport['wa']) ||
+                !empty($detailSupport['email']) ||
+                !empty($detailSupport['biaya']) ||
+                !empty($detailSupport['tanggal_bayar']);
+
+            if ($hasData) {
+                $journal->detail_support()->create([
+                    'hp'            => $detailSupport['hp'] ?? '',
+                    'wa'            => $detailSupport['wa'] ?? '',
+                    'email'         => $detailSupport['email'] ?? '',
+                    'biaya'         => $detailSupport['biaya'] ?? '',
+                    'tanggal_bayar' => $detailSupport['tanggal_bayar'] ?? '',
+                ]);
+            }
         }
 
         //get journal by id
@@ -239,13 +250,40 @@ class JournalController extends Controller
 
         //.simpan detail_support
         if ($request->detail_support) {
-            $journal->detail_support()->update([
-                'hp'            => $request->detail_support['hp'] ?? '',
-                'wa'            => $request->detail_support['wa'] ?? '',
-                'email'         => $request->detail_support['email'] ?? '',
-                'biaya'         => $request->detail_support['biaya'] ?? '',
-                'tanggal_bayar' => $request->detail_support['tanggal_bayar'] ?? '',
-            ]);
+            $detailSupport = $request->detail_support;
+
+            // Cek apakah minimal salah satu field memiliki nilai
+            $hasData = !empty($detailSupport['hp']) ||
+                !empty($detailSupport['wa']) ||
+                !empty($detailSupport['email']) ||
+                !empty($detailSupport['biaya']) ||
+                !empty($detailSupport['tanggal_bayar']);
+
+            if ($hasData) {
+                // Cek apakah detail_support sudah ada
+                if ($journal->detail_support) {
+                    $journal->detail_support()->update([
+                        'hp'            => $detailSupport['hp'] ?? '',
+                        'wa'            => $detailSupport['wa'] ?? '',
+                        'email'         => $detailSupport['email'] ?? '',
+                        'biaya'         => $detailSupport['biaya'] ?? '',
+                        'tanggal_bayar' => $detailSupport['tanggal_bayar'] ?? '',
+                    ]);
+                } else {
+                    $journal->detail_support()->create([
+                        'hp'            => $detailSupport['hp'] ?? '',
+                        'wa'            => $detailSupport['wa'] ?? '',
+                        'email'         => $detailSupport['email'] ?? '',
+                        'biaya'         => $detailSupport['biaya'] ?? '',
+                        'tanggal_bayar' => $detailSupport['tanggal_bayar'] ?? '',
+                    ]);
+                }
+            } else {
+                // Jika tidak ada data, hapus detail_support yang ada
+                if ($journal->detail_support) {
+                    $journal->detail_support()->delete();
+                }
+            }
         }
 
         //get journal by id

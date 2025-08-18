@@ -28,5 +28,11 @@
         "label": "Siklus Layanan",
         "icon": "lucide:file-chart-line",
         "route": "/laporan/siklus_layanan"
+    },
+    {
+        "key": "journal",
+        "label": "Jurnal",
+        "icon": "lucide:clipboard-list",
+        "route": "/journal"
     }
 ]

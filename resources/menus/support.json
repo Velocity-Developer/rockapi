@@ -1,0 +1,20 @@
+[
+    {
+        "key": "dashboard",
+        "label": "Dashboard",
+        "icon": "lucide:layout-grid",
+        "route": "/"
+    },
+    {
+        "key": "billing",
+        "label": "Billing",
+        "icon": "lucide:briefcase",
+        "route": "/billing"
+    },
+    {
+        "key": "journal",
+        "label": "Jurnal",
+        "icon": "lucide:clipboard-list",
+        "route": "/journal"
+    }
+]
