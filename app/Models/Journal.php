@@ -48,9 +48,9 @@ class Journal extends Model
     }
 
     //relasi ke journal detail support
-    public function journalDetailSupports()
+    public function detail_support()
     {
-        return $this->hasMany(JournalDetailSupport::class);
+        return $this->hasOne(JournalDetailSupport::class);
     }
 
     public function scopeThisMonth($query)

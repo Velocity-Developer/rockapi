@@ -14,7 +14,13 @@ class JournalController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Journal::with(['user:id,name,avatar', 'journalCategory', 'webhost:id_webhost,nama_web', 'csMainProject:id,jenis']);
+        $query = Journal::with([
+            'user:id,name,avatar',
+            'journalCategory',
+            'webhost:id_webhost,nama_web',
+            'csMainProject:id,jenis',
+            'detail_support'
+        ]);
 
         //filter role
         if ($request->input('role')) {
@@ -55,7 +61,9 @@ class JournalController extends Controller
         }
 
         //order by start
-        $query->orderBy('start', 'asc');
+        $order_by = $request->input('order_by', 'start');
+        $order = $request->input('order', 'asc');
+        $query->orderBy($order_by, $order);
 
         //pagination
         $pagination = $request->input('pagination', 'true');
@@ -108,6 +116,20 @@ class JournalController extends Controller
             'journal_category_id'   => $request->journal_category_id,
         ]);
 
+        //.simpan detail_support
+        if ($request->detail_support) {
+            $journal->detail_support()->create([
+                'hp'            => $request->detail_support['hp'] ?? '',
+                'wa'            => $request->detail_support['wa'] ?? '',
+                'email'         => $request->detail_support['email'] ?? '',
+                'biaya'         => $request->detail_support['biaya'] ?? '',
+                'tanggal_bayar' => $request->detail_support['tanggal_bayar'] ?? '',
+            ]);
+        }
+
+        //get journal by id
+        $journal = Journal::with(['user', 'journalCategory', 'detail_support'])->findOrFail($journal->id);
+
         return response()->json($journal);
     }
 
@@ -116,7 +138,7 @@ class JournalController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $journal = Journal::with(['user', 'journalCategory'])->findOrFail($id);
+        $journal = Journal::with(['user', 'journalCategory', 'detail_support'])->findOrFail($id);
         return response()->json($journal);
     }
 
@@ -151,6 +173,20 @@ class JournalController extends Controller
             'cs_main_project_id'    => $request->cs_main_project_id,
             'journal_category_id'   => $request->journal_category_id,
         ]);
+
+        //.simpan detail_support
+        if ($request->detail_support) {
+            $journal->detail_support()->update([
+                'hp'            => $request->detail_support['hp'] ?? '',
+                'wa'            => $request->detail_support['wa'] ?? '',
+                'email'         => $request->detail_support['email'] ?? '',
+                'biaya'         => $request->detail_support['biaya'] ?? '',
+                'tanggal_bayar' => $request->detail_support['tanggal_bayar'] ?? '',
+            ]);
+        }
+
+        //get journal by id
+        $journal = Journal::with(['user', 'journalCategory', 'detail_support'])->findOrFail($journal->id);
 
         return response()->json($journal);
     }
