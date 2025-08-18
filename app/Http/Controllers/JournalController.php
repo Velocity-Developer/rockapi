@@ -77,6 +77,69 @@ class JournalController extends Controller
             ];
         }
 
+        // Hitung categoryStats dari semua data (tanpa paginasi) untuk statistik
+        $allJournalsQuery = Journal::with(['journalCategory']);
+        
+        // Terapkan filter yang sama seperti query utama (kecuali pagination)
+        if ($request->input('role')) {
+            $allJournalsQuery->where('role', $request->input('role'));
+        }
+        if ($request->input('user_id')) {
+            $allJournalsQuery->where('user_id', $request->input('user_id'));
+        }
+        if ($request->input('journal_category_id')) {
+            $allJournalsQuery->where('journal_category_id', $request->input('journal_category_id'));
+        }
+        if ($request->input('status')) {
+            $allJournalsQuery->where('status', $request->input('status'));
+        }
+        if ($request->input('priority')) {
+            $allJournalsQuery->where('priority', $request->input('priority'));
+        }
+        if ($request->input('search')) {
+            $allJournalsQuery->where('title', 'like', '%' . $request->input('search') . '%');
+        }
+        if ($request->input('date_start') && $request->input('date_end')) {
+            $start = $request->input('date_start') . ' 00:00:00';
+            $end = $request->input('date_end') . ' 23:59:59';
+            $allJournalsQuery->whereBetween('start', [$start, $end]);
+        }
+        
+        $allJournals = $allJournalsQuery->get();
+        
+        // Hitung statistik kategori
+        $categoryStats = [];
+        foreach ($allJournals as $journal) {
+            $categoryName = $journal->journalCategory->name ?? 'Uncategorized';
+            $categoryIcon = $journal->journalCategory->icon ?? '📝';
+            $categoryId = $journal->journalCategory->id ?? null;
+            
+            if (!isset($categoryStats[$categoryName])) {
+                $categoryStats[$categoryName] = [
+                    'category_id' => $categoryId,
+                    'nama' => $categoryName,
+                    'jumlah' => 0,
+                    'icon' => $categoryIcon
+                ];
+            }
+            
+            $categoryStats[$categoryName]['jumlah']++;
+        }
+        
+        // Konversi ke array numerik dan urutkan berdasarkan jumlah
+        $categoryStats = array_values($categoryStats);
+        usort($categoryStats, function($a, $b) {
+            return $b['jumlah'] - $a['jumlah'];
+        });
+        
+        // Tambahkan categoryStats ke response
+        if (is_array($journals)) {
+            $journals['categoryStats'] = $categoryStats;
+        } else {
+            $journals = $journals->toArray();
+            $journals['categoryStats'] = $categoryStats;
+        }
+
         return response()->json($journals);
     }
 
