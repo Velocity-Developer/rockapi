@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             BankRelasiJenisSeeder::class,
             UserWmProject::class,
             JournalCategorySeeder::class,
+            InvoiceSeeder::class,
         ]);
     }
 }
