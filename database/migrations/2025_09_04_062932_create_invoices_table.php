@@ -16,14 +16,12 @@ return new class extends Migration
             $table->string('nomor')->unique();
             $table->string('unit')->nullable();
             $table->string('nama')->nullable();
-            $table->unsignedBigInteger('webhost_id')->nullable();
+            $table->integer('webhost_id')->nullable();
             $table->text('note')->nullable();
             $table->string('status')->default('pending');
             $table->timestamp('tanggal');
             $table->timestamp('tanggal_bayar')->nullable();
             $table->timestamps();
-
-            $table->foreign('webhost_id')->references('id_webhost')->on('tb_webhost');
         });
     }
 
