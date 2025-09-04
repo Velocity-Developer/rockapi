@@ -66,7 +66,6 @@ class InvoiceController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'nomor' => 'required|string',
             'unit' => 'required|string',
             'nama' => 'required|string',
             'webhost_id' => 'required|exists:tb_webhost,id_webhost',
@@ -89,7 +88,6 @@ class InvoiceController extends Controller
 
             // Buat invoice
             $invoice = Invoice::create([
-                'nomor' => $request->nomor,
                 'unit' => $request->unit,
                 'nama' => $request->nama,
                 'webhost_id' => $request->webhost_id,
@@ -150,7 +148,6 @@ class InvoiceController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'nomor' => 'required|string',
             'unit' => 'required|string',
             'nama' => 'required|string',
             'webhost_id' => 'required|exists:tb_webhost,id_webhost',
@@ -174,7 +171,6 @@ class InvoiceController extends Controller
 
             // Update invoice
             $invoice->update([
-                'nomor' => $request->nomor,
                 'unit' => $request->unit,
                 'nama' => $request->nama,
                 'webhost_id' => $request->webhost_id,
