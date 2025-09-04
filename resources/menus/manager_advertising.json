@@ -6,6 +6,12 @@
         "route": "/"
     },
     {
+        "key": "invoice",
+        "label": "Invoice",
+        "icon": "lucide:file-text",
+        "route": "/invoice"
+    },
+    {
         "key": "billing",
         "label": "Billing",
         "icon": "lucide:briefcase",

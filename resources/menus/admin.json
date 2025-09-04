@@ -6,6 +6,13 @@
         "route": "/"
     },
     {
+        "key": "invoice",
+        "label": "Invoice",
+        "icon": "lucide:file-text",
+        "route": "/invoice",
+        "roles": ["admin", "manager_project", "finance", "manager_advertising"]
+    },
+    {
         "key": "billing",
         "label": "Billing",
         "icon": "lucide:briefcase",
