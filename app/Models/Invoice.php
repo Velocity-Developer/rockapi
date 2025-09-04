@@ -30,4 +30,10 @@ class Invoice extends Model
     {
         return $this->belongsTo(Webhost::class, 'webhost_id', 'id_webhost');
     }
+    
+    // Relasi ke invoice items
+    public function items()
+    {
+        return $this->hasMany(InvoiceItem::class);
+    }
 }
