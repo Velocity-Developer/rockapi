@@ -20,11 +20,6 @@ class Invoice extends Model
         'tanggal_bayar',
     ];
 
-    protected $casts = [
-        'tanggal' => 'date',
-        'tanggal_bayar' => 'date',
-    ];
-
     // Relasi ke webhost
     public function webhost()
     {
