@@ -37,8 +37,9 @@ class InvoiceSeeder extends Seeder
             $tanggal_bayar = $status === 'lunas' ? Carbon::parse($tanggal)->addDays(rand(1, 15)) : null;
 
             $invoice = Invoice::create([
-                'unit' => 'Unit ' . rand(1, 5),
-                'nama' => 'Invoice untuk ' . $webhost->nama_web,
+                'unit' => 'vd',
+                'nama_klien' => 'Klien ' . $webhost->nama_web,
+                'alamat_klien' => 'Alamat contoh Klien ' . $i,
                 'webhost_id' => $webhost->id_webhost,
                 'note' => 'Catatan untuk invoice #' . $i,
                 'status' => $status,

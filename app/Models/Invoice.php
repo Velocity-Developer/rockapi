@@ -12,7 +12,8 @@ class Invoice extends Model
 
     protected $fillable = [
         'unit',
-        'nama',
+        'nama_klien',
+        'alamat_klien',
         'webhost_id',
         'note',
         'status',

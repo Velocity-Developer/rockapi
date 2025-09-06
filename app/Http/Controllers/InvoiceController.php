@@ -38,9 +38,9 @@ class InvoiceController extends Controller
             $query->whereBetween('tanggal', [$tanggal_start, $tanggal_end]);
         }
 
-        // Filter berdasarkan nama
-        if ($request->input('nama')) {
-            $query->where('nama', 'like', '%' . $request->input('nama') . '%');
+        // Filter berdasarkan nama klien
+        if ($request->input('nama_klien')) {
+            $query->where('nama_klien', 'like', '%' . $request->input('nama_klien') . '%');
         }
 
         // Filter berdasarkan unit
@@ -67,7 +67,8 @@ class InvoiceController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'unit' => 'required|in:vd,vcm',
-            'nama' => 'required|string',
+            'nama_klien' => 'required|string',
+            'alamat_klien' => 'nullable|string',
             'webhost_id' => 'required|exists:tb_webhost,id_webhost',
             'note' => 'nullable|string',
             'status' => 'required|string',
@@ -89,7 +90,8 @@ class InvoiceController extends Controller
             // Buat invoice
             $invoice = Invoice::create([
                 'unit' => $request->unit,
-                'nama' => $request->nama,
+                'nama_klien' => $request->nama_klien,
+                'alamat_klien' => $request->alamat_klien,
                 'webhost_id' => $request->webhost_id,
                 'note' => $request->note,
                 'status' => $request->status,
@@ -149,7 +151,8 @@ class InvoiceController extends Controller
 
         $validator = Validator::make($request->all(), [
             'unit' => 'required|in:vd,vcm',
-            'nama' => 'required|string',
+            'nama_klien' => 'required|string',
+            'alamat_klien' => 'nullable|string',
             'webhost_id' => 'required|exists:tb_webhost,id_webhost',
             'note' => 'nullable|string',
             'status' => 'required|string',
@@ -172,7 +175,8 @@ class InvoiceController extends Controller
             // Update invoice
             $invoice->update([
                 'unit' => $request->unit,
-                'nama' => $request->nama,
+                'nama_klien' => $request->nama_klien,
+                'alamat_klien' => $request->alamat_klien,
                 'webhost_id' => $request->webhost_id,
                 'note' => $request->note,
                 'status' => $request->status,

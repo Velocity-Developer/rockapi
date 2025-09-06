@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('nomor')->unique();
             $table->string('unit')->nullable();
-            $table->string('nama')->nullable();
+            $table->string('nama_klien')->nullable();
+            $table->text('alamat_klien')->nullable();
             $table->integer('webhost_id')->nullable();
             $table->text('note')->nullable();
             $table->string('status')->default('pending');
