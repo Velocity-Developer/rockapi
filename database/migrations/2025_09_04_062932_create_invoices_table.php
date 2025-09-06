@@ -17,10 +17,16 @@ return new class extends Migration
             $table->string('unit')->nullable();
             $table->string('nama_klien')->nullable();
             $table->text('alamat_klien')->nullable();
+            $table->string('telepon_klien')->nullable();
             $table->integer('webhost_id')->nullable();
             $table->text('note')->nullable();
             $table->string('status')->default('pending');
+            $table->decimal('subtotal', 15, 2)->default(0);
+            $table->string('pajak')->nullable();
+            $table->decimal('nominal_pajak', 15, 2)->default(0);
+            $table->decimal('total', 15, 2)->default(0);
             $table->timestamp('tanggal');
+            $table->timestamp('jatuh_tempo')->nullable();
             $table->timestamp('tanggal_bayar')->nullable();
             $table->timestamps();
         });

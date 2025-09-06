@@ -69,10 +69,16 @@ class InvoiceController extends Controller
             'unit' => 'required|in:vd,vcm',
             'nama_klien' => 'required|string',
             'alamat_klien' => 'nullable|string',
+            'telepon_klien' => 'nullable|string',
             'webhost_id' => 'required|exists:tb_webhost,id_webhost',
             'note' => 'nullable|string',
             'status' => 'required|string',
+            'subtotal' => 'nullable|numeric',
+            'pajak' => 'nullable|string',
+            'nominal_pajak' => 'nullable|numeric',
+            'total' => 'nullable|numeric',
             'tanggal' => 'required|date',
+            'jatuh_tempo' => 'nullable|date',
             'tanggal_bayar' => 'nullable|date',
             'items' => 'required|array',
             'items.*.nama' => 'required|string',
@@ -87,15 +93,28 @@ class InvoiceController extends Controller
         try {
             DB::beginTransaction();
 
+            // Hitung subtotal dari items
+            $subtotal = collect($request->items)->sum(function ($item) {
+                return (float) ($item['harga'] ?? 0);
+            });
+            $nominalPajak = (float) ($request->nominal_pajak ?? 0);
+            $total = (float) ($request->total ?? ($subtotal + $nominalPajak));
+
             // Buat invoice
             $invoice = Invoice::create([
                 'unit' => $request->unit,
                 'nama_klien' => $request->nama_klien,
                 'alamat_klien' => $request->alamat_klien,
+                'telepon_klien' => $request->telepon_klien,
                 'webhost_id' => $request->webhost_id,
                 'note' => $request->note,
                 'status' => $request->status,
+                'subtotal' => $request->subtotal ?? $subtotal,
+                'pajak' => $request->pajak,
+                'nominal_pajak' => $nominalPajak,
+                'total' => $total,
                 'tanggal' => $request->tanggal,
+                'jatuh_tempo' => $request->jatuh_tempo,
                 'tanggal_bayar' => $request->tanggal_bayar,
             ]);
 
@@ -153,10 +172,16 @@ class InvoiceController extends Controller
             'unit' => 'required|in:vd,vcm',
             'nama_klien' => 'required|string',
             'alamat_klien' => 'nullable|string',
+            'telepon_klien' => 'nullable|string',
             'webhost_id' => 'required|exists:tb_webhost,id_webhost',
             'note' => 'nullable|string',
             'status' => 'required|string',
+            'subtotal' => 'nullable|numeric',
+            'pajak' => 'nullable|string',
+            'nominal_pajak' => 'nullable|numeric',
+            'total' => 'nullable|numeric',
             'tanggal' => 'required|date',
+            'jatuh_tempo' => 'nullable|date',
             'tanggal_bayar' => 'nullable|date',
             'items' => 'required|array',
             'items.*.id' => 'nullable|exists:invoice_items,id',
@@ -172,15 +197,28 @@ class InvoiceController extends Controller
         try {
             DB::beginTransaction();
 
+            // Hitung subtotal jika tidak dikirim
+            $subtotal = collect($request->items)->sum(function ($item) {
+                return (float) ($item['harga'] ?? 0);
+            });
+            $nominalPajak = (float) ($request->nominal_pajak ?? 0);
+            $total = (float) ($request->total ?? ($subtotal + $nominalPajak));
+
             // Update invoice
             $invoice->update([
                 'unit' => $request->unit,
                 'nama_klien' => $request->nama_klien,
                 'alamat_klien' => $request->alamat_klien,
+                'telepon_klien' => $request->telepon_klien,
                 'webhost_id' => $request->webhost_id,
                 'note' => $request->note,
                 'status' => $request->status,
+                'subtotal' => $request->subtotal ?? $subtotal,
+                'pajak' => $request->pajak,
+                'nominal_pajak' => $nominalPajak,
+                'total' => $total,
                 'tanggal' => $request->tanggal,
+                'jatuh_tempo' => $request->jatuh_tempo,
                 'tanggal_bayar' => $request->tanggal_bayar,
             ]);
 

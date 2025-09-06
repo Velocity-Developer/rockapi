@@ -14,10 +14,16 @@ class Invoice extends Model
         'unit',
         'nama_klien',
         'alamat_klien',
+        'telepon_klien',
         'webhost_id',
         'note',
         'status',
+        'subtotal',
+        'pajak',
+        'nominal_pajak',
+        'total',
         'tanggal',
+        'jatuh_tempo',
         'tanggal_bayar',
     ];
 

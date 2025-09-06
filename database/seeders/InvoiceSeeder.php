@@ -40,10 +40,16 @@ class InvoiceSeeder extends Seeder
                 'unit' => 'vd',
                 'nama_klien' => 'Klien ' . $webhost->nama_web,
                 'alamat_klien' => 'Alamat contoh Klien ' . $i,
+                'telepon_klien' => '0812' . rand(1000000, 9999999),
                 'webhost_id' => $webhost->id_webhost,
                 'note' => 'Catatan untuk invoice #' . $i,
                 'status' => $status,
+                'subtotal' => 0,
+                'pajak' => null,
+                'nominal_pajak' => 0,
+                'total' => 0,
                 'tanggal' => $tanggal,
+                'jatuh_tempo' => Carbon::parse($tanggal)->addDays(rand(3, 14)),
                 'tanggal_bayar' => $tanggal_bayar,
             ]);
 
@@ -60,6 +66,16 @@ class InvoiceSeeder extends Seeder
                     'harga' => $harga,
                 ]);
             }
+
+            // Update subtotal/total berdasarkan items
+            $subtotal = InvoiceItem::where('invoice_id', $invoice->id)->sum('harga');
+            $nominal_pajak = 0;
+            $total = $subtotal + $nominal_pajak;
+            $invoice->update([
+                'subtotal' => $subtotal,
+                'nominal_pajak' => $nominal_pajak,
+                'total' => $total,
+            ]);
         }
 
         $this->command->info('20 invoice dengan item berhasil dibuat!');
