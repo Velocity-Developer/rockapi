@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('nama_klien')->nullable();
             $table->text('alamat_klien')->nullable();
             $table->string('telepon_klien')->nullable();
-            $table->integer('webhost_id')->nullable();
             $table->text('note')->nullable();
             $table->string('status')->default('pending');
             $table->decimal('subtotal', 15, 2)->default(0);

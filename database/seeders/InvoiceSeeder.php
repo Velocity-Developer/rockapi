@@ -41,7 +41,6 @@ class InvoiceSeeder extends Seeder
                 'nama_klien' => 'Klien ' . $webhost->nama_web,
                 'alamat_klien' => 'Alamat contoh Klien ' . $i,
                 'telepon_klien' => '0812' . rand(1000000, 9999999),
-                'webhost_id' => $webhost->id_webhost,
                 'note' => 'Catatan untuk invoice #' . $i,
                 'status' => $status,
                 'subtotal' => 0,
@@ -61,6 +60,7 @@ class InvoiceSeeder extends Seeder
 
                 InvoiceItem::create([
                     'invoice_id' => $invoice->id,
+                    'webhost_id' => $webhost->id_webhost,
                     'nama' => ucfirst($jenis) . ' ' . $webhost->nama_web,
                     'jenis' => $jenis,
                     'harga' => $harga,

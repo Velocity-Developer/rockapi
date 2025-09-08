@@ -15,7 +15,6 @@ class Invoice extends Model
         'nama_klien',
         'alamat_klien',
         'telepon_klien',
-        'webhost_id',
         'note',
         'status',
         'subtotal',
@@ -26,12 +25,6 @@ class Invoice extends Model
         'jatuh_tempo',
         'tanggal_bayar',
     ];
-
-    // Relasi ke webhost
-    public function webhost()
-    {
-        return $this->belongsTo(Webhost::class, 'webhost_id', 'id_webhost');
-    }
 
     // Relasi ke invoice items
     public function items()

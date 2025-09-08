@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('invoice_items', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('invoice_id');
+            $table->integer('webhost_id')->nullable();
             $table->string('nama');
             $table->string('jenis');
             $table->decimal('harga', 15, 2);

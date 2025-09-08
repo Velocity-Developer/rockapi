@@ -17,8 +17,7 @@ class InvoiceController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = Invoice::with([
-            'webhost:id_webhost,nama_web',
-            'items'
+            'items.webhost:id_webhost,nama_web'
         ]);
 
         // Filter berdasarkan status
@@ -26,9 +25,11 @@ class InvoiceController extends Controller
             $query->where('status', $request->input('status'));
         }
 
-        // Filter berdasarkan webhost_id
+        // Filter berdasarkan webhost_id (berdasarkan item)
         if ($request->input('webhost_id')) {
-            $query->where('webhost_id', $request->input('webhost_id'));
+            $query->whereHas('items', function ($q) use ($request) {
+                $q->where('webhost_id', $request->input('webhost_id'));
+            });
         }
 
         // Filter berdasarkan tanggal
@@ -70,7 +71,6 @@ class InvoiceController extends Controller
             'nama_klien' => 'required|string',
             'alamat_klien' => 'nullable|string',
             'telepon_klien' => 'nullable|string',
-            'webhost_id' => 'required|exists:tb_webhost,id_webhost',
             'note' => 'nullable|string',
             'status' => 'required|string',
             'subtotal' => 'nullable|numeric',
@@ -84,6 +84,7 @@ class InvoiceController extends Controller
             'items.*.nama' => 'required|string',
             'items.*.jenis' => 'required|string',
             'items.*.harga' => 'required|numeric',
+            'items.*.webhost_id' => 'required|exists:tb_webhost,id_webhost',
         ]);
 
         if ($validator->fails()) {
@@ -106,7 +107,6 @@ class InvoiceController extends Controller
                 'nama_klien' => $request->nama_klien,
                 'alamat_klien' => $request->alamat_klien,
                 'telepon_klien' => $request->telepon_klien,
-                'webhost_id' => $request->webhost_id,
                 'note' => $request->note,
                 'status' => $request->status,
                 'subtotal' => $request->subtotal ?? $subtotal,
@@ -122,6 +122,7 @@ class InvoiceController extends Controller
             foreach ($request->items as $item) {
                 InvoiceItem::create([
                     'invoice_id' => $invoice->id,
+                    'webhost_id' => $item['webhost_id'],
                     'nama' => $item['nama'],
                     'jenis' => $item['jenis'],
                     'harga' => $item['harga'],
@@ -131,7 +132,7 @@ class InvoiceController extends Controller
             DB::commit();
 
             // Load relasi
-            $invoice->load(['webhost:id_webhost,nama_web', 'items']);
+            $invoice->load(['items.webhost:id_webhost,nama_web']);
 
             return response()->json($invoice, 201);
         } catch (\Exception $e) {
@@ -146,8 +147,7 @@ class InvoiceController extends Controller
     public function show(string $id): JsonResponse
     {
         $invoice = Invoice::with([
-            'webhost:id_webhost,nama_web',
-            'items'
+            'items.webhost:id_webhost,nama_web'
         ])->find($id);
 
         if (!$invoice) {
@@ -173,7 +173,6 @@ class InvoiceController extends Controller
             'nama_klien' => 'required|string',
             'alamat_klien' => 'nullable|string',
             'telepon_klien' => 'nullable|string',
-            'webhost_id' => 'required|exists:tb_webhost,id_webhost',
             'note' => 'nullable|string',
             'status' => 'required|string',
             'subtotal' => 'nullable|numeric',
@@ -188,6 +187,7 @@ class InvoiceController extends Controller
             'items.*.nama' => 'required|string',
             'items.*.jenis' => 'required|string',
             'items.*.harga' => 'required|numeric',
+            'items.*.webhost_id' => 'required|exists:tb_webhost,id_webhost',
         ]);
 
         if ($validator->fails()) {
@@ -210,7 +210,6 @@ class InvoiceController extends Controller
                 'nama_klien' => $request->nama_klien,
                 'alamat_klien' => $request->alamat_klien,
                 'telepon_klien' => $request->telepon_klien,
-                'webhost_id' => $request->webhost_id,
                 'note' => $request->note,
                 'status' => $request->status,
                 'subtotal' => $request->subtotal ?? $subtotal,
@@ -237,6 +236,7 @@ class InvoiceController extends Controller
                 if (isset($item['id'])) {
                     // Update item yang sudah ada
                     InvoiceItem::where('id', $item['id'])->update([
+                        'webhost_id' => $item['webhost_id'],
                         'nama' => $item['nama'],
                         'jenis' => $item['jenis'],
                         'harga' => $item['harga'],
@@ -245,6 +245,7 @@ class InvoiceController extends Controller
                     // Buat item baru
                     InvoiceItem::create([
                         'invoice_id' => $invoice->id,
+                        'webhost_id' => $item['webhost_id'],
                         'nama' => $item['nama'],
                         'jenis' => $item['jenis'],
                         'harga' => $item['harga'],
@@ -255,7 +256,7 @@ class InvoiceController extends Controller
             DB::commit();
 
             // Load relasi
-            $invoice->load(['webhost:id_webhost,nama_web', 'items']);
+            $invoice->load(['items.webhost:id_webhost,nama_web']);
 
             return response()->json($invoice);
         } catch (\Exception $e) {

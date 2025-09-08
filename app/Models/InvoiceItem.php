@@ -11,6 +11,7 @@ class InvoiceItem extends Model
 
     protected $fillable = [
         'invoice_id',
+        'webhost_id',
         'nama',
         'jenis',
         'harga',
@@ -24,5 +25,11 @@ class InvoiceItem extends Model
     public function invoice()
     {
         return $this->belongsTo(Invoice::class);
+    }
+
+    // Relasi ke webhost
+    public function webhost()
+    {
+        return $this->belongsTo(Webhost::class, 'webhost_id', 'id_webhost');
     }
 }
