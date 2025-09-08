@@ -25,6 +25,7 @@ use App\Http\Controllers\JournalCategoryController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\CustomerController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -56,6 +57,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'journal_category'      => JournalCategoryController::class,
         'journal'               => JournalController::class,
         'invoice'               => InvoiceController::class,
+        'customer'              => CustomerController::class,
     ]);
 
     //data_opsi
