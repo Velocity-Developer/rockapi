@@ -67,7 +67,7 @@ class InvoiceController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'unit' => 'required|in:vd,vcm',
+            'unit' => 'required|in:vdi,vcm',
             'nama_klien' => 'required|string',
             'alamat_klien' => 'nullable|string',
             'telepon_klien' => 'nullable|string',
@@ -81,10 +81,7 @@ class InvoiceController extends Controller
             'jatuh_tempo' => 'nullable|date',
             'tanggal_bayar' => 'nullable|date',
             'items' => 'required|array',
-            'items.*.nama' => 'required|string',
-            'items.*.jenis' => 'required|string',
             'items.*.harga' => 'required|numeric',
-            'items.*.webhost_id' => 'required|exists:tb_webhost,id_webhost',
         ]);
 
         if ($validator->fails()) {
@@ -169,7 +166,7 @@ class InvoiceController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'unit' => 'required|in:vd,vcm',
+            'unit' => 'required|in:vdi,vcm',
             'nama_klien' => 'required|string',
             'alamat_klien' => 'nullable|string',
             'telepon_klien' => 'nullable|string',
@@ -184,10 +181,7 @@ class InvoiceController extends Controller
             'tanggal_bayar' => 'nullable|date',
             'items' => 'required|array',
             'items.*.id' => 'nullable|exists:invoice_items,id',
-            'items.*.nama' => 'required|string',
-            'items.*.jenis' => 'required|string',
             'items.*.harga' => 'required|numeric',
-            'items.*.webhost_id' => 'required|exists:tb_webhost,id_webhost',
         ]);
 
         if ($validator->fails()) {
@@ -278,15 +272,15 @@ class InvoiceController extends Controller
 
         try {
             DB::beginTransaction();
-            
+
             // Hapus semua item invoice
             $invoice->items()->delete();
-            
+
             // Hapus invoice
             $invoice->delete();
-            
+
             DB::commit();
-            
+
             return response()->json(['message' => 'Invoice berhasil dihapus']);
         } catch (\Exception $e) {
             DB::rollBack();
