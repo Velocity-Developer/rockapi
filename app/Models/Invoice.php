@@ -12,9 +12,7 @@ class Invoice extends Model
 
     protected $fillable = [
         'unit',
-        'nama_klien',
-        'alamat_klien',
-        'telepon_klien',
+        'customer_id',
         'note',
         'status',
         'subtotal',
@@ -25,6 +23,12 @@ class Invoice extends Model
         'jatuh_tempo',
         'tanggal_bayar',
     ];
+
+    // Relasi ke customer
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
 
     // Relasi ke invoice items
     public function items()

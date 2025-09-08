@@ -15,9 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nomor')->unique();
             $table->string('unit')->nullable();
-            $table->string('nama_klien')->nullable();
-            $table->text('alamat_klien')->nullable();
-            $table->string('telepon_klien')->nullable();
+            $table->unsignedBigInteger('customer_id')->nullable();
             $table->text('note')->nullable();
             $table->string('status')->default('pending');
             $table->decimal('subtotal', 15, 2)->default(0);
@@ -28,6 +26,8 @@ return new class extends Migration
             $table->timestamp('jatuh_tempo')->nullable();
             $table->timestamp('tanggal_bayar')->nullable();
             $table->timestamps();
+
+            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('set null');
         });
     }
 

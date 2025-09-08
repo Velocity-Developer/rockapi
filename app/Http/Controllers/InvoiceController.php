@@ -17,6 +17,7 @@ class InvoiceController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = Invoice::with([
+            'customer',
             'items.webhost:id_webhost,nama_web'
         ]);
 
@@ -39,9 +40,12 @@ class InvoiceController extends Controller
             $query->whereBetween('tanggal', [$tanggal_start, $tanggal_end]);
         }
 
-        // Filter berdasarkan nama klien
+        // Filter berdasarkan nama customer (kompatibel dengan param lama)
         if ($request->input('nama_klien')) {
-            $query->where('nama_klien', 'like', '%' . $request->input('nama_klien') . '%');
+            $nama = $request->input('nama_klien');
+            $query->whereHas('customer', function ($q) use ($nama) {
+                $q->where('nama', 'like', "%{$nama}%");
+            });
         }
 
         // Filter berdasarkan unit
@@ -68,9 +72,7 @@ class InvoiceController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'unit' => 'required|in:vdi,vcm',
-            'nama_klien' => 'required|string',
-            'alamat_klien' => 'nullable|string',
-            'telepon_klien' => 'nullable|string',
+            'customer_id' => 'required|exists:customers,id',
             'note' => 'nullable|string',
             'status' => 'required|string',
             'subtotal' => 'nullable|numeric',
@@ -101,9 +103,7 @@ class InvoiceController extends Controller
             // Buat invoice
             $invoice = Invoice::create([
                 'unit' => $request->unit,
-                'nama_klien' => $request->nama_klien,
-                'alamat_klien' => $request->alamat_klien,
-                'telepon_klien' => $request->telepon_klien,
+                'customer_id' => $request->customer_id,
                 'note' => $request->note,
                 'status' => $request->status,
                 'subtotal' => $request->subtotal ?? $subtotal,
@@ -129,7 +129,7 @@ class InvoiceController extends Controller
             DB::commit();
 
             // Load relasi
-            $invoice->load(['items.webhost:id_webhost,nama_web']);
+            $invoice->load(['customer', 'items.webhost:id_webhost,nama_web']);
 
             return response()->json($invoice, 201);
         } catch (\Exception $e) {
@@ -144,6 +144,7 @@ class InvoiceController extends Controller
     public function show(string $id): JsonResponse
     {
         $invoice = Invoice::with([
+            'customer',
             'items.webhost:id_webhost,nama_web'
         ])->find($id);
 
@@ -167,9 +168,7 @@ class InvoiceController extends Controller
 
         $validator = Validator::make($request->all(), [
             'unit' => 'required|in:vdi,vcm',
-            'nama_klien' => 'required|string',
-            'alamat_klien' => 'nullable|string',
-            'telepon_klien' => 'nullable|string',
+            'customer_id' => 'required|exists:customers,id',
             'note' => 'nullable|string',
             'status' => 'required|string',
             'subtotal' => 'nullable|numeric',
@@ -201,9 +200,7 @@ class InvoiceController extends Controller
             // Update invoice
             $invoice->update([
                 'unit' => $request->unit,
-                'nama_klien' => $request->nama_klien,
-                'alamat_klien' => $request->alamat_klien,
-                'telepon_klien' => $request->telepon_klien,
+                'customer_id' => $request->customer_id,
                 'note' => $request->note,
                 'status' => $request->status,
                 'subtotal' => $request->subtotal ?? $subtotal,
@@ -250,7 +247,7 @@ class InvoiceController extends Controller
             DB::commit();
 
             // Load relasi
-            $invoice->load(['items.webhost:id_webhost,nama_web']);
+            $invoice->load(['customer', 'items.webhost:id_webhost,nama_web']);
 
             return response()->json($invoice);
         } catch (\Exception $e) {
