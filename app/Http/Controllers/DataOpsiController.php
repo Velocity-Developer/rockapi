@@ -262,7 +262,8 @@ class DataOpsiController extends Controller
             'Redesign',
             'Jasa Pembuatan Logo',
             'Compro PDF',
-            'Lain-lain'
+            'Lain-lain',
+            'Pembuatan web konsep',
         ];
     }
 
