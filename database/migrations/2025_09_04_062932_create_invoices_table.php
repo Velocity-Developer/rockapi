@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('unit')->nullable();
             $table->unsignedBigInteger('customer_id')->nullable();
             $table->text('note')->nullable();
-            $table->string('status')->default('pending');
+            $table->string('status')->default('belum');
             $table->decimal('subtotal', 15, 2)->default(0);
             $table->string('pajak')->nullable();
             $table->decimal('nominal_pajak', 15, 2)->default(0);

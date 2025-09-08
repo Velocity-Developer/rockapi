@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('invoice_id');
             $table->integer('webhost_id')->nullable();
-            $table->string('nama');
-            $table->string('jenis');
+            $table->string('nama')->nullable();
+            $table->string('jenis')->nullable();
             $table->decimal('harga', 15, 2);
             $table->timestamps();
-            
+
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
         });
     }
