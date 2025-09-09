@@ -1,0 +1,13 @@
+{
+  "name": "rockapi",
+  "version": "1.0.0",
+  "description": "Laravel API Backend",
+  "scripts": {
+    "build": "node build-script.js",
+    "clean": "node -e \"const fs = require('fs'); const path = require('path'); const distDir = path.join(__dirname, 'dist'); if (fs.existsSync(distDir)) { fs.rmSync(distDir, { recursive: true, force: true }); console.log('Dist directory deleted.'); } else { console.log('Dist directory does not exist.'); }\"",
+    "build:clean": "npm run clean && npm run build"
+  },
+  "devDependencies": {
+    "archiver": "^5.3.1"
+  }
+}
