@@ -50,8 +50,11 @@ class Invoice extends Model
                 // Format: YYMMDD diambil dari tanggal invoice
                 $today = $invoice->tanggal ? Carbon::parse($invoice->tanggal)->format('ymd') : date('ymd');
 
-                // dapatkan nomor urut terakhir berdasarkan tanggal LIKE today%
-                $lastInvoice = static::where('nomor', 'like', "{$today}%")
+                // Ambil unit dan jadikan uppercase
+                $unitPrefix = strtoupper($invoice->unit ?? 'VDI');
+
+                // dapatkan nomor urut terakhir berdasarkan unit dan tanggal LIKE unitPrefix-today%
+                $lastInvoice = static::where('nomor', 'like', "{$unitPrefix}{$today}%")
                     ->orderBy('nomor', 'desc')
                     ->first();
 
@@ -63,8 +66,8 @@ class Invoice extends Model
                     $nextNumber = 1;
                 }
 
-                // Format nomor invoice: YYMMDD0001
-                $invoice->nomor = $today . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+                // Format nomor invoice: UNITYYMMDD0001
+                $invoice->nomor = $unitPrefix . $today . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
             }
         });
     }
