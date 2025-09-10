@@ -29,7 +29,8 @@ class LaporanNilaiController extends Controller
                         'Pembuatan Tanpa Domain',
                         'Pembuatan Tanpa Hosting',
                         'Pembuatan Tanpa Domain+Hosting',
-                        'Redesign'
+                        'Redesign',
+                        'Pembuatan web konsep'
                     ]);
                     if ($jenisProject == 0) {
                         $query->where(function ($sub) {
