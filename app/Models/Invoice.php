@@ -29,6 +29,11 @@ class Invoice extends Model
         'pajak' => 'boolean',
     ];
 
+    protected $appends = [
+        'url_pdf_preview',
+        'url_pdf_download',
+    ];
+
     // Relasi ke customer
     public function customer()
     {
@@ -39,6 +44,18 @@ class Invoice extends Model
     public function items()
     {
         return $this->hasMany(InvoiceItem::class);
+    }
+
+    //accessor url_pdf_preview
+    public function getUrlPdfPreviewAttribute()
+    {
+        return url("/api/invoice/{$this->id}/pdf");
+    }
+
+    //accessor url_pdf_download
+    public function getUrlPdfDownloadAttribute()
+    {
+        return url("/api/invoice/{$this->id}/pdf?download=true");
     }
 
     /**
