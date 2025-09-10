@@ -351,11 +351,16 @@
                                     <td>{{ number_format($invoice->subtotal, 0, ',', '.') }}</td>
                                 </tr>
                                 @if($invoice->pajak)
-                            <tr>
-                                <td>{{ $invoice->nama_pajak ?? 'Pajak' }}</td>
-                                <td>{{ number_format($invoice->nominal_pajak, 0, ',', '.') }}</td>
-                            </tr>
-                            @endif
+                                <tr>
+                                    <td>Pajak</td>
+                                    <td>
+                                        {{ number_format($invoice->nominal_pajak, 0, ',', '.') }}
+                                        @if($invoice->nama_pajak)
+                                        ({{ $invoice->nama_pajak }})
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endif
                                 <tr class="summary-total">
                                     <td>TOTAL</td>
                                     <td>{{ number_format($total, 0, ',', '.') }}</td>
