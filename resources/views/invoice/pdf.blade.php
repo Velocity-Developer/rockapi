@@ -298,7 +298,7 @@
                                         @if($item->webhost && $item->webhost->nama_web){{ $item->webhost->nama_web }}@endif
                                         {{ $item->nama }}
                                     </td>
-                                    <td>{{ number_format($item->harga, 0, ',', '.') }}</td>
+                                    <td>Rp {{ number_format($item->harga, 2, ',', '.') }}</td>
                                 </tr>
                                 @endforeach
 
@@ -348,7 +348,7 @@
                             <tbody>
                                 <tr>
                                     <td>Sub Total</td>
-                                    <td>{{ number_format($invoice->subtotal, 0, ',', '.') }}</td>
+                                    <td>Rp {{ number_format($invoice->subtotal, 2, ',', '.') }}</td>
                                 </tr>
                                 @if($invoice->pajak)
                                 <tr>
@@ -363,15 +363,27 @@
                                 @endif
                                 <tr class="summary-total">
                                     <td>TOTAL</td>
-                                    <td>{{ number_format($total, 0, ',', '.') }}</td>
+                                    <td>Rp {{ number_format($total, 2, ',', '.') }}</td>
                                 </tr>
                                 <tr>
                                     <td>Dibayar</td>
-                                    <td>{{ number_format($paidAmount, 0, ',', '.') }}</td>
+                                    <td>
+                                        @if($invoice->status === 'lunas')
+                                        Rp {{ number_format($paidAmount, 2, ',', '.') }}
+                                        @else
+                                        -
+                                        @endif
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>Terhutang</td>
-                                    <td>{{ number_format($dueAmount, 0, ',', '.') }}</td>
+                                    <td>
+                                        @if($invoice->status === 'lunas')
+                                        -
+                                        @else
+                                        Rp {{ number_format($dueAmount, 2, ',', '.') }}
+                                        @endif
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
