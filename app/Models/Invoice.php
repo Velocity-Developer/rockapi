@@ -17,11 +17,16 @@ class Invoice extends Model
         'status',
         'subtotal',
         'pajak',
+        'nama_pajak',
         'nominal_pajak',
         'total',
         'tanggal',
         'jatuh_tempo',
         'tanggal_bayar',
+    ];
+
+    protected $casts = [
+        'pajak' => 'boolean',
     ];
 
     // Relasi ke customer
