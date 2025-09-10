@@ -47,6 +47,10 @@ class LaporanNilaiController extends Controller
                             ->orWhereNull('date_selesai')
                             ->orWhere('date_selesai', '');
                     })
+                    // ✅ Tambahan filter supaya harus ada date_mulai
+                    ->whereNotNull('date_mulai')
+                    ->where('date_mulai', '<>', '')
+                    ->whereDate('date_mulai', '>=', now()->subYear())
                     ->with(['cs_main_project' => function ($q) {
                         $q->select('id', 'jenis', 'deskripsi', 'tgl_deadline', 'dikerjakan_oleh', 'id_webhost')
                             ->with('webhost', 'webhost.paket');
