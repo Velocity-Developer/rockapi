@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class InvoiceController extends Controller
 {
@@ -283,5 +285,92 @@ class InvoiceController extends Controller
             DB::rollBack();
             return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Generate PDF for the specified invoice.
+     */
+    public function printPdf(Request $request, string $id)
+    {
+        $invoice = Invoice::with([
+            'customer',
+            'items.webhost:id_webhost,nama_web'
+        ])->find($id);
+
+        if (!$invoice) {
+            return response()->json(['message' => 'Invoice tidak ditemukan'], 404);
+        }
+
+        // Format tanggal
+        $formattedDate = $this->formatDate($invoice->tanggal);
+        $formattedPaymentDate = $this->formatDate($invoice->tanggal_bayar);
+        $dueDate = $this->calculateDueDate($invoice);
+
+        // Hitung total, paid amount, dan due amount
+        $total = $this->calculateTotal($invoice);
+        $paidAmount = $invoice->status === 'lunas' ? $total : 0;
+        $dueAmount = max($total - $paidAmount, 0);
+
+        // Data untuk view
+        $data = [
+            'invoice' => $invoice,
+            'formattedDate' => $formattedDate,
+            'formattedPaymentDate' => $formattedPaymentDate,
+            'dueDate' => $dueDate,
+            'total' => $total,
+            'paidAmount' => $paidAmount,
+            'dueAmount' => $dueAmount,
+        ];
+
+        // Generate PDF
+        $pdf = Pdf::loadView('invoice.pdf', $data);
+        $pdf->setPaper('A4', 'portrait');
+
+        // Set filename
+        $filename = 'Invoice-' . $invoice->nomor . '.pdf';
+
+        // Check if download parameter is true
+        if ($request->get('download') && $request->get('download') === 'true') {
+            return $pdf->download($filename);
+        }
+
+        return $pdf->stream();
+    }
+
+    /**
+     * Format date helper
+     */
+    private function formatDate(?string $date): string
+    {
+        if (!$date || $date === '0000-00-00') {
+            return '-';
+        }
+        return Carbon::parse($date)->format('d/m/Y');
+    }
+
+    /**
+     * Calculate due date
+     */
+    private function calculateDueDate($invoice): string
+    {
+        $date = $invoice->jatuh_tempo ?: $invoice->tanggal;
+        if (!$date || $date === '0000-00-00') {
+            return '-';
+        }
+        return Carbon::parse($date)->addDays(3)->format('d/m/Y');
+    }
+
+    /**
+     * Calculate total amount
+     */
+    private function calculateTotal($invoice): float
+    {
+        if ($invoice->total !== null && $invoice->total !== '') {
+            return (float) $invoice->total;
+        }
+
+        return $invoice->items->sum(function ($item) {
+            return (float) ($item->harga ?? 0);
+        });
     }
 }

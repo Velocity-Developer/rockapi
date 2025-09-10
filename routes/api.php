@@ -109,7 +109,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // User search route
     Route::get('/user_search/{keyword}', [UsersController::class, 'search']);
+
+    // Invoice PDF route
 });
+
+// Invoice PDF route
+Route::get('/invoice/{id}/pdf', [InvoiceController::class, 'printPdf']);
 
 require __DIR__ . '/api-dash.php';
 require __DIR__ . '/api-laporan.php';
