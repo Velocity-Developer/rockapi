@@ -74,10 +74,10 @@ class LaporanNilaiController extends Controller
                 'id'        => $user->id,
                 'name'      => $user->name,
                 'avatar'    => $user->avatar_url,
+                'total'     => $user->wm_project->count(),
                 'selesai'   => $total_selesai,
                 'progress'  => $total_progress,
-                'total'     => $total_dibayar,
-                'total_project' => $user->wm_project->count(),
+                'total_dibayar' => $total_dibayar
             ];
 
             $results['data'][$user->id] = [
