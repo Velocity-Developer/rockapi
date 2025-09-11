@@ -52,7 +52,7 @@ class LaporanNilaiController extends Controller
                     ->where('date_mulai', '<>', '')
                     ->whereDate('date_mulai', '>=', now()->subYear())
                     ->with(['cs_main_project' => function ($q) {
-                        $q->select('id', 'jenis', 'deskripsi', 'tgl_deadline', 'dikerjakan_oleh', 'id_webhost')
+                        $q->select('id', 'jenis', 'deskripsi', 'tgl_deadline', 'dikerjakan_oleh', 'id_webhost', 'dibayar')
                             ->with('webhost', 'webhost.paket');
                     }]);
             }])
@@ -65,20 +65,27 @@ class LaporanNilaiController extends Controller
                 return $project->date_selesai === null || $project->date_selesai === '';
             })->count();
 
+            // Hitung total dibayar dari cs_main_project
+            $total_dibayar = $user->wm_project->sum(function ($project) {
+                return $project->cs_main_project ? $project->cs_main_project->dibayar : 0;
+            });
+
             $results['users'][] = [
                 'id'        => $user->id,
                 'name'      => $user->name,
                 'avatar'    => $user->avatar_url,
-                'total'     => $user->wm_project->count(),
                 'selesai'   => $total_selesai,
-                'progress'  => $total_progress
+                'progress'  => $total_progress,
+                'total'     => $total_dibayar,
+                'total_project' => $user->wm_project->count(),
             ];
 
             $results['data'][$user->id] = [
                 'id'        => $user->id,
                 'name'      => $user->name,
                 'avatar'    => $user->avatar_url,
-                'projects'  => $user->wm_project
+                'projects'  => $user->wm_project,
+                'total_dibayar' => $total_dibayar
             ];
         }
 
