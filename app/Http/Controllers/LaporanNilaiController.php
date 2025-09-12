@@ -58,6 +58,15 @@ class LaporanNilaiController extends Controller
             }])
             ->get();
 
+        $total_all_dibayar = 0;
+
+        // Hitung dulu total_all_dibayar
+        foreach ($users as $user) {
+            $total_all_dibayar += $user->wm_project->sum(function ($project) {
+                return $project->cs_main_project ? $project->cs_main_project->dibayar : 0;
+            });
+        }
+
         foreach ($users as $user) {
 
             $total_selesai = $user->wm_project->where('date_selesai', '!=', null)->where('date_selesai', '!=', '')->count();
@@ -70,6 +79,11 @@ class LaporanNilaiController extends Controller
                 return $project->cs_main_project ? $project->cs_main_project->dibayar : 0;
             });
 
+            // Ubah ke persen (hindari pembagian nol)
+            $percent_dibayar = $total_all_dibayar > 0
+                ? round(($total_dibayar / $total_all_dibayar) * 100, 2)
+                : 0;
+
             $results['users'][] = [
                 'id'        => $user->id,
                 'name'      => $user->name,
@@ -77,7 +91,7 @@ class LaporanNilaiController extends Controller
                 'total'     => $user->wm_project->count(),
                 'selesai'   => $total_selesai,
                 'progress'  => $total_progress,
-                'total_dibayar' => $total_dibayar
+                'total_dibayar' => $percent_dibayar
             ];
 
             $results['data'][$user->id] = [
