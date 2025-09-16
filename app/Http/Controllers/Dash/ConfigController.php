@@ -182,7 +182,8 @@ class ConfigController extends Controller
             'manager_project',
             'admin',
             'owner',
-            'support'
+            'support',
+            'customer_service'
         ];
 
         if (array_intersect($ready, $roles)) {

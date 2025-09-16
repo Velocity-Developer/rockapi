@@ -34,5 +34,11 @@
         "label": "Laporan Tim",
         "icon": "lucide:chart-column-stacked",
         "route": "/laporannilai"
+    },
+    {
+        "key": "invoice",
+        "label": "Invoice",
+        "icon": "lucide:file-text",
+        "route": "/invoice"
     }
 ]
