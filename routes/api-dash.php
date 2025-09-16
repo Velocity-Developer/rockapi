@@ -5,6 +5,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\Dash\MediaController;
 use App\Http\Controllers\Dash\ConfigController;
 use App\Http\Controllers\Dash\DashboardController;
+use App\Http\Controllers\Dash\DashboardWebdeveloperController;
 use App\Http\Controllers\Dash\OptionsController;
 use App\Http\Controllers\Dash\NotificationsController;
 use App\Http\Controllers\Dash\PermissionsController;
@@ -24,7 +25,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('dashboard/chart_tahunini', [DashboardController::class, 'chart_tahunini']);
     Route::get('dashboard/chart_hariini', [DashboardController::class, 'chart_hariini']);
     Route::get('dashboard/datatable', [DashboardController::class, 'datatable']);
-    Route::get('dashboard/welcome_webdeveloper', [DashboardController::class, 'welcome_webdeveloper']);
+    Route::get('dashboard/chart_project_tahun_terakhir', [DashboardController::class, 'chart_project_tahun_terakhir']);
+
+    //dashboard webdeveloper
+    Route::get('dashboard/welcome_webdeveloper', [DashboardWebdeveloperController::class, 'welcome']);
+    Route::get('dashboard/chart_project_tahun_terakhir_webdeveloper', [DashboardWebdeveloperController::class, 'chart_project_tahun_terakhir_webdeveloper']);
 
     //options
     Route::get('option/{key}', [OptionsController::class, 'get']);
