@@ -308,7 +308,7 @@ class InvoiceController extends Controller
         // Format tanggal
         $formattedDate = $this->formatDate($invoice->tanggal);
         $formattedPaymentDate = $this->formatDate($invoice->tanggal_bayar);
-        $dueDate = $this->calculateDueDate($invoice);
+        $dueDate = $this->formatDate($invoice->jatuh_tempo);
 
         // Hitung total, paid amount, dan due amount
         $total = $this->calculateTotal($invoice);
@@ -350,18 +350,6 @@ class InvoiceController extends Controller
             return '-';
         }
         return Carbon::parse($date)->format('d/m/Y');
-    }
-
-    /**
-     * Calculate due date
-     */
-    private function calculateDueDate($invoice): string
-    {
-        $date = $invoice->jatuh_tempo ?: $invoice->tanggal;
-        if (!$date || $date === '0000-00-00') {
-            return '-';
-        }
-        return Carbon::parse($date)->addDays(3)->format('d/m/Y');
     }
 
     /**
