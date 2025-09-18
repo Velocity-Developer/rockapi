@@ -321,7 +321,8 @@ class DataOpsiController extends Controller
             $result[] = [
                 'value'     => $item->id,
                 'label'     => $item->name,
-                'avatar'    => $item->avatar_url
+                'avatar'    => $item->avatar_url,
+                'roles'     => $item->user_roles ? $item->user_roles[0] : ''
             ];
         }
         return $result;
