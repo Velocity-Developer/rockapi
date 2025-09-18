@@ -18,6 +18,7 @@ class Journal extends Model
         'status',
         'priority',
         'user_id',
+        'role',
         'webhost_id',
         'cs_main_project_id',
         'journal_category_id'
