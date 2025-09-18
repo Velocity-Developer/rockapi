@@ -25,8 +25,8 @@ class JournalController extends Controller
 
         //filter role - gunakan relasi ke user
         if ($request->input('role')) {
-            $query->whereHas('user', function($q) use ($request) {
-                $q->whereHas('roles', function($roleQuery) use ($request) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->whereHas('roles', function ($roleQuery) use ($request) {
                     $roleQuery->where('name', $request->input('role'));
                 });
             });
@@ -87,8 +87,8 @@ class JournalController extends Controller
 
         // Terapkan filter yang sama seperti query utama (kecuali pagination)
         if ($request->input('role')) {
-            $allJournalsQuery->whereHas('user', function($q) use ($request) {
-                $q->whereHas('roles', function($roleQuery) use ($request) {
+            $allJournalsQuery->whereHas('user', function ($q) use ($request) {
+                $q->whereHas('roles', function ($roleQuery) use ($request) {
                     $roleQuery->where('name', $request->input('role'));
                 });
             });
@@ -256,6 +256,7 @@ class JournalController extends Controller
             'end'                   => $request->end,
             'status'                => $request->status,
             'priority'              => $request->priority,
+            'user_id'               => $request->user_id,
             'webhost_id'            => $request->webhost_id,
             'cs_main_project_id'    => $request->cs_main_project_id,
             'journal_category_id'   => $request->journal_category_id,
@@ -287,8 +288,8 @@ class JournalController extends Controller
                         'hp'            => $detailSupport['hp'] ?? '',
                         'wa'            => $detailSupport['wa'] ?? '',
                         'email'         => $detailSupport['email'] ?? '',
-                        'biaya'         => $detailSupport['biaya'] ?? '',
-                        'tanggal_bayar' => $detailSupport['tanggal_bayar'] ?? '',
+                        'biaya'         => $detailSupport['biaya'] ?? null,
+                        'tanggal_bayar' => $detailSupport['tanggal_bayar'] ?? null,
                     ]);
                 }
             } else {
