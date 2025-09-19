@@ -73,7 +73,7 @@ class DataOpsiController extends Controller
                 $result = $this->quality();
                 break;
             case 'users':
-                $result = $this->users();
+                $result = $this->users($request);
                 break;
             default:
                 $result = [];
@@ -312,10 +312,18 @@ class DataOpsiController extends Controller
         return $result;
     }
 
-    private function users()
+    private function users($request = null)
     {
-        //get all user, status = active
-        $users = User::where('status', 'active')->get();
+        $role = $request && $request->role ? $request->role : '';
+        //filter by role
+        if ($role) {
+            $users = User::where('status', 'active')
+                ->role($role) // role yang di filter
+                ->get();
+        } else {
+            //get all user, status = active
+            $users = User::where('status', 'active')->get();
+        }
         $result = [];
         foreach ($users as $item) {
             $result[] = [
