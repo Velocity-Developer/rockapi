@@ -330,7 +330,7 @@ class DataOpsiController extends Controller
                 'value'     => $item->id,
                 'label'     => $item->name,
                 'avatar'    => $item->avatar_url,
-                'roles'     => $item->user_roles ? $item->user_roles[0] : ''
+                'role'      => $item->user_roles ? $item->user_roles[0] : ''
             ];
         }
         return $result;
