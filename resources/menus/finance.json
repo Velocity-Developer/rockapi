@@ -6,6 +6,12 @@
         "route": "/"
     },
     {
+        "key": "invoice",
+        "label": "Invoice",
+        "icon": "lucide:file-text",
+        "route": "/invoice"
+    },
+    {
         "key": "bank_transaksi_umum",
         "label": "Bank Umum",
         "icon": "lucide:wallet",
