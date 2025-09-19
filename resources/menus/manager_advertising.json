@@ -40,5 +40,11 @@
         "label": "Jurnal",
         "icon": "lucide:clipboard-list",
         "route": "/journal"
+    },
+    {
+        "key": "journal_timsupport",
+        "label": "Jurnal Tim Support",
+        "icon": "lucide:clipboard-list",
+        "route": "/journal/timsupport"
     }
 ]

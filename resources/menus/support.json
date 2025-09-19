@@ -12,9 +12,9 @@
         "route": "/billing"
     },
     {
-        "key": "journal",
-        "label": "Jurnal",
+        "key": "journal_timsupport",
+        "label": "Jurnal Tim Support",
         "icon": "lucide:clipboard-list",
-        "route": "/journal"
+        "route": "/journal/timsupport"
     }
 ]

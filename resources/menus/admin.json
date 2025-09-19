@@ -112,6 +112,11 @@
                 "route": "/journal"
             },
             {
+                "key": "journal_timsupport",
+                "label": "Jurnal Tim Support",
+                "route": "/journal/timsupport"
+            },
+            {
                 "key": "journal_categories",
                 "label": "Kategori Jurnal",
                 "route": "/journal/category"
