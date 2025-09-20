@@ -44,7 +44,9 @@ const excludePatterns = [
   '.DS_Store',
   'Thumbs.db',
   '*.log',
-  'build-*.zip'
+  'build-*.zip',
+  '.vscode',
+  'BUILD.md'
 ];
 
 // Fungsi untuk mengecek apakah file/folder harus dikecualikan
