@@ -128,21 +128,38 @@ class SiklusLayananController extends Controller
          * dan memiliki cs_main_project dengan jenis = $jenis_pembuatan dengan tgl_masuk di tahun lalu
          * dan tidak memiliki cs_main_project dengan jenis = 'Perpanjangan' dengan tgl_masuk di bulan tahun ini
          */
+        $bulan_sebelum = Carbon::createFromDate($tahun, $bulan, 1)->subMonth();
+        $bulan_setelah = Carbon::createFromDate($tahun, $bulan, 1)->addMonth();
+
         $tidak_perpanjang = Webhost::with([
             'csMainProjects' => function ($query) use ($jenis_pembuatan_perpanjang) {
                 $query->whereIn('jenis', $jenis_pembuatan_perpanjang);
             }
         ])
             // Filter parent agar hanya yang memenuhi dua kondisi
+            // Harus ada perpanjangan di bulan lalu
             ->whereHas('csMainProjects', function ($query) use ($bulan_lalu, $tahun_lalu) {
                 $query->where('jenis', 'Perpanjangan')
                     ->whereMonth('tgl_masuk', $bulan_lalu)
                     ->whereYear('tgl_masuk', $tahun_lalu);
             })
+            // Tidak ada perpanjangan di tahun berjalan
             ->whereDoesntHave('csMainProjects', function ($query) use ($bulan, $tahun) {
                 $query->where('jenis', 'Perpanjangan')
                     // ->whereMonth('tgl_masuk', $bulan)
                     ->whereYear('tgl_masuk', $tahun);
+            })
+            // Tidak ada perpanjangan di bulan sebelum
+            ->whereDoesntHave('csMainProjects', function ($query) use ($bulan_sebelum) {
+                $query->where('jenis', 'Perpanjangan')
+                    ->whereMonth('tgl_masuk', $bulan_sebelum->month)
+                    ->whereYear('tgl_masuk', $bulan_sebelum->year);
+            })
+            // Tidak ada perpanjangan di bulan setelah
+            ->whereDoesntHave('csMainProjects', function ($query) use ($bulan_setelah) {
+                $query->where('jenis', 'Perpanjangan')
+                    ->whereMonth('tgl_masuk', $bulan_setelah->month)
+                    ->whereYear('tgl_masuk', $bulan_setelah->year);
             })
             ->get();
 
