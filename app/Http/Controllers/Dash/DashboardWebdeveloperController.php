@@ -153,9 +153,65 @@ class DashboardWebdeveloperController extends Controller
     {
         $chartData = [];
 
+        //Projek Biasa
+        $projects_biasa = CsMainProject::whereIn('jenis', $this->jenis_project_webdeveloper)
+            ->where('dikerjakan_oleh', 'LIKE', '%,10%')
+            ->whereDoesntHave('wm_project')
+            ->whereYear('tgl_masuk', '>=', Carbon::now()->subMonth())
+            ->limit(100)
+            ->count();
+
+        $projects_biasa_run = CsMainProject::whereIn('jenis', $this->jenis_project_webdeveloper)
+            ->where('dikerjakan_oleh', 'LIKE', '%,10%')
+            ->whereHas('wm_project', function ($query) {
+                $query->where('status_multi', 'pending')
+                    ->whereNotNull('user_id')
+                    ->whereNotNull('date_mulai')
+                    ->where(function ($q) {
+                        $q->whereNull('date_selesai')
+                            ->orWhereRaw("TRIM(date_selesai) = ''");
+                    });
+            })
+            ->whereYear('tgl_masuk', '>=', Carbon::now()->subMonth())
+            ->limit(100)
+            ->count();
+
+        //Projek Custom
+        $projects_custom = CsMainProject::whereIn('jenis', $this->jenis_project_webdeveloper)
+            ->where('dikerjakan_oleh', 'LIKE', '%,12%')
+            ->whereDoesntHave('wm_project')
+            ->whereYear('tgl_masuk', '>=', Carbon::now()->subMonth())
+            ->limit(100)
+            ->count();
+
+        $projects_custom_run = CsMainProject::whereIn('jenis', $this->jenis_project_webdeveloper)
+            ->where('dikerjakan_oleh', 'LIKE', '%,12%')
+            ->whereHas('wm_project', function ($query) {
+                $query->where('status_multi', 'pending')
+                    ->whereNotNull('user_id')
+                    ->whereNotNull('date_mulai')
+                    ->where(function ($q) {
+                        $q->whereNull('date_selesai')
+                            ->orWhereRaw("TRIM(date_selesai) = ''");
+                    });
+            })
+            ->whereYear('tgl_masuk', '>=', Carbon::now()->subMonth())
+            ->limit(100)
+            ->count();
+
         $chartData = [
-            'labels' => ['Biasa belum dikerjakan', 'Biasa dalam pengerjaan', 'Custom belum dikerjakan', 'Custom dalam pengerjaan'],
-            'datas' => [25, 1, 15, 5]
+            'labels' => [
+                'Biasa - belum dikerjakan : ' . $projects_biasa,
+                'Biasa - dalam pengerjaan : ' . $projects_biasa_run,
+                'Custom - belum dikerjakan : ' . $projects_custom,
+                'Custom - dalam pengerjaan : ' . $projects_custom_run,
+            ],
+            'datas' => [
+                $projects_biasa,
+                $projects_biasa_run,
+                $projects_custom,
+                $projects_custom_run
+            ]
         ];
 
         return response()->json($chartData);
