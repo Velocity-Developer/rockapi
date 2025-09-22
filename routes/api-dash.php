@@ -30,6 +30,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //dashboard webdeveloper
     Route::get('dashboard/welcome_webdeveloper', [DashboardWebdeveloperController::class, 'welcome']);
     Route::get('dashboard/chart_project_tahun_terakhir_webdeveloper', [DashboardWebdeveloperController::class, 'chart_project_tahun_terakhir_webdeveloper']);
+    Route::get('dashboard/chart_project_saat_ini_webdeveloper', [DashboardWebdeveloperController::class, 'chart_project_saat_ini_webdeveloper']);
 
     //options
     Route::get('option/{key}', [OptionsController::class, 'get']);

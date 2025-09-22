@@ -148,4 +148,16 @@ class DashboardWebdeveloperController extends Controller
 
         return response()->json($chartData);
     }
+
+    public function chart_project_saat_ini_webdeveloper()
+    {
+        $chartData = [];
+
+        $chartData = [
+            'labels' => ['Biasa belum dikerjakan', 'Biasa dalam pengerjaan', 'Custom belum dikerjakan', 'Custom dalam pengerjaan'],
+            'datas' => [25, 1, 15, 5]
+        ];
+
+        return response()->json($chartData);
+    }
 }
