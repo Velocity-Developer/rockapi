@@ -42,10 +42,10 @@ class BillingController extends Controller
         }
 
         //filter by webhost.paket.nama_paket
-        $nama_paket = $request->input('paket');
-        if ($nama_paket) {
-            $query->whereHas('webhost.paket', function ($query) use ($nama_paket) {
-                $query->where('paket', 'like', '%' . $nama_paket . '%');
+        $id_paket = $request->input('paket');
+        if ($id_paket) {
+            $query->whereHas('webhost.paket', function ($query) use ($id_paket) {
+                $query->where('id_paket', $id_paket);
             });
         }
 
