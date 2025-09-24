@@ -19,6 +19,7 @@ class ProjectManagerController extends Controller
             'webhost.paket:id_paket,paket',
             'wm_project:id_wm_project,user_id,id',
             'wm_project.user:id,name,avatar',
+            'pm_project',
         );
 
         // Apply date filter if both start and end dates are provided
