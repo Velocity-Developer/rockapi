@@ -13,10 +13,29 @@ class UsersController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //get all users
-        $users = User::paginate(20);
+        //get user
+        $per_page = $request->input('per_page', 20);
+
+        $query = User::query();
+
+        $keyword = $request->input('keyword');
+        if ($keyword) {
+            $query->where('name', 'LIKE', '%' . $keyword . '%')
+                ->orWhere('username', 'LIKE', '%' . $keyword . '%')
+                ->orWhere('email', 'LIKE', '%' . $keyword . '%');
+        }
+
+        //filter by role
+        $role = $request->input('role');
+        if ($role) {
+            $query->whereHas('roles', function ($query) use ($role) {
+                $query->where('name', $role);
+            });
+        }
+
+        $users = $query->paginate($per_page);
         $users->withPath('/users');
 
         return response()->json($users);
@@ -186,11 +205,11 @@ class UsersController extends Controller
 
         try {
             $users = User::where('name', 'LIKE', '%' . $keyword . '%')
-                        ->orWhere('username', 'LIKE', '%' . $keyword . '%')
-                        ->orWhere('email', 'LIKE', '%' . $keyword . '%')
-                        ->select('id', 'name', 'username', 'email', 'status', 'hp', 'alamat')
-                        ->limit(20)
-                        ->get();
+                ->orWhere('username', 'LIKE', '%' . $keyword . '%')
+                ->orWhere('email', 'LIKE', '%' . $keyword . '%')
+                ->select('id', 'name', 'username', 'email', 'status', 'hp', 'alamat')
+                ->limit(20)
+                ->get();
 
             if ($users->isEmpty()) {
                 return response()->json([
