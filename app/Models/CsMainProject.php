@@ -117,4 +117,10 @@ class CsMainProject extends Model
     {
         return $this->hasMany(CsMainProjectClientSupport::class, 'cs_main_project_id');
     }
+
+    //relasi one ke tabel cs_main_project_infos
+    public function cs_main_project_info()
+    {
+        return $this->hasOne(CsMainProjectInfo::class, 'cs_main_project_id');
+    }
 }

@@ -9,8 +9,8 @@ use App\Models\Post;
 use App\Observers\PostObserver;
 use App\Models\Bank;
 use App\Observers\BankObserver;
-// use App\Models\CsMainProject;
-// use App\Observers\CsMainProjectObserver;
+use App\Models\CsMainProject;
+use App\Observers\CsMainProjectObserver;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -33,6 +33,6 @@ class AppServiceProvider extends ServiceProvider
         });
         Post::observe(PostObserver::class);
         Bank::observe(BankObserver::class);
-        // CsMainProject::observe(CsMainProjectObserver::class);
+        CsMainProject::observe(CsMainProjectObserver::class);
     }
 }
