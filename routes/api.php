@@ -106,6 +106,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/servers_sync_user_detail/{iduserserver}', [ServerController::class, 'sync_userDetail']);
     //search cs_main_project
     Route::get('cs_main_project_search/{keyword}', [CsMainProjectController::class, 'search']);
+    Route::get('cs_main_project_lastdata', [CsMainProjectController::class, 'lastdata']);
 
     // User search route
     Route::get('/user_search/{keyword}', [UsersController::class, 'search']);

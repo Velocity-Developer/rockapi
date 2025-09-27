@@ -351,12 +351,12 @@ class CsMainProjectController extends Controller
 
         //query dasar
         $query = CsMainProject::with('webhost:id_webhost,nama_web')
-            ->where(function($q) use ($keyword) {
+            ->where(function ($q) use ($keyword) {
                 $q->where('jenis', 'like', '%' . $keyword . '%')
-                  ->orWhere('deskripsi', 'like', '%' . $keyword . '%')
-                  ->orWhereHas('webhost', function($subQ) use ($keyword) {
-                      $subQ->where('nama_web', 'like', '%' . $keyword . '%');
-                  });
+                    ->orWhere('deskripsi', 'like', '%' . $keyword . '%')
+                    ->orWhereHas('webhost', function ($subQ) use ($keyword) {
+                        $subQ->where('nama_web', 'like', '%' . $keyword . '%');
+                    });
             });
 
         //filter berdasarkan webhost_id jika ada
@@ -375,5 +375,20 @@ class CsMainProjectController extends Controller
         }
 
         return response()->json($csMainProjects);
+    }
+
+    //last data
+    public function lastdata(Request $request)
+    {
+        //get 10 last data by CsMainProject.CsMainProjectInfos = created_at
+        //urutkan berdasarkan created_at desc
+        $cs_main_project = CsMainProject::select('tb_cs_main_project.*')
+            ->join('cs_main_project_infos', 'cs_main_project_infos.cs_main_project_id', '=', 'tb_cs_main_project.id')
+            ->with('cs_main_project_info', 'webhost:id_webhost,nama_web')
+            ->orderBy('cs_main_project_infos.created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return response()->json($cs_main_project);
     }
 }
