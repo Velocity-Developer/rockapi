@@ -105,20 +105,20 @@ class ClientSupportRefactory extends Seeder
 
                     // Update kolom export menjadi 1 untuk menandai sudah diproses
                     DB::table('tb_clientsupport')
-                        ->where('id', $data->id)
+                        ->where('id_cs_project', $data->id_cs_project)
                         ->update(['export' => 1]);
 
                     // Commit transaksi
                     DB::commit();
 
                     $processedCount++;
-                    $this->command->info("Record ID {$data->id} berhasil diproses. CS: {$csRecordInserted}, Webhost: {$webhostRecordInserted} records.");
+                    $this->command->info("Record ID {$data->id_cs_project} berhasil diproses. CS: {$csRecordInserted}, Webhost: {$webhostRecordInserted} records.");
 
                 } catch (Exception $e) {
                     // Rollback transaksi jika terjadi error
                     DB::rollBack();
                     $errorCount++;
-                    $this->command->error("Error memproses record ID {$data->id}: " . $e->getMessage());
+                    $this->command->error("Error memproses record ID {$data->id_cs_project}: " . $e->getMessage());
                 }
             }
 
