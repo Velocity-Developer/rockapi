@@ -18,6 +18,38 @@
         "route": "/billing"
     },
     {
+        "key": "bank_transaksi",
+        "label": "Bank Transaksi",
+        "icon": "lucide:wallet",
+        "items": [
+            {
+                "key": "bank_transaksi_umum",
+                "label": "Umum",
+                "route": "/bank_transaksi/umum"
+            },
+            {
+                "key": "bank_transaksi_vd",
+                "label": "Velocity Developer",
+                "route": "/bank_transaksi/vd"
+            },
+            {
+                "key": "bank_transaksi_vcm",
+                "label": "Velocity Cyber Media",
+                "route": "/bank_transaksi/vcm"
+            },
+            {
+                "key": "jenis_blm_terpilih",
+                "label": "Jenis Belum Terpilih",
+                "route": "/jenis_blm_terpilih"
+            },
+            {
+                "key": "transaksi_iklan_google",
+                "label": "Transaksi Iklan Google",
+                "route": "/transaksi_iklan_google"
+            }
+        ]
+    },
+    {
         "key": "perpanjang_web_jangka",
         "label": "Perpanjang Web Jangka",
         "icon": "lucide:file-chart-line",
