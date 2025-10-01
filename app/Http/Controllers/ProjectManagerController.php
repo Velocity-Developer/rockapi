@@ -69,12 +69,27 @@ class ProjectManagerController extends Controller
 
         //transform data cs_main_project_client_supports
         $data->each(function ($item) {
-            $item->cs_main_project_client_supports = $item->cs_main_project_client_supports->map(function ($cs) {
-                return [
-                    'l' => $cs->layanan,
-                    't' => $cs->tanggal,
-                ];
-            });
+            $supports = $item->cs_main_project_client_supports;
+
+            // Transform to key-value structure: layanan as key, tanggal as value
+            $supportStructure = [];
+            foreach ($supports as $cs) {
+                $layanan = $cs->layanan;
+                $tanggal = $cs->tanggal;
+
+                // If layanan already exists, make it an array of dates
+                if (isset($supportStructure[$layanan])) {
+                    // Convert to array if it's not already
+                    if (!is_array($supportStructure[$layanan])) {
+                        $supportStructure[$layanan] = [$supportStructure[$layanan]];
+                    }
+                    $supportStructure[$layanan][] = $tanggal;
+                } else {
+                    $supportStructure[$layanan] = $tanggal;
+                }
+            }
+
+            $item->client_supports = $supportStructure;
         });
 
         return response()->json($data);
