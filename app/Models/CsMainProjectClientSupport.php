@@ -12,6 +12,12 @@ class CsMainProjectClientSupport extends Model
         'tanggal',
     ];
 
+    //hidden
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
+
     //relasi ke CsMainProject
     public function cs_main_project()
     {

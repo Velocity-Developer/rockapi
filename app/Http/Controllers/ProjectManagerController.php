@@ -20,6 +20,8 @@ class ProjectManagerController extends Controller
             'wm_project:id_wm_project,user_id,id',
             'wm_project.user:id,name,avatar',
             'pm_project',
+            'cs_main_project_info',
+            'cs_main_project_client_supports'
         );
 
         // Apply date filter if both start and end dates are provided
@@ -64,6 +66,16 @@ class ProjectManagerController extends Controller
 
         $per_page   = $request->input('per_page', 50);
         $data       = $query->paginate($per_page);
+
+        //transform data cs_main_project_client_supports
+        $data->each(function ($item) {
+            $item->cs_main_project_client_supports = $item->cs_main_project_client_supports->map(function ($cs) {
+                return [
+                    'l' => $cs->layanan,
+                    't' => $cs->tanggal,
+                ];
+            });
+        });
 
         return response()->json($data);
     }
