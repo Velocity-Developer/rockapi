@@ -94,4 +94,69 @@ class ProjectManagerController extends Controller
 
         return response()->json($data);
     }
+
+    //save
+    public function save(Request $request)
+    {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'selesai' => 'nullable|date',
+            'konfirm_revisi_1' => 'nullable|date',
+            'revisi_1' => 'nullable|date',
+            'fr1' => 'nullable|date',
+            'konfirm_revisi_2' => 'nullable|date',
+            'revisi_2' => 'nullable|date',
+            'tutorial_password' => 'nullable|date',
+            'cs_main_project_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        //temukan CsMainProject
+        $cs_main_project = CsMainProject::find($request->input('cs_main_project_id'));
+        if (!$cs_main_project) {
+            return response()->json(['error' => 'CsMainProject not found'], 404);
+        }
+
+        //temukan PmProject, where id = cs_main_project_id
+        $pm_project = PmProject::where('id', $cs_main_project->id)->first();
+        if (!$pm_project) {
+            return response()->json(['error' => 'PmProject not found'], 404);
+        }
+
+        //jika selesai diisi
+        if ($request->input('selesai')) {
+            //update pm_project
+            $pm_project->update([
+                'selesai' => $request->input('selesai'),
+            ]);
+        }
+
+        //jika konfirm_revisi_1 diisi
+        if ($request->input('konfirm_revisi_1')) {
+            //update pm_project
+            $pm_project->update([
+                'konfirm_revisi_1' => $request->input('konfirm_revisi_1'),
+            ]);
+        }
+
+        //jika fr1 diisi
+        if ($request->input('fr1')) {
+            //update pm_project
+            $pm_project->update([
+                'fr1' => $request->input('fr1'),
+            ]);
+        }
+
+        //jika tutorial_password diisi
+        if ($request->input('tutorial_password')) {
+            //update pm_project
+            $pm_project->update([
+                'tutorial_password' => $request->input('tutorial_password'),
+            ]);
+        }
+
+        return response()->json($pm_project);
+    }
 }

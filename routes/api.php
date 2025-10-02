@@ -95,6 +95,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //project_manager
     Route::get('project_manager', [ProjectManagerController::class, 'index']);
+    Route::post('project_manager_save', [ProjectManagerController::class, 'save']);
 
     //lain_lain
     Route::get('/check_paket', CheckPaketController::class);
