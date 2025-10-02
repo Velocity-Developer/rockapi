@@ -141,12 +141,48 @@ class ProjectManagerController extends Controller
             ]);
         }
 
+        //jika revisi_1 diisi
+        if ($request->input('revisi_1')) {
+            //save to CsMainProjectClientSupport
+            \App\Models\CsMainProjectClientSupport::updateOrCreate(
+                [
+                    'cs_main_project_id' => $cs_main_project->id,
+                    'layanan' => 'revisi_1'
+                ],
+                [
+                    'tanggal' => $request->input('revisi_1')
+                ]
+            );
+        }
+
         //jika fr1 diisi
         if ($request->input('fr1')) {
             //update pm_project
             $pm_project->update([
                 'fr1' => $request->input('fr1'),
             ]);
+        }
+
+        //jika konfirm_revisi_2 diisi
+        if ($request->input('konfirm_revisi_2')) {
+            //update pm_project
+            $pm_project->update([
+                'konfirm_revisi_2' => $request->input('konfirm_revisi_2'),
+            ]);
+        }
+
+        //jika revisi_2 diisi
+        if ($request->input('revisi_2')) {
+            //save to CsMainProjectClientSupport
+            \App\Models\CsMainProjectClientSupport::updateOrCreate(
+                [
+                    'cs_main_project_id' => $cs_main_project->id,
+                    'layanan' => 'revisi_2'
+                ],
+                [
+                    'tanggal' => $request->input('revisi_2')
+                ]
+            );
         }
 
         //jika tutorial_password diisi
