@@ -75,7 +75,14 @@ class WmProjectController extends Controller
         //get journal category
         $user = auth()->user();
         $userRole = $user ? $user->roles->first()->name : 'webdeveloper';
-        $journal_category = JournalCategory::where('name', 'Project')->where('role', $userRole)->first();
+        //jika id_karyawan = 28
+        if ($request->id_karyawan == 28) {
+            $journal_category = JournalCategory::where('name', 'Pengerjaan Update')->where('role', 'support')->first();
+            $userRole = 'support';
+        } else {
+            $journal_category = JournalCategory::where('name', 'Project')->where('role', $userRole)->first();
+            $userRole = 'webdeveloper';
+        }
 
         //update or create Journal
         Journal::updateOrCreate(
@@ -160,7 +167,15 @@ class WmProjectController extends Controller
         //get journal category
         $user = auth()->user();
         $userRole = $user ? $user->roles->first()->name : 'webdeveloper';
-        $journal_category = JournalCategory::where('name', 'Project')->where('role', $userRole)->first();
+
+        //jika id_karyawan = 28
+        if ($request->id_karyawan == 28) {
+            $journal_category = JournalCategory::where('name', 'Pengerjaan Update')->where('role', 'support')->first();
+            $userRole = 'support';
+        } else {
+            $journal_category = JournalCategory::where('name', 'Project')->where('role', $userRole)->first();
+            $userRole = 'webdeveloper';
+        }
 
         //update or create Journal
         Journal::updateOrCreate(
