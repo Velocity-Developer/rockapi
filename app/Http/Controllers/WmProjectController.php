@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\WmProject;
+use App\Models\PmProject;
 use App\Models\User;
 use App\Models\Journal;
 use App\Models\JournalCategory;
@@ -143,6 +144,21 @@ class WmProjectController extends Controller
         $status_multi = $request->status_multi ?? 'pending';
         if ($request->date_mulai && $request->date_selesai && $request->status_project == 'Selesai') {
             $status_multi = 'selesai';
+
+            //jika id_karyawan = 12 atau 10
+            if ($request->id_karyawan == 12 || $request->id_karyawan == 10) {
+                //simpan tanggal konfirm_revisi_1 di PmProject
+                //ubah format date_selesai ke Y-m-d
+                $konfirm_revisi_1 = $request->date_selesai ? date('Y-m-d', strtotime($request->date_selesai)) : null;
+                PmProject::updateOrCreate(
+                    [
+                        'id' => $request->id_cs_main_project,
+                    ],
+                    [
+                        'konfirm_revisi_1'  => $konfirm_revisi_1,
+                    ],
+                );
+            }
         }
 
         //update wm_project
