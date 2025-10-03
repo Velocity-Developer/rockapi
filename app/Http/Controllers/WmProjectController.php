@@ -80,7 +80,7 @@ class WmProjectController extends Controller
             $journal_category = JournalCategory::where('name', 'Pengerjaan Update')->where('role', 'support')->first();
             $userRole = 'support';
         } else {
-            $journal_category = JournalCategory::where('name', 'Project')->where('role', $userRole)->first();
+            $journal_category = JournalCategory::where('name', 'Project')->where('role', 'webdeveloper')->first();
             $userRole = 'webdeveloper';
         }
 
@@ -173,7 +173,7 @@ class WmProjectController extends Controller
             $journal_category = JournalCategory::where('name', 'Pengerjaan Update')->where('role', 'support')->first();
             $userRole = 'support';
         } else {
-            $journal_category = JournalCategory::where('name', 'Project')->where('role', $userRole)->first();
+            $journal_category = JournalCategory::where('name', 'Project')->where('role', 'webdeveloper')->first();
             $userRole = 'webdeveloper';
         }
 
