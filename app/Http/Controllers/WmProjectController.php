@@ -212,6 +212,11 @@ class WmProjectController extends Controller
             ],
         );
 
+        //get PmProject
+        $pm_project = PmProject::where('id', $request->id_cs_main_project)->first();
+        //sisipkan data pm_project
+        $wm_project->pm_project = $pm_project;
+
         return response()->json($wm_project);
     }
 
