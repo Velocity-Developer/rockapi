@@ -16,5 +16,11 @@
         "label": "Jurnal Tim Support",
         "icon": "lucide:clipboard-list",
         "route": "/journal/timsupport"
+    },
+    {
+        "key": "project_list_support",
+        "label": "Project Update Web",
+        "icon": "lucide:folder-up",
+        "route": "/project_list_support"
     }
 ]

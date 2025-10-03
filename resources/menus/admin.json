@@ -30,8 +30,18 @@
         "key": "project_list",
         "label": "Daftar Project",
         "icon": "lucide:folder-code",
-        "route": "/project_list",
-        "roles": ["admin", "manager_project", "webdeveloper"]
+        "items": [
+            {
+                "key": "project_list",
+                "label": "Project Web",
+                "route": "/project_list"
+            },
+            {
+                "key": "project_list_support",
+                "label": "Project Update Web",
+                "route": "/project_list_support"
+            }
+        ]
     },
     {
         "key": "project_manager",
