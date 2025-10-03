@@ -99,7 +99,7 @@ class WmProjectController extends Controller
                 'status'                => 'ongoing',
                 'priority'              => 'medium',
                 'role'                  => $userRole,
-                'journal_category_id'   => $journal_category->id,
+                'journal_category_id'   => $journal_category->id ?? null,
             ],
         );
 
@@ -192,7 +192,7 @@ class WmProjectController extends Controller
                 'status'                => $request->date_selesai ? 'completed' : 'ongoing',
                 'priority'              => 'medium',
                 'role'                  => $userRole,
-                'journal_category_id'   => $journal_category->id,
+                'journal_category_id'   => $journal_category->id ?? null,
             ],
         );
 
