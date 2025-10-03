@@ -145,11 +145,13 @@ class WmProjectController extends Controller
         if ($request->date_mulai && $request->date_selesai && $request->status_project == 'Selesai') {
             $status_multi = 'selesai';
 
+            //get PmProject
+            $pm_project = PmProject::where('id', $request->id_cs_main_project)->first();
+            $konfirm_revisi_1 = $pm_project->konfirm_revisi_1 ?? date('Y-m-d');
+
             //jika id_karyawan = 12 atau 10
             if ($request->id_karyawan == 12 || $request->id_karyawan == 10) {
                 //simpan tanggal konfirm_revisi_1 di PmProject
-                //ubah format date_selesai ke Y-m-d
-                $konfirm_revisi_1 = $request->date_selesai ? date('Y-m-d', strtotime($request->date_selesai)) : null;
                 PmProject::updateOrCreate(
                     [
                         'id' => $request->id_cs_main_project,
