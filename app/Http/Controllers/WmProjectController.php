@@ -73,7 +73,9 @@ class WmProjectController extends Controller
             ->where('id', $request->id_cs_main_project)->first();
 
         //get journal category
-        $journal_category = JournalCategory::where('name', 'Project')->where('role', 'webdeveloper')->first();
+        $user = auth()->user();
+        $userRole = $user ? $user->roles->first()->name : 'webdeveloper';
+        $journal_category = JournalCategory::where('name', 'Project')->where('role', $userRole)->first();
 
         //update or create Journal
         Journal::updateOrCreate(
@@ -89,7 +91,7 @@ class WmProjectController extends Controller
                 'end'                   => $request->date_selesai,
                 'status'                => 'ongoing',
                 'priority'              => 'medium',
-                'role'                  => 'webdeveloper',
+                'role'                  => $userRole,
                 'journal_category_id'   => $journal_category->id,
             ],
         );
@@ -156,7 +158,9 @@ class WmProjectController extends Controller
             ->where('id', $wm_project->id)->first();
 
         //get journal category
-        $journal_category = JournalCategory::where('name', 'Project')->where('role', 'webdeveloper')->first();
+        $user = auth()->user();
+        $userRole = $user ? $user->roles->first()->name : 'webdeveloper';
+        $journal_category = JournalCategory::where('name', 'Project')->where('role', $userRole)->first();
 
         //update or create Journal
         Journal::updateOrCreate(
@@ -172,7 +176,7 @@ class WmProjectController extends Controller
                 'end'                   => $request->date_selesai,
                 'status'                => $request->date_selesai ? 'completed' : 'ongoing',
                 'priority'              => 'medium',
-                'role'                  => 'webdeveloper',
+                'role'                  => $userRole,
                 'journal_category_id'   => $journal_category->id,
             ],
         );
