@@ -27,6 +27,13 @@
         "roles": ["admin", "manager_project", "finance"]
     },
     {
+        "key": "customer",
+        "label": "Customer",
+        "icon": "lucide:users-round",
+        "route": "/customer",
+        "roles": ["admin", "manager_project", "finance"]
+    },
+    {
         "key": "project_list",
         "label": "Daftar Project",
         "icon": "lucide:folder-code",
