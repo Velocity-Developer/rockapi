@@ -26,6 +26,8 @@ use App\Http\Controllers\JournalController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\TodoController;
+use App\Http\Controllers\TodoCategoryController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -58,6 +60,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'journal'               => JournalController::class,
         'invoice'               => InvoiceController::class,
         'customer'              => CustomerController::class,
+        'todo_categories'       => TodoCategoryController::class,
+        'todos'                 => TodoController::class,
     ]);
 
     //data_opsi
@@ -111,6 +115,22 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // User search route
     Route::get('/user_search/{keyword}', [UsersController::class, 'search']);
+
+    // Todo routes
+    Route::prefix('todos')->group(function () {
+        Route::get('/my', [TodoController::class, 'myTodos']); // Get todos assigned to current user
+        Route::get('/created', [TodoController::class, 'createdTodos']); // Get todos created by current user
+        Route::post('/{id}/assign', [TodoController::class, 'assign']); // Assign todo to users/roles
+        Route::put('/{id}/assignments/{assignmentId}/status', [TodoController::class, 'updateAssignmentStatus']); // Update assignment status
+        Route::get('/{id}/assignments', [TodoController::class, 'assignments']); // Get all assignments for a todo
+        Route::post('/{id}/claim', [TodoController::class, 'claim']); // Claim a public todo
+        Route::get('/statistics', [TodoController::class, 'statistics']); // Get todo statistics
+    });
+
+    // Todo Category routes
+    Route::prefix('todo_categories')->group(function () {
+        Route::get('/active', [TodoCategoryController::class, 'active']); // Get active categories
+    });
 
     // Invoice PDF route
 });
