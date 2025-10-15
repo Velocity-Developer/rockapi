@@ -61,7 +61,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'invoice'               => InvoiceController::class,
         'customer'              => CustomerController::class,
         'todo_categories'       => TodoCategoryController::class,
-        'todos'                 => TodoController::class,
     ]);
 
     //data_opsi
@@ -116,15 +115,27 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // User search route
     Route::get('/user_search/{keyword}', [UsersController::class, 'search']);
 
-    // Todo routes
+    // Todo routes - Manual definition to control route order
     Route::prefix('todos')->group(function () {
+        // Collection routes without parameters
+        Route::get('/', [TodoController::class, 'index']); // List todos
+        Route::post('/', [TodoController::class, 'store']); // Create todo
+
+        // Special routes without parameters
         Route::get('/my', [TodoController::class, 'myTodos']); // Get todos assigned to current user
         Route::get('/created', [TodoController::class, 'createdTodos']); // Get todos created by current user
-        Route::post('/{id}/assign', [TodoController::class, 'assign']); // Assign todo to users/roles
-        Route::put('/{id}/assignments/{assignmentId}/status', [TodoController::class, 'updateAssignmentStatus']); // Update assignment status
-        Route::get('/{id}/assignments', [TodoController::class, 'assignments']); // Get all assignments for a todo
-        Route::post('/{id}/claim', [TodoController::class, 'claim']); // Claim a public todo
         Route::get('/statistics', [TodoController::class, 'statistics']); // Get todo statistics
+
+        // Routes with todo ID parameter
+        Route::get('/{id}', [TodoController::class, 'show']); // Get single todo
+        Route::put('/{id}', [TodoController::class, 'update']); // Update todo
+        Route::delete('/{id}', [TodoController::class, 'destroy']); // Delete todo
+
+        // Assignment management routes
+        Route::post('/{id}/assign', [TodoController::class, 'assign']); // Assign todo to users/roles
+        Route::get('/{id}/assignments', [TodoController::class, 'assignments']); // Get all assignments for a todo
+        Route::put('/{id}/assignments/{assignmentId}/status', [TodoController::class, 'updateAssignmentStatus']); // Update assignment status
+        Route::post('/{id}/claim', [TodoController::class, 'claim']); // Claim a public todo
     });
 
     // Todo Category routes

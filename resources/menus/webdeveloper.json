@@ -22,5 +22,11 @@
         "label": "Jurnal",
         "icon": "lucide:clipboard-list",
         "route": "/journal"
+    },
+    {
+        "key": "todos",
+        "label": "TodoList",
+        "icon": "lucide:check-square",
+        "route": "/todos"
     }
 ]

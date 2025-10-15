@@ -141,6 +141,12 @@
         ]
     },
     {
+        "key": "todos",
+        "label": "TodoList",
+        "icon": "lucide:check-square",
+        "route": "/todos"
+    },
+    {
         "key": "users",
         "label": "Users",
         "icon": "lucide:users",

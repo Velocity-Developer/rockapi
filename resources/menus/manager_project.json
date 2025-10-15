@@ -40,5 +40,11 @@
         "label": "Invoice",
         "icon": "lucide:file-text",
         "route": "/invoice"
+    },
+    {
+        "key": "todos",
+        "label": "TodoList",
+        "icon": "lucide:check-square",
+        "route": "/todos"
     }
 ]
