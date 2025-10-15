@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\TodoCategory;
+use App\Http\Resources\TodoCategoryResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -14,7 +15,7 @@ class TodoCategoryController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $categories
+            'data' => TodoCategoryResource::collection($categories)
         ]);
     }
 
@@ -26,7 +27,7 @@ class TodoCategoryController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $categories
+            'data' => TodoCategoryResource::collection($categories)
         ]);
     }
 
@@ -50,7 +51,7 @@ class TodoCategoryController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $category,
+            'data' => new TodoCategoryResource($category),
             'message' => 'Category created successfully'
         ], 201);
     }
@@ -61,7 +62,7 @@ class TodoCategoryController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $todoCategory
+            'data' => new TodoCategoryResource($todoCategory)
         ]);
     }
 
@@ -85,7 +86,7 @@ class TodoCategoryController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $todoCategory,
+            'data' => new TodoCategoryResource($todoCategory),
             'message' => 'Category updated successfully'
         ]);
     }

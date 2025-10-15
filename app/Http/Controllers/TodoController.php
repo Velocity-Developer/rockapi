@@ -6,6 +6,8 @@ use App\Models\TodoList;
 use App\Models\TodoAssignment;
 use App\Models\TodoCategory;
 use App\Models\User;
+use App\Http\Resources\TodoResource;
+use App\Http\Resources\TodoAssignmentResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -75,6 +77,11 @@ class TodoController extends Controller
             $todos = [
                 'data' => $query->get(),
             ];
+        }
+
+        // Transform with resources
+        if (isset($todos['data'])) {
+            $todos['data'] = TodoResource::collection($todos['data']);
         }
 
         return response()->json($todos);
