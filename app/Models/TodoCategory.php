@@ -21,7 +21,7 @@ class TodoCategory extends Model
 
     public function todos(): HasMany
     {
-        return $this->hasMany(TodoList::class);
+        return $this->hasMany(TodoList::class, 'category_id');
     }
 
     public function activeTodos(): HasMany
