@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Database\Eloquent\Relations\Relation;
 
 use App\Models\Post;
 use App\Observers\PostObserver;
@@ -35,11 +34,5 @@ class AppServiceProvider extends ServiceProvider
         Post::observe(PostObserver::class);
         Bank::observe(BankObserver::class);
         CsMainProject::observe(CsMainProjectObserver::class);
-
-        // Define morph map for polymorphic relationships
-        Relation::morphMap([
-            'user' => \App\Models\User::class,
-            'role' => \Spatie\Permission\Models\Role::class,
-        ]);
     }
 }
