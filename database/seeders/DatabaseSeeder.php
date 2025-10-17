@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             UserWmProject::class,
             JournalCategorySeeder::class,
             InvoiceSeeder::class,
+            TodoCategorySeeder::class,
         ]);
     }
 }

@@ -15,59 +15,59 @@ class TodoCategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Development',
+                'name' => 'Pengembangan',
                 'color' => '#3b82f6', // blue
-                'icon' => 'pi pi-code',
-                'description' => 'Programming tasks, code reviews, and development related activities',
+                'icon' => '💻',
+                'description' => 'Tugas programming, code review, dan aktivitas pengembangan',
                 'is_active' => true
             ],
             [
-                'name' => 'Administration',
+                'name' => 'Administrasi',
                 'color' => '#6b7280', // gray
-                'icon' => 'pi pi-cog',
-                'description' => 'Administrative tasks, documentation, and organizational activities',
+                'icon' => '⚙️',
+                'description' => 'Tugas administrasi, dokumentasi, dan aktivitas organisasi',
                 'is_active' => true
             ],
             [
-                'name' => 'Customer Support',
+                'name' => 'Layanan Pelanggan',
                 'color' => '#10b981', // green
-                'icon' => 'pi pi-users',
-                'description' => 'Customer service, support tickets, and client communication',
+                'icon' => '🎧',
+                'description' => 'Layanan pelanggan, tiket support, dan komunikasi klien',
                 'is_active' => true
             ],
             [
-                'name' => 'Infrastructure',
+                'name' => 'Infrastruktur',
                 'color' => '#f59e0b', // amber
-                'icon' => 'pi pi-server',
-                'description' => 'Server management, deployment, and system maintenance',
+                'icon' => '🖥️',
+                'description' => 'Manajemen server, deployment, dan pemeliharaan sistem',
                 'is_active' => true
             ],
             [
-                'name' => 'Project Management',
+                'name' => 'Manajemen Proyek',
                 'color' => '#8b5cf6', // purple
-                'icon' => 'pi pi-chart-bar',
-                'description' => 'Project planning, coordination, and management tasks',
+                'icon' => '📊',
+                'description' => 'Perencanaan proyek, koordinasi, dan tugas manajemen',
                 'is_active' => true
             ],
             [
-                'name' => 'Finance',
+                'name' => 'Keuangan',
                 'color' => '#ef4444', // red
-                'icon' => 'pi pi-dollar',
-                'description' => 'Financial tasks, invoicing, and budget management',
+                'icon' => '💰',
+                'description' => 'Tugas keuangan, invoicing, dan manajemen anggaran',
                 'is_active' => true
             ],
             [
-                'name' => 'Marketing',
+                'name' => 'Pemasaran',
                 'color' => '#ec4899', // pink
-                'icon' => 'pi pi-bullseye',
-                'description' => 'Marketing campaigns, content creation, and promotional activities',
+                'icon' => '📢',
+                'description' => 'Campaign pemasaran, pembuatan konten, dan aktivitas promosi',
                 'is_active' => true
             ],
             [
-                'name' => 'Personal',
+                'name' => 'Pribadi',
                 'color' => '#06b6d4', // cyan
-                'icon' => 'pi pi-user',
-                'description' => 'Personal tasks and goals',
+                'icon' => '👤',
+                'description' => 'Tugas pribadi dan tujuan personal',
                 'is_active' => true
             ]
         ];
