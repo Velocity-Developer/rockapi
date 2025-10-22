@@ -36,14 +36,14 @@ class TodoAssignmentResource extends JsonResource
 
             // Assignable information
             'assignable' => $this->when($this->relationLoaded('assignable'), function () {
-                if ($this->assignable_type === 'user') {
+                if ($this->assignable_type === 'App\Models\User') {
                     return [
                         'id' => $this->assignable->id,
                         'name' => $this->assignable->name,
                         'avatar' => $this->assignable->avatar,
                         'type' => 'user'
                     ];
-                } elseif ($this->assignable_type === 'role') {
+                } elseif ($this->assignable_type === 'Spatie\Permission\Models\Role') {
                     return [
                         'id' => $this->assignable->id,
                         'name' => $this->assignable->name,

@@ -76,8 +76,8 @@ class TodoResource extends JsonResource
 
             'assignments_summary' => $this->when($this->relationLoaded('assignments'), function () {
                 $assignments = $this->assignments;
-                $users = $assignments->where('assignable_type', 'user');
-                $roles = $assignments->where('assignable_type', 'role');
+                $users = $assignments->where('assignable_type', 'App\Models\User');
+                $roles = $assignments->where('assignable_type', 'Spatie\Permission\Models\Role');
 
                 return [
                     'total_count' => $assignments->count(),

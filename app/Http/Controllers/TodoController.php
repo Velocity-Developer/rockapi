@@ -96,11 +96,11 @@ class TodoController extends Controller
             'category:id,name,color,icon',
             'assignments' => function ($q) use ($user) {
                 $q->where(function ($subQuery) use ($user) {
-                    $subQuery->where('assignable_type', 'user')
+                    $subQuery->where('assignable_type', 'App\Models\User')
                         ->where('assignable_id', $user->id);
                 })->orWhere(function ($subQuery) use ($user) {
                     $userRoleIds = $user->roles->pluck('id');
-                    $subQuery->where('assignable_type', 'role')
+                    $subQuery->where('assignable_type', 'Spatie\Permission\Models\Role')
                         ->whereIn('assignable_id', $userRoleIds);
                 });
             }
@@ -212,9 +212,13 @@ class TodoController extends Controller
 
             // Create assignments
             foreach ($request->assignments as $assignment) {
+                $assignableClass = $assignment['type'] === 'user'
+                    ? 'App\Models\User'
+                    : 'Spatie\Permission\Models\Role';
+
                 TodoAssignment::create([
                     'todo_id' => $todo->id,
-                    'assignable_type' => $assignment['type'],
+                    'assignable_type' => $assignableClass,
                     'assignable_id' => $assignment['id'],
                     'assigned_by' => Auth::id(),
                     'assigned_at' => now(),
@@ -348,9 +352,13 @@ class TodoController extends Controller
 
             // Create new assignments
             foreach ($request->assignments as $assignment) {
+                $assignableClass = $assignment['type'] === 'user'
+                    ? 'App\Models\User'
+                    : 'Spatie\Permission\Models\Role';
+
                 TodoAssignment::create([
                     'todo_id' => $todo->id,
-                    'assignable_type' => $assignment['type'],
+                    'assignable_type' => $assignableClass,
                     'assignable_id' => $assignment['id'],
                     'assigned_by' => Auth::id(),
                     'assigned_at' => now(),
@@ -415,9 +423,9 @@ class TodoController extends Controller
         }
 
         // User can update if they are assigned (direct or via role)
-        if ($assignment->assignable_type === 'user' && $assignment->assignable_id === $user->id) {
+        if ($assignment->assignable_type === 'App\Models\User' && $assignment->assignable_id === $user->id) {
             $canUpdate = true;
-        } elseif ($assignment->assignable_type === 'role') {
+        } elseif ($assignment->assignable_type === 'Spatie\Permission\Models\Role') {
             $userRoleIds = $user->roles->pluck('id');
             if ($userRoleIds->contains($assignment->assignable_id)) {
                 $canUpdate = true;

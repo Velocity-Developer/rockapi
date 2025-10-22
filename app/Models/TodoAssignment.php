@@ -90,11 +90,11 @@ class TodoAssignment extends Model
 
     public function getAssignableName(): string
     {
-        if ($this->assignable_type === 'user') {
+        if ($this->assignable_type === 'App\Models\User') {
             return $this->assignable->name ?? 'Unknown User';
         }
 
-        if ($this->assignable_type === 'role') {
+        if ($this->assignable_type === 'Spatie\Permission\Models\Role') {
             return $this->assignable->name ?? 'Unknown Role';
         }
 
@@ -104,8 +104,8 @@ class TodoAssignment extends Model
     public function getAssignableTypeLabel(): string
     {
         return match($this->assignable_type) {
-            'user' => 'User',
-            'role' => 'Role',
+            'App\Models\User' => 'User',
+            'Spatie\Permission\Models\Role' => 'Role',
             default => 'Unknown'
         };
     }

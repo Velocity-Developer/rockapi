@@ -56,12 +56,12 @@ class TodoList extends Model
 
     public function userAssignments(): HasMany
     {
-        return $this->assignments()->where('assignable_type', 'user');
+        return $this->assignments()->where('assignable_type', 'App\Models\User');
     }
 
     public function roleAssignments(): HasMany
     {
-        return $this->assignments()->where('assignable_type', 'role');
+        return $this->assignments()->where('assignable_type', 'Spatie\Permission\Models\Role');
     }
 
     public function assignedUsers()
@@ -91,19 +91,20 @@ class TodoList extends Model
     public function isAssignedToUser(User $user): bool
     {
         // Check direct assignment
-        if ($this->userAssignments()->where('assignable_id', $user->id)->exists()) {
+        if ($this->assignments()->where('assignable_type', 'App\Models\User')->where('assignable_id', $user->id)->exists()) {
             return true;
         }
 
         // Check role assignment
         $userRoleIds = $user->roles->pluck('id');
-        return $this->roleAssignments()->whereIn('assignable_id', $userRoleIds)->exists();
+        return $this->assignments()->where('assignable_type', 'Spatie\Permission\Models\Role')->whereIn('assignable_id', $userRoleIds)->exists();
     }
 
     public function getAssignmentStatusForUser(User $user): ?string
     {
         // Check direct assignment status
-        $directAssignment = $this->userAssignments()
+        $directAssignment = $this->assignments()
+            ->where('assignable_type', 'App\Models\User')
             ->where('assignable_id', $user->id)
             ->first();
 
@@ -113,7 +114,8 @@ class TodoList extends Model
 
         // If assigned via role, return default assigned status
         $userRoleIds = $user->roles->pluck('id');
-        $roleAssignment = $this->roleAssignments()
+        $roleAssignment = $this->assignments()
+            ->where('assignable_type', 'Spatie\Permission\Models\Role')
             ->whereIn('assignable_id', $userRoleIds)
             ->first();
 
@@ -124,11 +126,11 @@ class TodoList extends Model
     {
         return $query->whereHas('assignments', function ($q) use ($user) {
             $q->where(function ($subQuery) use ($user) {
-                $subQuery->where('assignable_type', 'user')
+                $subQuery->where('assignable_type', 'App\Models\User')
                     ->where('assignable_id', $user->id);
             })->orWhere(function ($subQuery) use ($user) {
                 $userRoleIds = $user->roles->pluck('id');
-                $subQuery->where('assignable_type', 'role')
+                $subQuery->where('assignable_type', 'Spatie\Permission\Models\Role')
                     ->whereIn('assignable_id', $userRoleIds);
             });
         });
