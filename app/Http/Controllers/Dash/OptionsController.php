@@ -38,7 +38,8 @@ class OptionsController extends Controller
         foreach ($roles as $role) {
             $result[] = [
                 'value' => $role->name,
-                'label' => $role->name
+                'label' => $role->name,
+                'id' => $role->id,
             ];
         }
 
