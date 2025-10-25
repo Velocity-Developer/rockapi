@@ -51,7 +51,7 @@ class TodoController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', '%' . $search . '%')
-                  ->orWhere('description', 'like', '%' . $search . '%');
+                    ->orWhere('description', 'like', '%' . $search . '%');
             });
         }
 
@@ -119,7 +119,7 @@ class TodoController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', '%' . $search . '%')
-                  ->orWhere('description', 'like', '%' . $search . '%');
+                    ->orWhere('description', 'like', '%' . $search . '%');
             });
         }
 
@@ -163,7 +163,7 @@ class TodoController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', '%' . $search . '%')
-                  ->orWhere('description', 'like', '%' . $search . '%');
+                    ->orWhere('description', 'like', '%' . $search . '%');
             });
         }
 
@@ -259,9 +259,11 @@ class TodoController extends Controller
         ]);
     }
 
-    public function update(Request $request, TodoList $todo): JsonResponse
+    public function update(string $id, Request $request): JsonResponse
     {
         // Check if user can update this todo
+        $todo = TodoList::findOrFail($id);
+
         if ($todo->created_by !== Auth::id()) {
             return response()->json([
                 'success' => false,
@@ -306,9 +308,10 @@ class TodoController extends Controller
         ]);
     }
 
-    public function destroy(TodoList $todo): JsonResponse
+    public function destroy(string $id): JsonResponse
     {
         // Check if user can delete this todo
+        $todo = TodoList::findOrFail($id);
         if ($todo->created_by !== Auth::id()) {
             return response()->json([
                 'success' => false,
