@@ -279,33 +279,60 @@ class TodoController extends Controller
             'due_date' => 'nullable|date|after_or_equal:today',
             'category_id' => 'nullable|exists:todo_categories,id',
             'is_private' => 'boolean',
-            'notes' => 'nullable|string'
+            'notes' => 'nullable|string',
+            'assignments' => 'nullable|array|min:1',
+            'assignments.*.type' => 'required_with:assignments|in:user,role',
+            'assignments.*.id' => 'required_with:assignments|integer|min:1'
         ]);
 
-        $todo->update([
-            'title' => $request->title,
-            'description' => $request->description,
-            'status' => $request->status ?? $todo->status,
-            'priority' => $request->priority ?? $todo->priority,
-            'due_date' => $request->due_date,
-            'category_id' => $request->category_id,
-            'is_private' => $request->boolean('is_private', $todo->is_private),
-            'notes' => $request->notes
-        ]);
+        return DB::transaction(function () use ($request, $todo) {
+            $todo->update([
+                'title' => $request->title,
+                'description' => $request->description,
+                'status' => $request->status ?? $todo->status,
+                'priority' => $request->priority ?? $todo->priority,
+                'due_date' => $request->due_date,
+                'category_id' => $request->category_id,
+                'is_private' => $request->boolean('is_private', $todo->is_private),
+                'notes' => $request->notes
+            ]);
 
-        $todo->load([
-            'creator:id,name,avatar',
-            'category:id,name,color,icon',
-            'assignments' => function ($q) {
-                $q->with(['assignable', 'assignedBy']);
+            // Handle assignments if provided
+            if ($request->has('assignments')) {
+                // Remove existing assignments
+                $todo->assignments()->delete();
+
+                // Create new assignments
+                foreach ($request->assignments as $assignment) {
+                    $assignableClass = $assignment['type'] === 'user'
+                        ? 'App\Models\User'
+                        : 'Spatie\Permission\Models\Role';
+
+                    TodoAssignment::create([
+                        'todo_id' => $todo->id,
+                        'assignable_type' => $assignableClass,
+                        'assignable_id' => $assignment['id'],
+                        'assigned_by' => Auth::id(),
+                        'assigned_at' => now(),
+                        'status' => TodoAssignment::STATUS_ASSIGNED
+                    ]);
+                }
             }
-        ]);
 
-        return response()->json([
-            'success' => true,
-            'data' => $todo,
-            'message' => 'Todo updated successfully'
-        ]);
+            $todo->load([
+                'creator:id,name,avatar',
+                'category:id,name,color,icon',
+                'assignments' => function ($q) {
+                    $q->with(['assignable', 'assignedBy']);
+                }
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'data' => $todo,
+                'message' => 'Todo updated successfully'
+            ]);
+        });
     }
 
     public function destroy(string $id): JsonResponse
