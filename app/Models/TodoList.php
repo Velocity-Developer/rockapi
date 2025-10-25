@@ -28,7 +28,7 @@ class TodoList extends Model
     ];
 
     //appends due_date_days_left
-    protected $appends = ['due_date_days_left'];
+    protected $appends = ['due_date_days_left', 'is_overdue'];
 
     // Status constants
     const STATUS_ASSIGNED = 'assigned';
@@ -177,5 +177,11 @@ class TodoList extends Model
 
         $diffInDays = $this->due_date->diffInDays(now());
         return $diffInDays >= 0 ? $diffInDays : null;
+    }
+
+    //attribute is_overdue
+    public function getIsOverdueAttribute(): bool
+    {
+        return $this->due_date_days_left < 0;
     }
 }
