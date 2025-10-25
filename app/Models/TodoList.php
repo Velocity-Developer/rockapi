@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Carbon\Carbon;
 
 class TodoList extends Model
 {
@@ -175,8 +176,11 @@ class TodoList extends Model
             return null;
         }
 
-        $diffInDays = $this->due_date->diffInDays(now());
-        return $diffInDays >= 0 ? $diffInDays : null;
+        $dueDate = Carbon::parse($this->due_date);
+        $now = now();
+
+        // hasil positif jika due_date di masa depan, negatif jika sudah lewat
+        return $now->diffInDays($dueDate, false);
     }
 
     //attribute is_overdue
