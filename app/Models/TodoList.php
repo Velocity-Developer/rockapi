@@ -22,10 +22,13 @@ class TodoList extends Model
     ];
 
     protected $casts = [
-        'due_date' => 'date',
+        'due_date' => 'date:Y-m-d',
         'is_private' => 'boolean',
-        'completed_at' => 'datetime'
+        'completed_at' => 'datetime:Y-m-d H:i:s'
     ];
+
+    //appends due_date_days_left
+    protected $appends = ['due_date_days_left'];
 
     // Status constants
     const STATUS_ASSIGNED = 'assigned';
@@ -163,5 +166,16 @@ class TodoList extends Model
             ->count();
 
         return round(($completedAssignments / $totalAssignments) * 100);
+    }
+
+    //attribute due_date_days_left
+    public function getDueDateDaysLeftAttribute(): ?int
+    {
+        if (!$this->due_date) {
+            return null;
+        }
+
+        $diffInDays = $this->due_date->diffInDays(now());
+        return $diffInDays >= 0 ? $diffInDays : null;
     }
 }
