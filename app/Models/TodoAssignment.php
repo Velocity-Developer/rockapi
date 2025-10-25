@@ -23,6 +23,9 @@ class TodoAssignment extends Model
         'completed_at' => 'datetime'
     ];
 
+    //append
+    protected $appends = ['tipe'];
+
     // Status constants
     const STATUS_ASSIGNED = 'assigned';
     const STATUS_IN_PROGRESS = 'in_progress';
@@ -103,7 +106,7 @@ class TodoAssignment extends Model
 
     public function getAssignableTypeLabel(): string
     {
-        return match($this->assignable_type) {
+        return match ($this->assignable_type) {
             'App\Models\User' => 'User',
             'Spatie\Permission\Models\Role' => 'Role',
             default => 'Unknown'
@@ -112,7 +115,7 @@ class TodoAssignment extends Model
 
     public function getStatusLabel(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             self::STATUS_ASSIGNED => 'Assigned',
             self::STATUS_IN_PROGRESS => 'In Progress',
             self::STATUS_COMPLETED => 'Completed',
@@ -123,12 +126,18 @@ class TodoAssignment extends Model
 
     public function getStatusColor(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             self::STATUS_ASSIGNED => 'gray',
             self::STATUS_IN_PROGRESS => 'blue',
             self::STATUS_COMPLETED => 'green',
             self::STATUS_DECLINED => 'red',
             default => 'gray'
         };
+    }
+
+    //attribute
+    public function getTipeAttribute(): string
+    {
+        return $this->getAssignableTypeLabel();
     }
 }
