@@ -88,20 +88,6 @@ class BankTransaksiController extends Controller
             }
         }
 
-        //search filter
-        $req_search = $request->input("search");
-        if ($req_search) {
-
-            $banks = $banks->filter(function ($bank) use ($req_search) {
-                return strpos($bank->keterangan_bank, $req_search) !== false ||
-                    strpos($bank->jenis_transaksi, $req_search) !== false ||
-                    strpos($bank->jenis, $req_search) !== false;
-            });
-
-            //perbaiki key index
-            $banks = $banks->values();
-        }
-
         return response()->json([
             "sorting" => $sorting,
             "data" => $banks,

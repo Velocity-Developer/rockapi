@@ -219,11 +219,16 @@ class DataOpsiController extends Controller
             ],
         ];
 
+        if ($kategori == null) {
+            return $data_banks;
+        }
+
         //return array by kategori
         $kategori = $kategori ?? 'umum';
+
         $new_array = [];
         foreach ($data_banks as $item) {
-            ///jika katgori != kategori, skip
+            ///jika kategori != kategori, skip
             if ($item['kategori'] != $kategori) {
                 continue;
             }
