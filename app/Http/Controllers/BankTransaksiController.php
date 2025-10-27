@@ -14,61 +14,63 @@ use Carbon\Carbon;
 class BankTransaksiController extends Controller
 {
     /*
-    * INDEX
-    * tampilkan halaman 'bank_transaksi'
-    */
+     * INDEX
+     * tampilkan halaman 'bank_transaksi'
+     */
     public function index(Request $request)
     {
         //request
-        $req_bulan = $request->input('bulan') ?? date('Y-m');
-        $req_bank = $request->input('bank');
+        $req_bulan = $request->input("bulan") ?? date("Y-m");
+        $req_bank = $request->input("bank");
 
         //get data sorting, by bank dan bulan
-        $sorting = BankSorting::where('bulan', 'like', '%' . $req_bulan . '%')
-            ->where('bank', $req_bank)->get();
+        $sorting = BankSorting::where("bulan", "like", "%" . $req_bulan . "%")
+            ->where("bank", $req_bank)
+            ->get();
 
         //get saldo bank, berdasarkan bulan dan bank
-        $saldo_bank = SaldoBank::where('bulan', $req_bulan)
-            ->where('bank', $req_bank)
+        $saldo_bank = SaldoBank::where("bulan", $req_bulan)
+            ->where("bank", $req_bank)
             ->first();
 
         //jika tidak ada data saldo, set default 0
         if (!$saldo_bank) {
             $saldo_bank = [
-                'bank'      => $req_bank,
-                'bulan'     => $req_bulan,
-                'nominal'   => (int) 0,
+                "bank" => $req_bank,
+                "bulan" => $req_bulan,
+                "nominal" => (int) 0,
             ];
-        };
+        }
 
         //get data bank, berdasarkan LIKE tahun-bulan di tgl
-        $banks = Bank::orderBy('tgl', 'asc')
-            ->where('tgl', 'like', '%' . $req_bulan . '%')
-            ->where('bank', $req_bank)
+        $banks = Bank::orderBy("tgl", "asc")
+            ->where("tgl", "like", "%" . $req_bulan . "%")
+            ->where("bank", $req_bank)
             ->with(
-                'TransaksiKeluar',
-                'TransaksiKeluar.bank',
-                'CsMainProject',
-                'CsMainProject.bank',
-                'CsMainProject.Webhost',
-                'CsMainProject.Webhost.Paket'
+                "TransaksiKeluar",
+                "TransaksiKeluar.bank",
+                "CsMainProject",
+                "CsMainProject.bank",
+                "CsMainProject.Webhost",
+                "CsMainProject.Webhost.Paket",
             )
-            ->orderBy('id', 'asc')
+            ->orderBy("id", "asc")
             ->get();
 
         $saldo = $saldo_bank->nominal ?? 0;
         $total_masuk = 0;
         $total_keluar = 0;
 
+        $saldo_saatini = 0;
+
         // tambahkan total nominal saldo di banks
         if ($banks) {
             foreach ($banks as $key => $bank) {
-
-                $nomor = str_replace('-', '', $bank->tgl);
+                $nomor = str_replace("-", "", $bank->tgl);
                 $bank->nomor = $nomor . $bank->id;
 
                 //jika jenis transaksi adalah 'masuk'
-                if ($bank->jenis_transaksi == 'masuk') {
+                if ($bank->jenis_transaksi == "masuk") {
                     $saldo += $bank->nominal;
                     $total_masuk += $bank->nominal;
                 } else {
@@ -77,15 +79,22 @@ class BankTransaksiController extends Controller
                 }
 
                 $bank->saldo = $saldo;
+
+                //saldo ini
+                // if $key == last
+                if ($key === count($banks) - 1) {
+                    $saldo_saatini = $bank->saldo;
+                }
             }
         }
 
         return response()->json([
-            'sorting'       => $sorting,
-            'data'          => $banks,
-            'saldo'         => $saldo_bank,
-            'total_masuk'   => $total_masuk,
-            'total_keluar'  => $total_keluar,
+            "sorting" => $sorting,
+            "data" => $banks,
+            "saldo" => $saldo_bank,
+            "total_masuk" => $total_masuk,
+            "total_keluar" => $total_keluar,
+            "saldo_saatini" => $saldo_saatini,
         ]);
     }
 
@@ -95,17 +104,17 @@ class BankTransaksiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'bank'              => 'required',
-            'tgl'               => 'required',
-            'jenis'             => 'nullable',
-            'jenis_transaksi'   => 'required',
-            'nominal'           => 'required',
-            'keterangan_bank'   => 'nullable',
+            "bank" => "required",
+            "tgl" => "required",
+            "jenis" => "nullable",
+            "jenis_transaksi" => "required",
+            "nominal" => "required",
+            "keterangan_bank" => "nullable",
         ]);
 
-        $bank_jenis = '';
+        $bank_jenis = "";
         //jika ada input'newjenis_array'
-        if ($request->has('newjenis_array')) {
+        if ($request->has("newjenis_array")) {
             $jenis_array = $request->newjenis_array;
 
             //serialize array
@@ -117,16 +126,15 @@ class BankTransaksiController extends Controller
 
         //create
         $bank = Bank::create([
-            'bank'              => $request->bank,
-            'tgl'               => $request->tgl,
-            'jenis'             => $bank_jenis,
-            'jenis_transaksi'   => $request->jenis_transaksi,
-            'nominal'           => $request->nominal,
-            'keterangan_bank'   => $request->keterangan_bank,
-            'id_webhost'        => 0,
-            'status'            => ''
+            "bank" => $request->bank,
+            "tgl" => $request->tgl,
+            "jenis" => $bank_jenis,
+            "jenis_transaksi" => $request->jenis_transaksi,
+            "nominal" => $request->nominal,
+            "keterangan_bank" => $request->keterangan_bank,
+            "id_webhost" => 0,
+            "status" => "",
         ]);
-
 
         return response()->json($bank);
     }
@@ -137,19 +145,19 @@ class BankTransaksiController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'bank'              => 'required',
-            'tgl'               => 'required',
-            'jenis'             => 'nullable',
-            'jenis_transaksi'   => 'required',
-            'nominal'           => 'required',
-            'keterangan_bank'   => 'nullable',
+            "bank" => "required",
+            "tgl" => "required",
+            "jenis" => "nullable",
+            "jenis_transaksi" => "required",
+            "nominal" => "required",
+            "keterangan_bank" => "nullable",
         ]);
 
         //get by id
         $bank = Bank::find($request->id);
 
         //jika ada input'newjenis_array'
-        if ($request->has('newjenis_array')) {
+        if ($request->has("newjenis_array")) {
             $jenis_array = $request->newjenis_array;
             //serialize array
             $jenis_array = serialize($jenis_array);
@@ -159,12 +167,12 @@ class BankTransaksiController extends Controller
 
         //update
         $bank->update([
-            'bank'              => $request->bank,
-            'tgl'               => $request->tgl,
-            'jenis'             => $bank->jenis,
-            'jenis_transaksi'   => $request->jenis_transaksi,
-            'nominal'           => $request->nominal,
-            'keterangan_bank'   => $request->keterangan_bank,
+            "bank" => $request->bank,
+            "tgl" => $request->tgl,
+            "jenis" => $bank->jenis,
+            "jenis_transaksi" => $request->jenis_transaksi,
+            "nominal" => $request->nominal,
+            "keterangan_bank" => $request->keterangan_bank,
         ]);
 
         return response()->json($bank);
@@ -185,30 +193,33 @@ class BankTransaksiController extends Controller
     public function get_last_transaksi()
     {
         //get tanggal sekarang, format Y-m-d
-        $tgl_sekarang = Carbon::now()->format('Y-m-d');
+        $tgl_sekarang = Carbon::now()->format("Y-m-d");
         //get 30 hari terakhir
-        $tgl_30_hari_terakhir = Carbon::now()->subDays(30)->format('Y-m-d');
+        $tgl_30_hari_terakhir = Carbon::now()->subDays(30)->format("Y-m-d");
 
         //search TransaksiKeluar: jenis by keyword, 30 hari terakhir
-        $transaksi_keluar = TransaksiKeluar::with('bank')
-            ->where('tgl', '>=', $tgl_30_hari_terakhir)
-            ->orderBy('tgl', 'desc')
+        $transaksi_keluar = TransaksiKeluar::with("bank")
+            ->where("tgl", ">=", $tgl_30_hari_terakhir)
+            ->orderBy("tgl", "desc")
             ->limit(20)
             ->get();
 
         //search CsMainProject with webhost: webhost.nama_web by keyword, limit 10
-        $cs_main_project = CsMainProject::with('Webhost', 'bank')
-            ->where('tgl_masuk', '>=', date('Y-m-d', strtotime('-30 days')))
-            ->orderBy('tgl_masuk', 'desc')
+        $cs_main_project = CsMainProject::with("Webhost", "bank")
+            ->where("tgl_masuk", ">=", date("Y-m-d", strtotime("-30 days")))
+            ->orderBy("tgl_masuk", "desc")
             ->limit(20)
             ->get();
 
-        $gabungan = $cs_main_project->merge($transaksi_keluar)->sortByDesc('tanggal')->values();
+        $gabungan = $cs_main_project
+            ->merge($transaksi_keluar)
+            ->sortByDesc("tanggal")
+            ->values();
 
         return response()->json([
             // 'transaksi_keluar' => $transaksi_keluar,
             // 'cs_main_project'  => $cs_main_project,
-            'data'             => $gabungan,
+            "data" => $gabungan,
         ]);
     }
 
@@ -218,70 +229,72 @@ class BankTransaksiController extends Controller
     public function search_jenis(string $keyword)
     {
         //get 1 tahun terakhir
-        $tgl_1_tahun_terakhir = Carbon::now()->subDays(365)->format('Y-m-d');
+        $tgl_1_tahun_terakhir = Carbon::now()->subDays(365)->format("Y-m-d");
 
         //search TransaksiKeluar: jenis by keyword, 1 tahun terakhir
-        $transaksi_keluar = TransaksiKeluar::with('bank')
-            ->where('jenis', 'like', '%' . $keyword . '%')
+        $transaksi_keluar = TransaksiKeluar::with("bank")
+            ->where("jenis", "like", "%" . $keyword . "%")
             // ->where('tgl', '>=', $tgl_1_tahun_terakhir)
-            ->orderBy('tgl', 'desc')
+            ->orderBy("tgl", "desc")
             ->limit(30)
             ->get();
 
         //search CsMainProject with webhost: webhost.nama_web by keyword, limit 10
-        $cs_main_project = CsMainProject::with('Webhost', 'bank')
-            ->whereHas('Webhost', function ($query) use ($keyword) {
-                $query->where('nama_web', 'like', '%' . $keyword . '%');
+        $cs_main_project = CsMainProject::with("Webhost", "bank")
+            ->whereHas("Webhost", function ($query) use ($keyword) {
+                $query->where("nama_web", "like", "%" . $keyword . "%");
             })
             // ->where('tgl_masuk', '>=', $tgl_1_tahun_terakhir)
-            ->orderBy('tgl_masuk', 'desc')
+            ->orderBy("tgl_masuk", "desc")
             ->limit(30)
             ->get();
 
-        $gabungan = $cs_main_project->merge($transaksi_keluar)->sortByDesc('tanggal')->values();
+        $gabungan = $cs_main_project
+            ->merge($transaksi_keluar)
+            ->sortByDesc("tanggal")
+            ->values();
 
         return response()->json([
             // 'transaksi_keluar' => $transaksi_keluar,
             // 'cs_main_project'  => $cs_main_project,
-            'data'             => $gabungan,
+            "data" => $gabungan,
         ]);
     }
 
-
     /*
-    * json export data bank
-    */
+     * json export data bank
+     */
     public function export(Request $request)
     {
         //request
-        $req_bulan = $request->input('bulan') ?? date('Y-m');
-        $req_bank = $request->input('bank');
+        $req_bulan = $request->input("bulan") ?? date("Y-m");
+        $req_bank = $request->input("bank");
 
         //get saldo bank, berdasarkan bulan dan bank
-        $saldo_bank = SaldoBank::where('bulan', $req_bulan)
-            ->where('bank', $req_bank)
+        $saldo_bank = SaldoBank::where("bulan", $req_bulan)
+            ->where("bank", $req_bank)
             ->first();
 
         //jika tidak ada data saldo, set default 0
         if (!$saldo_bank) {
             $saldo_bank = [
-                'bank'      => $req_bank,
-                'bulan'     => $req_bulan,
-                'nominal'   => (int) 0,
+                "bank" => $req_bank,
+                "bulan" => $req_bulan,
+                "nominal" => (int) 0,
             ];
-        };
+        }
 
         //get data bank, berdasarkan LIKE tahun-bulan di tgl
-        $banks = Bank::orderBy('tgl', 'asc')
-            ->where('tgl', 'like', '%' . $req_bulan . '%')
-            ->where('bank', $req_bank)
+        $banks = Bank::orderBy("tgl", "asc")
+            ->where("tgl", "like", "%" . $req_bulan . "%")
+            ->where("bank", $req_bank)
             ->with(
-                'TransaksiKeluar',
-                'TransaksiKeluar.bank',
-                'CsMainProject',
-                'CsMainProject.bank',
-                'CsMainProject.Webhost',
-                'CsMainProject.Webhost.Paket'
+                "TransaksiKeluar",
+                "TransaksiKeluar.bank",
+                "CsMainProject",
+                "CsMainProject.bank",
+                "CsMainProject.Webhost",
+                "CsMainProject.Webhost.Paket",
             )
             ->get();
 
@@ -294,9 +307,8 @@ class BankTransaksiController extends Controller
         if ($banks) {
             $results = [];
             foreach ($banks as $key => $bank) {
-
                 //jika jenis transaksi adalah 'masuk'
-                if ($bank->jenis_transaksi == 'masuk') {
+                if ($bank->jenis_transaksi == "masuk") {
                     $saldo += $bank->nominal;
                     $total_masuk += $bank->nominal;
                 } else {
@@ -305,33 +317,39 @@ class BankTransaksiController extends Controller
                 }
 
                 //buat keterangan jenis dari loop transaksi_keluar dan cs_main_project
-                $ket_jenis = '';
+                $ket_jenis = "";
 
                 if ($bank->CsMainProject) {
                     foreach ($bank->CsMainProject as $key => $value) {
-                        $ket_jenis .= $value->tgl_masuk . ' - ';
-                        $ket_jenis .= $value->jenis . ' - ';
-                        $ket_jenis .= $value->webhost->nama_web . ' - ';
+                        $ket_jenis .= $value->tgl_masuk . " - ";
+                        $ket_jenis .= $value->jenis . " - ";
+                        $ket_jenis .= $value->webhost->nama_web . " - ";
                         $ket_jenis .= $value->dibayar;
                     }
                 }
                 if ($bank->TransaksiKeluar) {
                     foreach ($bank->TransaksiKeluar as $key => $value) {
-                        $ket_jenis .= $value->tgl . ' - ';
-                        $ket_jenis .= $value->jenis . ' - ';
+                        $ket_jenis .= $value->tgl . " - ";
+                        $ket_jenis .= $value->jenis . " - ";
                         $ket_jenis .= $value->jml;
                     }
                 }
 
                 $results[] = [
-                    'No'                => $key + 1,
-                    'Tanggal'           => $bank->tgl,
-                    'Bank'              => $bank->bank,
-                    'Jenis'             => $ket_jenis,
-                    'Keterangan'        => $bank->keterangan_bank,
-                    'Masuk'             => $bank->jenis_transaksi == 'masuk' ? number_format($bank->nominal, 2, ",", ".") : '',
-                    'Keluar'            => $bank->jenis_transaksi == 'keluar' ? number_format($bank->nominal, 2, ",", ".") : '',
-                    'Saldo'             => 'Rp ' . number_format($saldo, 2, ",", "."),
+                    "No" => $key + 1,
+                    "Tanggal" => $bank->tgl,
+                    "Bank" => $bank->bank,
+                    "Jenis" => $ket_jenis,
+                    "Keterangan" => $bank->keterangan_bank,
+                    "Masuk" =>
+                        $bank->jenis_transaksi == "masuk"
+                            ? number_format($bank->nominal, 2, ",", ".")
+                            : "",
+                    "Keluar" =>
+                        $bank->jenis_transaksi == "keluar"
+                            ? number_format($bank->nominal, 2, ",", ".")
+                            : "",
+                    "Saldo" => "Rp " . number_format($saldo, 2, ",", "."),
                 ];
             }
         }
