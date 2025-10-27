@@ -88,6 +88,20 @@ class BankTransaksiController extends Controller
             }
         }
 
+        //search filter
+        $req_search = $request->input("search");
+        if ($req_search) {
+
+            $banks = $banks->filter(function ($bank) use ($req_search) {
+                return strpos($bank->keterangan_bank, $req_search) !== false ||
+                    strpos($bank->jenis_transaksi, $req_search) !== false ||
+                    strpos($bank->jenis, $req_search) !== false;
+            });
+
+            //perbaiki key index
+            $banks = $banks->values();
+        }
+
         return response()->json([
             "sorting" => $sorting,
             "data" => $banks,
@@ -342,13 +356,13 @@ class BankTransaksiController extends Controller
                     "Jenis" => $ket_jenis,
                     "Keterangan" => $bank->keterangan_bank,
                     "Masuk" =>
-                        $bank->jenis_transaksi == "masuk"
-                            ? number_format($bank->nominal, 2, ",", ".")
-                            : "",
+                    $bank->jenis_transaksi == "masuk"
+                        ? number_format($bank->nominal, 2, ",", ".")
+                        : "",
                     "Keluar" =>
-                        $bank->jenis_transaksi == "keluar"
-                            ? number_format($bank->nominal, 2, ",", ".")
-                            : "",
+                    $bank->jenis_transaksi == "keluar"
+                        ? number_format($bank->nominal, 2, ",", ".")
+                        : "",
                     "Saldo" => "Rp " . number_format($saldo, 2, ",", "."),
                 ];
             }
