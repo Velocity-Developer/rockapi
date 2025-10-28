@@ -6,6 +6,12 @@
         "route": "/"
     },
     {
+        "key": "todos",
+        "label": "TodoList",
+        "icon": "lucide:check-square",
+        "route": "/todos"
+    },
+    {
         "key": "invoice",
         "label": "Invoice",
         "icon": "lucide:file-text",

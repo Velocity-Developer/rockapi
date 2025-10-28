@@ -144,7 +144,18 @@
         "key": "todos",
         "label": "TodoList",
         "icon": "lucide:check-square",
-        "route": "/todos"
+        "items": [
+            {
+                "key": "todos",
+                "label": "Semua Todo",
+                "route": "/todos"
+            },
+            {
+                "key": "todo_categories",
+                "label": "Kategori Todo",
+                "route": "/todos/categories"
+            }
+        ]
     },
     {
         "key": "users",

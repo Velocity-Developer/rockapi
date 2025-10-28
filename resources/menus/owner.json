@@ -28,5 +28,11 @@
         "label": "Siklus Layanan",
         "icon": "lucide:file-chart-line",
         "route": "/laporan/siklus_layanan"
+    },
+    {
+        "key": "todos",
+        "label": "TodoList",
+        "icon": "lucide:check-square",
+        "route": "/todos"
     }
 ]
