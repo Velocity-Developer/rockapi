@@ -8,10 +8,12 @@ use App\Models\TodoCategory;
 use App\Models\User;
 use App\Http\Resources\TodoResource;
 use App\Http\Resources\TodoAssignmentResource;
+use App\Notifications\TodoAssignedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 
 class TodoController extends Controller
@@ -204,6 +206,7 @@ class TodoController extends Controller
             ]);
 
             // Create assignments
+            $usersToNotify = [];
             foreach ($request->assignments as $assignment) {
                 $assignableClass = $assignment['type'] === 'user'
                     ? 'App\Models\User'
@@ -217,6 +220,32 @@ class TodoController extends Controller
                     'assigned_at' => now(),
                     'status' => TodoAssignment::STATUS_ASSIGNED
                 ]);
+
+                // Collect users to notify
+                if ($assignment['type'] === 'user') {
+                    $user = User::find($assignment['id']);
+                    if ($user && $user->id !== Auth::id()) {
+                        $usersToNotify[] = $user;
+                    }
+                } else {
+                    // If assignment is to a role, get all users with that role
+                    $role = \Spatie\Permission\Models\Role::find($assignment['id']);
+                    if ($role) {
+                        $roleUsers = $role->users()->where('users.id', '!=', Auth::id())->get();
+                        $usersToNotify = array_merge($usersToNotify, $roleUsers->toArray());
+                    }
+                }
+            }
+
+            // Send notifications to assigned users
+            if (!empty($usersToNotify)) {
+                $assignedBy = Auth::user();
+                foreach ($usersToNotify as $user) {
+                    $userModel = is_array($user) ? User::find($user['id']) : $user;
+                    if ($userModel) {
+                        $userModel->notify(new TodoAssignedNotification($todo, $assignedBy));
+                    }
+                }
             }
 
             // Load relationships for response
