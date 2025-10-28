@@ -94,15 +94,8 @@ class TodoController extends Controller
         $query = TodoList::with([
             'creator:id,name,avatar',
             'category:id,name,color,icon',
-            'assignments' => function ($q) use ($user) {
-                $q->where(function ($subQuery) use ($user) {
-                    $subQuery->where('assignable_type', 'App\Models\User')
-                        ->where('assignable_id', $user->id);
-                })->orWhere(function ($subQuery) use ($user) {
-                    $userRoleIds = $user->roles->pluck('id');
-                    $subQuery->where('assignable_type', 'Spatie\Permission\Models\Role')
-                        ->whereIn('assignable_id', $userRoleIds);
-                });
+            'assignments' => function ($q) {
+                $q->with(['assignable', 'assignedBy']);
             }
         ])->forUser($user);
 
