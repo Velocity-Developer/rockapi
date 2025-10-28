@@ -65,10 +65,33 @@ class TodoController extends Controller
             ]);
         }
 
-        // Order by
-        $orderBy = $request->input('order_by', 'created_at');
-        $order = $request->input('order', 'desc');
-        $query->orderBy($orderBy, $order);
+        // Order by - prioritize incomplete todos with higher priority first
+        $orderBy = $request->input('order_by');
+        $order = $request->input('order');
+
+        if ($orderBy && $order) {
+            $query->orderBy($orderBy, $order);
+        } else {
+            // Default ordering: prioritize incomplete todos with higher priority
+            $query->orderByRaw("
+                CASE
+                    WHEN status = 'completed' THEN 4
+                    WHEN status = 'declined' THEN 3
+                    WHEN status = 'in_progress' THEN 2
+                    WHEN status = 'assigned' THEN 1
+                    WHEN status = 'pending' THEN 0
+                    ELSE 5
+                END ASC,
+                CASE
+                    WHEN priority = 'urgent' THEN 0
+                    WHEN priority = 'high' THEN 1
+                    WHEN priority = 'medium' THEN 2
+                    WHEN priority = 'low' THEN 3
+                    ELSE 4
+                END ASC,
+                created_at DESC
+            ");
+        }
 
         // Pagination
         $pagination = $request->input('pagination', 'true');
@@ -118,7 +141,25 @@ class TodoController extends Controller
             });
         }
 
-        $query->orderBy('created_at', 'desc');
+        // Order by - prioritize incomplete todos with higher priority first
+        $query->orderByRaw("
+            CASE
+                WHEN status = 'completed' THEN 4
+                WHEN status = 'declined' THEN 3
+                WHEN status = 'in_progress' THEN 2
+                WHEN status = 'assigned' THEN 1
+                WHEN status = 'pending' THEN 0
+                ELSE 5
+            END ASC,
+            CASE
+                WHEN priority = 'urgent' THEN 0
+                WHEN priority = 'high' THEN 1
+                WHEN priority = 'medium' THEN 2
+                WHEN priority = 'low' THEN 3
+                ELSE 4
+            END ASC,
+            created_at DESC
+        ");
 
         $pagination = $request->input('pagination', 'true');
         if ($pagination == 'true') {
@@ -162,7 +203,25 @@ class TodoController extends Controller
             });
         }
 
-        $query->orderBy('created_at', 'desc');
+        // Order by - prioritize incomplete todos with higher priority first
+        $query->orderByRaw("
+            CASE
+                WHEN status = 'completed' THEN 4
+                WHEN status = 'declined' THEN 3
+                WHEN status = 'in_progress' THEN 2
+                WHEN status = 'assigned' THEN 1
+                WHEN status = 'pending' THEN 0
+                ELSE 5
+            END ASC,
+            CASE
+                WHEN priority = 'urgent' THEN 0
+                WHEN priority = 'high' THEN 1
+                WHEN priority = 'medium' THEN 2
+                WHEN priority = 'low' THEN 3
+                ELSE 4
+            END ASC,
+            created_at DESC
+        ");
 
         $pagination = $request->input('pagination', 'true');
         if ($pagination == 'true') {
