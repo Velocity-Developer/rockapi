@@ -549,13 +549,30 @@ class TodoController extends Controller
 
     public function updateStatus(string $id, Request $request): JsonResponse
     {
+        $request->validate([
+            'status' => ['required', Rule::in(['assigned', 'in_progress', 'completed', 'declined'])]
+        ]);
+
         $todo = TodoList::findOrFail($id);
         $todo->update($request->only(['status']));
-        $this->updateTodoStatus($todo);
+
+        //update status semua assignment, jika status == 'completed' isi juga completed_at jika tidak kosongkan
+        if ($todo->status === TodoList::STATUS_COMPLETED) {
+            $todo->assignments()->update([
+                'status' => $todo->status,
+                'completed_at' => now()
+            ]);
+        } else {
+            $todo->assignments()->update([
+                'status' => $todo->status,
+                'completed_at' => null
+            ]);
+        }
 
         return response()->json([
             'success' => true,
-            'data' => $todo
+            'data' => $todo,
+            'status' => $todo->status
         ]);
     }
 }
