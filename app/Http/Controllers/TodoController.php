@@ -546,4 +546,16 @@ class TodoController extends Controller
             $todo->update(['status' => TodoList::STATUS_IN_PROGRESS]);
         }
     }
+
+    public function updateStatus(string $id, Request $request): JsonResponse
+    {
+        $todo = TodoList::findOrFail($id);
+        $todo->update($request->only(['status']));
+        $this->updateTodoStatus($todo);
+
+        return response()->json([
+            'success' => true,
+            'data' => $todo
+        ]);
+    }
 }

@@ -121,6 +121,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/', [TodoController::class, 'index']); // List todos
         Route::post('/', [TodoController::class, 'store']); // Create todo
 
+        // Update todo status
+        Route::put('update-status/{id}', [TodoController::class, 'updateStatus']); // Update todo status
+
         // Special routes without parameters
         Route::get('/my', [TodoController::class, 'myTodos']); // Get todos assigned to current user
         Route::get('/created', [TodoController::class, 'createdTodos']); // Get todos created by current user
