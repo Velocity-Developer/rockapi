@@ -32,6 +32,7 @@ class TodoList extends Model
     protected $appends = ['due_date_days_left', 'is_overdue'];
 
     // Status constants
+    const STATUS_PENDING = 'pending';
     const STATUS_ASSIGNED = 'assigned';
     const STATUS_IN_PROGRESS = 'in_progress';
     const STATUS_COMPLETED = 'completed';

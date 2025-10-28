@@ -27,6 +27,7 @@ class TodoAssignment extends Model
     protected $appends = ['tipe'];
 
     // Status constants
+    const STATUS_PENDING = 'pending';
     const STATUS_ASSIGNED = 'assigned';
     const STATUS_IN_PROGRESS = 'in_progress';
     const STATUS_COMPLETED = 'completed';
@@ -91,6 +92,11 @@ class TodoAssignment extends Model
         return $this->status === self::STATUS_DECLINED;
     }
 
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
+    }
+
     public function getAssignableName(): string
     {
         if ($this->assignable_type === 'App\Models\User') {
@@ -116,6 +122,7 @@ class TodoAssignment extends Model
     public function getStatusLabel(): string
     {
         return match ($this->status) {
+            self::STATUS_PENDING => 'Pending',
             self::STATUS_ASSIGNED => 'Assigned',
             self::STATUS_IN_PROGRESS => 'In Progress',
             self::STATUS_COMPLETED => 'Completed',
@@ -127,6 +134,7 @@ class TodoAssignment extends Model
     public function getStatusColor(): string
     {
         return match ($this->status) {
+            self::STATUS_PENDING => 'orange',
             self::STATUS_ASSIGNED => 'gray',
             self::STATUS_IN_PROGRESS => 'blue',
             self::STATUS_COMPLETED => 'green',

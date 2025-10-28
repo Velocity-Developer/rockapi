@@ -267,7 +267,7 @@ class TodoController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status' => ['nullable', Rule::in(['assigned', 'in_progress', 'completed', 'declined'])],
+            'status' => ['nullable', Rule::in(['pending', 'assigned', 'in_progress', 'completed', 'declined'])],
             'priority' => ['nullable', Rule::in(['low', 'medium', 'high', 'urgent'])],
             'due_date' => 'nullable|date|after_or_equal:today',
             'category_id' => 'nullable|exists:todo_categories,id',
@@ -429,7 +429,7 @@ class TodoController extends Controller
     public function updateAssignmentStatus(Request $request, TodoList $todo, int $assignmentId): JsonResponse
     {
         $request->validate([
-            'status' => ['required', Rule::in(['assigned', 'in_progress', 'completed', 'declined'])]
+            'status' => ['required', Rule::in(['pending', 'assigned', 'in_progress', 'completed', 'declined'])]
         ]);
 
         $user = Auth::user();
@@ -543,7 +543,7 @@ class TodoController extends Controller
     public function updateStatus(string $id, Request $request): JsonResponse
     {
         $request->validate([
-            'status' => ['required', Rule::in(['assigned', 'in_progress', 'completed', 'declined'])]
+            'status' => ['required', Rule::in(['pending', 'assigned', 'in_progress', 'completed', 'declined'])]
         ]);
 
         $todo = TodoList::findOrFail($id);
