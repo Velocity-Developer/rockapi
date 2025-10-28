@@ -60,7 +60,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'journal'               => JournalController::class,
         'invoice'               => InvoiceController::class,
         'customer'              => CustomerController::class,
-        'todo_categories'       => TodoCategoryController::class,
+        'todo_category'       => TodoCategoryController::class,
     ]);
 
     //data_opsi
@@ -142,7 +142,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     // Todo Category routes
-    Route::prefix('todo_categories')->group(function () {
+    Route::prefix('todo_category')->group(function () {
         Route::get('/active', [TodoCategoryController::class, 'active']); // Get active categories
     });
 
