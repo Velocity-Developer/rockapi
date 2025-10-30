@@ -35,6 +35,11 @@ class InvoiceController extends Controller
             });
         }
 
+        //filter customer_id
+        if ($request->input('customer_id')) {
+            $query->where('customer_id', $request->input('customer_id'));
+        }
+
         // Filter berdasarkan tanggal
         $tanggal_start = $request->input('tanggal_start');
         $tanggal_end = $request->input('tanggal_end');
