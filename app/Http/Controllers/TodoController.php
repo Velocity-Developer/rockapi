@@ -642,9 +642,9 @@ class TodoController extends Controller
 
         $todo->update($request->only(['status']));
 
-        // Handle TodoUser pivot creation when user starts working on todo
+        // Handle TodoUser pivot operations
         if ($oldStatus === TodoList::STATUS_ASSIGNED && $newStatus === TodoList::STATUS_IN_PROGRESS && $user) {
-            // Create or update TodoUser record
+            // Create or update TodoUser record when starting work
             TodoUser::updateOrCreate(
                 [
                     'user_id' => $user->id,
@@ -655,7 +655,7 @@ class TodoController extends Controller
                     'completed_at' => null,
                 ]
             );
-        } elseif ($newStatus === TodoList::STATUS_COMPLETED && $user) {
+        } elseif ($oldStatus === TodoList::STATUS_IN_PROGRESS && $newStatus === TodoList::STATUS_COMPLETED && $user) {
             // Mark as completed in TodoUser if exists
             $todoUser = TodoUser::where('user_id', $user->id)
                 ->where('todo_id', $todo->id)
@@ -664,6 +664,11 @@ class TodoController extends Controller
             if ($todoUser) {
                 $todoUser->markAsCompleted();
             }
+        } elseif ($oldStatus === TodoList::STATUS_IN_PROGRESS && $newStatus === TodoList::STATUS_ASSIGNED && $user) {
+            // Cancel work: delete TodoUser record when going back to assigned
+            TodoUser::where('user_id', $user->id)
+                ->where('todo_id', $todo->id)
+                ->delete();
         }
 
         //update status semua assignment, jika status == 'completed' isi juga completed_at jika tidak kosongkan
