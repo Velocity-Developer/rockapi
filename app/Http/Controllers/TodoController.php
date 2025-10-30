@@ -7,6 +7,7 @@ use App\Models\TodoAssignment;
 use App\Models\TodoUser;
 use App\Models\TodoCategory;
 use App\Models\User;
+use App\Models\Journal;
 use App\Http\Resources\TodoResource;
 use App\Http\Resources\TodoAssignmentResource;
 use App\Notifications\TodoAssignedNotification;
@@ -644,28 +645,62 @@ class TodoController extends Controller
 
         // Handle TodoUser pivot operations
         if ($oldStatus === TodoList::STATUS_ASSIGNED && $newStatus === TodoList::STATUS_IN_PROGRESS && $user) {
-            // Create or update TodoUser record when starting work
+            // Create journal entry first
+            $journal = Journal::create([
+                'title' => 'Pengerjaan ' . $todo->title,
+                'description' => $todo->description,
+                'start' => now(),
+                'end' => null,
+                'status' => 'ongoing',
+                'priority' => 'medium',
+                'user_id' => $user->id,
+                'role' => $user->roles->first()->name ?? null,
+                'journal_category_id' => null
+            ]);
+
+            // Create or update TodoUser record with journal_id
             TodoUser::updateOrCreate(
                 [
                     'user_id' => $user->id,
                     'todo_id' => $todo->id,
                 ],
                 [
+                    'journal_id' => $journal->id,
                     'taken_at' => now(),
                     'completed_at' => null,
                 ]
             );
         } elseif ($oldStatus === TodoList::STATUS_IN_PROGRESS && $newStatus === TodoList::STATUS_COMPLETED && $user) {
-            // Mark as completed in TodoUser if exists
+            // Mark as completed in TodoUser if exists and update journal
             $todoUser = TodoUser::where('user_id', $user->id)
                 ->where('todo_id', $todo->id)
                 ->first();
 
             if ($todoUser) {
                 $todoUser->markAsCompleted();
+
+                // Update journal end time and status
+                if ($todoUser->journal) {
+                    $todoUser->journal->update([
+                        'end' => now(),
+                        'status' => 'completed'
+                    ]);
+                }
             }
         } elseif ($oldStatus === TodoList::STATUS_IN_PROGRESS && $newStatus === TodoList::STATUS_ASSIGNED && $user) {
             // Cancel work: delete TodoUser record when going back to assigned
+            $todoUser = TodoUser::where('user_id', $user->id)
+                ->where('todo_id', $todo->id)
+                ->first();
+
+            if ($todoUser && $todoUser->journal) {
+                // Update journal status to cancelled before deleting
+                $todoUser->journal->update([
+                    'end' => now(),
+                    'status' => 'cancelled'
+                ]);
+            }
+
             TodoUser::where('user_id', $user->id)
                 ->where('todo_id', $todo->id)
                 ->delete();
