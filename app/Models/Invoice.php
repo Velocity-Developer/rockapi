@@ -13,6 +13,7 @@ class Invoice extends Model
     protected $fillable = [
         'unit',
         'customer_id',
+        'cs_main_project_id',
         'note',
         'status',
         'subtotal',
@@ -38,6 +39,12 @@ class Invoice extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    // Relasi ke cs main project
+    public function cs_main_project()
+    {
+        return $this->belongsTo(CsMainProject::class);
     }
 
     // Relasi ke invoice items

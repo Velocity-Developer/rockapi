@@ -129,4 +129,10 @@ class CsMainProject extends Model
     {
         return $this->belongsToMany(Customer::class, 'customer_cs_main_project', 'cs_main_project_id', 'customer_id', 'id');
     }
+
+    //relasi ke Invoice
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
 }
