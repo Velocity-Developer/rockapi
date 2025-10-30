@@ -688,22 +688,20 @@ class TodoController extends Controller
                 }
             }
         } elseif ($oldStatus === TodoList::STATUS_IN_PROGRESS && $newStatus === TodoList::STATUS_ASSIGNED && $user) {
-            // Cancel work: delete TodoUser record when going back to assigned
+            // Cancel work: delete TodoUser record and associated journal
             $todoUser = TodoUser::where('user_id', $user->id)
                 ->where('todo_id', $todo->id)
                 ->first();
 
-            if ($todoUser && $todoUser->journal) {
-                // Update journal status to cancelled before deleting
-                $todoUser->journal->update([
-                    'end' => now(),
-                    'status' => 'cancelled'
-                ]);
-            }
+            if ($todoUser) {
+                // Delete the associated journal if it exists
+                if ($todoUser->journal) {
+                    $todoUser->journal->delete();
+                }
 
-            TodoUser::where('user_id', $user->id)
-                ->where('todo_id', $todo->id)
-                ->delete();
+                // Delete the TodoUser record
+                $todoUser->delete();
+            }
         }
 
         //update status semua assignment, jika status == 'completed' isi juga completed_at jika tidak kosongkan
