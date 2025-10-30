@@ -679,7 +679,7 @@ class TodoController extends Controller
             if ($todoUser) {
                 $todoUser->markAsCompleted();
 
-                // Update journal end time and status
+                // Update journal end time and status to completed
                 if ($todoUser->journal) {
                     $todoUser->journal->update([
                         'end' => now(),
