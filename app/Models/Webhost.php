@@ -59,4 +59,10 @@ class Webhost extends Model
     {
         return $this->hasMany(Journal::class, 'webhost_id');
     }
+
+    //relasi many to many ke Customer
+    public function customers()
+    {
+        return $this->belongsToMany(Customer::class, 'customer_webhost', 'webhost_id', 'customer_id', 'id_webhost');
+    }
 }

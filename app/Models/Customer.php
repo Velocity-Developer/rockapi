@@ -20,4 +20,10 @@ class Customer extends Model
     {
         return $this->belongsToMany(CsMainProject::class, 'customer_cs_main_project');
     }
+
+    //relasi many to many ke Webhost
+    public function webhosts()
+    {
+        return $this->belongsToMany(Webhost::class, 'customer_webhost', 'customer_id', 'webhost_id', 'id');
+    }
 }
