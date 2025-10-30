@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Carbon\Carbon;
 
 class TodoList extends Model
@@ -57,6 +58,11 @@ class TodoList extends Model
     public function assignments(): HasMany
     {
         return $this->hasMany(TodoAssignment::class, 'todo_id');
+    }
+
+    public function todoUsers(): HasMany
+    {
+        return $this->hasMany(TodoUser::class, 'todo_id');
     }
 
     public function userAssignments(): HasMany

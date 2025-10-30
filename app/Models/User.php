@@ -68,6 +68,12 @@ class User extends Authenticatable
         return $this->belongsTo(Karyawan::class, 'id_karyawan');
     }
 
+    //relasi ke TodoUser (pivot table for todo assignments with journal tracking)
+    public function todoUsers()
+    {
+        return $this->hasMany(TodoUser::class);
+    }
+
     //relasi ke WmProject
     public function wm_project()
     {
