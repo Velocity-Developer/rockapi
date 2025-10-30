@@ -42,6 +42,12 @@
         "route": "/invoice"
     },
     {
+        "key": "customer",
+        "label": "Customer",
+        "icon": "lucide:users-round",
+        "route": "/customer"
+    },
+    {
         "key": "todos",
         "label": "TodoList",
         "icon": "lucide:check-square",

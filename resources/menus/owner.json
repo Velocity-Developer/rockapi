@@ -34,5 +34,11 @@
         "label": "TodoList",
         "icon": "lucide:check-square",
         "route": "/todos"
+    },
+    {
+        "key": "customer",
+        "label": "Customer",
+        "icon": "lucide:users-round",
+        "route": "/customer"
     }
 ]

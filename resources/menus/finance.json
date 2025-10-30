@@ -46,5 +46,11 @@
         "label": "Transaksi Iklan Google",
         "icon": "lucide:file-chart-line",
         "route": "/transaksi_iklan_google"
+    },
+    {
+        "key": "customer",
+        "label": "Customer",
+        "icon": "lucide:users-round",
+        "route": "/customer"
     }
 ]

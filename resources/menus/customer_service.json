@@ -28,5 +28,11 @@
         "label": "Database Web",
         "icon": "lucide:globe",
         "route": "/bill_dataweb"
+    },
+    {
+        "key": "customer",
+        "label": "Customer",
+        "icon": "lucide:users-round",
+        "route": "/customer"
     }
 ]

@@ -18,6 +18,12 @@
         "route": "/invoice"
     },
     {
+        "key": "customer",
+        "label": "Customer",
+        "icon": "lucide:users-round",
+        "route": "/customer"
+    },
+    {
         "key": "billing",
         "label": "Billing",
         "icon": "lucide:briefcase",
