@@ -123,4 +123,10 @@ class CsMainProject extends Model
     {
         return $this->hasOne(CsMainProjectInfo::class, 'cs_main_project_id');
     }
+
+    //relasi many to many ke Customer
+    public function customers()
+    {
+        return $this->belongsToMany(Customer::class, 'customer_cs_main_project', 'cs_main_project_id', 'customer_id', 'id');
+    }
 }

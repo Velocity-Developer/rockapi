@@ -14,4 +14,10 @@ class Customer extends Model
     {
         return $this->hasMany(Invoice::class);
     }
+
+    //relasi many to many ke CsMainProject
+    public function csMainProjects()
+    {
+        return $this->belongsToMany(CsMainProject::class, 'customer_cs_main_project');
+    }
 }
