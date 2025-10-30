@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TodoList;
 use App\Models\TodoAssignment;
+use App\Models\TodoUser;
 use App\Models\TodoCategory;
 use App\Models\User;
 use App\Http\Resources\TodoResource;
@@ -635,7 +636,35 @@ class TodoController extends Controller
         ]);
 
         $todo = TodoList::findOrFail($id);
+        $user = Auth::user();
+        $oldStatus = $todo->status;
+        $newStatus = $request->status;
+
         $todo->update($request->only(['status']));
+
+        // Handle TodoUser pivot creation when user starts working on todo
+        if ($oldStatus === TodoList::STATUS_ASSIGNED && $newStatus === TodoList::STATUS_IN_PROGRESS && $user) {
+            // Create or update TodoUser record
+            TodoUser::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'todo_id' => $todo->id,
+                ],
+                [
+                    'taken_at' => now(),
+                    'completed_at' => null,
+                ]
+            );
+        } elseif ($newStatus === TodoList::STATUS_COMPLETED && $user) {
+            // Mark as completed in TodoUser if exists
+            $todoUser = TodoUser::where('user_id', $user->id)
+                ->where('todo_id', $todo->id)
+                ->first();
+
+            if ($todoUser) {
+                $todoUser->markAsCompleted();
+            }
+        }
 
         //update status semua assignment, jika status == 'completed' isi juga completed_at jika tidak kosongkan
         if ($todo->status === TodoList::STATUS_COMPLETED) {
