@@ -144,8 +144,9 @@ class CsMainProjectController extends Controller
         // jika invoice_id ada,
         // simpan id $cs_main_project ke invoice
         // dan ubah status invoice menjadi 'lunas'
-        if ($request->input('invoice_id')) {
-            Invoice::where('id', $request->input('invoice_id'))->update([
+        $invoice_id = $request->input('invoice_id') ?? null;
+        if ($invoice_id) {
+            Invoice::where('id', $invoice_id)->update([
                 'cs_main_project_id' => $cs_main_project->id,
                 'status' => 'lunas',
             ]);
@@ -153,7 +154,8 @@ class CsMainProjectController extends Controller
 
         // jika customer_id ada,
         // simpan id $cs_main_project dan customer_id ke pivot customer_cs_main_project
-        if ($request->input('customer_id')) {
+        $customer_id = $request->input('customer_id') ?? null;
+        if ($customer_id) {
             DB::table('customer_cs_main_project')->insert([
                 'customer_id' => $request->input('customer_id'),
                 'cs_main_project_id' => $cs_main_project->id,
