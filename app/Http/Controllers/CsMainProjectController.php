@@ -10,6 +10,8 @@ use App\Models\Webhost;
 use App\Models\TransaksiMasuk;
 use App\Models\PmProject;
 use App\Models\WmProject;
+use App\Models\Invoice;
+use App\Models\Customer;
 
 /**
  * @catatan CsMainProject
@@ -42,7 +44,7 @@ class CsMainProjectController extends Controller
         //jika webhost tidak ditemukan , buat webhost baru
         if (!$webhost) {
             $webhost = Webhost::create([
-                'nama_web'          => str_replace(' ', '', $request->input('nama_web')),
+                'nama_web'          => $request->input('nama_web'),
                 'id_paket'          => $request->input('paket'),
                 'tgl_mulai'         => $request->input('tgl_masuk'),
                 'id_server'         => '1',
@@ -66,7 +68,7 @@ class CsMainProjectController extends Controller
             ]);
         } else {
             $webhost->update([
-                'nama_web'          => str_replace(' ', '', $request->input('nama_web')),
+                'nama_web'          => $request->input('nama_web'),
                 'id_paket'          => $request->input('paket'),
                 'hp'                => $request->input('hp'),
                 'telegram'          => $request->input('telegram'),
@@ -138,6 +140,34 @@ class CsMainProjectController extends Controller
         $pm_project = PmProject::create([
             'id' => $cs_main_project->id,
         ]);
+
+        // jika invoice_id ada,
+        // simpan id $cs_main_project ke invoice
+        // dan ubah status invoice menjadi 'lunas'
+        if ($request->input('invoice_id')) {
+            Invoice::where('id', $request->input('invoice_id'))->update([
+                'cs_main_project_id' => $cs_main_project->id,
+                'status' => 'lunas',
+            ]);
+        }
+
+        // jika customer_id ada,
+        // simpan id $cs_main_project dan customer_id ke pivot customer_cs_main_project
+        if ($request->input('customer_id')) {
+            DB::table('customer_cs_main_project')->insert([
+                'customer_id' => $request->input('customer_id'),
+                'cs_main_project_id' => $cs_main_project->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            //simpan juga relasi customer dan webhost ke pivot customer_webhost
+            DB::table('customer_webhost')->insert([
+                'customer_id' => $request->input('customer_id'),
+                'webhost_id' => $webhost->id_webhost,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         return response()->json([
             'cs_main_project' => $cs_main_project,
