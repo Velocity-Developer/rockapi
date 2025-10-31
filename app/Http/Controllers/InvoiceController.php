@@ -60,6 +60,30 @@ class InvoiceController extends Controller
             $query->where('unit', 'like', '%' . $request->input('unit') . '%');
         }
 
+        //filter search_nama_web
+        if ($request->input('search_nama_web')) {
+            $search = $request->input('search_nama_web');
+
+            $query->where(function ($query) use ($search) {
+                $query->whereHas('items.webhost', function ($q) use ($search) {
+                    $q->where('nama_web', 'like', '%' . $search . '%');
+                })
+                    ->orWhereHas('items', function ($q) use ($search) {
+                        $q->where('nama', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        //filter search_hp
+        if ($request->input('search_hp')) {
+            $search_hp = $request->input('search_hp');
+            $query->where(function ($query) use ($search_hp) {
+                $query->whereHas('customer', function ($q) use ($search_hp) {
+                    $q->where('hp', 'like', '%' . $search_hp . '%');
+                });
+            });
+        }
+
         // Pengurutan
         $order_by = $request->input('order_by', 'tanggal');
         $order = $request->input('order', 'desc');
