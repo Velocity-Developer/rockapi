@@ -26,7 +26,8 @@ class TodoList extends Model
     protected $casts = [
         'due_date' => 'date:Y-m-d',
         'is_private' => 'boolean',
-        'completed_at' => 'datetime:Y-m-d H:i:s'
+        'completed_at' => 'datetime:Y-m-d H:i:s',
+        'created_by' => 'integer',
     ];
 
     //appends due_date_days_left
