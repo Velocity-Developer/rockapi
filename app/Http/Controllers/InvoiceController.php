@@ -23,6 +23,11 @@ class InvoiceController extends Controller
             'items.webhost:id_webhost,nama_web'
         ]);
 
+        //berdasarkan nomor invoice
+        if ($request->input('search_nomor')) {
+            $query->where('nomor', $request->input('search_nomor'));
+        }
+
         // Filter berdasarkan status
         if ($request->input('status')) {
             $query->where('status', $request->input('status'));
@@ -44,7 +49,13 @@ class InvoiceController extends Controller
         $tanggal_start = $request->input('tanggal_start');
         $tanggal_end = $request->input('tanggal_end');
         if ($tanggal_start && $tanggal_end) {
-            $query->whereBetween('tanggal', [$tanggal_start, $tanggal_end]);
+            try {
+                $start = Carbon::parse($tanggal_start)->startOfDay();
+                $end = Carbon::parse($tanggal_end)->endOfDay();
+                $query->whereBetween('tanggal', [$start, $end]);
+            } catch (\Exception $e) {
+                // abaikan filter jika tanggal invalid
+            }
         }
 
         // Filter berdasarkan nama customer (kompatibel dengan param lama)
@@ -61,21 +72,19 @@ class InvoiceController extends Controller
         }
 
         //filter search_nama_web
-        if ($request->input('search_nama_web')) {
+        if ($request->input('search_nama_web') && $request->input('search_nomor') == null) {
             $search = $request->input('search_nama_web');
 
-            $query->where(function ($query) use ($search) {
-                $query->whereHas('items.webhost', function ($q) use ($search) {
-                    $q->where('nama_web', 'like', '%' . $search . '%');
-                })
-                    ->orWhereHas('items', function ($q) use ($search) {
-                        $q->where('nama', 'like', '%' . $search . '%');
+            $query->whereHas('items', function ($q) use ($search) {
+                $q->where('nama', 'like', '%' . $search . '%')
+                    ->orWhereHas('webhost', function ($q2) use ($search) {
+                        $q2->where('nama_web', 'like', '%' . $search . '%');
                     });
             });
         }
 
         //filter search_hp
-        if ($request->input('search_hp')) {
+        if ($request->input('search_hp') && $request->input('search_nomor') == null) {
             $search_hp = $request->input('search_hp');
             $query->where(function ($query) use ($search_hp) {
                 $query->whereHas('customer', function ($q) use ($search_hp) {
