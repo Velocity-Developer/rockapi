@@ -346,11 +346,14 @@ class TodoController extends Controller
     {
         // Check if user can update this todo
         $todo = TodoList::findOrFail($id);
+        $creator_id = $todo->created_by ? intval($todo->created_by) : null;
 
-        if ($todo->created_by !== Auth::id()) {
+        if ($creator_id !== Auth::id()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized to update this todo'
+                'message' => 'Unauthorized to update this todo',
+                'todo' => $todo,
+                'user_id' => Auth::id()
             ], 403);
         }
 
