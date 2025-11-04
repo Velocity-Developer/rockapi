@@ -34,6 +34,7 @@ class WebhostController extends Controller
             'csMainProjects',
             'csMainProjects.wm_project:id_wm_project,id_karyawan,user_id,id,date_mulai,date_selesai,catatan,status_multi,webmaster,status_project',
             'csMainProjects.wm_project.user:id,name,avatar',
+            'customers'
         )->find($id);
 
         return response()->json($webhost);
