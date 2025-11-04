@@ -183,7 +183,8 @@ class ConfigController extends Controller
             'admin',
             'owner',
             'support',
-            'customer_service'
+            'customer_service',
+            'revisi',
         ];
 
         if (array_intersect($ready, $roles)) {

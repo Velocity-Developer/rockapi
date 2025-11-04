@@ -1,0 +1,50 @@
+[
+    {
+        "key": "dashboard",
+        "label": "Dashboard",
+        "icon": "lucide:layout-grid",
+        "route": "/"
+    },
+    {
+        "key": "billing",
+        "label": "Billing",
+        "icon": "lucide:briefcase",
+        "route": "/billing"
+    },
+    {
+        "key": "bill_dataweb",
+        "label": "Database Web",
+        "icon": "lucide:globe",
+        "route": "/bill_dataweb"
+    },
+    {
+        "key": "project_list",
+        "label": "Daftar Project",
+        "icon": "lucide:folder-code",
+        "route": "/project_list"
+    },
+    {
+        "key": "project_manager",
+        "label": "Project Selesai",
+        "icon": "lucide:folder-check",
+        "route": "/project_manager"
+    },
+    {
+        "key": "invoice",
+        "label": "Invoice",
+        "icon": "lucide:file-text",
+        "route": "/invoice"
+    },
+    {
+        "key": "customer",
+        "label": "Customer",
+        "icon": "lucide:users-round",
+        "route": "/customer"
+    },
+    {
+        "key": "todos",
+        "label": "TodoList",
+        "icon": "lucide:check-square",
+        "route": "/todos"
+    }
+]
