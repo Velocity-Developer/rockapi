@@ -107,6 +107,15 @@ class BillingController extends Controller
             });
         }
 
+        //filter by customer_id
+        $customer_id = $request->input('customer_id');
+        if ($customer_id) {
+            //filter ke relasi customer_cs_main_project
+            $query->whereHas('customers', function ($query) use ($customer_id) {
+                $query->where('customer_id', $customer_id);
+            });
+        }
+
         $data = $query->paginate($per_page);
 
         //return json
