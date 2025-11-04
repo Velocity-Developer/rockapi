@@ -74,14 +74,14 @@ class TodoController extends Controller
         if ($orderBy && $order) {
             $query->orderBy($orderBy, $order);
         } else {
-            // Default ordering: prioritize incomplete todos with higher priority
+            // Default ordering: prioritize in_progress todos first, then by priority
             $query->orderByRaw("
                 CASE
-                    WHEN status = 'completed' THEN 4
-                    WHEN status = 'declined' THEN 3
-                    WHEN status = 'in_progress' THEN 2
+                    WHEN status = 'in_progress' THEN 0
                     WHEN status = 'assigned' THEN 1
-                    WHEN status = 'pending' THEN 0
+                    WHEN status = 'pending' THEN 2
+                    WHEN status = 'completed' THEN 3
+                    WHEN status = 'declined' THEN 4
                     ELSE 5
                 END ASC,
                 CASE
@@ -143,14 +143,14 @@ class TodoController extends Controller
             });
         }
 
-        // Order by - prioritize incomplete todos with higher priority first
+        // Order by - prioritize in_progress todos first, then by priority
         $query->orderByRaw("
             CASE
-                WHEN status = 'completed' THEN 4
-                WHEN status = 'declined' THEN 3
-                WHEN status = 'in_progress' THEN 2
+                WHEN status = 'in_progress' THEN 0
                 WHEN status = 'assigned' THEN 1
-                WHEN status = 'pending' THEN 0
+                WHEN status = 'pending' THEN 2
+                WHEN status = 'completed' THEN 3
+                WHEN status = 'declined' THEN 4
                 ELSE 5
             END ASC,
             CASE
@@ -205,14 +205,14 @@ class TodoController extends Controller
             });
         }
 
-        // Order by - prioritize incomplete todos with higher priority first
+        // Order by - prioritize in_progress todos first, then by priority
         $query->orderByRaw("
             CASE
-                WHEN status = 'completed' THEN 4
-                WHEN status = 'declined' THEN 3
-                WHEN status = 'in_progress' THEN 2
+                WHEN status = 'in_progress' THEN 0
                 WHEN status = 'assigned' THEN 1
-                WHEN status = 'pending' THEN 0
+                WHEN status = 'pending' THEN 2
+                WHEN status = 'completed' THEN 3
+                WHEN status = 'declined' THEN 4
                 ELSE 5
             END ASC,
             CASE
