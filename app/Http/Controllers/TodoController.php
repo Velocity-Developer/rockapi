@@ -584,6 +584,13 @@ class TodoController extends Controller
             'my_pending' => TodoList::forUser($user)->whereNot('status', TodoList::STATUS_COMPLETED)->count(),
             'created_total' => TodoList::createdBy($user)->count(),
             'created_completed' => TodoList::createdBy($user)->byStatus(TodoList::STATUS_COMPLETED)->count(),
+            // New statistics
+            'assigned_count' => TodoList::forUser($user)->byStatus(TodoList::STATUS_ASSIGNED)->count(),
+            'in_progress_count' => TodoList::forUser($user)->byStatus(TodoList::STATUS_IN_PROGRESS)->count(),
+            'assigned_urgent_count' => TodoList::forUser($user)
+                ->byStatus(TodoList::STATUS_ASSIGNED)
+                ->byPriority(TodoList::PRIORITY_URGENT)
+                ->count(),
         ];
 
         // Priority breakdown
