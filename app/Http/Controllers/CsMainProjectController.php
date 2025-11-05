@@ -11,7 +11,9 @@ use App\Models\TransaksiMasuk;
 use App\Models\PmProject;
 use App\Models\WmProject;
 use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use App\Models\Customer;
+use Carbon\Carbon;
 
 /**
  * @catatan CsMainProject
@@ -141,33 +143,63 @@ class CsMainProjectController extends Controller
             'id' => $cs_main_project->id,
         ]);
 
-        // jika invoice_id ada,
-        // simpan id $cs_main_project ke invoice
-        // dan ubah status invoice menjadi 'lunas'
-        $invoice_id = $request->input('invoice_id') ?? null;
-        if ($invoice_id) {
-            Invoice::where('id', $invoice_id)->update([
-                'cs_main_project_id' => $cs_main_project->id,
-                'status' => 'lunas',
+        //jika customer_id tidak ada, buat customer baru
+        $customer_id = $request->input('customer_id') ?? null;
+        if (!$customer_id && $request->input('nama') && $request->input('hp')) {
+            $customer = Customer::create([
+                'nama'      => $request->input('nama'),
+                'hp'        => $request->input('hp'),
+                'email'     => $request->input('email'),
+                'wa'        => $request->input('wa'),
+                'alamat'    => $request->input('alamat'),
             ]);
+            $customer_id = $customer->id;
         }
 
-        // jika customer_id ada,
+        $unit = 'vdi';
+        //jika jenis = 'Iklan Google','Deposit Iklan Google','Jasa update iklan google', maka unit = 'vcm'
+        if (in_array($request->input('jenis'), ['Iklan Google', 'Deposit Iklan Google', 'Jasa update iklan google'])) {
+            $unit = 'vcm';
+        }
+
+        // buat invoice baru
+        $invoice = Invoice::create([
+            'unit' => $unit,
+            'customer_id' => $customer_id,
+            'note' => $request->input('deskripsi'),
+            'status' => 'lunas',
+            'subtotal' => $request->input('biaya') ?? $request->input('dibayar'),
+            'pajak' => 0,
+            'nama_pajak' => null,
+            'nominal_pajak' => 0,
+            'total' => $request->input('dibayar'),
+            'tanggal' => Carbon::now()->format('Y-m-d H:i:s'), //hari ini
+            'jatuh_tempo' => null,
+            'tanggal_bayar' => Carbon::now()->format('Y-m-d H:i:s'), //hari ini
+            'cs_main_project_id' => $cs_main_project->id,
+        ]);
+        InvoiceItem::create([
+            'invoice_id' => $invoice->id,
+            'webhost_id' => $webhost->id_webhost,
+            'nama' => '',
+            'jenis' => $request->input('jenis'),
+            'harga' => $request->input('biaya') ?? $request->input('dibayar'),
+        ]);
+
         // simpan id $cs_main_project dan customer_id ke pivot customer_cs_main_project
-        $customer_id = $request->input('customer_id') ?? null;
         if ($customer_id) {
             DB::table('customer_cs_main_project')->insert([
-                'customer_id' => $request->input('customer_id'),
+                'customer_id' => $customer_id,
                 'cs_main_project_id' => $cs_main_project->id,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
             ]);
             //simpan juga relasi customer dan webhost ke pivot customer_webhost
             DB::table('customer_webhost')->insert([
-                'customer_id' => $request->input('customer_id'),
+                'customer_id' => $customer_id,
                 'webhost_id' => $webhost->id_webhost,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
             ]);
         }
 
@@ -175,7 +207,8 @@ class CsMainProjectController extends Controller
             'cs_main_project' => $cs_main_project,
             'webhost' => $webhost,
             'transaksi_masuk' => $transaksi_masuk,
-            'pm_project' => $pm_project
+            'pm_project' => $pm_project,
+            'invoice' => $invoice,
         ]);
     }
 
