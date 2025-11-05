@@ -39,177 +39,189 @@ class CsMainProjectController extends Controller
      */
     public function store(CsMainProjectRequest $request)
     {
-
-        //get webhost by id_webhost
-        $webhost = Webhost::where('id_webhost', $request->input('id_webhost'))->first();
-
-        //jika webhost tidak ditemukan , buat webhost baru
-        if (!$webhost) {
-            $webhost = Webhost::create([
-                'nama_web'          => $request->input('nama_web'),
-                'id_paket'          => $request->input('paket'),
-                'tgl_mulai'         => $request->input('tgl_masuk'),
-                'id_server'         => '1',
-                'id_server2'        => '1',
-                'space'             => '0',
-                'space_use'         => '0',
-                'hp'                => $request->input('hp'),
-                'telegram'          => $request->input('telegram'),
-                'hpads'             => $request->input('hpads'),
-                'wa'                => $request->input('wa'),
-                'email'             => $request->input('email'),
-                'tgl_exp'           => null,
-                'tgl_update'        => date('Y-m-d'),
-                'server_luar'       => $request->input('server') && $request->input('server') == '4' ? '0' : '1',
-                'saldo'             => $request->input('saldo'),
-                'kategori'          => '',
-                'waktu'             => null,
-                'via'               => '',
-                'konfirmasi_order'  => '',
-                'kata_kunci'        => '',
-            ]);
-        } else {
-            $webhost->update([
-                'nama_web'          => $request->input('nama_web'),
-                'id_paket'          => $request->input('paket'),
-                'hp'                => $request->input('hp'),
-                'telegram'          => $request->input('telegram'),
-                'hpads'             => $request->input('hpads'),
-                'wa'                => $request->input('wa'),
-                'email'             => $request->input('email'),
-                'saldo'             => $request->input('saldo'),
-            ]);
-        }
-
-        if ($request->input('biaya') - $request->input('dibayar') > 0) {
-            $lunas = 'belum';
-        } else {
-            $lunas = 'lunas';
-        }
-
-        //olah data di_kerjakan_oleh
-        $di_kerjakan_oleh = '';
-        if ($request->input('dikerjakan_oleh')) {
-            $count = count($request->input('dikerjakan_oleh'));
-            $persen = 100 / $count;
-            foreach ($request->input('dikerjakan_oleh') as $value) {
-                $di_kerjakan_oleh .= ',' . $value . '[' . $persen . ']';
-            }
-        }
-
-        //simpan data ke tabel cs_main_project
-        $cs_main_project = CsMainProject::create([
-            'id_webhost'        => $webhost->id_webhost,
-            'jenis'             => $request->input('jenis'),
-            'deskripsi'         => $request->input('deskripsi'),
-            'trf'               => $request->input('trf'),
-            'tgl_masuk'         => $request->input('tgl_masuk'),
-            'tgl_deadline'      => $request->input('tgl_deadline'),
-            'biaya'             => $request->input('biaya'),
-            'dibayar'           => $request->input('dibayar'),
-            'status'            => 'pending',
-            'status_pm'         => 'pending',
-            'lunas'             => $lunas,
-            'dikerjakan_oleh'   => $di_kerjakan_oleh,
-            'tanda'             => '0',
-        ]);
-
-        //simpan relasi ke cs_main_project_karyawan
-        if ($di_kerjakan_oleh) {
-            $count = count($request->input('dikerjakan_oleh'));
-            $persen = 100 / $count;
-            foreach ($request->input('dikerjakan_oleh') as $value) {
-                DB::table('cs_main_project_karyawan')->insert([
-                    'cs_main_project_id' => $cs_main_project->id,
-                    'karyawan_id' => $value,
-                    'porsi' => $persen ?? 100,
-                    'created_at' => now(),
-                    'updated_at' => now(),
+        return DB::transaction(function () use ($request) {
+            // =============================
+            // 1. Ambil atau buat Webhost
+            // =============================
+            $webhost = Webhost::where('id_webhost', $request->input('id_webhost'))->first();
+            if (!$webhost) {
+                $webhost = Webhost::create([
+                    'nama_web'       => $request->input('nama_web'),
+                    'id_paket'       => $request->input('paket'),
+                    'tgl_mulai'      => $request->input('tgl_masuk'),
+                    'id_server'      => 1,
+                    'id_server2'     => 1,
+                    'space'          => 0,
+                    'space_use'      => 0,
+                    'hp'             => $request->input('hp'),
+                    'telegram'       => $request->input('telegram'),
+                    'hpads'          => $request->input('hpads'),
+                    'wa'             => $request->input('wa'),
+                    'email'          => $request->input('email'),
+                    'tgl_exp'        => null,
+                    'tgl_update'     => now()->format('Y-m-d'),
+                    'server_luar'    => $request->input('server') == '4' ? 0 : 1,
+                    'saldo'          => $request->input('saldo'),
+                    'kategori'       => '',
+                    'waktu'          => null,
+                    'via'            => '',
+                    'konfirmasi_order' => '',
+                    'kata_kunci'     => '',
+                ]);
+            } else {
+                $webhost->update([
+                    'nama_web'  => $request->input('nama_web'),
+                    'id_paket'  => $request->input('paket'),
+                    'hp'        => $request->input('hp'),
+                    'telegram'  => $request->input('telegram'),
+                    'hpads'     => $request->input('hpads'),
+                    'wa'        => $request->input('wa'),
+                    'email'     => $request->input('email'),
+                    'saldo'     => $request->input('saldo'),
                 ]);
             }
-        }
 
-        //menyimpan log transaksi ke TransaksiMasuk
-        $transaksi_masuk = TransaksiMasuk::create([
-            'id'            => $cs_main_project->id,
-            'tgl'           => $cs_main_project->tgl_masuk,
-            'total_biaya'   => $cs_main_project->biaya,
-            'bayar'         => $cs_main_project->dibayar,
-            'pelunasan'     => 'N',
-        ]);
+            // =============================
+            // 2. Hitung status lunas
+            // =============================
+            $lunas = ($request->input('biaya') - $request->input('dibayar') > 0) ? 'belum' : 'lunas';
 
-        //simpan data ke tabel pm_project
-        $pm_project = PmProject::create([
-            'id' => $cs_main_project->id,
-        ]);
+            // =============================
+            // 3. Olah data dikerjakan_oleh
+            // =============================
+            $di_kerjakan_oleh = '';
+            $karyawan_list = $request->input('dikerjakan_oleh', []);
+            $persen = count($karyawan_list) > 0 ? 100 / count($karyawan_list) : 100;
+            foreach ($karyawan_list as $value) {
+                $di_kerjakan_oleh .= ',' . $value . '[' . $persen . ']';
+            }
 
-        //jika customer_id tidak ada, buat customer baru
-        $customer_id = $request->input('customer_id') ?? null;
-        if (!$customer_id && $request->input('nama') && $request->input('hp')) {
-            $customer = Customer::create([
-                'nama'      => $request->input('nama'),
-                'hp'        => $request->input('hp'),
-                'email'     => $request->input('email'),
-                'wa'        => $request->input('wa'),
-                'alamat'    => $request->input('alamat'),
+            // =============================
+            // 4. Simpan ke cs_main_project
+            // =============================
+            $cs_main_project = CsMainProject::create([
+                'id_webhost'      => $webhost->id_webhost,
+                'jenis'           => $request->input('jenis'),
+                'deskripsi'       => $request->input('deskripsi'),
+                'trf'             => $request->input('trf'),
+                'tgl_masuk'       => $request->input('tgl_masuk'),
+                'tgl_deadline'    => $request->input('tgl_deadline'),
+                'biaya'           => $request->input('biaya'),
+                'dibayar'         => $request->input('dibayar'),
+                'status'          => 'pending',
+                'status_pm'       => 'pending',
+                'lunas'           => $lunas,
+                'dikerjakan_oleh' => $di_kerjakan_oleh,
+                'tanda'           => 0,
             ]);
-            $customer_id = $customer->id;
-        }
 
-        $unit = 'vdi';
-        //jika jenis = 'Iklan Google','Deposit Iklan Google','Jasa update iklan google', maka unit = 'vcm'
-        if (in_array($request->input('jenis'), ['Iklan Google', 'Deposit Iklan Google', 'Jasa update iklan google'])) {
-            $unit = 'vcm';
-        }
+            // =============================
+            // 5. Simpan relasi ke karyawan
+            // =============================
+            foreach ($karyawan_list as $value) {
+                DB::table('cs_main_project_karyawan')->insert([
+                    'cs_main_project_id' => $cs_main_project->id,
+                    'karyawan_id'        => $value,
+                    'porsi'              => $persen,
+                    'created_at'         => now(),
+                    'updated_at'         => now(),
+                ]);
+            }
 
-        // buat invoice baru
-        $invoice = Invoice::create([
-            'unit' => $unit,
-            'customer_id' => $customer_id,
-            'note' => $request->input('deskripsi'),
-            'status' => 'lunas',
-            'subtotal' => $request->input('biaya') ?? $request->input('dibayar'),
-            'pajak' => 0,
-            'nama_pajak' => null,
-            'nominal_pajak' => 0,
-            'total' => $request->input('dibayar'),
-            'tanggal' => Carbon::now()->format('Y-m-d H:i:s'), //hari ini
-            'jatuh_tempo' => null,
-            'tanggal_bayar' => Carbon::now()->format('Y-m-d H:i:s'), //hari ini
-            'cs_main_project_id' => $cs_main_project->id,
-        ]);
-        InvoiceItem::create([
-            'invoice_id' => $invoice->id,
-            'webhost_id' => $webhost->id_webhost,
-            'nama' => '',
-            'jenis' => $request->input('jenis'),
-            'harga' => $request->input('biaya') ?? $request->input('dibayar'),
-        ]);
+            // =============================
+            // 6. Transaksi masuk
+            // =============================
+            $transaksi_masuk = TransaksiMasuk::create([
+                'id'          => $cs_main_project->id,
+                'tgl'         => $cs_main_project->tgl_masuk,
+                'total_biaya' => $cs_main_project->biaya,
+                'bayar'       => $cs_main_project->dibayar,
+                'pelunasan'   => 'N',
+            ]);
 
-        // simpan id $cs_main_project dan customer_id ke pivot customer_cs_main_project
-        if ($customer_id) {
-            DB::table('customer_cs_main_project')->insert([
-                'customer_id' => $customer_id,
+            // =============================
+            // 7. PM project
+            // =============================
+            $pm_project = PmProject::create([
+                'id' => $cs_main_project->id,
+            ]);
+
+            // =============================
+            // 8. Customer
+            // =============================
+            $customer_id = $request->input('customer_id');
+            if (!$customer_id && $request->input('nama') && $request->input('hp')) {
+                $customer = Customer::create([
+                    'nama'   => $request->input('nama'),
+                    'hp'     => $request->input('hp'),
+                    'email'  => $request->input('email'),
+                    'wa'     => $request->input('wa'),
+                    'alamat' => $request->input('alamat'),
+                ]);
+                $customer_id = $customer->id;
+            }
+
+            // =============================
+            // 9. Invoice
+            // =============================
+            $unit = in_array($request->input('jenis'), ['Iklan Google', 'Deposit Iklan Google', 'Jasa update iklan google'])
+                ? 'vcm'
+                : 'vdi';
+
+            $invoice = Invoice::create([
+                'unit'               => $unit,
+                'customer_id'        => $customer_id,
+                'note'               => $request->input('deskripsi'),
+                'status'             => 'lunas',
+                'subtotal'           => $request->input('biaya') ?? $request->input('dibayar'),
+                'pajak'              => 0,
+                'nama_pajak'         => null,
+                'nominal_pajak'      => 0,
+                'total'              => $request->input('dibayar'),
+                'tanggal'            => now(),
+                'jatuh_tempo'        => null,
+                'tanggal_bayar'      => now(),
                 'cs_main_project_id' => $cs_main_project->id,
-                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
             ]);
-            //simpan juga relasi customer dan webhost ke pivot customer_webhost
-            DB::table('customer_webhost')->insert([
-                'customer_id' => $customer_id,
-                'webhost_id' => $webhost->id_webhost,
-                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            ]);
-        }
 
-        return response()->json([
-            'cs_main_project' => $cs_main_project,
-            'webhost' => $webhost,
-            'transaksi_masuk' => $transaksi_masuk,
-            'pm_project' => $pm_project,
-            'invoice' => $invoice,
-        ]);
+            InvoiceItem::create([
+                'invoice_id' => $invoice->id,
+                'webhost_id' => $webhost->id_webhost,
+                'nama'       => '',
+                'jenis'      => $request->input('jenis'),
+                'harga'      => $request->input('biaya') ?? $request->input('dibayar'),
+            ]);
+
+            // =============================
+            // 10. Pivot customer_cs_main_project & customer_webhost
+            // =============================
+            if ($customer_id) {
+                DB::table('customer_cs_main_project')->insert([
+                    'customer_id'       => $customer_id,
+                    'cs_main_project_id' => $cs_main_project->id,
+                    'created_at'        => now(),
+                    'updated_at'        => now(),
+                ]);
+
+                DB::table('customer_webhost')->insert([
+                    'customer_id' => $customer_id,
+                    'webhost_id'  => $webhost->id_webhost,
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ]);
+            }
+
+            // =============================
+            // 11. Return response
+            // =============================
+            return response()->json([
+                'cs_main_project' => $cs_main_project,
+                'webhost'         => $webhost,
+                'transaksi_masuk' => $transaksi_masuk,
+                'pm_project'      => $pm_project,
+                'invoice'         => $invoice,
+            ]);
+        });
     }
 
     /**
