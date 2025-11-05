@@ -161,7 +161,7 @@ class JournalController extends Controller
             'title'                 => 'required|string',
             'description'           => 'nullable|string',
             'start'                 => 'required|date',
-            'end'                   => 'nullable|date|after:start',
+            'end'                   => 'nullable|date',
             'status'                => 'required|string',
             'priority'              => 'nullable|string',
             'user_id'               => 'nullable|exists:users,id',
@@ -170,6 +170,14 @@ class JournalController extends Controller
             'cs_main_project_id'    => 'nullable',
             'journal_category_id'   => 'nullable|exists:journal_categories,id',
         ]);
+
+        //start dan end harus lebih kecil dari atau sama dengan sekarang
+        $now = now();
+        if ($request->start > $now || $request->end > $now) {
+            return response()->json([
+                'message' => 'Start dan End harus lebih kecil dari atau sama dengan sekarang',
+            ], 400);
+        }
 
         if (!$request->input('user_id')) {
             $user_id = auth()->user()->id;
@@ -240,7 +248,7 @@ class JournalController extends Controller
             'title'                 => 'required|string',
             'description'           => 'nullable|string',
             'start'                 => 'required|date',
-            'end'                   => 'nullable|date|after:start',
+            'end'                   => 'nullable|date',
             'status'                => 'required|string',
             'priority'              => 'nullable|string',
             'user_id'               => 'required|exists:users,id',
