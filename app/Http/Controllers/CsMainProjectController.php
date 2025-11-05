@@ -214,19 +214,25 @@ class CsMainProjectController extends Controller
             // 10. Pivot customer_cs_main_project & customer_webhost
             // =============================
             if ($customer_id) {
-                DB::table('customer_cs_main_project')->insert([
-                    'customer_id'       => $customer_id,
-                    'cs_main_project_id' => $cs_main_project->id,
-                    'created_at'        => now(),
-                    'updated_at'        => now(),
-                ]);
+                //jika customer_cs_main_project belum ada, insert
+                if (!DB::table('customer_cs_main_project')->where('customer_id', $customer_id)->where('cs_main_project_id', $cs_main_project->id)->exists()) {
+                    DB::table('customer_cs_main_project')->insert([
+                        'customer_id'       => $customer_id,
+                        'cs_main_project_id' => $cs_main_project->id,
+                        'created_at'        => now(),
+                        'updated_at'        => now(),
+                    ]);
+                }
 
-                DB::table('customer_webhost')->insert([
-                    'customer_id' => $customer_id,
-                    'webhost_id'  => $webhost->id_webhost,
-                    'created_at'  => now(),
-                    'updated_at'  => now(),
-                ]);
+                //jika customer_webhost belum ada, insert
+                if (!DB::table('customer_webhost')->where('customer_id', $customer_id)->where('webhost_id', $webhost->id_webhost)->exists()) {
+                    DB::table('customer_webhost')->insert([
+                        'customer_id' => $customer_id,
+                        'webhost_id'  => $webhost->id_webhost,
+                        'created_at'  => now(),
+                        'updated_at'  => now(),
+                    ]);
+                }
             }
 
             // =============================
