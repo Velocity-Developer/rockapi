@@ -27,6 +27,23 @@ class CustomerController extends Controller
             });
         }
 
+        //hp
+        if ($request->input('hp')) {
+            $query->where('hp', $request->input('hp'));
+        }
+
+        //email
+        if ($request->input('email')) {
+            $query->where('email', $request->input('email'));
+        }
+
+        //alamat
+        if ($request->input('alamat')) {
+            $query->where('alamat', 'like', "%{$request->input('alamat')}%");
+        }
+
+
+
         // Simple whitelist for order_by
         if (!in_array($orderBy, ['nama', 'email', 'hp', 'created_at', 'updated_at'])) {
             $orderBy = 'created_at';
