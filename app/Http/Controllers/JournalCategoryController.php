@@ -42,7 +42,7 @@ class JournalCategoryController extends Controller
             'name'          => 'required|string|max:255',
             'description'   => 'nullable|string',
             'icon'          => 'nullable|string',
-            'role'          => 'required|string',
+            'role'          => 'nullable|string',
         ]);
 
         $category = JournalCategory::create([
@@ -73,7 +73,7 @@ class JournalCategoryController extends Controller
             'name'          => 'required|string|max:255',
             'description'   => 'nullable|string',
             'icon'          => 'nullable|string',
-            'role'          => 'required|string',
+            'role'          => 'nullable|string',
         ]);
 
         $category = JournalCategory::findOrFail($id);
