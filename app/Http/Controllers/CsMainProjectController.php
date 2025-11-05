@@ -165,6 +165,19 @@ class CsMainProjectController extends Controller
                 ]);
                 $customer_id = $customer->id;
             }
+            //jika ada customer_id, update customer
+            if ($customer_id) {
+                Customer::where('id', $customer_id)->update([
+                    'nama'   => $request->input('nama'),
+                    'hp'     => $request->input('hp'),
+                    'email'  => $request->input('email'),
+                    'wa'     => $request->input('wa'),
+                    'alamat' => $request->input('alamat'),
+                    'telegram' => $request->input('telegram'),
+                    'hpads' => $request->input('hpads'),
+                    'saldo' => $request->input('saldo'),
+                ]);
+            }
 
             // =============================
             // 9. Invoice
