@@ -157,6 +157,11 @@ class CsMainProjectController extends Controller
                     'email'  => $request->input('email'),
                     'wa'     => $request->input('wa'),
                     'alamat' => $request->input('alamat'),
+                    'telegram' => $request->input('telegram'),
+                    'hpads' => $request->input('hpads'),
+                    'saldo' => $request->input('saldo'),
+                    'jenis_kelamin' => $request->input('jenis_kelamin'),
+                    'usia' => $request->input('usia'),
                 ]);
                 $customer_id = $customer->id;
             }

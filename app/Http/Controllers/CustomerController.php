@@ -49,6 +49,11 @@ class CustomerController extends Controller
             'email'  => 'nullable|email',
             'hp'     => 'nullable|string',
             'alamat' => 'nullable|string',
+            'telegram' => 'nullable|string',
+            'hpads' => 'nullable|string',
+            'saldo' => 'nullable|decimal:2',
+            'jenis_kelamin' => 'nullable|string',
+            'usia' => 'nullable|integer',
         ]);
 
         $customer = Customer::create($validated);
@@ -82,6 +87,11 @@ class CustomerController extends Controller
             'email'  => 'nullable|email',
             'hp'     => 'nullable|string',
             'alamat' => 'nullable|string',
+            'telegram' => 'nullable|string',
+            'hpads' => 'nullable|string',
+            'saldo' => 'nullable|decimal:2',
+            'jenis_kelamin' => 'nullable|string',
+            'usia' => 'nullable|integer',
         ]);
 
         $customer->update($validated);
