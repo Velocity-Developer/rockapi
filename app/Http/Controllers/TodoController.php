@@ -8,6 +8,7 @@ use App\Models\TodoUser;
 use App\Models\TodoCategory;
 use App\Models\User;
 use App\Models\Journal;
+use App\Models\JournalCategory;
 use App\Http\Resources\TodoResource;
 use App\Http\Resources\TodoAssignmentResource;
 use App\Notifications\TodoAssignedNotification;
@@ -655,6 +656,18 @@ class TodoController extends Controller
 
         // Handle TodoUser pivot operations
         if ($oldStatus === TodoList::STATUS_ASSIGNED && $newStatus === TodoList::STATUS_IN_PROGRESS && $user) {
+
+            //dapatkan journal_category dengan name = 'Todo'
+            $journalCategory = JournalCategory::where('name', 'Todo')->first();
+            //jika tidak ada, buat baru
+            if (!$journalCategory) {
+                $journalCategory = JournalCategory::create([
+                    'name' => 'Todo',
+                    'description' => 'Kategori untuk catatan pengerjaan todo',
+                    'icon' => '✅',
+                ]);
+            }
+
             // Create journal entry first
             $journal = Journal::create([
                 'title' => 'Pengerjaan ' . $todo->title,
@@ -665,7 +678,7 @@ class TodoController extends Controller
                 'priority' => 'medium',
                 'user_id' => $user->id,
                 'role' => $user->roles->first()->name ?? null,
-                'journal_category_id' => null
+                'journal_category_id' => $journalCategory->id,
             ]);
 
             // Create or update TodoUser record with journal_id
