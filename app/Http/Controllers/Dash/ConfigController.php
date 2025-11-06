@@ -185,6 +185,7 @@ class ConfigController extends Controller
             'support',
             'customer_service',
             'revisi',
+            'advertising'
         ];
 
         if (array_intersect($ready, $roles)) {
