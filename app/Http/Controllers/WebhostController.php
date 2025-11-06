@@ -67,6 +67,9 @@ class WebhostController extends Controller
             return response()->json(['message' => 'Keyword minimal 3 karakter'], 404);
         }
 
+        //hapus http:// dan https:// dari keyword
+        $keyword = $keyword ? preg_replace('/^https?:\/\//', '', $keyword) : $keyword;
+
         //get nama_web by keyword, ambil kolom nama_web dan id_webhost
         $webhosts = Webhost::where('nama_web', 'like', '%' . $keyword . '%')
             ->select('nama_web', 'id_webhost')
