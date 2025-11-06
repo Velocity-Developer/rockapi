@@ -24,6 +24,12 @@
         "route": "/project_list_support"
     },
     {
+        "key": "project_manager",
+        "label": "Project Selesai",
+        "icon": "lucide:folder-check",
+        "route": "/project_manager"
+    },
+    {
         "key": "todos",
         "label": "TodoList",
         "icon": "lucide:check-square",
