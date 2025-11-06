@@ -185,20 +185,23 @@ class CsMainProjectController extends Controller
             $unit = in_array($request->input('jenis'), ['Iklan Google', 'Deposit Iklan Google', 'Jasa update iklan google'])
                 ? 'vcm'
                 : 'vdi';
-
+            $biaya_invoice = $request->input('biaya') ?? $request->input('dibayar');
+            if ($unit == 'vcm' && $request->input('trf')) {
+                $biaya_invoice = $request->input('trf');
+            }
             $invoice = Invoice::create([
                 'unit'               => $unit,
                 'customer_id'        => $customer_id,
                 'note'               => $request->input('deskripsi'),
                 'status'             => 'lunas',
-                'subtotal'           => $request->input('biaya') ?? $request->input('dibayar'),
+                'subtotal'           => $biaya_invoice,
                 'pajak'              => 0,
                 'nama_pajak'         => null,
                 'nominal_pajak'      => 0,
-                'total'              => $request->input('dibayar'),
-                'tanggal'            => now(),
+                'total'              => $biaya_invoice,
+                'tanggal'            => $request->input('tgl_masuk'),
                 'jatuh_tempo'        => null,
-                'tanggal_bayar'      => now(),
+                'tanggal_bayar'      => $request->input('tgl_masuk'),
                 'cs_main_project_id' => $cs_main_project->id,
             ]);
 
@@ -207,7 +210,7 @@ class CsMainProjectController extends Controller
                 'webhost_id' => $webhost->id_webhost,
                 'nama'       => '',
                 'jenis'      => $request->input('jenis'),
-                'harga'      => $request->input('biaya') ?? $request->input('dibayar'),
+                'harga'      => $biaya_invoice,
             ]);
 
             // =============================
