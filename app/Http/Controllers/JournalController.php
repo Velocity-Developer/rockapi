@@ -62,7 +62,16 @@ class JournalController extends Controller
             $start = $request->input('date_start') . ' 00:00:00';
             $end = $request->input('date_end') . ' 23:59:59';
 
-            $query->whereBetween('start', [$start, $end]);
+            $query->where(function($q) use ($start, $end) {
+                // Jurnal yang dimulai dalam rentang tanggal
+                $q->whereBetween('start', [$start, $end])
+                // Atau jurnal yang dimulai sebelum date_start tetapi selesai dalam rentang tanggal
+                ->orWhere(function($subQuery) use ($start, $end) {
+                    $subQuery->where('start', '<', $start)
+                             ->where('end', '>=', $start)
+                             ->where('end', '<=', $end);
+                });
+            });
         }
 
         //order by start
@@ -111,7 +120,17 @@ class JournalController extends Controller
         if ($request->input('date_start') && $request->input('date_end')) {
             $start = $request->input('date_start') . ' 00:00:00';
             $end = $request->input('date_end') . ' 23:59:59';
-            $allJournalsQuery->whereBetween('start', [$start, $end]);
+
+            $allJournalsQuery->where(function($q) use ($start, $end) {
+                // Jurnal yang dimulai dalam rentang tanggal
+                $q->whereBetween('start', [$start, $end])
+                // Atau jurnal yang dimulai sebelum date_start tetapi selesai dalam rentang tanggal
+                ->orWhere(function($subQuery) use ($start, $end) {
+                    $subQuery->where('start', '<', $start)
+                             ->where('end', '>=', $start)
+                             ->where('end', '<=', $end);
+                });
+            });
         }
 
         $allJournals = $allJournalsQuery->get();
