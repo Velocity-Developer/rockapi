@@ -127,6 +127,23 @@ class TodoController extends Controller
             }
         ])->forUser($user);
 
+        // Filter out todos that are already being worked on or completed by other users
+        $query->where(function ($q) use ($user) {
+            $q->whereNotIn('status', ['in_progress', 'completed'])
+                ->orWhere(function ($subQuery) use ($user) {
+                    // Include todos if the current user is the one working on them
+                    $subQuery->whereIn('status', ['in_progress', 'completed'])
+                        ->whereHas('todoUsers', function ($todoUserQuery) use ($user) {
+                            $todoUserQuery->where('user_id', $user->id);
+                        });
+                })
+                ->orWhere(function ($subQuery) {
+                    // Include todos if no one has started working on them yet (no TodoUser records)
+                    $subQuery->whereIn('status', ['in_progress', 'completed'])
+                        ->whereDoesntHave('todoUsers');
+                });
+        });
+
         // Apply same filters as index
         if ($request->input('status')) {
             $query->byStatus($request->input('status'));
@@ -581,13 +598,23 @@ class TodoController extends Controller
         // Basic statistics
         $stats = [
             'my_total' => TodoList::forUser($user)->count(),
-            'my_completed' => TodoList::forUser($user)->byStatus(TodoList::STATUS_COMPLETED)->count(),
+            'my_completed' => TodoList::forUser($user)
+                ->byStatus(TodoList::STATUS_COMPLETED)
+                ->whereHas('todoUsers', function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                })
+                ->count(),
             'my_pending' => TodoList::forUser($user)->whereNot('status', TodoList::STATUS_COMPLETED)->count(),
             'created_total' => TodoList::createdBy($user)->count(),
             'created_completed' => TodoList::createdBy($user)->byStatus(TodoList::STATUS_COMPLETED)->count(),
             // New statistics
             'assigned_count' => TodoList::forUser($user)->byStatus(TodoList::STATUS_ASSIGNED)->count(),
-            'in_progress_count' => TodoList::forUser($user)->byStatus(TodoList::STATUS_IN_PROGRESS)->count(),
+            'in_progress_count' => TodoList::forUser($user)
+                ->byStatus(TodoList::STATUS_IN_PROGRESS)
+                ->whereHas('todoUsers', function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                })
+                ->count(),
             'assigned_urgent_count' => TodoList::forUser($user)
                 ->byStatus(TodoList::STATUS_ASSIGNED)
                 ->byPriority(TodoList::PRIORITY_URGENT)
