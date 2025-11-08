@@ -45,6 +45,7 @@ const excludePatterns = [
   'Thumbs.db',
   '*.log',
   'build-*.zip',
+  'build.zip',
   '.vscode',
   'BUILD.md'
 ];
@@ -71,7 +72,7 @@ function shouldExclude(filePath) {
 // Fungsi utama untuk membuat zip
 async function createBuildZip() {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-  const outputPath = path.join(distDir, `build-${timestamp}.zip`);
+  const outputPath = path.join(distDir, `build.zip`);
   
   console.log('🚀 Memulai proses build Laravel untuk production...');
   console.log(`📦 Output: ${outputPath}`);
