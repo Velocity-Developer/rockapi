@@ -344,20 +344,17 @@ class TodoController extends Controller
         });
     }
 
-    public function show(TodoList $todo): JsonResponse
+    public function show(string $id, Request $request): JsonResponse
     {
-        $todo->load([
+        $todo = TodoList::with([
             'creator:id,name,avatar',
             'category:id,name,color,icon',
             'assignments' => function ($q) {
                 $q->with(['assignable', 'assignedBy']);
             }
-        ]);
+        ])->findOrFail($id);
 
-        return response()->json([
-            'success' => true,
-            'data' => $todo
-        ]);
+        return response()->json($todo);
     }
 
     public function update(string $id, Request $request): JsonResponse
