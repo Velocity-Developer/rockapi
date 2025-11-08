@@ -594,7 +594,7 @@ class TodoController extends Controller
 
         // Basic statistics
         $stats = [
-            'my_total' => TodoList::forUser($user)->count(),
+            'my_total' => TodoList::forUser($user)->byStatus(TodoList::STATUS_ASSIGNED)->count(),
             'my_completed' => TodoList::forUser($user)
                 ->byStatus(TodoList::STATUS_COMPLETED)
                 ->whereHas('todoUsers', function ($q) use ($user) {
@@ -602,7 +602,7 @@ class TodoController extends Controller
                 })
                 ->count(),
             'my_pending' => TodoList::forUser($user)->whereNot('status', TodoList::STATUS_COMPLETED)->count(),
-            'created_total' => TodoList::createdBy($user)->count(),
+            'created_total' => TodoList::createdBy($user)->byStatus(TodoList::STATUS_ASSIGNED)->count(),
             'created_completed' => TodoList::createdBy($user)->byStatus(TodoList::STATUS_COMPLETED)->count(),
             // New statistics
             'assigned_count' => TodoList::forUser($user)->byStatus(TodoList::STATUS_ASSIGNED)->count(),
