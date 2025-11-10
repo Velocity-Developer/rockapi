@@ -48,6 +48,7 @@ const excludePatterns = [
   'build.zip',
   '.vscode',
   'BUILD.md',
+  'vendor',
   'vendor/',
   'public/storage/'
 ];
