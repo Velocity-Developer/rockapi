@@ -317,12 +317,14 @@ class TodoController extends Controller
             }
 
             // Send notifications to assigned users
+            $notifies = [];
             if (!empty($usersToNotify)) {
                 $assignedBy = Auth::user();
                 foreach ($usersToNotify as $user) {
                     $userModel = is_array($user) ? User::find($user['id']) : $user;
+                    $notifies[] = $userModel->toArray();
                     if ($userModel) {
-                        $userModel->notify(new TodoAssignedNotification($todo, $assignedBy));
+                        Notification::send($userModel, new TodoAssignedNotification($todo, $assignedBy));
                     }
                 }
             }
@@ -339,7 +341,9 @@ class TodoController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $todo,
-                'message' => 'Todo created successfully'
+                'message' => 'Todo created successfully',
+                'users_to_notify' => $usersToNotify,
+                'notifies' => $notifies
             ], 201);
         });
     }

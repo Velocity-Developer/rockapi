@@ -28,6 +28,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\TodoController;
 use App\Http\Controllers\TodoCategoryController;
+use App\Http\Controllers\NotificationDebugController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -144,6 +145,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Todo Category routes
     Route::prefix('todo_category')->group(function () {
         Route::get('/active', [TodoCategoryController::class, 'active']); // Get active categories
+    });
+
+    // Debug routes for notification troubleshooting
+    Route::prefix('debug')->group(function () {
+        Route::get('/notifications', [NotificationDebugController::class, 'testNotificationCreation']);
     });
 
     // Invoice PDF route
