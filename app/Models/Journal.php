@@ -24,6 +24,11 @@ class Journal extends Model
         'journal_category_id'
     ];
 
+    //cast    
+    protected $casts = [
+        'user_id' => 'integer',
+    ];
+
     //relasi ke user
     public function user()
     {
