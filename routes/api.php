@@ -30,6 +30,7 @@ use App\Http\Controllers\TodoController;
 use App\Http\Controllers\TodoCategoryController;
 use App\Http\Controllers\NotificationDebugController;
 use App\Http\Controllers\TelegramController;
+use App\Http\Controllers\ClientSupportController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -101,6 +102,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //project_manager
     Route::get('project_manager', [ProjectManagerController::class, 'index']);
     Route::post('project_manager_save', [ProjectManagerController::class, 'save']);
+
+    //client_support
+    Route::get('client_support', [ClientSupportController::class, 'index']);
 
     //lain_lain
     Route::get('/check_paket', CheckPaketController::class);

@@ -113,5 +113,11 @@
         "label": "Laporan Tim",
         "icon": "lucide:chart-column-stacked",
         "route": "/laporannilai"
+    },
+    {
+        "key": "client_support",
+        "label": "Client Support",
+        "icon": "lucide:user-star",
+        "route": "/client_support"
     }
 ]

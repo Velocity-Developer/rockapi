@@ -12,6 +12,12 @@ class WebhostClientSupport extends Model
         'tanggal',
     ];
 
+    //hide
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
+
     //relasi ke Webhost
     public function webhost()
     {

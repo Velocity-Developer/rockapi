@@ -18,6 +18,12 @@
         "route": "/bill_dataweb"
     },
     {
+        "key": "client_support",
+        "label": "Client Support",
+        "icon": "lucide:user-star",
+        "route": "/client_support"
+    },
+    {
         "key": "project_list",
         "label": "Daftar Project",
         "icon": "lucide:folder-code",

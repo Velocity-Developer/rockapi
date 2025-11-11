@@ -44,6 +44,11 @@
                 "route": "/project_list"
             },
             {
+                "key": "laporannilai",
+                "label": "Laporan Tim",
+                "route": "/laporannilai"
+            },
+            {
                 "key": "project_list_support",
                 "label": "Project Update Web",
                 "route": "/project_list_support"
@@ -58,10 +63,10 @@
         "roles": ["admin", "manager_project"]
     },
     {
-        "key": "laporannilai",
-        "label": "Laporan Tim",
-        "icon": "lucide:chart-column-stacked",
-        "route": "/laporannilai"
+        "key": "client_support",
+        "label": "Client Support",
+        "icon": "lucide:user-star",
+        "route": "/client_support"
     },
     {
         "key": "bank_transaksi",

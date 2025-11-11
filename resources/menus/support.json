@@ -40,5 +40,11 @@
         "label": "Customer",
         "icon": "lucide:users-round",
         "route": "/customer"
+    },
+    {
+        "key": "client_support",
+        "label": "Client Support",
+        "icon": "lucide:user-star",
+        "route": "/client_support"
     }
 ]

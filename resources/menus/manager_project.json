@@ -36,6 +36,12 @@
         "route": "/laporannilai"
     },
     {
+        "key": "client_support",
+        "label": "Client Support",
+        "icon": "lucide:user-star",
+        "route": "/client_support"
+    },
+    {
         "key": "invoice",
         "label": "Invoice",
         "icon": "lucide:file-text",
