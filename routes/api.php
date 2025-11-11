@@ -29,6 +29,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\TodoController;
 use App\Http\Controllers\TodoCategoryController;
 use App\Http\Controllers\NotificationDebugController;
+use App\Http\Controllers\TelegramController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -152,7 +153,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/notifications', [NotificationDebugController::class, 'testNotificationCreation']);
     });
 
-    // Invoice PDF route
+    // Telegram routes
+    Route::prefix('telegram')->group(function () {
+        Route::post('/webhook', [TelegramController::class, 'webhook']);
+        Route::get('/status', [TelegramController::class, 'status']);
+    });
 });
 
 // Invoice PDF route
