@@ -14,17 +14,30 @@ class ClientSupportController extends Controller
     public function index(Request $request)
     {
         $results    = [];
+
         $per_page   = $request->input('per_page', 50);
         $per_page   = intval($per_page);
         $tgl_start  = $request->input('tgl_start');
         $tgl_end    = $request->input('tgl_end');
+        $nama_web   = $request->input('nama_web');
+        $jenis      = $request->input('jenis');
 
         //array tanggal
         $arrayTanggal = $this->arrayTanggal($per_page, $tgl_start, $tgl_end);
 
         //get data dari WebhostClientSupport
         $webhostClientSupportData = WebhostClientSupport::with('webhost:id_webhost,nama_web')
-            ->whereIn('tanggal', $arrayTanggal)
+            ->when($tgl_start, function ($query) use ($arrayTanggal) {
+                $query->whereIn('tanggal', $arrayTanggal);
+            })
+            ->when($nama_web, function ($query) use ($nama_web) {
+                $query->whereHas('webhost', function ($subQuery) use ($nama_web) {
+                    $subQuery->where('nama_web', 'like', '%' . $nama_web . '%');
+                });
+            })
+            ->when($jenis, function ($query) use ($jenis) {
+                $query->where('layanan', $jenis);
+            })
             ->get();
         if ($webhostClientSupportData->count() > 0) {
             foreach ($webhostClientSupportData as $item) {
@@ -36,7 +49,17 @@ class ClientSupportController extends Controller
 
         //get data dari CsMainProjectClientSupport
         $csMainProjectClientSupportData = CsMainProjectClientSupport::with('cs_main_project:id,id_webhost,jenis', 'cs_main_project.webhost:id_webhost,nama_web')
-            ->whereIn('tanggal', $arrayTanggal)
+            ->when($tgl_start, function ($query) use ($arrayTanggal) {
+                $query->whereIn('tanggal', $arrayTanggal);
+            })
+            ->when($nama_web, function ($query) use ($nama_web) {
+                $query->whereHas('cs_main_project.webhost', function ($subQuery) use ($nama_web) {
+                    $subQuery->where('nama_web', 'like', '%' . $nama_web . '%');
+                });
+            })
+            ->when($jenis, function ($query) use ($jenis) {
+                $query->where('layanan', $jenis);
+            })
             ->get();
         if ($csMainProjectClientSupportData->count() > 0) {
             foreach ($csMainProjectClientSupportData as $item) {
