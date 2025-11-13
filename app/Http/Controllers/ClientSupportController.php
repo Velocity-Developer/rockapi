@@ -35,19 +35,23 @@ class ClientSupportController extends Controller
         }
 
         //get data dari CsMainProjectClientSupport
-        $csMainProjectClientSupportData = CsMainProjectClientSupport::with('cs_main_project')
+        $csMainProjectClientSupportData = CsMainProjectClientSupport::with('cs_main_project:id,id_webhost,jenis', 'cs_main_project.webhost:id_webhost,nama_web')
             ->whereIn('tanggal', $arrayTanggal)
             ->get();
         if ($csMainProjectClientSupportData->count() > 0) {
             foreach ($csMainProjectClientSupportData as $item) {
                 $tgl = $item->tanggal ? Carbon::parse($item->tanggal)->format('Y-m-d') : null;
                 $results[$tgl]['tanggal'] = $tgl;
-                $results[$tgl][$item->layanan][] = $item->cs_main_project;
+                $item_data = $item->cs_main_project;
+                $item_data['nama_web'] = $item->cs_main_project->webhost->nama_web;
+                $results[$tgl][$item->layanan][] = $item_data;
             }
         }
 
         //reset array key 
         $results = array_values($results);
+        //balik array
+        $results = array_reverse($results);
 
         return response()->json($results);
     }
