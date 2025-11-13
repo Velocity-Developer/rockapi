@@ -18,6 +18,11 @@ class CsMainProjectClientSupport extends Model
         'updated_at',
     ];
 
+    //cast
+    protected $casts = [
+        'cs_main_project_id' => 'integer',
+    ];
+
     //relasi ke CsMainProject
     public function cs_main_project()
     {

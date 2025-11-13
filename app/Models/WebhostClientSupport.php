@@ -18,6 +18,11 @@ class WebhostClientSupport extends Model
         'updated_at',
     ];
 
+    //cast
+    protected $casts = [
+        'webhost_id' => 'integer',
+    ];
+
     //relasi ke Webhost
     public function webhost()
     {

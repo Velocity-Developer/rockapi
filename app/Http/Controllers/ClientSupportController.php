@@ -99,4 +99,44 @@ class ClientSupportController extends Controller
 
         return $tanggals;
     }
+
+    //store
+    public function store(Request $request)
+    {
+
+        //validasi
+        $request->validate([
+            'jenis' => 'required|string',
+            'tanggal' => 'required|date',
+            'id_webhost' => 'nullable|integer',
+            'id_cs_main_project' => 'nullable|integer',
+        ]);
+
+        $jenis = $request->input('jenis');
+        $tanggal = $request->input('tanggal');
+        $id_webhost = $request->input('id_webhost');
+        $id_cs_main_project = $request->input('id_cs_main_project');
+
+        //ubah format tanggal
+        $tanggal = Carbon::parse($tanggal)->format('Y-m-d H:i:s');
+
+        ///jika jenis = tanya_jawab,create WebhostClientSupport
+        if ($jenis == 'tanya_jawab') {
+            $NewClientSupport = WebhostClientSupport::create([
+                'layanan' => $jenis,
+                'tanggal' => $tanggal,
+                'webhost_id' => $id_webhost,
+            ]);
+        }
+        ///jika bukan tanya_jawab ,create CsMainProjectClientSupport
+        if ($jenis != 'tanya_jawab') {
+            $NewClientSupport = CsMainProjectClientSupport::create([
+                'layanan' => $jenis,
+                'tanggal' => $tanggal,
+                'cs_main_project_id' => $id_cs_main_project,
+            ]);
+        }
+
+        return response()->json($NewClientSupport);
+    }
 }
