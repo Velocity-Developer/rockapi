@@ -157,16 +157,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('debug')->group(function () {
         Route::get('/notifications', [NotificationDebugController::class, 'testNotificationCreation']);
     });
-
-    // Telegram routes
-    Route::prefix('telegram')->group(function () {
-        Route::post('/webhook', [TelegramController::class, 'webhook']);
-        Route::get('/status', [TelegramController::class, 'status']);
-    });
 });
 
 // Invoice PDF route
 Route::get('/invoice/{id}/pdf', [InvoiceController::class, 'printPdf']);
+
+// Telegram routes
+Route::prefix('telegram')->group(function () {
+    Route::post('/webhook', [TelegramController::class, 'webhook']);
+    Route::get('/status', [TelegramController::class, 'status']);
+});
 
 require __DIR__ . '/api-dash.php';
 require __DIR__ . '/api-laporan.php';

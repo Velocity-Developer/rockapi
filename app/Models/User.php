@@ -31,7 +31,8 @@ class User extends Authenticatable
         'alamat',
         'tgl_masuk',
         'id_karyawan',
-        'username'
+        'username',
+        'telegram_id',
     ];
 
     /**
