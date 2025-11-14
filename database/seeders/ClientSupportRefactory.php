@@ -18,15 +18,21 @@ class ClientSupportRefactory extends Seeder
     public function run(): void
     {
         $this->command->info('Memulai proses refactory data dari tb_clientsupport ke CsMainProjectClientSupport dan WebhostClientSupport...');
-        
-        try {
-            // Ambil data dari tb_clientsupport yang belum diproses (export != 1)
-            $clientSupportData = DB::table('tb_clientsupport')
-                ->where('export', '!=', 1)
-                ->orWhereNull('export')
-                ->get();
 
-            $this->command->info('Ditemukan ' . $clientSupportData->count() . ' record yang akan diproses.');
+        try {
+            // Ambil data dari tb_clientsupport yang belum diproses (export < 2) atau null
+            $today = date('Y-m-d');
+            $clientSupportData = DB::table('tb_clientsupport')
+                ->where(function ($q) use ($today) {
+                    $q->where('export', '<', 2)
+                        ->orWhereNull('export')
+                        ->orWhereDate('tgl', $today);
+                })
+                ->limit(500)
+                ->get();
+            $clientSupportDataCount = $clientSupportData->count();
+
+            $this->command->info('Ditemukan ' . $clientSupportDataCount . ' record yang akan diproses.');
 
             $processedCount = 0;
             $errorCount = 0;
@@ -36,7 +42,7 @@ class ClientSupportRefactory extends Seeder
             // Kolom yang berisi kumpulan ID yang dipisahkan koma
             $layananColumns = [
                 'revisi_1',
-                'perbaikan_revisi_1', 
+                'perbaikan_revisi_1',
                 'revisi_2',
                 'perbaikan_revisi_2',
                 'update_web'
@@ -53,7 +59,7 @@ class ClientSupportRefactory extends Seeder
                     // Proses setiap kolom layanan untuk CsMainProjectClientSupport
                     foreach ($layananColumns as $layanan) {
                         $idsString = $data->$layanan ?? '';
-                        
+
                         // Skip jika kolom kosong
                         if (empty($idsString)) {
                             continue;
@@ -69,11 +75,18 @@ class ClientSupportRefactory extends Seeder
                                 continue;
                             }
 
-                            CsMainProjectClientSupport::create([
-                                'cs_main_project_id' => (int) $csMainProjectId,
-                                'layanan' => $layanan,
-                                'tanggal' => $data->tgl ?? null,
-                            ]);
+                            // CsMainProjectClientSupport::create([
+                            //     'cs_main_project_id' => (int) $csMainProjectId,
+                            //     'layanan' => $layanan,
+                            //     'tanggal' => $data->tgl ?? null,
+                            // ]);
+                            CsMainProjectClientSupport::updateOrCreate(
+                                [
+                                    'cs_main_project_id' => (int) $csMainProjectId,
+                                    'layanan' => $layanan,
+                                    'tanggal' => $data->tgl ?? null
+                                ]
+                            );
 
                             $csRecordInserted++;
                             $totalCsInserted++;
@@ -85,17 +98,24 @@ class ClientSupportRefactory extends Seeder
                     if (!empty($tanyaJawabString)) {
                         // Parse domain dari string tanya_jawab
                         $domains = $this->parseDomains($tanyaJawabString);
-                        
+
                         foreach ($domains as $domain) {
                             // Cari webhost berdasarkan nama_web
                             $webhost = $this->findWebhostByDomain($domain);
-                            
+
                             if ($webhost) {
-                                WebhostClientSupport::create([
-                                    'webhost_id' => $webhost->id_webhost,
-                                    'layanan' => 'tanya_jawab',
-                                    'tanggal' => $data->tgl ?? null,
-                                ]);
+                                // WebhostClientSupport::create([
+                                //     'webhost_id' => $webhost->id_webhost,
+                                //     'layanan' => 'tanya_jawab',
+                                //     'tanggal' => $data->tgl ?? null,
+                                // ]);
+                                WebhostClientSupport::updateOrCreate(
+                                    [
+                                        'webhost_id' => $webhost->id_webhost,
+                                        'layanan' => 'tanya_jawab',
+                                        'tanggal' => $data->tgl ?? null,
+                                    ]
+                                );
 
                                 $webhostRecordInserted++;
                                 $totalWebhostInserted++;
@@ -106,14 +126,13 @@ class ClientSupportRefactory extends Seeder
                     // Update kolom export menjadi 1 untuk menandai sudah diproses
                     DB::table('tb_clientsupport')
                         ->where('id_cs_project', $data->id_cs_project)
-                        ->update(['export' => 1]);
+                        ->update(['export' => 3]);
 
                     // Commit transaksi
                     DB::commit();
 
                     $processedCount++;
-                    $this->command->info("Record ID {$data->id_cs_project} berhasil diproses. CS: {$csRecordInserted}, Webhost: {$webhostRecordInserted} records.");
-
+                    $this->command->info("{$processedCount}/{$clientSupportDataCount}. Record ID {$data->id_cs_project} berhasil diproses. CS: {$csRecordInserted}, Webhost: {$webhostRecordInserted} records.");
                 } catch (Exception $e) {
                     // Rollback transaksi jika terjadi error
                     DB::rollBack();
@@ -127,7 +146,6 @@ class ClientSupportRefactory extends Seeder
             $this->command->info("Total record CsMainProjectClientSupport dibuat: {$totalCsInserted}");
             $this->command->info("Total record WebhostClientSupport dibuat: {$totalWebhostInserted}");
             $this->command->info("Total error: {$errorCount}");
-
         } catch (Exception $e) {
             $this->command->error('Error dalam proses refactory: ' . $e->getMessage());
         }
@@ -140,7 +158,7 @@ class ClientSupportRefactory extends Seeder
     {
         // Pisahkan berdasarkan koma, spasi, atau enter
         $domains = preg_split('/[,\s\n\r]+/', $domainsString, -1, PREG_SPLIT_NO_EMPTY);
-        
+
         // Normalisasi setiap domain
         $normalizedDomains = [];
         foreach ($domains as $domain) {
@@ -149,7 +167,7 @@ class ClientSupportRefactory extends Seeder
                 $normalizedDomains[] = $normalized;
             }
         }
-        
+
         return array_unique($normalizedDomains);
     }
 
@@ -160,16 +178,16 @@ class ClientSupportRefactory extends Seeder
     {
         // Hapus protokol http/https
         $domain = preg_replace('/^https?:\/\//', '', $domain);
-        
+
         // Hapus www
         $domain = preg_replace('/^www\./', '', $domain);
-        
+
         // Hapus trailing slash
         $domain = rtrim($domain, '/');
-        
+
         // Hapus path jika ada
         $domain = explode('/', $domain)[0];
-        
+
         return strtolower(trim($domain));
     }
 
@@ -180,12 +198,12 @@ class ClientSupportRefactory extends Seeder
     {
         // Cari exact match dulu
         $webhost = Webhost::where('nama_web', $domain)->first();
-        
+
         if (!$webhost) {
             // Cari dengan LIKE jika tidak ada exact match
             $webhost = Webhost::where('nama_web', 'like', '%' . $domain . '%')->first();
         }
-        
+
         if (!$webhost) {
             // Cari dengan normalisasi nama_web dari database
             $webhosts = Webhost::all();
@@ -196,7 +214,7 @@ class ClientSupportRefactory extends Seeder
                 }
             }
         }
-        
+
         return $webhost;
     }
 }
