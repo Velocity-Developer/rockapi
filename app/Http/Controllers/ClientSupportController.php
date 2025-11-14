@@ -100,6 +100,43 @@ class ClientSupportController extends Controller
         return $tanggals;
     }
 
+    //by_tanggal
+    public function by_tanggal($tanggal)
+    {
+        $results    = [];
+
+        //get data dari WebhostClientSupport
+        $webhostClientSupportData = WebhostClientSupport::with('webhost:id_webhost,nama_web')
+            ->when($tanggal, function ($query) use ($tanggal) {
+                $query->where('tanggal', $tanggal);
+            })
+            ->get();
+        if ($webhostClientSupportData->count() > 0) {
+            foreach ($webhostClientSupportData as $item) {
+                $tgl = $item->tanggal ? Carbon::parse($item->tanggal)->format('Y-m-d') : null;
+                $results[$item->layanan][] = $item->webhost;
+            }
+        }
+
+        //get data dari CsMainProjectClientSupport
+        $csMainProjectClientSupportData = CsMainProjectClientSupport::with('cs_main_project:id,id_webhost,jenis', 'cs_main_project.webhost:id_webhost,nama_web')
+            ->when($tanggal, function ($query) use ($tanggal) {
+                $query->where('tanggal', $tanggal);
+            })
+            ->get();
+        if ($csMainProjectClientSupportData->count() > 0) {
+            foreach ($csMainProjectClientSupportData as $item) {
+                $tgl = $item->tanggal ? Carbon::parse($item->tanggal)->format('Y-m-d') : null;
+                $item_data = $item->cs_main_project;
+                $item_data['nama_web'] = $item->cs_main_project->webhost->nama_web;
+                $results[$item->layanan][] = $item_data;
+            }
+        }
+
+        return response()->json($results);
+    }
+
+
     //store
     public function store(Request $request)
     {

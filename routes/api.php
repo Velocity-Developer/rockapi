@@ -106,6 +106,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //client_support
     Route::get('client_support', [ClientSupportController::class, 'index']);
     Route::post('client_support/store', [ClientSupportController::class, 'store']);
+    Route::get('client_support_by_tgl/{tanggal}', [ClientSupportController::class, 'by_tanggal']);
 
     //lain_lain
     Route::get('/check_paket', CheckPaketController::class);
