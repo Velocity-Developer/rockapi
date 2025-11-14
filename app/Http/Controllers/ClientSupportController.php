@@ -104,6 +104,7 @@ class ClientSupportController extends Controller
     public function by_tanggal($tanggal)
     {
         $results    = [];
+        $count      = 0;
 
         //get data dari WebhostClientSupport
         $webhostClientSupportData = WebhostClientSupport::with('webhost:id_webhost,nama_web')
@@ -113,8 +114,8 @@ class ClientSupportController extends Controller
             ->get();
         if ($webhostClientSupportData->count() > 0) {
             foreach ($webhostClientSupportData as $item) {
-                $tgl = $item->tanggal ? Carbon::parse($item->tanggal)->format('Y-m-d') : null;
                 $results[$item->layanan][] = $item->webhost;
+                $count++;
             }
         }
 
@@ -126,14 +127,17 @@ class ClientSupportController extends Controller
             ->get();
         if ($csMainProjectClientSupportData->count() > 0) {
             foreach ($csMainProjectClientSupportData as $item) {
-                $tgl = $item->tanggal ? Carbon::parse($item->tanggal)->format('Y-m-d') : null;
                 $item_data = $item->cs_main_project;
                 $item_data['nama_web'] = $item->cs_main_project->webhost->nama_web;
                 $results[$item->layanan][] = $item_data;
+                $count++;
             }
         }
 
-        return response()->json($results);
+        return response()->json([
+            'data' => $results,
+            'count' => $count,
+        ]);
     }
 
 
