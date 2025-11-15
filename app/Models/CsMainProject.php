@@ -133,6 +133,6 @@ class CsMainProject extends Model
     //relasi ke Invoice
     public function invoices()
     {
-        return $this->hasMany(Invoice::class);
+        return $this->hasMany(Invoice::class, 'cs_main_project_id');
     }
 }

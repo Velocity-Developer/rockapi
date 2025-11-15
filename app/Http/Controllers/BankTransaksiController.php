@@ -49,7 +49,7 @@ class BankTransaksiController extends Controller
             ->with(
                 "TransaksiKeluar",
                 "TransaksiKeluar.bank",
-                "CsMainProject",
+                "CsMainProject.invoices:id,nomor,cs_main_project_id",
                 "CsMainProject.bank",
                 "CsMainProject.Webhost",
                 "CsMainProject.Webhost.Paket",
@@ -205,7 +205,7 @@ class BankTransaksiController extends Controller
             ->get();
 
         //search CsMainProject with webhost: webhost.nama_web by keyword, limit 10
-        $cs_main_project = CsMainProject::with("Webhost", "bank")
+        $cs_main_project = CsMainProject::with("Webhost", "bank", "invoices:id,cs_main_project_id,total,nomor")
             ->where("tgl_masuk", ">=", date("Y-m-d", strtotime("-30 days")))
             ->orderBy("tgl_masuk", "desc")
             ->limit(20)

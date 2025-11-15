@@ -44,7 +44,7 @@ class Invoice extends Model
     // Relasi ke cs main project
     public function cs_main_project()
     {
-        return $this->belongsTo(CsMainProject::class);
+        return $this->belongsTo(CsMainProject::class, 'cs_main_project_id');
     }
 
     // Relasi ke invoice items
