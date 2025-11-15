@@ -114,7 +114,10 @@ class ClientSupportController extends Controller
             ->get();
         if ($webhostClientSupportData->count() > 0) {
             foreach ($webhostClientSupportData as $item) {
-                $results[$item->layanan][] = $item->webhost;
+                $item_data = $item->webhost;
+                $item_data['id'] = $item->id;
+                $item_data['layanan'] = $item->layanan;
+                $results[$item->layanan][] = $item_data;
                 $count++;
             }
         }
@@ -128,7 +131,11 @@ class ClientSupportController extends Controller
         if ($csMainProjectClientSupportData->count() > 0) {
             foreach ($csMainProjectClientSupportData as $item) {
                 $item_data = $item->cs_main_project;
+                $item_data['id'] = $item->id;
+                $item_data['layanan'] = $item->layanan;
                 $item_data['nama_web'] = $item->cs_main_project->webhost->nama_web;
+                $item_data['id_webhost'] = $item->cs_main_project->webhost->id_webhost;
+                $item_data['cs_main_project_id'] = $item->cs_main_project_id;
                 $results[$item->layanan][] = $item_data;
                 $count++;
             }
@@ -178,6 +185,49 @@ class ClientSupportController extends Controller
             ]);
         }
 
+        //simpan data legacy
+        // ClientSupport::updateOrCreate([
+        //     'tanggal' => $tanggal
+        // ], [
+        //     'layanan'               => $jenis,
+        //     'webhost_id'            => $id_webhost,
+        //     'cs_main_project_id'    => $id_cs_main_project,
+        // ]);
+
         return response()->json($NewClientSupport);
+    }
+
+    //destroy
+    public function destroy(Request $request)
+    {
+        //validasi
+        $request->validate([
+            'id' => 'required|integer',
+            'tanggal' => 'required|date',
+            'layanan' => 'required|string',
+        ]);
+        $id = $request->input('id');
+        $tanggal = $request->input('tanggal');
+        $layanan = $request->input('layanan');
+
+        //ubah format tanggal
+        $tanggal = Carbon::parse($tanggal)->format('Y-m-d 00:00:00');
+
+        //jika layanan = tanya_jawab,hapus WebhostClientSupport
+        if ($layanan == 'tanya_jawab') {
+            $ClientSupport = WebhostClientSupport::where('layanan', $layanan)
+                ->where('tanggal', $tanggal)
+                ->where('id', $id)
+                ->delete();
+        }
+        //jika layanan bukan tanya_jawab,hapus CsMainProjectClientSupport
+        if ($layanan != 'tanya_jawab') {
+            $ClientSupport = CsMainProjectClientSupport::where('layanan', $layanan)
+                ->where('tanggal', $tanggal)
+                ->where('id', $id)
+                ->delete();
+        }
+
+        return response()->json($ClientSupport);
     }
 }
