@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\ClientSupport;
 use App\Models\CsMainProjectClientSupport;
 use App\Models\WebhostClientSupport;
+use App\Models\Webhost;
 use Carbon\Carbon;
 
 class ClientSupportController extends Controller
@@ -186,15 +187,79 @@ class ClientSupportController extends Controller
         }
 
         //simpan data legacy
-        // ClientSupport::updateOrCreate([
-        //     'tanggal' => $tanggal
-        // ], [
-        //     'layanan'               => $jenis,
-        //     'webhost_id'            => $id_webhost,
-        //     'cs_main_project_id'    => $id_cs_main_project,
-        // ]);
+        $tb_ClientSupport = ClientSupport::updateOrCreate([
+            'tgl' => $tanggal
+        ]);
+        $tb_ClientSupportId = $tb_ClientSupport->id_cs_project;
 
-        return response()->json($NewClientSupport);
+        //jika layanan = revisi_1,
+        if ($jenis == 'revisi_1') {
+            $revisi_1 = $tb_ClientSupport->revisi_1 ? $tb_ClientSupport->revisi_1 : '0,';
+            //sisipkan kanan id_cs_main_project
+            $revisi_1 .= $id_cs_main_project . ',';
+            //save
+            ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
+                'revisi_1' => $revisi_1,
+            ]);
+        }
+        //jika layanan = perbaikan_revisi_1
+        if ($jenis == 'perbaikan_revisi_1') {
+            $perbaikan_revisi_1 = $tb_ClientSupport->perbaikan_revisi_1 ? $tb_ClientSupport->perbaikan_revisi_1 : '0,';
+            //sisipkan kanan id_cs_main_project
+            $perbaikan_revisi_1 .= $id_cs_main_project . ',';
+            //save
+            ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
+                'perbaikan_revisi_1' => $perbaikan_revisi_1,
+            ]);
+        }
+        //jika layanan = revisi_2,
+        if ($jenis == 'revisi_2') {
+            $revisi_2 = $tb_ClientSupport->revisi_2 ? $tb_ClientSupport->revisi_2 : '0,';
+            //sisipkan kanan id_cs_main_project
+            $revisi_2 .= $id_cs_main_project . ',';
+            //save
+            ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
+                'revisi_2' => $revisi_2,
+            ]);
+        }
+        //jika layanan = perbaikan_revisi_2,
+        if ($jenis == 'perbaikan_revisi_2') {
+            $perbaikan_revisi_2 = $tb_ClientSupport->perbaikan_revisi_2 ? $tb_ClientSupport->perbaikan_revisi_2 : '0,';
+            //sisipkan kanan id_cs_main_project
+            $perbaikan_revisi_2 .= $id_cs_main_project . ',';
+            //save
+            ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
+                'perbaikan_revisi_2' => $perbaikan_revisi_2,
+            ]);
+        }
+        //jika layanan = update_web,
+        if ($jenis == 'update_web') {
+            $update_web = $tb_ClientSupport->update_web ? $tb_ClientSupport->update_web : '0,';
+            //sisipkan kanan id_cs_main_project
+            $update_web .= $id_cs_main_project . ',';
+            //save
+            ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
+                'update_web' => $update_web,
+            ]);
+        }
+
+        //dapatkan info webhost
+        $webhost = Webhost::where('id_webhost', $id_webhost)->first();
+
+        //jika layanan = tanya_jawab,
+        if ($jenis == 'tanya_jawab') {
+            $tanya_jawab = $tb_ClientSupport->tanya_jawab ? $tb_ClientSupport->tanya_jawab : '';
+            $nama_web = $webhost->nama_web;
+            //sisipkan kanan nama_web
+            $tanya_jawab .= $nama_web . ',';
+            //save
+            ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
+                'tanya_jawab' => $tanya_jawab,
+            ]);
+        }
+
+
+        return response()->json([$NewClientSupport, $webhost]);
     }
 
     //destroy
@@ -213,19 +278,51 @@ class ClientSupportController extends Controller
         //ubah format tanggal
         $tanggal = Carbon::parse($tanggal)->format('Y-m-d 00:00:00');
 
+        //get legacy
+        $tb_ClientSupport = ClientSupport::where('tgl', $tanggal)->first();
+        $tb_ClientSupportId = $tb_ClientSupport->id_cs_project;
+
         //jika layanan = tanya_jawab,hapus WebhostClientSupport
         if ($layanan == 'tanya_jawab') {
             $ClientSupport = WebhostClientSupport::where('layanan', $layanan)
                 ->where('tanggal', $tanggal)
                 ->where('id', $id)
-                ->delete();
+                ->first();
+
+            $id_webhost = $ClientSupport->webhost_id;
+            //dapatkan info webhost
+            $webhost = Webhost::where('id_webhost', $id_webhost)->first();
+            $nama_web = $webhost->nama_web;
+            //hapus nama_web dari kolom tanya_jawab
+            $tanya_jawab = str_replace($nama_web . ',', '', $tb_ClientSupport->tanya_jawab);
+            //save
+            ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
+                'tanya_jawab' => $tanya_jawab,
+            ]);
+
+            //jika ada, hapus
+            if ($ClientSupport) {
+                $ClientSupport->delete();
+            }
         }
         //jika layanan bukan tanya_jawab,hapus CsMainProjectClientSupport
         if ($layanan != 'tanya_jawab') {
             $ClientSupport = CsMainProjectClientSupport::where('layanan', $layanan)
                 ->where('tanggal', $tanggal)
                 ->where('id', $id)
-                ->delete();
+                ->first();
+            $cs_main_project_id = $ClientSupport->cs_main_project_id;
+            //hapus id_cs_main_project dari kolom layanan
+            $newlayanan = str_replace($cs_main_project_id . ',', '', $tb_ClientSupport->$layanan);
+            //save
+            ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
+                $layanan => $newlayanan,
+            ]);
+
+            //jika ada, hapus
+            if ($ClientSupport) {
+                $ClientSupport->delete();
+            }
         }
 
         return response()->json($ClientSupport);
