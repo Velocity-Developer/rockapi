@@ -27,6 +27,7 @@ class Journal extends Model
     //cast    
     protected $casts = [
         'user_id' => 'integer',
+        'journal_category_id' => 'integer',
     ];
 
     //relasi ke user
