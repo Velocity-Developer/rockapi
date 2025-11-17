@@ -43,15 +43,23 @@ class BillingController extends Controller
 
         //filter by webhost.paket.nama_paket
         $id_paket = $request->input('paket');
-        if ($id_paket) {
-            $query->whereHas('webhost.paket', function ($query) use ($id_paket) {
-                $query->where('id_paket', $id_paket);
+        $id_paket_array = $request->input('paket_array');
+        if ($id_paket_array) {
+            //explode id_paket_array
+            $id_paket_array = explode(',', $id_paket_array);
+            $query->whereHas('webhost.paket', function ($query) use ($id_paket_array) {
+                $query->whereIn('id_paket', $id_paket_array);
             });
         }
 
         //filter by jenis
         $jenis = $request->input('jenis');
-        if ($jenis) {
+        $jenis_array = $request->input('jenis_array');
+        if ($jenis_array) {
+            //explode jenis_array
+            $jenis_array = explode(',', $jenis_array);
+            $query->whereIn('jenis', $jenis_array);
+        } else if ($jenis) {
             $query->where('jenis', 'like', '%' . $jenis . '%');
         }
 
