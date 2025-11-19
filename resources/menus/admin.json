@@ -6,12 +6,6 @@
         "route": "/"
     },
     {
-        "key": "grafik_transaksi_prive",
-        "label": "Grafik Prive",
-        "icon": "lucide:file-chart-line",
-        "route": "/laporan/grafik_transaksi_prive"
-    },
-    {
         "key": "invoice",
         "label": "Invoice",
         "icon": "lucide:file-text",
@@ -103,6 +97,12 @@
                 "key": "transaksi_iklan_google",
                 "label": "Transaksi Iklan Google",
                 "route": "/transaksi_iklan_google"
+            },
+            {
+                "key": "grafik_transaksi_prive",
+                "label": "Prive",
+                "icon": "lucide:file-chart-line",
+                "route": "/laporan/grafik_transaksi_prive"
             }
         ]
     },

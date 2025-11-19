@@ -123,6 +123,11 @@ class BankTransaksiController extends Controller
             ->keyBy("bulan");
 
         $hasil = [];
+        $totals = [
+            'masuk' => 0,
+            'keluar' => 0,
+            'total' => 0,
+        ];
         $data = [];
         foreach ($daftar_bulan as $bln) {
 
@@ -137,6 +142,9 @@ class BankTransaksiController extends Controller
             ];
             $data['masuk'][] = (int)$masuk;
             $data['keluar'][] = (int)$keluar;
+            $totals['masuk'] += (int)$masuk;
+            $totals['keluar'] += (int)$keluar;
+            $totals['total'] += (int)$masuk - (int)$keluar;
         }
 
         return response()->json([
@@ -144,6 +152,7 @@ class BankTransaksiController extends Controller
             "hasil" => $hasil,
             'label' => $daftar_bulan,
             "data" => $data,
+            "totals" => $totals,
         ]);
     }
 
