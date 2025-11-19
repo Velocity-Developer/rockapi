@@ -90,6 +90,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //bank_transaksi_last_transaksi
     Route::get('bank_transaksi_last_transaksi', [BankTransaksiController::class, 'get_last_transaksi']);
 
+    //bank_transaksi/grafik_transaksi_prive
+    Route::get('bank_transaksi_grafik_transaksi_prive', [BankTransaksiController::class, 'grafik_transaksi_prive']);
+
     //bank_transaksi_export
     Route::get('bank_transaksi_export', [BankTransaksiController::class, 'export']);
 

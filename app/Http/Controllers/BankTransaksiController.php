@@ -98,6 +98,55 @@ class BankTransaksiController extends Controller
         ]);
     }
 
+    //grafik_transaksi_prive
+    public function grafik_transaksi_prive(Request $request)
+    {
+        //request
+        $req_tahun = $request->input("tahun") ?? date("Y");
+        $req_bank = $request->input("bank");
+
+        $daftar_bulan = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $daftar_bulan[] = sprintf("%s-%02d", $req_tahun, $i); // contoh: 2022-02
+        }
+
+        $banks = Bank::selectRaw("
+            DATE_FORMAT(tgl, '%Y-%m') as bulan,
+            SUM(CASE WHEN jenis_transaksi = 'masuk' THEN nominal ELSE 0 END) as total_masuk,
+            SUM(CASE WHEN jenis_transaksi = 'keluar' THEN nominal ELSE 0 END) as total_keluar
+        ")
+            ->where("tgl", "like", $req_tahun . "-%") // misal grafik 1 tahun
+            ->where("keterangan_bank", "like", "%prive%") // hanya prive
+            ->groupBy("bulan")
+            ->orderBy("bulan", "asc")
+            ->get()
+            ->keyBy("bulan");
+
+        $hasil = [];
+        $data = [];
+        foreach ($daftar_bulan as $bln) {
+
+            // jika tidak ada data → buat default 0
+            $masuk = $banks[$bln]->total_masuk ?? 0;
+            $keluar = $banks[$bln]->total_keluar ?? 0;
+
+            $hasil[] = [
+                "bulan" => $bln,
+                "masuk" => (int)$masuk,
+                "keluar" => (int)$keluar,
+            ];
+            $data['masuk'][] = (int)$masuk;
+            $data['keluar'][] = (int)$keluar;
+        }
+
+        return response()->json([
+            "banks" => $banks,
+            "hasil" => $hasil,
+            'label' => $daftar_bulan,
+            "data" => $data,
+        ]);
+    }
+
     /**
      * Store data baru di Bank.
      */
