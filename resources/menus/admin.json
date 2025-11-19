@@ -6,6 +6,12 @@
         "route": "/"
     },
     {
+        "key": "grafik_transaksi_prive",
+        "label": "Grafik Prive",
+        "icon": "lucide:file-chart-line",
+        "route": "/laporan/grafik_transaksi_prive"
+    },
+    {
         "key": "invoice",
         "label": "Invoice",
         "icon": "lucide:file-text",

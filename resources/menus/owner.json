@@ -12,6 +12,12 @@
         "route": "/billing"
     },
     {
+        "key": "grafik_transaksi_prive",
+        "label": "Grafik Prive",
+        "icon": "lucide:file-chart-line",
+        "route": "/laporan/grafik_transaksi_prive"
+    },
+    {
         "key": "perpanjang_web_jangka",
         "label": "Perpanjang Web Jangka",
         "icon": "lucide:file-chart-line",
