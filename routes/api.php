@@ -31,6 +31,7 @@ use App\Http\Controllers\TodoCategoryController;
 use App\Http\Controllers\NotificationDebugController;
 use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\ClientSupportController;
+use App\Http\Controllers\ModuleProjectController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -64,6 +65,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'invoice'               => InvoiceController::class,
         'customer'              => CustomerController::class,
         'todo_category'       => TodoCategoryController::class,
+        'module_projects'       => ModuleProjectController::class,
     ]);
 
     //data_opsi
