@@ -7,6 +7,7 @@ use App\Models\ClientSupport;
 use App\Models\CsMainProjectClientSupport;
 use App\Models\WebhostClientSupport;
 use App\Models\Webhost;
+use App\Helpers\ClientSupportRefactorHelper;
 use Carbon\Carbon;
 
 class ClientSupportController extends Controller
@@ -14,6 +15,7 @@ class ClientSupportController extends Controller
     //index
     public function index(Request $request)
     {
+
         $results    = [];
 
         $per_page   = $request->input('per_page', 50);
@@ -25,6 +27,11 @@ class ClientSupportController extends Controller
 
         //array tanggal
         $arrayTanggal = $this->arrayTanggal($per_page, $tgl_start, $tgl_end);
+
+        //proses refactor data
+        foreach ($arrayTanggal as $tgl) {
+            ClientSupportRefactorHelper::refactor($tgl);
+        }
 
         //get data dari WebhostClientSupport
         $webhostClientSupportData = WebhostClientSupport::with('webhost:id_webhost,nama_web')
@@ -187,10 +194,22 @@ class ClientSupportController extends Controller
         }
 
         //simpan data legacy
-        $tb_ClientSupport = ClientSupport::updateOrCreate([
-            'tgl' => $tanggal
-        ]);
+        //cari data legacy
+        $tb_ClientSupport = ClientSupport::where('tgl', $tanggal)->first();
+        //jika tidak ada, buat baru
+        if (!$tb_ClientSupport) {
+            $tb_ClientSupport = ClientSupport::create([
+                'tgl' => $tanggal,
+                'revisi_1' => '0,',
+                'perbaikan_revisi_1' => '0,',
+                'revisi_2' => '0,',
+                'perbaikan_revisi_2' => '0,',
+                'tanya_jawab' => '',
+                'update_web' => '0,',
+            ]);
+        }
         $tb_ClientSupportId = $tb_ClientSupport->id_cs_project;
+        $LegacyClientSupport = null;
 
         //jika layanan = revisi_1,
         if ($jenis == 'revisi_1') {
@@ -198,7 +217,7 @@ class ClientSupportController extends Controller
             //sisipkan kanan id_cs_main_project
             $revisi_1 .= $id_cs_main_project . ',';
             //save
-            ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
+            $LegacyClientSupport = ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
                 'revisi_1' => $revisi_1,
             ]);
         }
@@ -208,7 +227,7 @@ class ClientSupportController extends Controller
             //sisipkan kanan id_cs_main_project
             $perbaikan_revisi_1 .= $id_cs_main_project . ',';
             //save
-            ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
+            $LegacyClientSupport = ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
                 'perbaikan_revisi_1' => $perbaikan_revisi_1,
             ]);
         }
@@ -218,7 +237,7 @@ class ClientSupportController extends Controller
             //sisipkan kanan id_cs_main_project
             $revisi_2 .= $id_cs_main_project . ',';
             //save
-            ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
+            $LegacyClientSupport = ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
                 'revisi_2' => $revisi_2,
             ]);
         }
@@ -228,7 +247,7 @@ class ClientSupportController extends Controller
             //sisipkan kanan id_cs_main_project
             $perbaikan_revisi_2 .= $id_cs_main_project . ',';
             //save
-            ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
+            $LegacyClientSupport = ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
                 'perbaikan_revisi_2' => $perbaikan_revisi_2,
             ]);
         }
@@ -238,7 +257,7 @@ class ClientSupportController extends Controller
             //sisipkan kanan id_cs_main_project
             $update_web .= $id_cs_main_project . ',';
             //save
-            ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
+            $LegacyClientSupport = ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
                 'update_web' => $update_web,
             ]);
         }
@@ -253,13 +272,13 @@ class ClientSupportController extends Controller
             //sisipkan kanan nama_web
             $tanya_jawab .= $nama_web . ',';
             //save
-            ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
+            $LegacyClientSupport = ClientSupport::where('id_cs_project', $tb_ClientSupportId)->update([
                 'tanya_jawab' => $tanya_jawab,
             ]);
         }
 
-
-        return response()->json([$NewClientSupport, $webhost]);
+        $tb_ClientSupport = ClientSupport::where('tgl', $tanggal)->first();
+        return response()->json([$NewClientSupport, $webhost, $tb_ClientSupport, $LegacyClientSupport]);
     }
 
     //destroy
