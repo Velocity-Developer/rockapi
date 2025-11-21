@@ -34,7 +34,7 @@ class ClientSupportController extends Controller
         }
 
         //get data dari WebhostClientSupport
-        $webhostClientSupportData = WebhostClientSupport::with('webhost:id_webhost,nama_web')
+        $webhostClientSupportData = WebhostClientSupport::with('webhost:id_webhost,nama_web', 'user:id,name')
             ->when($tgl_start, function ($query) use ($arrayTanggal) {
                 $query->whereIn('tanggal', $arrayTanggal);
             })
@@ -56,7 +56,7 @@ class ClientSupportController extends Controller
         }
 
         //get data dari CsMainProjectClientSupport
-        $csMainProjectClientSupportData = CsMainProjectClientSupport::with('cs_main_project:id,id_webhost,jenis', 'cs_main_project.webhost:id_webhost,nama_web')
+        $csMainProjectClientSupportData = CsMainProjectClientSupport::with('cs_main_project:id,id_webhost,jenis', 'cs_main_project.webhost:id_webhost,nama_web', 'user:id,name')
             ->when($tgl_start, function ($query) use ($arrayTanggal) {
                 $query->whereIn('tanggal', $arrayTanggal);
             })
@@ -176,12 +176,16 @@ class ClientSupportController extends Controller
         //ubah format tanggal
         $tanggal = Carbon::parse($tanggal)->format('Y-m-d H:i:s');
 
+        //get user id
+        $userId = auth()->user()->id;
+
         ///jika jenis = tanya_jawab,create WebhostClientSupport
         if ($jenis == 'tanya_jawab') {
             $NewClientSupport = WebhostClientSupport::create([
                 'layanan' => $jenis,
                 'tanggal' => $tanggal,
                 'webhost_id' => $id_webhost,
+                'user_id' => $userId,
             ]);
         }
         ///jika bukan tanya_jawab ,create CsMainProjectClientSupport
@@ -190,6 +194,7 @@ class ClientSupportController extends Controller
                 'layanan' => $jenis,
                 'tanggal' => $tanggal,
                 'cs_main_project_id' => $id_cs_main_project,
+                'user_id' => $userId,
             ]);
         }
 

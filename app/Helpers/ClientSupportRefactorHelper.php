@@ -16,6 +16,8 @@ class ClientSupportRefactorHelper
 {
     public static function refactor($tanggal)
     {
+        $instance = new static; // late binding
+
         $result = [];
         $message = '';
 
@@ -90,7 +92,7 @@ class ClientSupportRefactorHelper
         if (!empty($tanya_jawab)) {
 
             // Parse domain dari string tanya_jawab
-            $domains = ClientSupportRefactorHelper::parseDomains($tanya_jawab);
+            $domains = $instance->parseDomains($tanya_jawab);
             foreach ($domains as $domain) {
 
                 //cari webhost_id berdasarkan nama domain
@@ -100,7 +102,7 @@ class ClientSupportRefactorHelper
                 }
 
                 // Cek apakah data sudah ada di tabel
-                $existingRecord = WebhostClientSupport::where('webhost_id', $webhost->id)
+                $existingRecord = WebhostClientSupport::where('webhost_id', $webhost->id_webhost)
                     ->where('layanan', $layanan)
                     ->where('tanggal', $tanggal)
                     ->first();
@@ -108,7 +110,7 @@ class ClientSupportRefactorHelper
                 if (!$existingRecord) {
                     // Jika tidak ada, buat record baru
                     WebhostClientSupport::create([
-                        'webhost_id' => $webhost->id,
+                        'webhost_id' => $webhost->id_webhost,
                         'layanan' => $layanan,
                         'tanggal' => $tanggal,
                     ]);
