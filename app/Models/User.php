@@ -81,6 +81,18 @@ class User extends Authenticatable
         return $this->hasMany(WmProject::class, 'user_id');
     }
 
+    //relasi ke CsMainProjectClientSupport
+    public function cs_main_project_client_supports()
+    {
+        return $this->hasMany(CsMainProjectClientSupport::class, 'user_id');
+    }
+
+    //relasi ke webhost_client_support
+    public function webhost_client_supports()
+    {
+        return $this->hasMany(WebhostClientSupport::class, 'user_id');
+    }
+
     //permissions
     public function get_permissions()
     {

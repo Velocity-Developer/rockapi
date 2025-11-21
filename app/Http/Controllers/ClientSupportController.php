@@ -34,7 +34,7 @@ class ClientSupportController extends Controller
         }
 
         //get data dari WebhostClientSupport
-        $webhostClientSupportData = WebhostClientSupport::with('webhost:id_webhost,nama_web', 'user:id,name')
+        $webhostClientSupportData = WebhostClientSupport::with('webhost:id_webhost,nama_web', 'user:id,name,avatar')
             ->when($tgl_start, function ($query) use ($arrayTanggal) {
                 $query->whereIn('tanggal', $arrayTanggal);
             })
@@ -56,7 +56,7 @@ class ClientSupportController extends Controller
         }
 
         //get data dari CsMainProjectClientSupport
-        $csMainProjectClientSupportData = CsMainProjectClientSupport::with('cs_main_project:id,id_webhost,jenis', 'cs_main_project.webhost:id_webhost,nama_web', 'user:id,name')
+        $csMainProjectClientSupportData = CsMainProjectClientSupport::with('cs_main_project:id,id_webhost,jenis', 'cs_main_project.webhost:id_webhost,nama_web', 'user:id,name,avatar')
             ->when($tgl_start, function ($query) use ($arrayTanggal) {
                 $query->whereIn('tanggal', $arrayTanggal);
             })
@@ -75,6 +75,7 @@ class ClientSupportController extends Controller
                 $results[$tgl]['tanggal'] = $tgl;
                 $item_data = $item->cs_main_project;
                 $item_data['nama_web'] = $item->cs_main_project->webhost->nama_web;
+                $item_data['user'] = $item->user;
                 $results[$tgl][$item->layanan][] = $item_data;
             }
         }
@@ -115,7 +116,7 @@ class ClientSupportController extends Controller
         $count      = 0;
 
         //get data dari WebhostClientSupport
-        $webhostClientSupportData = WebhostClientSupport::with('webhost:id_webhost,nama_web')
+        $webhostClientSupportData = WebhostClientSupport::with('webhost:id_webhost,nama_web', 'user:id,name,avatar')
             ->when($tanggal, function ($query) use ($tanggal) {
                 $query->where('tanggal', $tanggal);
             })
@@ -131,7 +132,7 @@ class ClientSupportController extends Controller
         }
 
         //get data dari CsMainProjectClientSupport
-        $csMainProjectClientSupportData = CsMainProjectClientSupport::with('cs_main_project:id,id_webhost,jenis', 'cs_main_project.webhost:id_webhost,nama_web')
+        $csMainProjectClientSupportData = CsMainProjectClientSupport::with('cs_main_project:id,id_webhost,jenis', 'cs_main_project.webhost:id_webhost,nama_web', 'user:id,name,avatar')
             ->when($tanggal, function ($query) use ($tanggal) {
                 $query->where('tanggal', $tanggal);
             })
@@ -144,6 +145,7 @@ class ClientSupportController extends Controller
                 $item_data['nama_web'] = $item->cs_main_project->webhost->nama_web;
                 $item_data['id_webhost'] = $item->cs_main_project->webhost->id_webhost;
                 $item_data['cs_main_project_id'] = $item->cs_main_project_id;
+                $item_data['user'] = $item->user;
                 $results[$item->layanan][] = $item_data;
                 $count++;
             }
