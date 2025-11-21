@@ -80,10 +80,10 @@ class ClientSupportController extends Controller
             }
         }
 
+        //urutkan berdasarkan tanggal descending
+        krsort($results);
         //reset array key 
         $results = array_values($results);
-        //balik array
-        $results = array_reverse($results);
 
         return response()->json($results);
     }
