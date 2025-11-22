@@ -46,5 +46,11 @@
         "label": "Client Support",
         "icon": "lucide:user-star",
         "route": "/client_support"
+    },
+    {
+        "key": "other_module_projects",
+        "label": "Module Projects",
+        "route": "/other/module-projects",
+        "icon": "lucide:github"
     }
 ]

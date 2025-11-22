@@ -28,5 +28,11 @@
         "label": "TodoList",
         "icon": "lucide:check-square",
         "route": "/todos"
+    },
+    {
+        "key": "other_module_projects",
+        "label": "Module Projects",
+        "route": "/other/module-projects",
+        "icon": "lucide:github"
     }
 ]

@@ -189,6 +189,11 @@
                 "key": "other_servers",
                 "label": "Servers",
                 "route": "/servers"
+            },
+            {
+                "key": "other_module_projects",
+                "label": "Module Projects",
+                "route": "/other/module-projects"
             }
         ]
     },
