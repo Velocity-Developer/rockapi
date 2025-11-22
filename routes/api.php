@@ -64,8 +64,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'journal'               => JournalController::class,
         'invoice'               => InvoiceController::class,
         'customer'              => CustomerController::class,
-        'todo_category'       => TodoCategoryController::class,
-        'module_projects'       => ModuleProjectController::class,
+        'todo_category'         => TodoCategoryController::class,
+        'module-projects'       => ModuleProjectController::class,
     ]);
 
     //data_opsi
