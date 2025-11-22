@@ -63,7 +63,7 @@
     },
     {
         "key": "perpanjang_web_jangka",
-        "label": "Perpanjang Web Jangka",
+        "label": "Profit Iklan Kumulatif",
         "icon": "lucide:file-chart-line",
         "route": "/laporan/perpanjang_web_jangka"
     },
