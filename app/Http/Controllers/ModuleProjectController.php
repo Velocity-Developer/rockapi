@@ -129,4 +129,16 @@ class ModuleProjectController extends Controller
         $moduleProject->delete();
         return response()->json(['message' => 'Module Project berhasil dihapus']);
     }
+
+    //statistik total by type
+    public function totalByType()
+    {
+        $total = ModuleProject::selectRaw('type, count(*) as total')
+            ->groupBy('type')
+            ->get()
+            ->pluck('total', 'type')
+            ->toArray();
+
+        return response()->json($total);
+    }
 }

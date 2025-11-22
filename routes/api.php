@@ -164,6 +164,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('debug')->group(function () {
         Route::get('/notifications', [NotificationDebugController::class, 'testNotificationCreation']);
     });
+
+    //module_project
+    Route::get('module-project-total-by-type', [ModuleProjectController::class, 'totalByType']);
 });
 
 // Invoice PDF route
