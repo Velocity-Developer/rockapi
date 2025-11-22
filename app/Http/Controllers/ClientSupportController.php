@@ -214,7 +214,9 @@ class ClientSupportController extends Controller
                 'tanya_jawab' => '',
                 'update_web' => '0,',
             ]);
+            $tb_ClientSupport = ClientSupport::where('tgl', $tanggal)->first();
         }
+
         $tb_ClientSupportId = $tb_ClientSupport->id_cs_project;
         $LegacyClientSupport = null;
 
