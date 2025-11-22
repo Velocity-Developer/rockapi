@@ -29,7 +29,7 @@ class ModuleProjectController extends Controller
         }
 
         // Filter by type
-        if ($request->input('type')) {
+        if ($request->input('type') && in_array($request->input('type'), ['theme', 'plugin', 'child_theme'])) {
             $query->where('type', $request->input('type'));
         }
 
