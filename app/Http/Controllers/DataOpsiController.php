@@ -75,6 +75,9 @@ class DataOpsiController extends Controller
             case 'users':
                 $result = $this->users($request);
                 break;
+            case 'kategori_web':
+                $result = $this->kategori_web();
+                break;
             default:
                 $result = [];
         }
@@ -339,5 +342,31 @@ class DataOpsiController extends Controller
             ];
         }
         return $result;
+    }
+
+    private function kategori_web()
+    {
+        return [
+            [
+                'value' => 'yayasan',
+                'label' => 'Yayasan'
+            ],
+            [
+                'value' => 'perusahaan',
+                'label' => 'Perusahaan'
+            ],
+            [
+                'value' => 'umum',
+                'label' => 'Umum'
+            ],
+            [
+                'value' => 'sekolah',
+                'label' => 'Sekolah'
+            ],
+            [
+                'value' => 'jasa',
+                'label' => 'Jasa'
+            ],
+        ];
     }
 }
