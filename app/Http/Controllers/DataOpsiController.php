@@ -7,6 +7,7 @@ use App\Models\Karyawan;
 use App\Models\Paket;
 use App\Models\Quality;
 use App\Models\User;
+use App\Models\Setting;
 
 use Illuminate\Support\Facades\App;
 
@@ -346,27 +347,16 @@ class DataOpsiController extends Controller
 
     private function kategori_web()
     {
-        return [
-            [
-                'value' => 'yayasan',
-                'label' => 'Yayasan'
-            ],
-            [
-                'value' => 'perusahaan',
-                'label' => 'Perusahaan'
-            ],
-            [
-                'value' => 'umum',
-                'label' => 'Umum'
-            ],
-            [
-                'value' => 'sekolah',
-                'label' => 'Sekolah'
-            ],
-            [
-                'value' => 'jasa',
-                'label' => 'Jasa'
-            ],
-        ];
+        $kategori_web = Setting::get('kategori_web') ?? ['Yayasan', 'Perusahaan', 'Umum', 'Sekolah', 'Jasa'];
+
+        $result = [];
+        foreach ($kategori_web as $item) {
+            $result[] = [
+                'value' => $item,
+                'label' => $item
+            ];
+        }
+
+        return $result;
     }
 }
