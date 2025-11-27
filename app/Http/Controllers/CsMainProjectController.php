@@ -40,7 +40,11 @@ class CsMainProjectController extends Controller
      */
     public function store(CsMainProjectRequest $request)
     {
-        return DB::transaction(function () use ($request) {
+        $input_kategori_web = $request->input('kategori_web');
+        //ubah jadi capital case tiap kata
+        $input_kategori_web = $input_kategori_web ? ucwords($input_kategori_web) : null;
+
+        return DB::transaction(function () use ($request, $input_kategori_web) {
             // =============================
             // 1. Ambil atau buat Webhost
             // =============================
@@ -63,7 +67,7 @@ class CsMainProjectController extends Controller
                     'tgl_update'     => now()->format('Y-m-d'),
                     'server_luar'    => $request->input('server') == '4' ? 0 : 1,
                     'saldo'          => $request->input('saldo'),
-                    'kategori'       => $request->input('kategori_web'),
+                    'kategori'       => $input_kategori_web,
                     'waktu'          => null,
                     'via'            => '',
                     'konfirmasi_order' => '',
@@ -243,7 +247,6 @@ class CsMainProjectController extends Controller
             // 11. Update Kategori Web
             // =============================
             $daftar_kategori_web = Setting::get('kategori_web') ?? ['Yayasan', 'Perusahaan', 'Umum', 'Sekolah', 'Jasa'];
-            $input_kategori_web = $request->input('kategori_web');
             //jika input kategori_web tidak ada di daftar maka tambahkan ke array
             if (!in_array($input_kategori_web, $daftar_kategori_web)) {
                 array_push($daftar_kategori_web, $input_kategori_web);
@@ -301,6 +304,10 @@ class CsMainProjectController extends Controller
 
         return DB::transaction(function () use ($request, $cs_main_project, $webhost) {
 
+            $input_kategori_web = $request->input('kategori_web');
+            //ubah jadi capital case tiap kata
+            $input_kategori_web = $input_kategori_web ? ucwords($input_kategori_web) : null;
+
             // =============================
             // 1. Update webhost
             // =============================
@@ -321,7 +328,7 @@ class CsMainProjectController extends Controller
                 // 'tgl_update'        => date('Y-m-d'),
                 'server_luar'       => $request->input('server') && $request->input('server') == '4' ? '0' : '1',
                 'saldo'             => $request->input('saldo'),
-                'kategori'          => $request->input('kategori_web'),
+                'kategori'          => $input_kategori_web,
                 // 'waktu'             => date('Y-m-d H:i:s'),
                 // 'via'               => '',
                 // 'konfirmasi_order'  => '',
@@ -446,7 +453,6 @@ class CsMainProjectController extends Controller
             // 6. Update Kategori Web
             // =============================
             $daftar_kategori_web = Setting::get('kategori_web') ?? ['Yayasan', 'Perusahaan', 'Umum', 'Sekolah', 'Jasa'];
-            $input_kategori_web = $request->input('kategori_web');
             //jika input kategori_web tidak ada di daftar maka tambahkan ke array
             if (!in_array($input_kategori_web, $daftar_kategori_web)) {
                 array_push($daftar_kategori_web, $input_kategori_web);

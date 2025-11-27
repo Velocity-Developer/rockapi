@@ -350,7 +350,22 @@ class DataOpsiController extends Controller
         $kategori_web = Setting::get('kategori_web') ?? ['Yayasan', 'Perusahaan', 'Umum', 'Sekolah', 'Jasa'];
 
         $result = [];
+        $usedValues = []; //tracker untuk deteksi duplikasi setelah normalisasi
+
         foreach ($kategori_web as $item) {
+            if (!$item) {
+                continue;
+            }
+
+            $item = ucwords(strtolower(trim($item))); //normalisasi: trim + lowercase + ucwords
+
+            //skip jika sudah ada sebelumnya
+            if (in_array($item, $usedValues, true)) {
+                continue;
+            }
+
+            $usedValues[] = $item;
+
             $result[] = [
                 'value' => $item,
                 'label' => $item

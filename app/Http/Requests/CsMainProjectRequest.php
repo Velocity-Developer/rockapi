@@ -41,6 +41,7 @@ class CsMainProjectRequest extends FormRequest
             'wa'                => 'required|string',
             'email'             => 'nullable|string',
             'dikerjakan_oleh'   => 'required|array',
+            'kategori_web'      => 'required|string',
         ];
     }
 }
