@@ -15,14 +15,14 @@ class ApiPublicVerify
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $apiKey = $request->header('X-API-KEY');
+        $Authorization = $request->header('Authorization');
 
-        if (!$apiKey) {
-            return response()->json(['message' => 'API Key is required'], 401);
+        if (!$Authorization) {
+            return response()->json(['message' => 'Authorization is required'], 401);
         }
 
-        if ($apiKey !== 'pbDXmVtiprhpL0GFqAYY') {
-            return response()->json(['message' => 'Unauthorized API Key'], 401);
+        if ($Authorization !== 'Bearer ' . env('API_PUBLIC_KEY')) {
+            return response()->json(['message' => 'Unauthorized Authorization'], 401);
         }
 
         return $next($request);
