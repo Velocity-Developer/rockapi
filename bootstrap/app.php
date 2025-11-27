@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'api_public_verify' => \App\Http\Middleware\ApiPublicVerify::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'api/telegram/webhook',
