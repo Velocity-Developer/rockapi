@@ -53,8 +53,14 @@ class JournalController extends Controller
         }
 
         //filter search
-        if ($request->input('search')) {
-            $query->where('title', 'like', '%' . $request->input('search') . '%');
+        if ($request->filled('search')) {
+            $query->where(function ($query) use ($request) {
+                $query->where('title', 'like', '%' . $request->search . '%')
+                    ->orWhere('description', 'like', '%' . $request->search . '%')
+                    ->orWhereHas('webhost', function ($q) use ($request) {
+                        $q->where('nama_web', 'like', '%' . $request->search . '%');
+                    });
+            });
         }
 
         //filter date_start & date_end
@@ -62,15 +68,15 @@ class JournalController extends Controller
             $start = $request->input('date_start') . ' 00:00:00';
             $end = $request->input('date_end') . ' 23:59:59';
 
-            $query->where(function($q) use ($start, $end) {
+            $query->where(function ($q) use ($start, $end) {
                 // Jurnal yang dimulai dalam rentang tanggal
                 $q->whereBetween('start', [$start, $end])
-                // Atau jurnal yang dimulai sebelum date_start tetapi selesai dalam rentang tanggal
-                ->orWhere(function($subQuery) use ($start, $end) {
-                    $subQuery->where('start', '<', $start)
-                             ->where('end', '>=', $start)
-                             ->where('end', '<=', $end);
-                });
+                    // Atau jurnal yang dimulai sebelum date_start tetapi selesai dalam rentang tanggal
+                    ->orWhere(function ($subQuery) use ($start, $end) {
+                        $subQuery->where('start', '<', $start)
+                            ->where('end', '>=', $start)
+                            ->where('end', '<=', $end);
+                    });
             });
         }
 
@@ -121,15 +127,15 @@ class JournalController extends Controller
             $start = $request->input('date_start') . ' 00:00:00';
             $end = $request->input('date_end') . ' 23:59:59';
 
-            $allJournalsQuery->where(function($q) use ($start, $end) {
+            $allJournalsQuery->where(function ($q) use ($start, $end) {
                 // Jurnal yang dimulai dalam rentang tanggal
                 $q->whereBetween('start', [$start, $end])
-                // Atau jurnal yang dimulai sebelum date_start tetapi selesai dalam rentang tanggal
-                ->orWhere(function($subQuery) use ($start, $end) {
-                    $subQuery->where('start', '<', $start)
-                             ->where('end', '>=', $start)
-                             ->where('end', '<=', $end);
-                });
+                    // Atau jurnal yang dimulai sebelum date_start tetapi selesai dalam rentang tanggal
+                    ->orWhere(function ($subQuery) use ($start, $end) {
+                        $subQuery->where('start', '<', $start)
+                            ->where('end', '>=', $start)
+                            ->where('end', '<=', $end);
+                    });
             });
         }
 
