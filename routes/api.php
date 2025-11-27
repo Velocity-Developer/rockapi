@@ -32,6 +32,7 @@ use App\Http\Controllers\NotificationDebugController;
 use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\ClientSupportController;
 use App\Http\Controllers\ModuleProjectController;
+use App\Http\Controllers\RekapFormController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -66,6 +67,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'customer'              => CustomerController::class,
         'todo_category'         => TodoCategoryController::class,
         'module-projects'       => ModuleProjectController::class,
+        'rekap-form'            => RekapFormController::class,
     ]);
 
     //data_opsi
@@ -180,3 +182,4 @@ Route::prefix('telegram')->group(function () {
 
 require __DIR__ . '/api-dash.php';
 require __DIR__ . '/api-laporan.php';
+require __DIR__ . '/api-public.php';
