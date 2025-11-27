@@ -6,8 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class RekapForm extends Model
 {
-    public $timestamps = false;
-    protected $primaryKey = 'id';
+    public $timestamps = true;
     protected $fillable = [
         'id',
         'nama',
@@ -19,6 +18,10 @@ class RekapForm extends Model
         'utm_medium',
         'greeting',
         'status',
-        'created_at'
+        'created_at',
+        'updated_at'
     ];
+
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
 }
