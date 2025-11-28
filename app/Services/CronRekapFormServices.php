@@ -4,6 +4,8 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\Setting;
+use Carbon\Carbon;
 
 class CronRekapFormServices
 {
@@ -37,6 +39,9 @@ class CronRekapFormServices
         } else {
             Log::channel('cron')->info('CronRekapFormServices | menit | gagal | ' . json_encode($data));
         }
+
+        //simpan waktu last cron rekapform daily
+        Setting::set('last_cron_rekapform_daily', Carbon::now());
     }
 
     //cron sehari sekali untuk full rekap
@@ -68,5 +73,8 @@ class CronRekapFormServices
         } else {
             Log::channel('cron')->info('CronRekapFormServices | full | gagal | ' . json_encode($data));
         }
+
+        //simpan waktu last cron rekapform full
+        Setting::set('last_cron_rekapform_full', Carbon::now());
     }
 }
