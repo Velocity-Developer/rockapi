@@ -14,5 +14,10 @@ Setting::set('last_cron_console', Carbon::now());
 // })->purpose('Display an inspiring quote');
 
 Schedule::call(function () {
-    \App\Services\CronRekapFormServices::menit();
+    \App\Services\CronRekapFormServices::daily();
 })->everyMinute();
+
+//cron tiap 5 menit untuk full rekap
+Schedule::call(function () {
+    \App\Services\CronRekapFormServices::full();
+})->everyFiveMinutes();
