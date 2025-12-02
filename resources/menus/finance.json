@@ -48,6 +48,12 @@
         "route": "/transaksi_iklan_google"
     },
     {
+        "key": "billing",
+        "label": "Billing",
+        "icon": "lucide:briefcase",
+        "route": "/billing"
+    },
+    {
         "key": "customer",
         "label": "Customer",
         "icon": "lucide:users-round",
