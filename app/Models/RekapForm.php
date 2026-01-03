@@ -18,8 +18,9 @@ class RekapForm extends Model
         'utm_medium',
         'greeting',
         'status',
+        'gclid',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     const CREATED_AT = 'created_at';

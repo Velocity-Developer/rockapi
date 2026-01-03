@@ -53,6 +53,7 @@ class RekapFormController extends Controller
             'utm_medium' => 'required|string',
             'greeting' => 'required|string',
             'status' => 'required|string',
+            'gclid' => 'nullable|string',
             'created_at' => 'required|date',
         ]);
 
@@ -76,6 +77,7 @@ class RekapFormController extends Controller
                 'utm_medium'    => $request->input('utm_medium'),
                 'greeting'      => $request->input('greeting'),
                 'status'        => $request->input('status'),
+                'gclid'         => $request->input('gclid') ?? null,
                 'created_at'    => $request->input('created_at'),
             ]
         );
@@ -114,6 +116,7 @@ class RekapFormController extends Controller
             'utm_medium' => 'required|string',
             'greeting' => 'required|string',
             'status' => 'required|string',
+            'gclid' => 'nullable|string',
             'created_at' => 'required|date',
         ]);
 
