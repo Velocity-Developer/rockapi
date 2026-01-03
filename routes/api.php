@@ -33,6 +33,7 @@ use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\ClientSupportController;
 use App\Http\Controllers\ModuleProjectController;
 use App\Http\Controllers\RekapFormController;
+use App\Http\Controllers\RekapChatController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -68,6 +69,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'todo_category'         => TodoCategoryController::class,
         'module-projects'       => ModuleProjectController::class,
         'rekap-form'            => RekapFormController::class,
+        'rekap-chat'            => RekapChatController::class,
     ]);
 
     //data_opsi

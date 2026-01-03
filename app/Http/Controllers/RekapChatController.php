@@ -1,0 +1,159 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\RekapChat;
+use Illuminate\Support\Facades\Validator;
+
+class RekapChatController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        $perPage   = (int) ($request->input('per_page', 100));
+        $orderBy   = $request->input('order_by', 'whatsapp');
+        $order     = $request->input('order', 'asc');
+        $search    = $request->input('q');
+
+        //query RekapChat
+        $query = RekapChat::query();
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('whatsapp', 'like', "%{$search}%")
+                    ->orWhere('via', 'like', "%{$search}%")
+                    ->orWhere('perangkat', 'like', "%{$search}%")
+                    ->orWhere('alasan', 'like', "%{$search}%")
+                    ->orWhere('detail', 'like', "%{$search}%")
+                    ->orWhere('kata_kunci', 'like', "%{$search}%");
+            });
+        }
+
+        $query->orderBy($orderBy, $order);
+
+        $results = $query->paginate($perPage);
+        return response()->json($results);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        //validate request
+        $validator = Validator::make($request->all(), [
+            'whatsapp' => 'required|string',
+            'chat_pertama' => 'required|string',
+            'via' => 'required|string',
+            'perangkat' => 'required|string',
+            'alasan' => 'required|string',
+            'detail' => 'nullable|string',
+            'kata_kunci' => 'nullable|string',
+            'tanggal_followup' => 'nullable|date',
+            'status_followup' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        //create rekap chat
+        $rekapChat = RekapChat::create([
+            'whatsapp' => $request->input('whatsapp'),
+            'chat_pertama' => $request->input('chat_pertama'),
+            'via' => $request->input('via'),
+            'perangkat' => $request->input('perangkat'),
+            'alasan' => $request->input('alasan'),
+            'detail' => $request->input('detail') ?? null,
+            'kata_kunci' => $request->input('kata_kunci') ?? null,
+            'tanggal_followup' => $request->input('tanggal_followup') ?? null,
+            'status_followup' => $request->input('status_followup') ?? null,
+        ]);
+
+        return response()->json($rekapChat);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //get by id
+        $rekapChat = RekapChat::find($id);
+        if (!$rekapChat) {
+            return response()->json(['message' => 'Rekap Chat not found'], 404);
+        }
+
+        return response()->json($rekapChat);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //validate request
+        $validator = Validator::make($request->all(), [
+            'whatsapp' => 'required|string',
+            'chat_pertama' => 'required|string',
+            'via' => 'required|string',
+            'perangkat' => 'required|string',
+            'alasan' => 'required|string',
+            'detail' => 'nullable|string',
+            'kata_kunci' => 'nullable|string',
+            'tanggal_followup' => 'nullable|date',
+            'status_followup' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        //get by id
+        $rekapChat = RekapChat::find($id);
+        if (!$rekapChat) {
+            return response()->json(['message' => 'Rekap Chat not found'], 404);
+        }
+
+        //update rekap chat
+        $rekapChat->update([
+            'whatsapp' => $request->input('whatsapp'),
+            'chat_pertama' => $request->input('chat_pertama'),
+            'via' => $request->input('via'),
+            'perangkat' => $request->input('perangkat'),
+            'alasan' => $request->input('alasan'),
+            'detail' => $request->input('detail') ?? null,
+            'kata_kunci' => $request->input('kata_kunci') ?? null,
+            'tanggal_followup' => $request->input('tanggal_followup') ?? null,
+            'status_followup' => $request->input('status_followup') ?? null,
+        ]);
+
+        return response()->json($rekapChat);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //get rekap chat by id
+        $rekapChat = RekapChat::find($id);
+        if (!$rekapChat) {
+            return response()->json(['message' => 'Rekap Chat not found'], 404);
+        }
+
+        //delete rekap chat
+        $rekapChat->delete();
+
+        return response()->json(['message' => 'Rekap Chat deleted successfully']);
+    }
+}
