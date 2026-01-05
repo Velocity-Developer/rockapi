@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\RekapForm;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class RekapFormController extends Controller
 {
@@ -147,5 +148,38 @@ class RekapFormController extends Controller
         $rekapForm->delete();
 
         return response()->json(['message' => 'Rekap Form deleted successfully']);
+    }
+
+    public function get_konversi_ads(Request $request)
+    {
+        //query RekapForm
+        $query = RekapForm::query();
+
+        $search    = $request->input('q');
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('hp', 'like', "%{$search}%");
+            });
+        }
+
+        $status     = $request->input('status', 'sesuai');
+        $query->where('status', $status);
+
+        $cek_konversi_ads = $request->input('cek_konversi_ads', 0);
+        $query->where('cek_konversi_ads', $cek_konversi_ads);
+
+        //pastikan gclid tidak null
+        $query->whereNotNull('gclid');
+
+        $perPage   = (int) ($request->input('per_page', 100));
+        $orderBy   = $request->input('order_by', 'created_at');
+        $order     = $request->input('order', 'desc');
+        $query->orderBy($orderBy, $order);
+        $query->limit($perPage);
+
+        $results = $query->get();
+        return response()->json($results);
     }
 }
