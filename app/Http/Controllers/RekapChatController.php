@@ -19,7 +19,8 @@ class RekapChatController extends Controller
         $search    = $request->input('q');
 
         //query RekapChat
-        $query = RekapChat::query();
+        $query = RekapChat::query()
+            ->with('kk');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -30,6 +31,18 @@ class RekapChatController extends Controller
                     ->orWhere('detail', 'like', "%{$search}%")
                     ->orWhere('kata_kunci', 'like', "%{$search}%");
             });
+        }
+
+        //filter tanggal chat_pertama
+        $tgl_dari = $request->input('tgl_dari');
+        //ubah format tgl_dari ke Y-m-d
+        $tgl_dari = date('Y-m-d', strtotime($tgl_dari));
+        //ubah format tgl_sampai ke Y-m-d
+        $tgl_sampai = date('Y-m-d', strtotime($request->input('tgl_sampai')));
+
+        if ($tgl_dari && $tgl_sampai) {
+            $query->whereDate('chat_pertama', '>=', $tgl_dari)
+                ->whereDate('chat_pertama', '<=', $tgl_sampai);
         }
 
         $query->orderBy($orderBy, $order);
