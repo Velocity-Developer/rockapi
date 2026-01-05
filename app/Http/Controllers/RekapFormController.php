@@ -182,4 +182,26 @@ class RekapFormController extends Controller
         $results = $query->get();
         return response()->json($results);
     }
+
+    //update cek_konversi_ads by array of id
+    public function update_cek_konversi_ads(Request $request)
+    {
+        //validate request
+        $request->validate([
+            'data' => 'required|array',
+            'data.*.id' => 'required|string',
+            'data.*.cek_konversi_ads' => 'required|boolean',
+        ]);
+
+        //get by id
+        $rekapForms = RekapForm::whereIn('id', $request->input('data.*.id'))->get();
+        if (!$rekapForms) {
+            return response()->json(['message' => 'Rekap Form not found'], 404);
+        }
+
+        //update rekap form
+        $rekapForms->update($request->input('data.*'));
+
+        return response()->json($rekapForms);
+    }
 }
