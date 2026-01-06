@@ -171,15 +171,15 @@ class RekapFormController extends Controller
         $query->where('cek_konversi_ads', $cek_konversi_ads);
 
         //pastikan gclid tidak null
-        $query->whereNotNull('gclid');
+        $query->whereNotNull('gclid')
+            ->where('gclid', '!=', '');
 
         $perPage   = (int) ($request->input('per_page', 100));
         $orderBy   = $request->input('order_by', 'created_at');
         $order     = $request->input('order', 'desc');
         $query->orderBy($orderBy, $order);
-        $query->limit($perPage);
 
-        $results = $query->get();
+        $results = $query->paginate($perPage);
         return response()->json($results);
     }
 
