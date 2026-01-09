@@ -188,20 +188,42 @@ class RekapFormController extends Controller
     {
         //validate request
         $request->validate([
-            'data' => 'required|array',
-            'data.*.id' => 'required|string',
+            'data' => 'required|array|min:1',
+            'data.*.id' => 'required|integer',
             'data.*.cek_konversi_ads' => 'required|boolean',
         ]);
 
-        //get by id
-        $rekapForms = RekapForm::whereIn('id', $request->input('data.*.id'))->get();
-        if (!$rekapForms) {
-            return response()->json(['message' => 'Rekap Form not found'], 404);
+        //loop data
+        $results = [];
+        foreach ($request->input('data') as $item) {
+
+            //update item cek_konversi_ads
+            $rekapForm = RekapForm::find($item['id']);
+            if (!$rekapForm) {
+
+                $results[] = [
+                    'id' => $item['id'],
+                    'cek_konversi_ads' => $item['cek_konversi_ads'],
+                    'message' => 'RekapForm not found',
+                ];
+
+                continue;
+            }
+            $rekapForm->update([
+                'cek_konversi_ads' => $item['cek_konversi_ads'],
+            ]);
+
+            $results[] = [
+                'id' => $item['id'],
+                'cek_konversi_ads' => $item['cek_konversi_ads'],
+                'message' => 'RekapForm update success',
+            ];
         }
 
         //update rekap form
-        $rekapForms->update($request->input('data.*'));
-
-        return response()->json($rekapForms);
+        return response()->json([
+            'message' => 'RekapForm update success',
+            'results' => $results,
+        ]);
     }
 }
