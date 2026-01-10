@@ -30,6 +30,11 @@ class RekapForm extends Model
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
+    public function getCreatedAtAttribute($value)
+    {
+        return str_replace('Z', '+07:00', $value);
+    }
+
     public function getCreatedAtWibAttribute()
     {
         return Carbon::parse(
