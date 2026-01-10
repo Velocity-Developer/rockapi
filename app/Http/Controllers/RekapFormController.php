@@ -170,6 +170,9 @@ class RekapFormController extends Controller
         $cek_konversi_ads = $request->input('cek_konversi_ads', 0);
         $query->where('cek_konversi_ads', $cek_konversi_ads);
 
+        //created_at diatas 2026-01-10 00:00:00
+        $query->where('created_at', '>', Carbon::create(2026, 1, 10)->startOfDay());
+
         //pastikan gclid tidak null
         $query->whereNotNull('gclid')
             ->where('gclid', '!=', '');
