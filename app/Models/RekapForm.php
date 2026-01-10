@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class RekapForm extends Model
 {
@@ -31,9 +32,9 @@ class RekapForm extends Model
 
     public function getCreatedAtWibAttribute()
     {
-        return $this->created_at
-            ->copy()
-            ->setTimezone('Asia/Jakarta')
-            ->format('Y-m-d H:i:sP');
+        return Carbon::parse(
+            $this->getRawOriginal('created_at'),
+            'Asia/Jakarta'
+        )->format('Y-m-d H:i:sP');
     }
 }
