@@ -35,10 +35,8 @@ class CronRekapFormServices
             $data_rekap = collect($data['data'])->map(function ($item) {
 
                 return [
-                    // Wajib untuk upsert uniqueBy
-                    'id'            => (int) ($item['id'] ?? 0),
-
                     // mapping sesuai kolom DB kamu
+                    'id'            => (int) ($item['id'] ?? 0),
                     'nama'          => $item['nama'] ?? null,
                     'no_whatsapp'   => $item['no_whatsapp'] ?? null,
                     'jenis_website' => $item['jenis_website'] ?? null,
@@ -50,20 +48,22 @@ class CronRekapFormServices
                     'status'        => $item['status'] ?? null,
                     'gclid'         => $item['gclid'] ?? null,
                     'created_at'    => $item['created_at'] ?? now(),
+                    'updated_at'    => now(),
 
                     // inject manual
                     'source'        => 'vdcom',
                     'source_id'     => (int) ($item['id'] ?? 0),
-
                 ];
-            })->filter(fn($row) => !empty($row['id']))->values()->toArray();
+            })->filter(fn($row) => !empty($row['source_id']))->values()->toArray();
 
             //simpan semua data_rekap ke table rekap_form menggunakan upsert untuk bulk insert/update
             $rekapForm = \App\Models\RekapForm::upsert(
                 $data_rekap,
-                ['id'] // uniqueBy column(s) - akan update semua kolom jika id sudah ada
+                ['source', 'source_id']  // uniqueBy column(s) - akan update semua kolom jika id sudah ada
             );
             // Log::channel('cron')->info('CronRekapFormServices | menit | berhasil | ' . count($data_rekap) . ' records processed');
+
+            return $rekapForm;
         } else {
             Log::channel('cron')->info('CronRekapFormServices | menit | gagal | ' . json_encode($data));
         }
@@ -97,10 +97,8 @@ class CronRekapFormServices
             $data_rekap = collect($data['data'])->map(function ($item) {
 
                 return [
-                    // Wajib untuk upsert uniqueBy
-                    'id'            => (int) ($item['id'] ?? 0),
-
                     // mapping sesuai kolom DB kamu
+                    'id'            => (int) ($item['id'] ?? 0),
                     'nama'          => $item['nama'] ?? null,
                     'no_whatsapp'   => $item['no_whatsapp'] ?? null,
                     'jenis_website' => $item['jenis_website'] ?? null,
@@ -112,18 +110,19 @@ class CronRekapFormServices
                     'status'        => $item['status'] ?? null,
                     'gclid'         => $item['gclid'] ?? null,
                     'created_at'    => $item['created_at'] ?? now(),
+                    'updated_at'    => now(),
 
                     // inject manual
                     'source'        => 'vdcom',
                     'source_id'     => (int) ($item['id'] ?? 0),
 
                 ];
-            })->filter(fn($row) => !empty($row['id']))->values()->toArray();
+            })->filter(fn($row) => !empty($row['source_id']))->values()->toArray();
 
             //simpan semua data_rekap ke table rekap_form menggunakan upsert untuk bulk insert/update
             $rekapForm = \App\Models\RekapForm::upsert(
                 $data_rekap,
-                ['id'] // uniqueBy column(s) - akan update semua kolom jika id sudah ada
+                ['source', 'source_id'] // uniqueBy column(s) - akan update semua kolom jika id sudah ada
             );
             // Log::channel('cron')->info('CronRekapFormServices | full | berhasil | ' . count($data_rekap) . ' records processed');
 
