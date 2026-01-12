@@ -45,6 +45,8 @@ class RekapFormController extends Controller
         //validate request
         $validator = Validator::make($request->all(), [
             'id' => 'required|string',
+            'source' => 'nullable|string',
+            'source_id' => 'nullable|string',
             'nama' => 'required|string',
             'no_whatsapp' => 'required|string',
             'jenis_website' => 'required|string',
@@ -69,6 +71,8 @@ class RekapFormController extends Controller
         $rekapForm = RekapForm::updateOrCreate(
             ['id' => $request->input('id')],
             [
+                'source'        => $request->input('source') ?? null,
+                'source_id'     => $request->input('source_id') ?? null,
                 'nama'          => $request->input('nama'),
                 'no_whatsapp'   => $request->input('no_whatsapp'),
                 'jenis_website' => $request->input('jenis_website'),
@@ -108,6 +112,8 @@ class RekapFormController extends Controller
         //validate request
         $request->validate([
             'id' => 'required|string',
+            'source' => 'nullable|string',
+            'source_id' => 'nullable|string',
             'nama' => 'required|string',
             'no_whatsapp' => 'required|string',
             'jenis_website' => 'required|string',

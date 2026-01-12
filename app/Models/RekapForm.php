@@ -10,6 +10,8 @@ class RekapForm extends Model
     public $timestamps = true;
     protected $fillable = [
         'id',
+        'source',
+        'source_id',
         'nama',
         'no_whatsapp',
         'jenis_website',
