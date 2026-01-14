@@ -23,6 +23,8 @@ class RekapForm extends Model
         'status',
         'gclid',
         'cek_konversi_ads',
+        'kategori_konversi_nominal',
+        'cek_konversi_nominal',
         'created_at',
         'updated_at',
     ];
