@@ -188,7 +188,7 @@ class RekapFormController extends Controller
 
         $perPage   = (int) ($request->input('per_page', 100));
         $orderBy   = $request->input('order_by', 'created_at');
-        $order     = $request->input('order', 'desc');
+        $order     = $request->input('order', 'asc');
         $query->orderBy($orderBy, $order);
 
         $results = $query->paginate($perPage);
