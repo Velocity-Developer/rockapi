@@ -36,7 +36,6 @@ class CronRekapFormServices
 
                 return [
                     // mapping sesuai kolom DB kamu
-                    'id'            => (int) ($item['id'] ?? 0),
                     'nama'          => $item['nama'] ?? null,
                     'no_whatsapp'   => $item['no_whatsapp'] ?? null,
                     'jenis_website' => $item['jenis_website'] ?? null,
@@ -75,6 +74,10 @@ class CronRekapFormServices
     //cron sehari sekali untuk full rekap
     public static function full($per_page = 1000)
     {
+
+        //simpan waktu last cron rekapform full
+        Setting::set('last_cron_rekapform_full', Carbon::now());
+
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . env('VELOCITYCOM_API_KEY'),
         ])->get('https://velocitydeveloper.com/wp-json/greeting/v1/rekap?type=full&per_page=' . $per_page);
@@ -98,7 +101,6 @@ class CronRekapFormServices
 
                 return [
                     // mapping sesuai kolom DB kamu
-                    'id'            => (int) ($item['id'] ?? 0),
                     'nama'          => $item['nama'] ?? null,
                     'no_whatsapp'   => $item['no_whatsapp'] ?? null,
                     'jenis_website' => $item['jenis_website'] ?? null,
@@ -134,8 +136,5 @@ class CronRekapFormServices
         } else {
             Log::channel('cron')->info('CronRekapFormServices | full | gagal | ' . json_encode($data));
         }
-
-        //simpan waktu last cron rekapform full
-        Setting::set('last_cron_rekapform_full', Carbon::now());
     }
 }
