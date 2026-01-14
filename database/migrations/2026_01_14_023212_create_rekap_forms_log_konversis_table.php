@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rekap_forms_log_konversi', function (Blueprint $table) {
+        Schema::create('rekap_forms_log_konversis', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('rekap_form_id')->required();
             $table->string('kirim_konversi_id')->nullable();
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('rekap_forms_log_konversi');
+        Schema::dropIfExists('rekap_forms_log_konversis');
     }
 };

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\RekapForm;
+use App\Models\RekapFormsLogKonversi;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -203,6 +204,9 @@ class RekapFormController extends Controller
             'data' => 'required|array|min:1',
             'data.*.id' => 'required|integer',
             'data.*.cek_konversi_ads' => 'required|boolean',
+            'data.*.jobid' => 'nullable|string',
+            'data.*.kirim_konversi_id' => 'nullable|integer',
+            'data.*.conversion_action_id' => 'nullable|string',
         ]);
 
         //loop data
@@ -218,12 +222,26 @@ class RekapFormController extends Controller
                     'cek_konversi_ads' => $item['cek_konversi_ads'],
                     'message' => 'RekapForm not found',
                 ];
+                Log::error('RekapForm not found', $item);
 
                 continue;
             }
+
+            Log::info('update_cek_konversi_ads', $item);
+
             $rekapForm->update([
                 'cek_konversi_ads' => $item['cek_konversi_ads'],
             ]);
+
+            //create log konversi
+            if ($item['kirim_konversi_id'] || $item['jobid'] || $item['conversion_action_id']) {
+                RekapFormsLogKonversi::create([
+                    'rekap_form_id' => $rekapForm->id,
+                    'kirim_konversi_id' => $item['kirim_konversi_id'] ?? null,
+                    'jobid' => $item['jobid'] ?? null,
+                    'conversion_action_id' => $item['conversion_action_id'] ?? null,
+                ]);
+            }
 
             $results[] = [
                 'id' => $item['id'],
