@@ -46,4 +46,10 @@ class RekapForm extends Model
             'Asia/Jakarta'
         )->format('Y-m-d H:i:sP');
     }
+
+    //relasi dengan log konversi
+    public function log_konversi()
+    {
+        return $this->hasMany(RekapFormsLogKonversi::class);
+    }
 }
