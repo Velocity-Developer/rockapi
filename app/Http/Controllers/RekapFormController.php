@@ -256,4 +256,50 @@ class RekapFormController extends Controller
             'results' => $results,
         ]);
     }
+
+    public function get_konversi_nominal_ads(Request $request)
+    {
+        //query RekapForm
+        $query = RekapForm::with('log_konversi');
+
+        $search    = $request->input('q');
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('hp', 'like', "%{$search}%");
+            });
+        }
+
+        $status     = $request->input('status', 'sesuai');
+        $query->where('status', $status);
+
+        $cek_konversi_ads = $request->input('cek_konversi_ads', 1);
+        $query->where('cek_konversi_ads', $cek_konversi_ads);
+
+        //created_at diatas 2026-01-10 00:00:00
+        $query->where('created_at', '>', Carbon::create(2026, 1, 10)->startOfDay());
+
+        //pastikan source adalah vdcom dan tidio
+        $query->whereIn('source', ['vdcom', 'tidio']);
+
+        //pastikan gclid tidak null
+        $query->whereNotNull('gclid')
+            ->where('gclid', '!=', '');
+
+        //pastikan kategori_konversi_nominal tidak null
+        $query->whereNotNull('kategori_konversi_nominal')
+            ->where('kategori_konversi_nominal', '!=', '');
+
+        $cek_konversi_nominal = $request->input('cek_konversi_nominal', 0);
+        $query->where('cek_konversi_nominal', $cek_konversi_nominal);
+
+        $perPage   = (int) ($request->input('per_page', 100));
+        $orderBy   = $request->input('order_by', 'created_at');
+        $order     = $request->input('order', 'asc');
+        $query->orderBy($orderBy, $order);
+
+        $results = $query->paginate($perPage);
+        return response()->json($results);
+    }
 }
