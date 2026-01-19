@@ -27,4 +27,4 @@ Schedule::call(function () {
 //cron tiap jam untuk full rekap
 Schedule::call(function () {
     \App\Services\CronRekapFormServices::full_id();
-})->everyHour();
+})->hourly();
