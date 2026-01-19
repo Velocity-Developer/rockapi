@@ -15,7 +15,9 @@ Setting::set('last_cron_console', Carbon::now());
 
 Schedule::call(function () {
     \App\Services\CronRekapFormServices::daily();
-})->everyMinute();
+})->everyMinute()->after(function () {
+    \App\Services\CronRekapFormServices::daily_id();
+});
 
 //cron tiap 5 menit untuk full rekap
 Schedule::call(function () {
