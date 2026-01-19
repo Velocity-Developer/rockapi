@@ -23,3 +23,8 @@ Schedule::call(function () {
 Schedule::call(function () {
     \App\Services\CronRekapFormServices::full();
 })->everyFiveMinutes();
+
+//cron tiap jam untuk full rekap
+Schedule::call(function () {
+    \App\Services\CronRekapFormServices::full_id();
+})->everyHour();
