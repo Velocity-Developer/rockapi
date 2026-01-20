@@ -181,6 +181,7 @@ class CronRekapFormServices
                     'via'           => $item['device'] ?? null,
                     'status'        => $status,
                     'gclid'         => $item['gclid'] ?? null,
+                    'greeting'      => $item['greeting'] ?? null,
                     'created_at'    => $item['created_at'] ?? now(),
                     'updated_at'    => now(),
 
@@ -250,6 +251,7 @@ class CronRekapFormServices
                     'via'           => $item['device'] ?? null,
                     'status'        => $status,
                     'gclid'         => $item['gclid'] ?? null,
+                    'greeting'      => $item['greeting'] ?? null,
                     'created_at'    => $item['created_at'] ?? now(),
                     'updated_at'    => now(),
 
