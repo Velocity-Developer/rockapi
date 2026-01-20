@@ -23,6 +23,6 @@ class KataKunci extends Model
     //relasi dengan rekap chat
     public function rekap_chat()
     {
-        return $this->hasMany(RekapChat::class, 'kata_kunci', 'greeting');
+        return $this->belongsTo(RekapChat::class, 'kata_kunci', 'greeting');
     }
 }

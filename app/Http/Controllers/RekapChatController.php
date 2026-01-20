@@ -26,7 +26,10 @@ class RekapChatController extends Controller
                     ->orWhere('perangkat', 'like', "%{$search}%")
                     ->orWhere('alasan', 'like', "%{$search}%")
                     ->orWhere('detail', 'like', "%{$search}%")
-                    ->orWhere('kata_kunci', 'like', "%{$search}%");
+                    ->orWhere('kata_kunci', 'like', "%{$search}%")
+                    ->orWhereHas('kk', function ($q) use ($search) {
+                        $q->where('kata_kunci', 'like', "%{$search}%");
+                    });
             });
         }
 
