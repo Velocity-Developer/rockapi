@@ -13,9 +13,6 @@ class RekapChatController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage   = (int) ($request->input('per_page', 100));
-        $orderBy   = $request->input('order_by', 'whatsapp');
-        $order     = $request->input('order', 'asc');
         $search    = $request->input('q');
 
         //query RekapChat
@@ -45,9 +42,13 @@ class RekapChatController extends Controller
                 ->whereDate('chat_pertama', '<=', $tgl_sampai);
         }
 
+        $orderBy   = $request->input('order_by', 'chat_pertama');
+        $order     = $request->input('order', 'desc');
         $query->orderBy($orderBy, $order);
 
+        $perPage   = (int) ($request->input('per_page', 100));
         $results = $query->paginate($perPage);
+
         return response()->json($results);
     }
 
