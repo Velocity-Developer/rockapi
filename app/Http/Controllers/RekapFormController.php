@@ -181,7 +181,7 @@ class RekapFormController extends Controller
         $query->where('created_at', '>', Carbon::create(2026, 1, 10)->startOfDay());
 
         //pastikan source adalah vdcom dan tidio
-        $query->whereIn('source', ['vdcom', 'tidio']);
+        $query->whereIn('source', ['vdcom', 'tidio', 'vdcom_id']);
 
         //pastikan gclid tidak null
         $query->whereNotNull('gclid')
