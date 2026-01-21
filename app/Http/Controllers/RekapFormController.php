@@ -227,8 +227,6 @@ class RekapFormController extends Controller
                 continue;
             }
 
-            Log::info('update_cek_konversi_ads', $item);
-
             $rekapForm->update([
                 'cek_konversi_ads' => $item['cek_konversi_ads'],
             ]);
