@@ -13,12 +13,12 @@ class RekapChatController extends Controller
      */
     public function index(Request $request)
     {
-        $search    = $request->input('q');
 
         //query RekapChat
         $query = RekapChat::query()
             ->with('kk');
 
+        $search    = $request->input('q');
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('whatsapp', 'like', "%{$search}%")
@@ -43,6 +43,30 @@ class RekapChatController extends Controller
         if ($tgl_dari && $tgl_sampai) {
             $query->whereDate('chat_pertama', '>=', $tgl_dari)
                 ->whereDate('chat_pertama', '<=', $tgl_sampai);
+        }
+
+        //filter whatsapp
+        $whatsapp = $request->input('whatsapp');
+        if ($whatsapp) {
+            $query->where('whatsapp', 'like', "%{$whatsapp}%");
+        }
+
+        //filter alasan
+        $alasan = $request->input('by_alasan');
+        if ($alasan) {
+            $query->where('alasan', $alasan);
+        }
+
+        //via
+        $via = $request->input('via');
+        if ($via) {
+            $query->where('via', $via);
+        }
+
+        //keyword
+        $keyword = $request->input('keyword');
+        if ($keyword) {
+            $query->where('detail', 'like', "%{$keyword}%");
         }
 
         $orderBy   = $request->input('order_by', 'id');
