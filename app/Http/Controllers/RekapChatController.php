@@ -45,7 +45,7 @@ class RekapChatController extends Controller
                 ->whereDate('chat_pertama', '<=', $tgl_sampai);
         }
 
-        $orderBy   = $request->input('order_by', 'chat_pertama');
+        $orderBy   = $request->input('order_by', 'id');
         $order     = $request->input('order', 'desc');
         $query->orderBy($orderBy, $order);
 
