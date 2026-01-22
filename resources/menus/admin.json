@@ -125,6 +125,12 @@
                 "key": "laporan_siklus_layanan",
                 "label": "Siklus Layanan",
                 "route": "/laporan/siklus_layanan"
+            },
+            {
+                "key": "rekap_chat",
+                "label": "Rekap Chat",
+                "icon": "lucide:message-square-text",
+                "route": "/rekap_chat"
             }
         ]
     },

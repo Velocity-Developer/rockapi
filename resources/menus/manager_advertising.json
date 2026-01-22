@@ -119,5 +119,11 @@
         "label": "Client Support",
         "icon": "lucide:user-star",
         "route": "/client_support"
+    },
+    {
+        "key": "rekap_chat",
+        "label": "Rekap Chat",
+        "route": "/rekap_chat",
+        "icon": "lucide:message-square-text"
     }
 ]
