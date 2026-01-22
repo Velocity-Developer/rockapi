@@ -24,9 +24,9 @@ class RekapChat extends Model
         'status_followup',
     ];
 
-    //relasi hasmany dengan kata kunci
+    //relasi dengan kata kunci
     public function kk()
     {
-        return $this->hasMany(KataKunci::class, 'greeting', 'kata_kunci',);
+        return $this->hasOne(KataKunci::class, 'greeting', 'kata_kunci',);
     }
 }
