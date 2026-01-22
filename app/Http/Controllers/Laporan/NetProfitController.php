@@ -160,7 +160,8 @@ class NetProfitController extends Controller
         $query = $query->map(function ($item) {
             return [
                 'label' => Carbon::parse($item->first()->chat_pertama)->format('Y-m'),
-                'total' => $item->count()
+                'total' => $item->count(),
+                'details' => $item
             ];
         });
 
