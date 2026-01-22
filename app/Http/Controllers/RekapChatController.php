@@ -88,8 +88,8 @@ class RekapChatController extends Controller
         $validator = Validator::make($request->all(), [
             'whatsapp' => 'required|string',
             'chat_pertama' => 'required|string',
-            'via' => 'required|string',
-            'perangkat' => 'required|string',
+            'via' => 'nullable|string',
+            'perangkat' => 'nullable|string',
             'alasan' => 'required|string',
             'detail' => 'nullable|string',
             'kata_kunci' => 'nullable|string',
@@ -143,8 +143,8 @@ class RekapChatController extends Controller
         $validator = Validator::make($request->all(), [
             'whatsapp' => 'required|string',
             'chat_pertama' => 'required|string',
-            'via' => 'required|string',
-            'perangkat' => 'required|string',
+            'via' => 'nullable|string',
+            'perangkat' => 'nullable|string',
             'alasan' => 'required|string',
             'detail' => 'nullable|string',
             'kata_kunci' => 'nullable|string',
