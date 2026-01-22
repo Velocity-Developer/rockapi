@@ -111,6 +111,7 @@ class NetProfitController extends Controller
             $biaya_domain       = $harga_domain * $total_project;
             $profit_kotor       = $omzet - $biaya_domain;
             $chat_ads           = $rekap_chat[$the_bulan] ? $rekap_chat[$the_bulan]['total'] : 0;
+            $chat_details       = $rekap_chat[$the_bulan] ? $rekap_chat[$the_bulan]['details'] : [];
             $persen_order       = ($total_order / $chat_ads) * 100;
             $profit_kotor_order = $profit_kotor / $total_order;
             $net_profit         = $profit_kotor - $biaya_ads;
@@ -126,6 +127,7 @@ class NetProfitController extends Controller
                 'profit_kotor'  => $profit_kotor,
                 'projects'      => $projects,
                 'chat_ads'      => $chat_ads,
+                'chat_details'  => $chat_details,
                 'persen_order'  => $persen_order ? round($persen_order, 1) . '%' : 0,
                 'profit_kotor_order' => $profit_kotor_order,
                 'net_profit'    => $net_profit,
