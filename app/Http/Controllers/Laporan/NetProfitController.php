@@ -134,7 +134,7 @@ class NetProfitController extends Controller
         });
 
         //array remove key
-        $raw_data = $raw_data->toArray();
+        $raw_data = $raw_data->values()->toArray();
 
         return response()->json([
             'dari'          => $dari,
