@@ -148,7 +148,7 @@ class NetProfitController extends Controller
     {
         $query = RekapChat::whereBetween('chat_pertama', [$dari, $sampai])
             ->whereIn('via', ['Telegram', 'Tidio Chat', 'Whatsapp'])
-            ->whereNotIn('alasan', ['Salah Sambung', 'Lain - lain', 'Pembayaran', 'Tempat', 'Kemahalan'])
+            ->whereNotIn('alasan', ['Salah Sambung'])
             ->get();
 
         //group by month
