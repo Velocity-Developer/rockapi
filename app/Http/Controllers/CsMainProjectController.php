@@ -278,7 +278,8 @@ class CsMainProjectController extends Controller
             'karyawans',
             'transaksi_masuk',
             'pm_project',
-            'wm_project'
+            'wm_project',
+            'cs_main_project_info:cs_main_project_id,waktu_plus',
         )
             ->find($id);
         return response()->json($cs_main_project);
