@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Laporan;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
-use App\Models\CsMainProject;
 use App\Models\Webhost;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class SiklusLayananController extends Controller
 {
@@ -16,7 +15,7 @@ class SiklusLayananController extends Controller
         'Pembuatan apk custom',
         'Pembuatan Tanpa Domain',
         'Pembuatan Tanpa Hosting',
-        'Pembuatan Tanpa Domain+Hosting'
+        'Pembuatan Tanpa Domain+Hosting',
     ];
 
     public function index(Request $request)
@@ -27,7 +26,7 @@ class SiklusLayananController extends Controller
         $bulan = $date->format('m');
         $tahun = $date->format('Y');
 
-        //date 1 tahun lalu
+        // date 1 tahun lalu
         $date_y = $request->input('bulan');
         $date_y = Carbon::parse($date_y);
         $date_1_tahun_lalu = $date_y->subYear();
@@ -60,7 +59,7 @@ class SiklusLayananController extends Controller
                         $query->whereIn('jenis', $this->jenis_pembuatan);
                     })
                     ->orderBy('tgl_masuk', 'asc'); // opsional, biar urut
-            }
+            },
         ])
             ->whereHas('csMainProjects', function ($query) use ($bulan, $tahun) {
                 $query->where('jenis', 'Perpanjangan')
@@ -96,7 +95,7 @@ class SiklusLayananController extends Controller
                         $query->whereIn('jenis', $this->jenis_pembuatan);
                     })
                     ->orderBy('tgl_masuk', 'asc'); // opsional, biar urut
-            }
+            },
         ])
             // Filter parent agar hanya yang memenuhi dua kondisi
             ->whereHas('csMainProjects', function ($query) use ($bulan, $tahun) {
@@ -114,13 +113,12 @@ class SiklusLayananController extends Controller
         $results['meta']['perpanjang_baru'] = $perpanjang_baru;
         $perpanjang_baru_nominal = $perpanjang_baru
             ->flatMap->csMainProjects
-            ->where('jenis', 'Perpanjangan') // hanya ambil yang jenis perpanjangan            
+            ->where('jenis', 'Perpanjangan') // hanya ambil yang jenis perpanjangan
             ->filter(function ($item) use ($tahun, $bulan) { // filter perpanjangan bulan ini
                 return \Carbon\Carbon::parse($item->tgl_masuk)->year == $tahun
                     && \Carbon\Carbon::parse($item->tgl_masuk)->month == $bulan;
             })
             ->sum('dibayar');
-
 
         /**
          * Tidak Perpanjang
@@ -134,7 +132,7 @@ class SiklusLayananController extends Controller
         $tidak_perpanjang = Webhost::with([
             'csMainProjects' => function ($query) use ($jenis_pembuatan_perpanjang) {
                 $query->whereIn('jenis', $jenis_pembuatan_perpanjang);
-            }
+            },
         ])
             // Filter parent agar hanya yang memenuhi dua kondisi
             // Harus ada perpanjangan di bulan lalu
@@ -144,7 +142,7 @@ class SiklusLayananController extends Controller
                     ->whereYear('tgl_masuk', $tahun_lalu);
             })
             // Tidak ada perpanjangan di tahun berjalan
-            ->whereDoesntHave('csMainProjects', function ($query) use ($bulan, $tahun) {
+            ->whereDoesntHave('csMainProjects', function ($query) use ($tahun) {
                 $query->where('jenis', 'Perpanjangan')
                     // ->whereMonth('tgl_masuk', $bulan)
                     ->whereYear('tgl_masuk', $tahun);
@@ -175,24 +173,24 @@ class SiklusLayananController extends Controller
             ->sum('dibayar');
 
         $results['data'] = [
-            'perpanjang'        => [
-                'label'         => 'Perpanjang',
-                'total'         => $perpanjang_bulan_ini_total,
-                'nominal'       => $perpanjang_bulan_ini_nominal,
-                'webhosts'      => $perpanjang_bulan_ini,
+            'perpanjang' => [
+                'label' => 'Perpanjang',
+                'total' => $perpanjang_bulan_ini_total,
+                'nominal' => $perpanjang_bulan_ini_nominal,
+                'webhosts' => $perpanjang_bulan_ini,
             ],
-            'perpanjang_baru'   => [
-                'label'         => 'Perpanjang Baru',
-                'total'         => $perpanjang_baru_total,
-                'nominal'       => $perpanjang_baru_nominal,
-                'webhosts'      => $perpanjang_baru,
+            'perpanjang_baru' => [
+                'label' => 'Perpanjang Baru',
+                'total' => $perpanjang_baru_total,
+                'nominal' => $perpanjang_baru_nominal,
+                'webhosts' => $perpanjang_baru,
             ],
-            'tidak_perpanjang'  => [
-                'label'         => 'Tidak Perpanjang',
-                'total'         => $tidak_perpanjang_total,
-                'nominal'       => $tidak_perpanjang_nominal,
-                'webhosts'      => $tidak_perpanjang,
-            ]
+            'tidak_perpanjang' => [
+                'label' => 'Tidak Perpanjang',
+                'total' => $tidak_perpanjang_total,
+                'nominal' => $tidak_perpanjang_nominal,
+                'webhosts' => $tidak_perpanjang,
+            ],
         ];
 
         return response()->json($results);

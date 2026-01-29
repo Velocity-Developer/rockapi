@@ -20,7 +20,7 @@ class Paket extends Model
         'bobot',
     ];
 
-    //relasi many ke tabel webhost
+    // relasi many ke tabel webhost
     public function webhost()
     {
         return $this->hasMany(Webhost::class, 'id_paket');

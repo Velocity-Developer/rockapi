@@ -10,16 +10,16 @@ class JournalCategory extends Model
         'name',
         'description',
         'role',
-        'icon'
+        'icon',
     ];
 
-    //sembunyikan
+    // sembunyikan
     protected $hidden = [
         'created_at',
         'updated_at',
     ];
 
-    //relasi ke journal
+    // relasi ke journal
     public function journals()
     {
         return $this->hasMany(Journal::class);

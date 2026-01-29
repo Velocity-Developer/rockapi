@@ -2,8 +2,8 @@
 
 namespace App\Support\MediaLibrary;
 
-use Spatie\MediaLibrary\Support\PathGenerator\PathGenerator;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\MediaLibrary\Support\PathGenerator\PathGenerator;
 
 class CustomPathGenerator implements PathGenerator
 {
@@ -24,6 +24,6 @@ class CustomPathGenerator implements PathGenerator
 
     public function getPathForResponsiveImages(Media $media): string
     {
-        return $this->getPath($media) . 'responsive-images/';
+        return $this->getPath($media).'responsive-images/';
     }
 }

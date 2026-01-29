@@ -2,25 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Karyawan;
 use App\Models\Paket;
 use App\Models\Quality;
-use App\Models\User;
 use App\Models\Setting;
-
-use Illuminate\Support\Facades\App;
+use App\Models\User;
+use Illuminate\Http\Request;
 
 class DataOpsiController extends Controller
 {
-
-    //gets
+    // gets
     public function gets(Request $request)
     {
         $keys = $request->input('keys');
-        //jika kosong, return empty array
+        // jika kosong, return empty array
 
-        if ($keys == null || !is_array($keys)) {
+        if ($keys == null || ! is_array($keys)) {
             return response()->json([]);
         }
 
@@ -36,7 +33,7 @@ class DataOpsiController extends Controller
         return response()->json($result);
     }
 
-    //get
+    // get
     public function get(string $key, Request $request)
     {
         if ($key == 'bank') {
@@ -48,12 +45,12 @@ class DataOpsiController extends Controller
         return response()->json($get);
     }
 
-    //get
+    // get
     public function get_data(string $key, $request = null)
     {
         $result = [];
 
-        //switch key        
+        // switch key
         switch ($key) {
             case 'jenis_project':
                 $result = $this->jenis_project();
@@ -93,23 +90,25 @@ class DataOpsiController extends Controller
         foreach ($paket as $item) {
             $result[] = [
                 'value' => $item->id_paket,
-                'label' => $item->paket
+                'label' => $item->paket,
             ];
         }
+
         return $result;
     }
 
     private function karyawan()
     {
-        //get all karyawan
+        // get all karyawan
         $karyawan = Karyawan::all();
         $result = [];
         foreach ($karyawan as $item) {
             $result[] = [
                 'value' => $item->id_karyawan,
-                'label' => $item->nama
+                'label' => $item->nama,
             ];
         }
+
         return $result;
     }
 
@@ -117,84 +116,84 @@ class DataOpsiController extends Controller
     {
         $data_banks = [
             [
-                'value'     => 'bca',
-                'label'     => 'BCA',
-                'kategori'  => 'umum'
+                'value' => 'bca',
+                'label' => 'BCA',
+                'kategori' => 'umum',
             ],
             [
-                'value'     => 'bca stok',
-                'label'     => 'BCA Stok',
-                'kategori'  => 'umum'
+                'value' => 'bca stok',
+                'label' => 'BCA Stok',
+                'kategori' => 'umum',
             ],
             [
-                'value'     => 'mandiri',
-                'label'     => 'Mandiri',
-                'kategori'  => 'umum'
+                'value' => 'mandiri',
+                'label' => 'Mandiri',
+                'kategori' => 'umum',
             ],
             [
-                'value'     => 'bni',
-                'label'     => 'BNI',
-                'kategori'  => 'umum'
+                'value' => 'bni',
+                'label' => 'BNI',
+                'kategori' => 'umum',
             ],
             [
-                'value'     => 'bri',
-                'label'     => 'BRI',
-                'kategori'  => 'umum'
+                'value' => 'bri',
+                'label' => 'BRI',
+                'kategori' => 'umum',
             ],
             [
-                'value'     => 'dbs',
-                'label'     => 'DBS',
-                'kategori'  => 'umum'
+                'value' => 'dbs',
+                'label' => 'DBS',
+                'kategori' => 'umum',
             ],
             [
-                'value'     => 'gopay',
-                'label'     => 'Gopay',
-                'kategori'  => 'umum'
+                'value' => 'gopay',
+                'label' => 'Gopay',
+                'kategori' => 'umum',
             ],
             [
-                'value'     => 'resellercamp',
-                'label'     => 'RESELLERCAMP',
-                'kategori'  => 'umum'
+                'value' => 'resellercamp',
+                'label' => 'RESELLERCAMP',
+                'kategori' => 'umum',
             ],
             [
-                'value'     => 'srsx',
-                'label'     => 'SRSX',
-                'kategori'  => 'umum'
+                'value' => 'srsx',
+                'label' => 'SRSX',
+                'kategori' => 'umum',
             ],
             [
-                'value'     => 'jenius',
-                'label'     => 'Jenius',
-                'kategori'  => 'umum'
+                'value' => 'jenius',
+                'label' => 'Jenius',
+                'kategori' => 'umum',
             ],
             [
-                'value'     => 'bca_vd_1',
-                'label'     => 'BCA1 Velocity Developer',
-                'kategori'  => 'vd'
+                'value' => 'bca_vd_1',
+                'label' => 'BCA1 Velocity Developer',
+                'kategori' => 'vd',
             ],
             [
-                'value'     => 'bca_stok_vd',
-                'label'     => 'Bca Stok Velocity Developer',
-                'kategori'  => 'vd'
+                'value' => 'bca_stok_vd',
+                'label' => 'Bca Stok Velocity Developer',
+                'kategori' => 'vd',
             ],
             [
-                'value'     => 'mandiri_vd',
-                'label'     => 'Mandiri Velocity Developer',
-                'kategori'  => 'vd'
+                'value' => 'mandiri_vd',
+                'label' => 'Mandiri Velocity Developer',
+                'kategori' => 'vd',
             ],
             [
-                'value'     => 'bri_vd',
-                'label'     => 'BRI Velocity Developer',
-                'kategori'  => 'vd'
+                'value' => 'bri_vd',
+                'label' => 'BRI Velocity Developer',
+                'kategori' => 'vd',
             ],
             [
-                'value'     => 'bni_vd',
-                'label'     => 'BNI Velocity Developer',
-                'kategori'  => 'vd'
+                'value' => 'bni_vd',
+                'label' => 'BNI Velocity Developer',
+                'kategori' => 'vd',
             ],
             [
-                'value'     => 'bca_vcm',
-                'label'     => 'BCA Velocity Cyber Media',
-                'kategori'  => 'vcm'
+                'value' => 'bca_vcm',
+                'label' => 'BCA Velocity Cyber Media',
+                'kategori' => 'vcm',
             ],
             // [
             //     'value'     => 'mandiri_vcm',
@@ -212,14 +211,14 @@ class DataOpsiController extends Controller
             //     'kategori'  => 'vcm'
             // ],
             [
-                'value'     => 'jago',
-                'label'     => 'Jago',
-                'kategori'  => 'vcm'
+                'value' => 'jago',
+                'label' => 'Jago',
+                'kategori' => 'vcm',
             ],
             [
-                'value'     => 'vcc_jago_ads',
-                'label'     => 'VCC Jago Ads',
-                'kategori'  => 'vcm'
+                'value' => 'vcc_jago_ads',
+                'label' => 'VCC Jago Ads',
+                'kategori' => 'vcm',
             ],
         ];
 
@@ -227,12 +226,12 @@ class DataOpsiController extends Controller
             return $data_banks;
         }
 
-        //return array by kategori
+        // return array by kategori
         $kategori = $kategori ?? 'umum';
 
         $new_array = [];
         foreach ($data_banks as $item) {
-            ///jika kategori != kategori, skip
+            // /jika kategori != kategori, skip
             if ($item['kategori'] != $kategori) {
                 continue;
             }
@@ -281,67 +280,70 @@ class DataOpsiController extends Controller
         $result = [
             [
                 'value' => 'Irawan',
-                'label' => 'Irawan'
+                'label' => 'Irawan',
             ],
             [
                 'value' => 'Dita',
-                'label' => 'Dita'
+                'label' => 'Dita',
             ],
             [
                 'value' => 'Aditya k',
-                'label' => 'Aditya k'
+                'label' => 'Aditya k',
             ],
             [
                 'value' => 'Aditya',
-                'label' => 'Aditya'
+                'label' => 'Aditya',
             ],
             [
                 'value' => 'Lingga',
-                'label' => 'Lingga'
+                'label' => 'Lingga',
             ],
             [
                 'value' => 'Shudqi',
-                'label' => 'Shudqi'
-            ]
+                'label' => 'Shudqi',
+            ],
         ];
+
         return $result;
     }
 
     private function quality()
     {
-        //get all Quality
+        // get all Quality
         $Quality = Quality::all();
         $result = [];
         foreach ($Quality as $item) {
             $result[] = [
                 'value' => $item->detail,
-                'label' => $item->detail
+                'label' => $item->detail,
             ];
         }
+
         return $result;
     }
 
     private function users($request = null)
     {
         $role = $request && $request->role ? $request->role : '';
-        //filter by role
+        // filter by role
         if ($role) {
             $users = User::where('status', 'active')
                 ->role($role) // role yang di filter
                 ->get();
         } else {
-            //get all user, status = active
+            // get all user, status = active
             $users = User::where('status', 'active')->get();
         }
         $result = [];
         foreach ($users as $item) {
             $result[] = [
-                'value'     => $item->id,
-                'label'     => $item->name,
-                'avatar'    => $item->avatar_url,
-                'role'      => $item->user_roles ? $item->user_roles[0] : ''
+                'value' => $item->id,
+                'label' => $item->name,
+                'avatar' => $item->avatar_url,
+                'role' => $item->user_roles ? $item->user_roles[0] : '',
             ];
         }
+
         return $result;
     }
 
@@ -350,16 +352,16 @@ class DataOpsiController extends Controller
         $kategori_web = Setting::get('kategori_web') ?? ['Yayasan', 'Perusahaan', 'Umum', 'Sekolah', 'Jasa'];
 
         $result = [];
-        $usedValues = []; //tracker untuk deteksi duplikasi setelah normalisasi
+        $usedValues = []; // tracker untuk deteksi duplikasi setelah normalisasi
 
         foreach ($kategori_web as $item) {
-            if (!$item) {
+            if (! $item) {
                 continue;
             }
 
-            $item = ucwords(strtolower(trim($item))); //normalisasi: trim + lowercase + ucwords
+            $item = ucwords(strtolower(trim($item))); // normalisasi: trim + lowercase + ucwords
 
-            //skip jika sudah ada sebelumnya
+            // skip jika sudah ada sebelumnya
             if (in_array($item, $usedValues, true)) {
                 continue;
             }
@@ -368,7 +370,7 @@ class DataOpsiController extends Controller
 
             $result[] = [
                 'value' => $item,
-                'label' => $item
+                'label' => $item,
             ];
         }
 

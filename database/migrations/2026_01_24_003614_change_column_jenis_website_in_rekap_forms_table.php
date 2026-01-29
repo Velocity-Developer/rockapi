@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rekap_forms', function (Blueprint $table) {
-            //ubah kolom jenis_website menjadi text
+            // ubah kolom jenis_website menjadi text
             $table->text('jenis_website')->nullable()->change();
         });
     }
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('rekap_forms', function (Blueprint $table) {
-            //ubah kolom jenis_website menjadi string
+            // ubah kolom jenis_website menjadi string
             $table->string('jenis_website', 255)->nullable()->change();
         });
     }

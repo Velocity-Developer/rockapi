@@ -11,9 +11,9 @@ class CsMainProjectRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        //return false;
+        // return false;
 
-        //jika user memiliki hak akses add-billing, maka bisa
+        // jika user memiliki hak akses add-billing, maka bisa
         return auth()->check() && auth()->user()->can('add-billing');
     }
 
@@ -25,23 +25,23 @@ class CsMainProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'jenis'             => 'required|string',
-            'nama_web'          => 'required|string',
-            'paket'             => 'nullable|integer',
-            'deskripsi'         => 'nullable|string',
-            'trf'               => 'nullable|integer',
-            'tgl_masuk'         => 'required|string',
-            'tgl_deadline'      => 'required|string',
-            'biaya'             => 'required|integer',
-            'dibayar'           => 'nullable|integer',
-            'saldo'             => 'nullable|string',
-            'hp'                => 'required|string',
-            'telegram'          => 'nullable|string',
-            'hpads'             => 'nullable|string',
-            'wa'                => 'required|string',
-            'email'             => 'nullable|string',
-            'dikerjakan_oleh'   => 'required|array',
-            'kategori_web'      => 'required|string',
+            'jenis' => 'required|string',
+            'nama_web' => 'required|string',
+            'paket' => 'nullable|integer',
+            'deskripsi' => 'nullable|string',
+            'trf' => 'nullable|integer',
+            'tgl_masuk' => 'required|string',
+            'tgl_deadline' => 'required|string',
+            'biaya' => 'required|integer',
+            'dibayar' => 'nullable|integer',
+            'saldo' => 'nullable|string',
+            'hp' => 'required|string',
+            'telegram' => 'nullable|string',
+            'hpads' => 'nullable|string',
+            'wa' => 'required|string',
+            'email' => 'nullable|string',
+            'dikerjakan_oleh' => 'required|array',
+            'kategori_web' => 'required|string',
         ];
     }
 }

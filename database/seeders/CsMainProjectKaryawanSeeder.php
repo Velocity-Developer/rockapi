@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\CsMainProject;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -20,20 +19,20 @@ class CsMainProjectKaryawanSeeder extends Seeder
         // Ambil semua CsMainProjectKaryawan yang belum memiliki relasi ke karyawan
         $projects = CsMainProject::doesntHave('karyawans')->get();
 
-        //total project
+        // total project
         $totalProjects = count($projects);
 
         $counter_project = 1;
         foreach ($projects as $project) {
 
-            if (!$project->dikerjakan_oleh) {
+            if (! $project->dikerjakan_oleh) {
                 continue; // Skip kalau kosong
             }
 
             // Pecah isi berdasarkan koma
             $entries = array_filter(explode(',', $project->dikerjakan_oleh));
 
-            //skip kalau kosong
+            // skip kalau kosong
             if (empty($entries)) {
                 continue;
             }
@@ -51,7 +50,7 @@ class CsMainProjectKaryawanSeeder extends Seeder
                         ->where('karyawan_id', $karyawanId)
                         ->exists();
 
-                    if (!$exists) {
+                    if (! $exists) {
                         // Kalau belum ada, baru insert
                         DB::table('cs_main_project_karyawan')->insert([
                             'cs_main_project_id' => $project->id,
@@ -62,7 +61,7 @@ class CsMainProjectKaryawanSeeder extends Seeder
                         ]);
                     }
 
-                    //command info
+                    // command info
                     $this->command->info("{$counter_project} / {$totalProjects} = Berhasil pivot project {$project->id} dan karyawan {$karyawanId} dengan porsi {$porsi}");
                 }
             }

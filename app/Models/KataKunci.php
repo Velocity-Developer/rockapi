@@ -20,7 +20,7 @@ class KataKunci extends Model
         'greeting',
     ];
 
-    //relasi dengan rekap chat
+    // relasi dengan rekap chat
     public function rekap_chat()
     {
         return $this->belongsTo(RekapChat::class, 'kata_kunci', 'greeting');

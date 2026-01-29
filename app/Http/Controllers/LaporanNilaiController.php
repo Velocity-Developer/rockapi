@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\CsMainProject;
+use Illuminate\Http\Request;
 
 class LaporanNilaiController extends Controller
 {
@@ -15,8 +14,7 @@ class LaporanNilaiController extends Controller
         $results = ['users' => [], 'data' => []];
 
         // Ambil user webdeveloper beserta project yang sudah difilter
-        $users = User::whereHas('roles', fn($query) =>
-        $query->where('name', 'webdeveloper'))
+        $users = User::whereHas('roles', fn ($query) => $query->where('name', 'webdeveloper'))
             ->where('status', 'active')
             ->whereNotIn('name', ['webdeveloper', 'Web Custom', 'Web Biasa'])
             ->select('id', 'name', 'avatar')
@@ -30,7 +28,7 @@ class LaporanNilaiController extends Controller
                         'Pembuatan Tanpa Hosting',
                         'Pembuatan Tanpa Domain+Hosting',
                         'Redesign',
-                        'Pembuatan web konsep'
+                        'Pembuatan web konsep',
                     ]);
                     if ($jenisProject == 0) {
                         $query->where(function ($sub) {
@@ -85,21 +83,21 @@ class LaporanNilaiController extends Controller
                 : 0;
 
             $results['users'][] = [
-                'id'        => $user->id,
-                'name'      => $user->name,
-                'avatar'    => $user->avatar_url,
-                'total'     => $user->wm_project->count(),
-                'selesai'   => $total_selesai,
-                'progress'  => $total_progress,
-                'total_dibayar' => $percent_dibayar
+                'id' => $user->id,
+                'name' => $user->name,
+                'avatar' => $user->avatar_url,
+                'total' => $user->wm_project->count(),
+                'selesai' => $total_selesai,
+                'progress' => $total_progress,
+                'total_dibayar' => $percent_dibayar,
             ];
 
             $results['data'][$user->id] = [
-                'id'        => $user->id,
-                'name'      => $user->name,
-                'avatar'    => $user->avatar_url,
-                'projects'  => $user->wm_project,
-                'total_dibayar' => $total_dibayar
+                'id' => $user->id,
+                'name' => $user->name,
+                'avatar' => $user->avatar_url,
+                'projects' => $user->wm_project,
+                'total_dibayar' => $total_dibayar,
             ];
         }
 

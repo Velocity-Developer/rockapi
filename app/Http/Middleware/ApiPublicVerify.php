@@ -17,11 +17,11 @@ class ApiPublicVerify
     {
         $Authorization = $request->header('Authorization');
 
-        if (!$Authorization) {
+        if (! $Authorization) {
             return response()->json(['message' => 'Authorization is required'], 401);
         }
 
-        if ($Authorization !== 'Bearer ' . env('API_PUBLIC_KEY')) {
+        if ($Authorization !== 'Bearer '.env('API_PUBLIC_KEY')) {
             return response()->json(['message' => 'Unauthorized Authorization'], 401);
         }
 

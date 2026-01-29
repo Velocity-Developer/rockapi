@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamp('tanggal');
             $table->timestamps();
 
-            //index
+            // index
             $table->index('cs_main_project_id');
         });
     }

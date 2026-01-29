@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\RekapForm;
 use App\Models\RekapFormsLogKonversi;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Carbon\Carbon;
 
 class RekapFormController extends Controller
 {
@@ -16,12 +16,12 @@ class RekapFormController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage   = (int) ($request->input('per_page', 100));
-        $orderBy   = $request->input('order_by', 'created_at');
-        $order     = $request->input('order', 'desc');
-        $search    = $request->input('q');
+        $perPage = (int) ($request->input('per_page', 100));
+        $orderBy = $request->input('order_by', 'created_at');
+        $order = $request->input('order', 'desc');
+        $search = $request->input('q');
 
-        //query RekapForm
+        // query RekapForm
         $query = RekapForm::query();
 
         if ($search) {
@@ -35,6 +35,7 @@ class RekapFormController extends Controller
         $query->orderBy($orderBy, $order);
 
         $results = $query->paginate($perPage);
+
         return response()->json($results);
     }
 
@@ -43,7 +44,7 @@ class RekapFormController extends Controller
      */
     public function store(Request $request)
     {
-        //validate request
+        // validate request
         $validator = Validator::make($request->all(), [
             'id' => 'required|string',
             'source' => 'nullable|string',
@@ -64,27 +65,27 @@ class RekapFormController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
-        //create rekap form
+        // create rekap form
         $rekapForm = RekapForm::updateOrCreate(
             ['id' => $request->input('id')],
             [
-                'source'        => $request->input('source') ?? null,
-                'source_id'     => $request->input('source_id') ?? null,
-                'nama'          => $request->input('nama'),
-                'no_whatsapp'   => $request->input('no_whatsapp'),
+                'source' => $request->input('source') ?? null,
+                'source_id' => $request->input('source_id') ?? null,
+                'nama' => $request->input('nama'),
+                'no_whatsapp' => $request->input('no_whatsapp'),
                 'jenis_website' => $request->input('jenis_website'),
-                'ai_result'     => $request->input('ai_result'),
-                'via'           => $request->input('via'),
-                'utm_content'   => $request->input('utm_content'),
-                'utm_medium'    => $request->input('utm_medium'),
-                'greeting'      => $request->input('greeting'),
-                'status'        => $request->input('status'),
-                'gclid'         => $request->input('gclid') ?? null,
-                'created_at'    => $request->input('created_at'),
+                'ai_result' => $request->input('ai_result'),
+                'via' => $request->input('via'),
+                'utm_content' => $request->input('utm_content'),
+                'utm_medium' => $request->input('utm_medium'),
+                'greeting' => $request->input('greeting'),
+                'status' => $request->input('status'),
+                'gclid' => $request->input('gclid') ?? null,
+                'created_at' => $request->input('created_at'),
             ]
         );
 
@@ -96,9 +97,9 @@ class RekapFormController extends Controller
      */
     public function show(string $id)
     {
-        //get by id
+        // get by id
         $rekapForm = RekapForm::find($id);
-        if (!$rekapForm) {
+        if (! $rekapForm) {
             return response()->json(['message' => 'Rekap Form not found'], 404);
         }
 
@@ -110,7 +111,7 @@ class RekapFormController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //validate request
+        // validate request
         $request->validate([
             'id' => 'required|string',
             'source' => 'nullable|string',
@@ -128,13 +129,13 @@ class RekapFormController extends Controller
             'created_at' => 'required|date',
         ]);
 
-        //get by id
+        // get by id
         $rekapForm = RekapForm::find($id);
-        if (!$rekapForm) {
+        if (! $rekapForm) {
             return response()->json(['message' => 'Rekap Form not found'], 404);
         }
 
-        //update rekap form
+        // update rekap form
         $rekapForm->update($request->all());
 
         return response()->json($rekapForm);
@@ -145,13 +146,13 @@ class RekapFormController extends Controller
      */
     public function destroy(string $id)
     {
-        //get rekap form by id
+        // get rekap form by id
         $rekapForm = RekapForm::find($id);
-        if (!$rekapForm) {
+        if (! $rekapForm) {
             return response()->json(['message' => 'Rekap Form not found'], 404);
         }
 
-        //delete rekap form
+        // delete rekap form
         $rekapForm->delete();
 
         return response()->json(['message' => 'Rekap Form deleted successfully']);
@@ -159,10 +160,10 @@ class RekapFormController extends Controller
 
     public function get_konversi_ads(Request $request)
     {
-        //query RekapForm
+        // query RekapForm
         $query = RekapForm::with('log_konversi');
 
-        $search    = $request->input('q');
+        $search = $request->input('q');
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
@@ -171,14 +172,14 @@ class RekapFormController extends Controller
             });
         }
 
-        $status     = $request->input('status', 'sesuai');
+        $status = $request->input('status', 'sesuai');
         $query->where('status', $status);
 
         $cek_konversi_ads = $request->input('cek_konversi_ads', 0);
         $query->where('cek_konversi_ads', $cek_konversi_ads);
 
-        //created_at diatas 2026-01-10 00:00:00 dan max 90 hari
-        $hardLimit  = Carbon::create(2026, 1, 10)->startOfDay();
+        // created_at diatas 2026-01-10 00:00:00 dan max 90 hari
+        $hardLimit = Carbon::create(2026, 1, 10)->startOfDay();
         $last90Days = now()->subDays(90)->startOfDay();
 
         // ambil tanggal yang paling baru
@@ -188,26 +189,27 @@ class RekapFormController extends Controller
 
         $query->where('created_at', '>=', $fromDate);
 
-        //pastikan source adalah vdcom, tidio, atau vdcom_id
+        // pastikan source adalah vdcom, tidio, atau vdcom_id
         $query->whereIn('source', ['vdcom', 'tidio', 'vdcom_id']);
 
-        //pastikan gclid tidak null
+        // pastikan gclid tidak null
         $query->whereNotNull('gclid')
             ->where('gclid', '!=', '');
 
-        $perPage   = (int) ($request->input('per_page', 100));
-        $orderBy   = $request->input('order_by', 'created_at');
-        $order     = $request->input('order', 'asc');
+        $perPage = (int) ($request->input('per_page', 100));
+        $orderBy = $request->input('order_by', 'created_at');
+        $order = $request->input('order', 'asc');
         $query->orderBy($orderBy, $order);
 
         $results = $query->paginate($perPage);
+
         return response()->json($results);
     }
 
-    //update cek_konversi_ads by array of id
+    // update cek_konversi_ads by array of id
     public function update_cek_konversi_ads(Request $request)
     {
-        //validate request
+        // validate request
         $request->validate([
             'data' => 'required|array|min:1',
             'data.*.id' => 'required|integer',
@@ -217,13 +219,13 @@ class RekapFormController extends Controller
             'data.*.conversion_action_id' => 'nullable|string',
         ]);
 
-        //loop data
+        // loop data
         $results = [];
         foreach ($request->input('data') as $item) {
 
-            //update item cek_konversi_ads
+            // update item cek_konversi_ads
             $rekapForm = RekapForm::find($item['id']);
-            if (!$rekapForm) {
+            if (! $rekapForm) {
 
                 $results[] = [
                     'id' => $item['id'],
@@ -239,7 +241,7 @@ class RekapFormController extends Controller
                 'cek_konversi_ads' => $item['cek_konversi_ads'],
             ]);
 
-            //create log konversi
+            // create log konversi
             if ($item['kirim_konversi_id'] || $item['jobid'] || $item['conversion_action_id']) {
                 RekapFormsLogKonversi::create([
                     'rekap_form_id' => $rekapForm->id,
@@ -256,7 +258,7 @@ class RekapFormController extends Controller
             ];
         }
 
-        //update rekap form
+        // update rekap form
         return response()->json([
             'message' => 'RekapForm update success',
             'results' => $results,
@@ -265,10 +267,10 @@ class RekapFormController extends Controller
 
     public function get_konversi_nominal_ads(Request $request)
     {
-        //query RekapForm
+        // query RekapForm
         $query = RekapForm::with('log_konversi');
 
-        $search    = $request->input('q');
+        $search = $request->input('q');
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
@@ -277,35 +279,36 @@ class RekapFormController extends Controller
             });
         }
 
-        $status     = $request->input('status', 'sesuai');
+        $status = $request->input('status', 'sesuai');
         $query->where('status', $status);
 
         $cek_konversi_ads = $request->input('cek_konversi_ads', 1);
         $query->where('cek_konversi_ads', $cek_konversi_ads);
 
-        //created_at diatas 2026-01-10 00:00:00
+        // created_at diatas 2026-01-10 00:00:00
         $query->where('created_at', '>', Carbon::create(2026, 1, 10)->startOfDay());
 
-        //pastikan source adalah vdcom dan tidio
+        // pastikan source adalah vdcom dan tidio
         $query->whereIn('source', ['vdcom', 'tidio']);
 
-        //pastikan gclid tidak null
+        // pastikan gclid tidak null
         $query->whereNotNull('gclid')
             ->where('gclid', '!=', '');
 
-        //pastikan kategori_konversi_nominal tidak null
+        // pastikan kategori_konversi_nominal tidak null
         $query->whereNotNull('kategori_konversi_nominal')
             ->where('kategori_konversi_nominal', '!=', '');
 
         $cek_konversi_nominal = $request->input('cek_konversi_nominal', 0);
         $query->where('cek_konversi_nominal', $cek_konversi_nominal);
 
-        $perPage   = (int) ($request->input('per_page', 100));
-        $orderBy   = $request->input('order_by', 'created_at');
-        $order     = $request->input('order', 'asc');
+        $perPage = (int) ($request->input('per_page', 100));
+        $orderBy = $request->input('order_by', 'created_at');
+        $order = $request->input('order', 'asc');
         $query->orderBy($orderBy, $order);
 
         $results = $query->paginate($perPage);
+
         return response()->json($results);
     }
 }

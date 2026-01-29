@@ -11,12 +11,13 @@ class Karyawan extends Model
 
     // Nama primary key yang tidak konvensional
     protected $primaryKey = 'id_karyawan';
+
     protected $keyType = 'int';
 
     // tidak menggunakan timestamps
     public $timestamps = false;
 
-    //hidden
+    // hidden
     protected $hidden = [
         'password',
     ];
@@ -31,10 +32,10 @@ class Karyawan extends Model
         'tgl_masuk',
         'username',
         'password',
-        'jenis'
+        'jenis',
     ];
 
-    //relasi ke cs_main_project menggunakan pivot table cs_main_project_karyawan
+    // relasi ke cs_main_project menggunakan pivot table cs_main_project_karyawan
     public function cs_main_projects()
     {
         return $this->belongsToMany(CsMainProject::class, 'cs_main_project_karyawan')

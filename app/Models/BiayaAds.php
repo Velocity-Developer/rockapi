@@ -10,6 +10,6 @@ class BiayaAds extends Model
     protected $fillable = [
         'bulan',
         'biaya',
-        'kategori'
+        'kategori',
     ];
 }

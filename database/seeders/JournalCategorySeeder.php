@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\JournalCategory;
+use Illuminate\Database\Seeder;
 
 class JournalCategorySeeder extends Seeder
 {
@@ -89,17 +88,17 @@ class JournalCategorySeeder extends Seeder
         ];
 
         foreach ($categories as $category) {
-            //create or update
+            // create or update
             JournalCategory::updateOrCreate(
                 [
                     'name' => $category['name'],
-                    'role' => $category['role']
+                    'role' => $category['role'],
                 ],
                 [
-                    'description'   => $category['description'],
-                    'icon'          => $category['icon'],
-                    'created_at'    => now(),
-                    'updated_at'    => now(),
+                    'description' => $category['description'],
+                    'icon' => $category['icon'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]
             );
         }

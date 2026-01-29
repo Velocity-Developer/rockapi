@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TodoList;
-use App\Models\TodoAssignment;
-use App\Models\TodoUser;
-use App\Models\TodoCategory;
-use App\Models\User;
+use App\Http\Resources\TodoResource;
 use App\Models\Journal;
 use App\Models\JournalCategory;
-use App\Http\Resources\TodoResource;
-use App\Http\Resources\TodoAssignmentResource;
+use App\Models\TodoAssignment;
+use App\Models\TodoCategory;
+use App\Models\TodoList;
+use App\Models\TodoUser;
+use App\Models\User;
 use App\Notifications\TodoAssignedNotification;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -28,7 +27,7 @@ class TodoController extends Controller
             'category:id,name,color,icon',
             'assignments' => function ($q) {
                 $q->with(['assignable']);
-            }
+            },
         ]);
 
         // Filter by status
@@ -55,8 +54,8 @@ class TodoController extends Controller
         if ($request->input('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', '%' . $search . '%')
-                    ->orWhere('description', 'like', '%' . $search . '%');
+                $q->where('title', 'like', '%'.$search.'%')
+                    ->orWhere('description', 'like', '%'.$search.'%');
             });
         }
 
@@ -64,7 +63,7 @@ class TodoController extends Controller
         if ($request->input('date_start') && $request->input('date_end')) {
             $query->whereBetween('due_date', [
                 $request->input('date_start'),
-                $request->input('date_end')
+                $request->input('date_end'),
             ]);
         }
 
@@ -124,7 +123,7 @@ class TodoController extends Controller
             'category:id,name,color,icon',
             'assignments' => function ($q) {
                 $q->with(['assignable', 'assignedBy']);
-            }
+            },
         ])->forUser($user);
 
         // Filter out todos that are already being worked on or completed by other users
@@ -156,8 +155,8 @@ class TodoController extends Controller
         if ($request->input('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', '%' . $search . '%')
-                    ->orWhere('description', 'like', '%' . $search . '%');
+                $q->where('title', 'like', '%'.$search.'%')
+                    ->orWhere('description', 'like', '%'.$search.'%');
             });
         }
 
@@ -203,7 +202,7 @@ class TodoController extends Controller
             'category:id,name,color,icon',
             'assignments' => function ($q) {
                 $q->with(['assignable', 'assignedBy']);
-            }
+            },
         ])->createdBy($user);
 
         // Apply filters
@@ -218,8 +217,8 @@ class TodoController extends Controller
         if ($request->input('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', '%' . $search . '%')
-                    ->orWhere('description', 'like', '%' . $search . '%');
+                $q->where('title', 'like', '%'.$search.'%')
+                    ->orWhere('description', 'like', '%'.$search.'%');
             });
         }
 
@@ -268,7 +267,7 @@ class TodoController extends Controller
             'notes' => 'nullable|string',
             'assignments' => 'required|array|min:1',
             'assignments.*.type' => 'required|in:user,role',
-            'assignments.*.id' => 'required|integer|min:1'
+            'assignments.*.id' => 'required|integer|min:1',
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -281,7 +280,7 @@ class TodoController extends Controller
                 'due_date' => $request->due_date,
                 'category_id' => $request->category_id,
                 'is_private' => $request->boolean('is_private', false),
-                'notes' => $request->notes
+                'notes' => $request->notes,
             ]);
 
             // Create assignments
@@ -297,7 +296,7 @@ class TodoController extends Controller
                     'assignable_id' => $assignment['id'],
                     'assigned_by' => Auth::id(),
                     'assigned_at' => now(),
-                    'status' => TodoAssignment::STATUS_ASSIGNED
+                    'status' => TodoAssignment::STATUS_ASSIGNED,
                 ]);
 
                 // Collect users to notify
@@ -318,7 +317,7 @@ class TodoController extends Controller
 
             // Send notifications to assigned users
             $notifies = [];
-            if (!empty($usersToNotify)) {
+            if (! empty($usersToNotify)) {
                 $assignedBy = Auth::user();
                 foreach ($usersToNotify as $user) {
                     $userModel = is_array($user) ? User::find($user['id']) : $user;
@@ -335,7 +334,7 @@ class TodoController extends Controller
                 'category:id,name,color,icon',
                 'assignments' => function ($q) {
                     $q->with(['assignable', 'assignedBy']);
-                }
+                },
             ]);
 
             return response()->json([
@@ -343,7 +342,7 @@ class TodoController extends Controller
                 'data' => $todo,
                 'message' => 'Todo created successfully',
                 'users_to_notify' => $usersToNotify,
-                'notifies' => $notifies
+                'notifies' => $notifies,
             ], 201);
         });
     }
@@ -355,7 +354,7 @@ class TodoController extends Controller
             'category:id,name,color,icon',
             'assignments' => function ($q) {
                 $q->with(['assignable', 'assignedBy']);
-            }
+            },
         ])->findOrFail($id);
 
         return response()->json($todo);
@@ -372,7 +371,7 @@ class TodoController extends Controller
                 'success' => false,
                 'message' => 'Unauthorized to update this todo',
                 'todo' => $todo,
-                'user_id' => Auth::id()
+                'user_id' => Auth::id(),
             ], 403);
         }
 
@@ -387,7 +386,7 @@ class TodoController extends Controller
             'notes' => 'nullable|string',
             'assignments' => 'nullable|array|min:1',
             'assignments.*.type' => 'required_with:assignments|in:user,role',
-            'assignments.*.id' => 'required_with:assignments|integer|min:1'
+            'assignments.*.id' => 'required_with:assignments|integer|min:1',
         ]);
 
         return DB::transaction(function () use ($request, $todo) {
@@ -399,7 +398,7 @@ class TodoController extends Controller
                 'due_date' => $request->due_date,
                 'category_id' => $request->category_id,
                 'is_private' => $request->boolean('is_private', $todo->is_private),
-                'notes' => $request->notes
+                'notes' => $request->notes,
             ]);
 
             // Handle assignments if provided
@@ -419,7 +418,7 @@ class TodoController extends Controller
                         'assignable_id' => $assignment['id'],
                         'assigned_by' => Auth::id(),
                         'assigned_at' => now(),
-                        'status' => TodoAssignment::STATUS_ASSIGNED
+                        'status' => TodoAssignment::STATUS_ASSIGNED,
                     ]);
                 }
             }
@@ -429,13 +428,13 @@ class TodoController extends Controller
                 'category:id,name,color,icon',
                 'assignments' => function ($q) {
                     $q->with(['assignable', 'assignedBy']);
-                }
+                },
             ]);
 
             return response()->json([
                 'success' => true,
                 'data' => $todo,
-                'message' => 'Todo updated successfully'
+                'message' => 'Todo updated successfully',
             ]);
         });
     }
@@ -447,7 +446,7 @@ class TodoController extends Controller
         if ($todo->created_by !== Auth::id()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized to delete this todo'
+                'message' => 'Unauthorized to delete this todo',
             ], 403);
         }
 
@@ -460,7 +459,7 @@ class TodoController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Todo deleted successfully'
+                'message' => 'Todo deleted successfully',
             ]);
         });
     }
@@ -471,14 +470,14 @@ class TodoController extends Controller
         if ($todo->created_by !== Auth::id()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized to manage assignments for this todo'
+                'message' => 'Unauthorized to manage assignments for this todo',
             ], 403);
         }
 
         $request->validate([
             'assignments' => 'required|array|min:1',
             'assignments.*.type' => 'required|in:user,role',
-            'assignments.*.id' => 'required|integer|min:1'
+            'assignments.*.id' => 'required|integer|min:1',
         ]);
 
         return DB::transaction(function () use ($request, $todo) {
@@ -497,7 +496,7 @@ class TodoController extends Controller
                     'assignable_id' => $assignment['id'],
                     'assigned_by' => Auth::id(),
                     'assigned_at' => now(),
-                    'status' => TodoAssignment::STATUS_ASSIGNED
+                    'status' => TodoAssignment::STATUS_ASSIGNED,
                 ]);
             }
 
@@ -506,13 +505,13 @@ class TodoController extends Controller
                 'category:id,name,color,icon',
                 'assignments' => function ($q) {
                     $q->with(['assignable', 'assignedBy']);
-                }
+                },
             ]);
 
             return response()->json([
                 'success' => true,
                 'data' => $todo,
-                'message' => 'Assignments updated successfully'
+                'message' => 'Assignments updated successfully',
             ]);
         });
     }
@@ -521,10 +520,10 @@ class TodoController extends Controller
     {
         // Check if user can view assignments for this todo
         $user = Auth::user();
-        if ($todo->created_by !== $user->id && !$todo->isAssignedToUser($user)) {
+        if ($todo->created_by !== $user->id && ! $todo->isAssignedToUser($user)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized to view assignments for this todo'
+                'message' => 'Unauthorized to view assignments for this todo',
             ], 403);
         }
 
@@ -534,14 +533,14 @@ class TodoController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $assignments
+            'data' => $assignments,
         ]);
     }
 
     public function updateAssignmentStatus(Request $request, TodoList $todo, int $assignmentId): JsonResponse
     {
         $request->validate([
-            'status' => ['required', Rule::in(['pending', 'assigned', 'in_progress', 'completed', 'declined'])]
+            'status' => ['required', Rule::in(['pending', 'assigned', 'in_progress', 'completed', 'declined'])],
         ]);
 
         $user = Auth::user();
@@ -567,17 +566,17 @@ class TodoController extends Controller
             }
         }
 
-        if (!$canUpdate) {
+        if (! $canUpdate) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized to update this assignment'
+                'message' => 'Unauthorized to update this assignment',
             ], 403);
         }
 
         // Update assignment status
         $assignment->update([
             'status' => $request->status,
-            'completed_at' => $request->status === TodoAssignment::STATUS_COMPLETED ? now() : null
+            'completed_at' => $request->status === TodoAssignment::STATUS_COMPLETED ? now() : null,
         ]);
 
         // Update todo status based on assignments
@@ -588,7 +587,7 @@ class TodoController extends Controller
         return response()->json([
             'success' => true,
             'data' => $assignment,
-            'message' => 'Assignment status updated successfully'
+            'message' => 'Assignment status updated successfully',
         ]);
     }
 
@@ -639,7 +638,7 @@ class TodoController extends Controller
                 'name' => $category->name,
                 'color' => $category->color,
                 'icon' => $category->icon,
-                'count' => $category->todos_count
+                'count' => $category->todos_count,
             ];
         });
 
@@ -652,7 +651,7 @@ class TodoController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $stats
+            'data' => $stats,
         ]);
     }
 
@@ -672,7 +671,7 @@ class TodoController extends Controller
     public function updateStatus(string $id, Request $request): JsonResponse
     {
         $request->validate([
-            'status' => ['required', Rule::in(['pending', 'assigned', 'in_progress', 'completed', 'declined'])]
+            'status' => ['required', Rule::in(['pending', 'assigned', 'in_progress', 'completed', 'declined'])],
         ]);
 
         $todo = TodoList::findOrFail($id);
@@ -685,10 +684,10 @@ class TodoController extends Controller
         // Handle TodoUser pivot operations
         if ($oldStatus === TodoList::STATUS_ASSIGNED && $newStatus === TodoList::STATUS_IN_PROGRESS && $user) {
 
-            //dapatkan journal_category dengan name = 'Todo'
+            // dapatkan journal_category dengan name = 'Todo'
             $journalCategory = JournalCategory::where('name', 'Todo')->first();
-            //jika tidak ada, buat baru
-            if (!$journalCategory) {
+            // jika tidak ada, buat baru
+            if (! $journalCategory) {
                 $journalCategory = JournalCategory::create([
                     'name' => 'Todo',
                     'description' => 'Kategori untuk catatan pengerjaan todo',
@@ -698,7 +697,7 @@ class TodoController extends Controller
 
             // Create journal entry first
             $journal = Journal::create([
-                'title' => 'Pengerjaan ' . $todo->title,
+                'title' => 'Pengerjaan '.$todo->title,
                 'description' => $todo->description,
                 'start' => now(),
                 'end' => null,
@@ -734,7 +733,7 @@ class TodoController extends Controller
                 if ($todoUser->journal) {
                     $todoUser->journal->update([
                         'end' => now(),
-                        'status' => 'completed'
+                        'status' => 'completed',
                     ]);
                 }
             }
@@ -755,23 +754,23 @@ class TodoController extends Controller
             }
         }
 
-        //update status semua assignment, jika status == 'completed' isi juga completed_at jika tidak kosongkan
+        // update status semua assignment, jika status == 'completed' isi juga completed_at jika tidak kosongkan
         if ($todo->status === TodoList::STATUS_COMPLETED) {
             $todo->assignments()->update([
                 'status' => $todo->status,
-                'completed_at' => now()
+                'completed_at' => now(),
             ]);
         } else {
             $todo->assignments()->update([
                 'status' => $todo->status,
-                'completed_at' => null
+                'completed_at' => null,
             ]);
         }
 
         return response()->json([
             'success' => true,
             'data' => $todo,
-            'status' => $todo->status
+            'status' => $todo->status,
         ]);
     }
 }

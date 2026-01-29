@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class Term extends Model
@@ -31,19 +31,19 @@ class Term extends Model
         return $this->belongsToMany(Post::class, 'post_term', 'term_id', 'post_id');
     }
 
-    //boot
+    // boot
     public static function boot()
     {
         parent::boot();
 
         static::creating(function ($post) {
-            $post->slug = Str::slug($post->taxonomy . '-' . $post->name);
+            $post->slug = Str::slug($post->taxonomy.'-'.$post->name);
         });
 
         static::updating(function ($post) {
-            //jika name berubah
+            // jika name berubah
             if ($post->isDirty('name')) {
-                $post->slug = Str::slug($post->taxonomy . '-' . $post->name);
+                $post->slug = Str::slug($post->taxonomy.'-'.$post->name);
             }
         });
     }

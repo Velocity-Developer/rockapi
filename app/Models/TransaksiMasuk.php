@@ -20,10 +20,10 @@ class TransaksiMasuk extends Model
         'tgl',
         'total_biaya',
         'bayar',
-        'pelunasan'
+        'pelunasan',
     ];
 
-    //relasi one ke tabel cs_main_project
+    // relasi one ke tabel cs_main_project
     public function csMainProject()
     {
         return $this->belongsTo(CsMainProject::class, 'id');

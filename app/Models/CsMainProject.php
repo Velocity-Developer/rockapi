@@ -39,25 +39,26 @@ class CsMainProject extends Model
     ];
 
     protected $casts = [
-        'biaya'     => 'integer',
-        'dibayar'   => 'integer',
-        'trf'       => 'integer',
+        'biaya' => 'integer',
+        'dibayar' => 'integer',
+        'trf' => 'integer',
     ];
+
     protected $appends = [
         'raw_dikerjakan',
     ];
 
-    //accessor dikerjakan
+    // accessor dikerjakan
     public function getRawDikerjakanAttribute()
     {
         $dikerjakan_oleh = $this->dikerjakan_oleh;
         if ($dikerjakan_oleh == null) {
             return null;
         }
-        $data = explode(",", $dikerjakan_oleh);
+        $data = explode(',', $dikerjakan_oleh);
         $result = [];
         foreach ($data as $item) {
-            //jika kosong, skip
+            // jika kosong, skip
             if ($item == '') {
                 continue;
             }
@@ -65,16 +66,17 @@ class CsMainProject extends Model
                 $result[] = (int) $matches[1];
             }
         }
+
         return $result;
     }
 
-    //relasi ke tabel webhost
+    // relasi ke tabel webhost
     public function webhost()
     {
         return $this->belongsTo(Webhost::class, 'id_webhost');
     }
 
-    //relasi ke karyawan menggunakan pivot table cs_main_project_karyawan
+    // relasi ke karyawan menggunakan pivot table cs_main_project_karyawan
     public function karyawans()
     {
         return $this->belongsToMany(
@@ -88,49 +90,49 @@ class CsMainProject extends Model
             ->withPivot('porsi');
     }
 
-    //relasi ke tabel bank_cs_main_project
+    // relasi ke tabel bank_cs_main_project
     public function bank()
     {
         return $this->belongsToMany(Bank::class, 'bank_cs_main_project');
     }
 
-    //relasi one ke tabel pm_project
+    // relasi one ke tabel pm_project
     public function pm_project()
     {
         return $this->hasOne(PmProject::class, 'id');
     }
 
-    //relasi many ke tabel transaksi_masuk
+    // relasi many ke tabel transaksi_masuk
     public function transaksi_masuk()
     {
         return $this->hasMany(TransaksiMasuk::class, 'id');
     }
 
-    //relasi ke WmProject
+    // relasi ke WmProject
     public function wm_project()
     {
         return $this->hasOne(WmProject::class, 'id');
     }
 
-    //relasi many ke tabel cs_main_project_client_supports
+    // relasi many ke tabel cs_main_project_client_supports
     public function cs_main_project_client_supports()
     {
         return $this->hasMany(CsMainProjectClientSupport::class, 'cs_main_project_id');
     }
 
-    //relasi one ke tabel cs_main_project_infos
+    // relasi one ke tabel cs_main_project_infos
     public function cs_main_project_info()
     {
         return $this->hasOne(CsMainProjectInfo::class, 'cs_main_project_id');
     }
 
-    //relasi many to many ke Customer
+    // relasi many to many ke Customer
     public function customers()
     {
         return $this->belongsToMany(Customer::class, 'customer_cs_main_project', 'cs_main_project_id', 'customer_id', 'id');
     }
 
-    //relasi ke Invoice
+    // relasi ke Invoice
     public function invoices()
     {
         return $this->hasMany(Invoice::class, 'cs_main_project_id');

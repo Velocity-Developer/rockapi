@@ -2,31 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 use App\Models\CsMainProject;
 use App\Models\TransaksiKeluar;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class JenisBlmTerpilihController extends Controller
 {
-    //index
+    // index
     public function index(Request $request)
     {
-        $dari   = $request->input('tgl_masuk_start');
+        $dari = $request->input('tgl_masuk_start');
         $sampai = $request->input('tgl_masuk_end');
 
-        //jika $dari kosong, gunakan tanggal di awal bulan sekarang
+        // jika $dari kosong, gunakan tanggal di awal bulan sekarang
         if (empty($dari)) {
-            //30 hari terakhir
+            // 30 hari terakhir
             $dari = Carbon::now()->subDays(30)->format('Y-m-d');
         }
-        //jika $sampai kosong, gunakan tanggal di tanggal sekarang
+        // jika $sampai kosong, gunakan tanggal di tanggal sekarang
         if (empty($sampai)) {
             $sampai = Carbon::now()->format('Y-m-d');
         }
 
-        //ambil data CsMainProject
+        // ambil data CsMainProject
         $dataCsMainProject = CsMainProject::with('webhost', 'bank')
             ->whereBetween('tgl_masuk', [$dari, $sampai])
             ->whereDoesntHave('bank') // tidak memiliki relasi ke bank
@@ -37,10 +37,11 @@ class JenisBlmTerpilihController extends Controller
                 $item->tanggal = $item->tgl_masuk;
                 $item->tipe = 'masuk';
                 $item->nama_web = $item->webhost->nama_web;
+
                 return $item;
             });
 
-        //ambil data TransaksiKeluar
+        // ambil data TransaksiKeluar
         $dataTransaksiKeluar = TransaksiKeluar::with('bank')
             ->whereBetween('tgl', [$dari, $sampai])
             ->whereDoesntHave('bank') // tidak memiliki relasi ke bank
@@ -49,6 +50,7 @@ class JenisBlmTerpilihController extends Controller
                 // Tambahkan properti virtual 'tanggal'
                 $item->tanggal = $item->tgl;
                 $item->tipe = 'keluar';
+
                 return $item;
             });
 

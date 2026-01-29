@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\RekapChat;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class RekapChatController extends Controller
@@ -14,11 +14,11 @@ class RekapChatController extends Controller
     public function index(Request $request)
     {
 
-        //query RekapChat
+        // query RekapChat
         $query = RekapChat::query()
             ->with('kk');
 
-        $search    = $request->input('q');
+        $search = $request->input('q');
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('whatsapp', 'like', "%{$search}%")
@@ -33,11 +33,11 @@ class RekapChatController extends Controller
             });
         }
 
-        //filter tanggal chat_pertama
+        // filter tanggal chat_pertama
         $tgl_dari = $request->input('tgl_dari');
-        //ubah format tgl_dari ke Y-m-d
+        // ubah format tgl_dari ke Y-m-d
         $tgl_dari = date('Y-m-d', strtotime($tgl_dari));
-        //ubah format tgl_sampai ke Y-m-d
+        // ubah format tgl_sampai ke Y-m-d
         $tgl_sampai = date('Y-m-d', strtotime($request->input('tgl_sampai')));
 
         if ($tgl_dari && $tgl_sampai) {
@@ -45,35 +45,35 @@ class RekapChatController extends Controller
                 ->whereDate('chat_pertama', '<=', $tgl_sampai);
         }
 
-        //filter whatsapp
+        // filter whatsapp
         $whatsapp = $request->input('whatsapp');
         if ($whatsapp) {
             $query->where('whatsapp', 'like', "%{$whatsapp}%");
         }
 
-        //filter alasan
+        // filter alasan
         $alasan = $request->input('by_alasan');
         if ($alasan) {
             $query->where('alasan', $alasan);
         }
 
-        //via
+        // via
         $via = $request->input('via');
         if ($via) {
             $query->where('via', $via);
         }
 
-        //keyword
+        // keyword
         $keyword = $request->input('keyword');
         if ($keyword) {
             $query->where('detail', 'like', "%{$keyword}%");
         }
 
-        $orderBy   = $request->input('order_by', 'id');
-        $order     = $request->input('order', 'desc');
+        $orderBy = $request->input('order_by', 'id');
+        $order = $request->input('order', 'desc');
         $query->orderBy($orderBy, $order);
 
-        $perPage   = (int) ($request->input('per_page', 100));
+        $perPage = (int) ($request->input('per_page', 100));
         $results = $query->paginate($perPage);
 
         return response()->json($results);
@@ -84,7 +84,7 @@ class RekapChatController extends Controller
      */
     public function store(Request $request)
     {
-        //validate request
+        // validate request
         $validator = Validator::make($request->all(), [
             'whatsapp' => 'required|string',
             'chat_pertama' => 'required|string',
@@ -100,11 +100,11 @@ class RekapChatController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
-        //create rekap chat
+        // create rekap chat
         $rekapChat = RekapChat::create([
             'whatsapp' => $request->input('whatsapp'),
             'chat_pertama' => $request->input('chat_pertama'),
@@ -125,9 +125,9 @@ class RekapChatController extends Controller
      */
     public function show(string $id)
     {
-        //get by id
+        // get by id
         $rekapChat = RekapChat::find($id);
-        if (!$rekapChat) {
+        if (! $rekapChat) {
             return response()->json(['message' => 'Rekap Chat not found'], 404);
         }
 
@@ -139,7 +139,7 @@ class RekapChatController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //validate request
+        // validate request
         $validator = Validator::make($request->all(), [
             'whatsapp' => 'required|string',
             'chat_pertama' => 'required|string',
@@ -155,17 +155,17 @@ class RekapChatController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
-        //get by id
+        // get by id
         $rekapChat = RekapChat::find($id);
-        if (!$rekapChat) {
+        if (! $rekapChat) {
             return response()->json(['message' => 'Rekap Chat not found'], 404);
         }
 
-        //update rekap chat
+        // update rekap chat
         $rekapChat->update([
             'whatsapp' => $request->input('whatsapp'),
             'chat_pertama' => $request->input('chat_pertama'),
@@ -186,13 +186,13 @@ class RekapChatController extends Controller
      */
     public function destroy(string $id)
     {
-        //get rekap chat by id
+        // get rekap chat by id
         $rekapChat = RekapChat::find($id);
-        if (!$rekapChat) {
+        if (! $rekapChat) {
             return response()->json(['message' => 'Rekap Chat not found'], 404);
         }
 
-        //delete rekap chat
+        // delete rekap chat
         $rekapChat->delete();
 
         return response()->json(['message' => 'Rekap Chat deleted successfully']);

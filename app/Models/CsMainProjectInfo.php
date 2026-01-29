@@ -13,13 +13,13 @@ class CsMainProjectInfo extends Model
         'waktu_plus',
     ];
 
-    //relasi ke CsMainProject
+    // relasi ke CsMainProject
     public function cs_main_project()
     {
         return $this->belongsTo(CsMainProject::class, 'cs_main_project_id');
     }
 
-    //relasi ke User
+    // relasi ke User
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');

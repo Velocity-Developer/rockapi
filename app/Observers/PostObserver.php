@@ -2,10 +2,10 @@
 
 namespace App\Observers;
 
-use App\Notifications\PostBaruNotification;
-use Illuminate\Support\Facades\Notification;
 use App\Models\Post;
 use App\Models\User;
+use App\Notifications\PostBaruNotification;
+use Illuminate\Support\Facades\Notification;
 
 class PostObserver
 {
@@ -14,7 +14,7 @@ class PostObserver
      */
     public function created(Post $post): void
     {
-        //send notification
+        // send notification
         $users = User::all();
         Notification::send($users, new PostBaruNotification($post));
     }

@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Laporan;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
-
 use App\Models\CsMainProject;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class ProjectProfitController extends Controller
 {
@@ -15,17 +14,17 @@ class ProjectProfitController extends Controller
     {
         $data = [];
 
-        //query
+        // query
         $query = CsMainProject::with('webhost:id_webhost,nama_web,id_paket', 'webhost.paket:id_paket,paket');
 
-        //filter by month
+        // filter by month
         $month_start = $request->input('month_start');
         $month_end = $request->input('month_end');
         $jangka_waktu = $request->input('jangka_waktu');
 
-        //jika jangka_waktu = 1, maka filter by month
+        // jika jangka_waktu = 1, maka filter by month
         if ($month_start && $jangka_waktu) {
-            //buat month_end dengan mengurangi jangka_waktu tahun
+            // buat month_end dengan mengurangi jangka_waktu tahun
             $month_end = $month_start;
             $month_start = Carbon::createFromFormat('Y-m', $month_start)->subYear($jangka_waktu)->format('Y-m');
         }
@@ -46,7 +45,7 @@ class ProjectProfitController extends Controller
             return optional($item->webhost)->nama_web ?: 'Tanpa Webhost';
         });
 
-        //mari kita susun dan hitung
+        // mari kita susun dan hitung
         $data = [];
         $total_profit = 0;
         $kategori_jenis = [];
@@ -61,11 +60,11 @@ class ProjectProfitController extends Controller
                     $biaya = $project->biaya;
                     $jenis = $project->jenis;
 
-                    if (!isset($kategori_jenis[$jenis])) {
+                    if (! isset($kategori_jenis[$jenis])) {
                         $kategori_jenis[$jenis]['biaya'] = 0;
                         $kategori_jenis[$jenis]['count'] = 0;
                     }
-                    if (!isset($results[$jenis])) {
+                    if (! isset($results[$jenis])) {
                         $results[$jenis]['biaya'] = 0;
                         $results[$jenis]['count'] = 0;
                     }
@@ -81,28 +80,28 @@ class ProjectProfitController extends Controller
                 }
 
                 $data[] = [
-                    'nama_web'      => $web,
-                    'total'         => $projects->sum('biaya'),
+                    'nama_web' => $web,
+                    'total' => $projects->sum('biaya'),
                     // 'projects'      => $projects,
-                    'count'         => $projects->count(),
-                    'profit'        => $profit_web,
-                    'results'       => $results,
+                    'count' => $projects->count(),
+                    'profit' => $profit_web,
+                    'results' => $results,
                 ];
             }
         }
 
         return response()->json([
-            'data'              => $data,
+            'data' => $data,
             // 'raw'               => $raw,
-            'month_start'       => $startOfMonth,
-            'month_end'         => $endOfMonth,
-            'total_profit'      => $total_profit,
-            'kategori_jenis'    => $kategori_jenis,
-            'bulan'             => $this->bulans($month_start, $month_end),
+            'month_start' => $startOfMonth,
+            'month_end' => $endOfMonth,
+            'total_profit' => $total_profit,
+            'kategori_jenis' => $kategori_jenis,
+            'bulan' => $this->bulans($month_start, $month_end),
         ]);
     }
 
-    //buat array bulan
+    // buat array bulan
     private function bulans($start, $end)
     {
         // Rentang bulan

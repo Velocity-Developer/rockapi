@@ -2,14 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\TodoList;
-use App\Models\TodoCategory;
 use App\Models\TodoAssignment;
+use App\Models\TodoCategory;
+use App\Models\TodoList;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Support\Str;
+use Illuminate\Database\Seeder;
 
 class TodoSeeder extends Seeder
 {
@@ -305,7 +303,7 @@ class TodoSeeder extends Seeder
         }
 
         $this->command->info('Todo items seeded successfully!');
-        $this->command->info('Created ' . count($todoData) . ' todo items with assignments.');
+        $this->command->info('Created '.count($todoData).' todo items with assignments.');
     }
 
     private function generateRandomNotes(): ?string

@@ -13,17 +13,17 @@ class RolesController extends Controller
      */
     public function index()
     {
-        //daftar roles
+        // daftar roles
         $roles = Role::all();
 
         // Loop untuk menghitung jumlah user untuk setiap role
         $rolesWithUserCount = $roles->map(function ($role) {
             return [
-                'id'            => $role->id,
-                'name'          => $role->name,
-                'guard_name'    => $role->guard_name,
-                'user_count'    => $role->users() ? $role->users()->count() : 0, // Menghitung jumlah user
-                'permissions'   => $role->permissions->map(function ($permission) {
+                'id' => $role->id,
+                'name' => $role->name,
+                'guard_name' => $role->guard_name,
+                'user_count' => $role->users() ? $role->users()->count() : 0, // Menghitung jumlah user
+                'permissions' => $role->permissions->map(function ($permission) {
                     return $permission->name;
                 }), // Mengambil daftar permissions
             ];
@@ -42,7 +42,7 @@ class RolesController extends Controller
             'permissions' => 'required|array',
         ]);
 
-        //simpan role
+        // simpan role
         $role = Role::create(['name' => $request->name, 'guard_name' => 'web']);
         $role->syncPermissions($request->permissions);
 
@@ -71,7 +71,7 @@ class RolesController extends Controller
             'permissions' => 'required|array',
         ]);
 
-        //jika id = 'admin'
+        // jika id = 'admin'
         if ($id == 'admin') {
             return response()->json(['message' => 'Tidak dapat ubah role admin']);
         }
@@ -89,12 +89,12 @@ class RolesController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
-        //jika id = 'admin'
+        // jika id = 'admin'
         if ($id == 'admin') {
             return response()->json(['message' => 'Tidak dapat menghapus role admin']);
         }
 
-        //remove role by name
+        // remove role by name
         $role = Role::findByName($id, 'web');
         $role->delete();
     }

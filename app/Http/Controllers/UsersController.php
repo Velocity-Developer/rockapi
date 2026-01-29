@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rules;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rules;
 
 class UsersController extends Controller
 {
@@ -15,19 +14,19 @@ class UsersController extends Controller
      */
     public function index(Request $request)
     {
-        //get user
+        // get user
         $per_page = $request->input('per_page', 20);
 
         $query = User::query();
 
         $keyword = $request->input('keyword');
         if ($keyword) {
-            $query->where('name', 'LIKE', '%' . $keyword . '%')
-                ->orWhere('username', 'LIKE', '%' . $keyword . '%')
-                ->orWhere('email', 'LIKE', '%' . $keyword . '%');
+            $query->where('name', 'LIKE', '%'.$keyword.'%')
+                ->orWhere('username', 'LIKE', '%'.$keyword.'%')
+                ->orWhere('email', 'LIKE', '%'.$keyword.'%');
         }
 
-        //filter by role
+        // filter by role
         $role = $request->input('role');
         if ($role) {
             $query->whereHas('roles', function ($query) use ($role) {
@@ -47,27 +46,27 @@ class UsersController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'      => 'required|min:3',
-            'username'  => 'required|min:3',
-            'email'     => 'required|email',
-            'hp'        => 'nullable',
-            'alamat'    => 'nullable|string',
+            'name' => 'required|min:3',
+            'username' => 'required|min:3',
+            'email' => 'required|email',
+            'hp' => 'nullable',
+            'alamat' => 'nullable|string',
             'tgl_masuk' => 'nullable|string',
-            'status'    => 'required',
-            'password'  => ['required', 'confirmed', Rules\Password::defaults()],
-            'role'      => 'required|min:2',
+            'status' => 'required',
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => 'required|min:2',
         ]);
 
-        //buat user
+        // buat user
         $user = User::create([
-            'name'      => $request->name,
-            'email'     => $request->email,
-            'status'    => $request->status,
-            'username'  => $request->username,
-            'hp'        => $request->hp,
-            'alamat'    => $request->alamat,
+            'name' => $request->name,
+            'email' => $request->email,
+            'status' => $request->status,
+            'username' => $request->username,
+            'hp' => $request->hp,
+            'alamat' => $request->alamat,
             'tgl_masuk' => $request->tgl_masuk,
-            'password'  => bcrypt($request->password),
+            'password' => bcrypt($request->password),
         ]);
         $user->assignRole($request->role);
 
@@ -81,6 +80,7 @@ class UsersController extends Controller
     {
         //
         $user = User::find($id);
+
         return response()->json($user);
     }
 
@@ -91,36 +91,36 @@ class UsersController extends Controller
     {
         //
         $request->validate([
-            'name'      => 'required|min:3',
-            'username'  => 'nullable|min:3',
-            'email'     => 'required|email',
-            'hp'        => 'nullable',
-            'alamat'    => 'nullable|string',
+            'name' => 'required|min:3',
+            'username' => 'nullable|min:3',
+            'email' => 'required|email',
+            'hp' => 'nullable',
+            'alamat' => 'nullable|string',
             'tgl_masuk' => 'nullable|string',
-            'status'    => 'required',
-            'password'  => ['nullable', 'confirmed', Rules\Password::defaults()],
-            'role'      => 'required|min:2',
+            'status' => 'required',
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+            'role' => 'required|min:2',
         ]);
 
         $user = User::find($id);
         $user->update([
-            'name'      => $request->name,
-            'email'     => $request->email,
-            'status'    => $request->status,
-            'username'  => $request->username ?? $user->username,
-            'hp'        => $request->hp,
-            'alamat'    => $request->alamat,
+            'name' => $request->name,
+            'email' => $request->email,
+            'status' => $request->status,
+            'username' => $request->username ?? $user->username,
+            'hp' => $request->hp,
+            'alamat' => $request->alamat,
             'tgl_masuk' => $request->tgl_masuk,
         ]);
 
-        //jika ada password baru
+        // jika ada password baru
         if ($request->password) {
             $user->update([
-                'password'  => bcrypt($request->password),
+                'password' => bcrypt($request->password),
             ]);
         }
 
-        //hapus role lama
+        // hapus role lama
         if ($user->user_roles) {
             foreach ($user->user_roles as $role) {
                 $user->removeRole($role);
@@ -139,18 +139,17 @@ class UsersController extends Controller
     {
         //
         $request->validate([
-            'password'  => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::find($id);
 
         $user->update([
-            'password'  => bcrypt($request->password),
+            'password' => bcrypt($request->password),
         ]);
 
         return response()->json($user);
     }
-
 
     /**
      * Update avatar user.
@@ -159,14 +158,14 @@ class UsersController extends Controller
     {
         //
         $request->validate([
-            'image'    => 'required|image|mimes:jpeg,png,jpg,webp,svg,gif|max:1048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp,svg,gif|max:1048',
         ]);
 
         $user = User::find($id);
 
         if ($request->hasFile('image')) {
 
-            //hapus avatar lama
+            // hapus avatar lama
             if ($user->avatar) {
                 Storage::disk('public')->delete($user->avatar);
             }
@@ -186,7 +185,7 @@ class UsersController extends Controller
      */
     public function destroy(string $id)
     {
-        //hapus user
+        // hapus user
         $user = User::find($id);
         $user->delete();
     }
@@ -199,21 +198,21 @@ class UsersController extends Controller
         // Validasi keyword minimal 3 karakter
         if (strlen($keyword) < 3) {
             return response()->json([
-                'message' => 'Keyword pencarian harus minimal 3 karakter'
+                'message' => 'Keyword pencarian harus minimal 3 karakter',
             ], 400);
         }
 
         try {
-            $users = User::where('name', 'LIKE', '%' . $keyword . '%')
-                ->orWhere('username', 'LIKE', '%' . $keyword . '%')
-                ->orWhere('email', 'LIKE', '%' . $keyword . '%')
+            $users = User::where('name', 'LIKE', '%'.$keyword.'%')
+                ->orWhere('username', 'LIKE', '%'.$keyword.'%')
+                ->orWhere('email', 'LIKE', '%'.$keyword.'%')
                 ->select('id', 'name', 'username', 'email', 'status', 'hp', 'alamat')
                 ->limit(20)
                 ->get();
 
             if ($users->isEmpty()) {
                 return response()->json([
-                    'message' => 'Tidak ada user yang ditemukan dengan keyword: ' . $keyword
+                    'message' => 'Tidak ada user yang ditemukan dengan keyword: '.$keyword,
                 ], 404);
             }
 
@@ -221,7 +220,7 @@ class UsersController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Terjadi kesalahan saat mencari user',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

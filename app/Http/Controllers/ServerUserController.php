@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\ServerPackage;
 use App\Models\ServerUser;
+use Illuminate\Http\Request;
 
 class ServerUserController extends Controller
 {
@@ -17,14 +16,14 @@ class ServerUserController extends Controller
         $users = ServerUser::where('server_id', $server_id);
         $users = $users->with('server:id,name', 'server_package:id,name');
 
-        //order by name
-        $order_by   = $request->input('order_by', 'username');
-        $order      = $request->input('order', 'asc');
-        $users      = $users->orderBy($order_by, $order);
+        // order by name
+        $order_by = $request->input('order_by', 'username');
+        $order = $request->input('order', 'asc');
+        $users = $users->orderBy($order_by, $order);
 
-        //pagination
-        $per_page   = $request->input('per_page', 20);
-        $users      = $users->paginate($per_page);
+        // pagination
+        $per_page = $request->input('per_page', 20);
+        $users = $users->paginate($per_page);
 
         return response()->json($users);
     }
@@ -42,8 +41,9 @@ class ServerUserController extends Controller
      */
     public function show(string $id)
     {
-        //get by id
+        // get by id
         $userServer = ServerUser::with('server:id,name', 'server_package:id,name')->find($id);
+
         return response()->json($userServer);
     }
 

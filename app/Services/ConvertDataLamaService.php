@@ -2,9 +2,8 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use App\Models\BiayaAds;
+use Illuminate\Support\Facades\DB;
 
 class ConvertDataLamaService
 {
@@ -27,7 +26,9 @@ class ConvertDataLamaService
     {
         $bulanLama = strtolower(trim($bulanLama));
         $parts = explode(' ', $bulanLama);
-        if (count($parts) !== 2) return null;
+        if (count($parts) !== 2) {
+            return null;
+        }
 
         [$namaBulan, $tahun] = $parts;
         $bulan = $this->bulanMap[$namaBulan] ?? null;
@@ -53,9 +54,9 @@ class ConvertDataLamaService
 
     public function handle_biaya_ads()
     {
-        $ads  = DB::table('tb_biaya_ads')->select('bulan', 'biaya')->get()->all();
+        $ads = DB::table('tb_biaya_ads')->select('bulan', 'biaya')->get()->all();
         $meta = DB::table('tb_biaya_ads_meta')->select('bulan', 'biaya')->get()->all();
-        $am   = DB::table('tb_biaya_ads_am')->select('bulan', 'biaya')->get()->all();
+        $am = DB::table('tb_biaya_ads_am')->select('bulan', 'biaya')->get()->all();
 
         $combined = array_merge(
             $this->mapRows($ads, 'ads'),
@@ -64,8 +65,7 @@ class ConvertDataLamaService
         );
 
         $normalized = collect($combined)->filter(
-            fn($item) =>
-            $item['bulan'] && $item['biaya'] > 0
+            fn ($item) => $item['bulan'] && $item['biaya'] > 0
         )->values();
 
         $result = [];

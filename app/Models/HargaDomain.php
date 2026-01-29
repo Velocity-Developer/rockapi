@@ -14,16 +14,16 @@ class HargaDomain extends Model
 
     protected $fillable = [
         'bulan',
-        'biaya'
+        'biaya',
     ];
 
-    //append
+    // append
     protected $appends = [
         'bulan_normalized',
-        'biaya_normalized'
+        'biaya_normalized',
     ];
 
-    //accessor
+    // accessor
     public function getBulanNormalizedAttribute()
     {
         $map = [
@@ -43,7 +43,9 @@ class HargaDomain extends Model
 
         $parts = explode(' ', strtolower(trim($this->bulan)));
 
-        if (count($parts) != 2) return null;
+        if (count($parts) != 2) {
+            return null;
+        }
 
         [$namaBulan, $tahun] = $parts;
 
@@ -51,6 +53,7 @@ class HargaDomain extends Model
 
         return $bulan ? "{$tahun}-{$bulan}" : null;
     }
+
     public function getBiayaNormalizedAttribute()
     {
         return $this->biaya ? (int) preg_replace('/[^0-9]/', '', $this->biaya) : 0;

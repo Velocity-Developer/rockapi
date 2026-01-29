@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Invoice;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Models\User;
-use App\Models\Invoice;
 
 class TelegramController extends Controller
 {
-    //webhook get chat id
+    // webhook get chat id
     public function webhook(Request $request)
     {
         $message = $request->input('message');
-        if (!$message) {
+        if (! $message) {
             return response()->json(['ok' => false, 'message' => 'no message']);
         }
 
@@ -21,31 +21,34 @@ class TelegramController extends Controller
 
         $text = trim($message['text'] ?? '');
 
-        if (!$telegramId) {
+        if (! $telegramId) {
             return response()->json(['ok' => false, 'message' => 'chat id not found']);
         }
 
         // Kalau user belum kirim apa-apa, kirim pesan welcome
         if ($text === '' || $text === '/start') {
             $this->sendMessage($telegramId, "👋 Selamat datang di *Nglorok Bot!*\n\nKirim kode Token Telegram yang kamu dapat dari dashboard untuk menghubungkan akun.", true);
+
             return response()->json(['ok' => true]);
         }
 
-        //kalau text ada 'TelegramToken_' di awal, itu token verifikasi
+        // kalau text ada 'TelegramToken_' di awal, itu token verifikasi
         if (strpos($text, 'TelegramToken_') === 0) {
 
-            //ambil token dari text
+            // ambil token dari text
             $userId = intval(cache()->get($text));
 
-            if (!$userId) {
-                $this->sendMessage($telegramId, "❌ Kode verifikasi tidak valid atau sudah kadaluarsa.");
+            if (! $userId) {
+                $this->sendMessage($telegramId, '❌ Kode verifikasi tidak valid atau sudah kadaluarsa.');
+
                 return response()->json(['ok' => false, 'message' => 'invalid token']);
             }
 
             // Cek user
             $user = User::find($userId);
-            if (!$user) {
-                $this->sendMessage($telegramId, "❌ User tidak ditemukan di sistem.");
+            if (! $user) {
+                $this->sendMessage($telegramId, '❌ User tidak ditemukan di sistem.');
+
                 return response()->json(['ok' => false, 'message' => 'user not found']);
             }
 
@@ -62,7 +65,7 @@ class TelegramController extends Controller
             return response()->json(['ok' => true]);
         }
 
-        //kalau text ada 'invoice=' di awal, itu invoice
+        // kalau text ada 'invoice=' di awal, itu invoice
         if (strpos($text, 'invoice=') === 0) {
             $msg = $this->checkInvoice($text);
             $this->sendMessage($telegramId, $msg);
@@ -71,7 +74,7 @@ class TelegramController extends Controller
         return response()->json(['ok' => true]);
     }
 
-    //status notifikasi user login
+    // status notifikasi user login
     public function status(Request $request)
     {
         $user = auth()->user();
@@ -79,13 +82,13 @@ class TelegramController extends Controller
         $telegramToken = '';
 
         $webhook_url = '';
-        if (!$telegramId) {
+        if (! $telegramId) {
 
-            //create cache token for 12 hour
-            $telegramToken = 'TelegramToken_' . uniqid();
+            // create cache token for 12 hour
+            $telegramToken = 'TelegramToken_'.uniqid();
             cache()->put($telegramToken, $user->id, 60 * 60 * 12);
 
-            $webhook_url = 'https://t.me/NewVDnetbot?start=' . $telegramToken;
+            $webhook_url = 'https://t.me/NewVDnetbot?start='.$telegramToken;
         }
 
         return response()->json([
@@ -110,23 +113,23 @@ class TelegramController extends Controller
         }
 
         try {
-            $client = new \GuzzleHttp\Client();
+            $client = new \GuzzleHttp\Client;
             $client->post($url, ['form_params' => $data]);
         } catch (\Exception $e) {
-            Log::error('Failed to send Telegram message: ' . $e->getMessage());
+            Log::error('Failed to send Telegram message: '.$e->getMessage());
         }
     }
 
     private function checkInvoice($text)
     {
-        //pecah text invoice_
+        // pecah text invoice_
         $invoiceId = str_replace('invoice=', '', $text);
         $invoice = Invoice::where('nomor', $invoiceId)->first();
-        if (!$invoice) {
-            return "❌ Invoice tidak ditemukan di sistem.";
+        if (! $invoice) {
+            return '❌ Invoice tidak ditemukan di sistem.';
         }
 
-        //return invoice
+        // return invoice
         return "✅ Invoice ditemukan:\n\nNomor Invoice: {$invoice->nomor}\nTotal: Rp. {$invoice->total}\nStatus: {$invoice->status}";
     }
 }

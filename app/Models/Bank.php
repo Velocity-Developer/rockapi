@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 * agar bisa dibuatkan relasi ke tabel 'tb_cs_main_project' dibuatkan pivot table 'bank_cs_main_project'
 * dengan kolom 'bank_id' dan 'cs_main_project_id'
 * relasi one ke tabel 'tb_webhost' dari kolom 'id_webhost'
-* 
+*
 * jalankan seeder 'BankJenisSeeder' untuk membuat data pivot
 */
 
@@ -20,7 +20,7 @@ class Bank extends Model
     // Nama tabel di database
     protected $table = 'tb_bank';
 
-    //disable timestamps
+    // disable timestamps
     public $timestamps = false;
 
     protected $appends = ['jenis_array'];
@@ -33,25 +33,25 @@ class Bank extends Model
         'jenis_transaksi',
         'nominal',
         'id_webhost',
-        'status'
+        'status',
     ];
 
     protected $casts = [
-        'nominal'   => 'float',
+        'nominal' => 'float',
     ];
 
-    //accessor jenis
+    // accessor jenis
     public function getJenisArrayAttribute()
     {
-        //jika jenis null / kosong, return array kosong
-        if (!$this->jenis) {
+        // jika jenis null / kosong, return array kosong
+        if (! $this->jenis) {
             return [];
         }
 
-        //unserialize jenis
+        // unserialize jenis
         $jenis = unserialize($this->attributes['jenis']);
 
-        //loop
+        // loop
         $results = [];
         foreach ($jenis as $key => $value) {
             $jns = $value ? explode('-', $value) : '';
@@ -61,13 +61,13 @@ class Bank extends Model
         return $results;
     }
 
-    //relasi ke CsMainProject
+    // relasi ke CsMainProject
     public function CsMainProject()
     {
         return $this->belongsToMany(CsMainProject::class, 'bank_cs_main_project');
     }
 
-    //relasi ke TransaksiKeluar
+    // relasi ke TransaksiKeluar
     public function TransaksiKeluar()
     {
         return $this->belongsToMany(
@@ -80,38 +80,38 @@ class Bank extends Model
         );
     }
 
-    //relasi one ke tabel webhost
+    // relasi one ke tabel webhost
     public function webhost()
     {
         return $this->belongsTo(Webhost::class, 'id_webhost');
     }
 
-    //sync jenis pivots
+    // sync jenis pivots
     public function syncJenisPivots()
     {
-        //jika jenis null / kosong, return array kosong
-        if (!$this->jenis) {
+        // jika jenis null / kosong, return array kosong
+        if (! $this->jenis) {
             return [];
         }
 
-        //unserialize jenis
+        // unserialize jenis
         $jenis = unserialize($this->attributes['jenis']);
 
         // Kosongkan relasi lama (opsional, jika ingin replace total)
         $this->CsMainProject()->sync([]);
         $this->TransaksiKeluar()->sync([]);
 
-        //loop
+        // loop
         foreach ($jenis as $key => $value) {
             $jns = $value ? explode('-', $value) : '';
 
-            //jika jenis 'masuk', maka proses di 'bank_cs_main_project'
-            //jika jenis'keluar', maka proses di 'bank_transaksi_keluar
+            // jika jenis 'masuk', maka proses di 'bank_cs_main_project'
+            // jika jenis'keluar', maka proses di 'bank_transaksi_keluar
             if ($jns[0] == 'masuk') {
-                //sync
+                // sync
                 $this->CsMainProject()->syncWithoutDetaching([$jns[1]]);
             } else {
-                //sync
+                // sync
                 $this->TransaksiKeluar()->syncWithoutDetaching([$jns[1]]);
             }
         }

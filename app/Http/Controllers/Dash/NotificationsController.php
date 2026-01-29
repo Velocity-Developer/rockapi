@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class NotificationsController extends Controller
 {
-    //get notifications user login
+    // get notifications user login
     public function index()
     {
         $notifications = auth()->user()->unreadNotifications;
@@ -15,7 +15,7 @@ class NotificationsController extends Controller
         return response()->json($notifications);
     }
 
-    //mark notifications as read
+    // mark notifications as read
     public function markAsRead(Request $request)
     {
         $request->validate([
@@ -29,7 +29,7 @@ class NotificationsController extends Controller
         return response()->json('success');
     }
 
-    //mark all notifications as read
+    // mark all notifications as read
     public function markAllAsRead()
     {
         auth()->user()->unreadNotifications->markAsRead();

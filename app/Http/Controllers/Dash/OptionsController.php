@@ -3,13 +3,11 @@
 namespace App\Http\Controllers\Dash;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class OptionsController extends Controller
 {
-
     public function get(string $key)
     {
         $result = [];
@@ -30,10 +28,10 @@ class OptionsController extends Controller
 
     private function roles()
     {
-        //get roles
+        // get roles
         $roles = Role::all();
 
-        //convert to array
+        // convert to array
         $result = [];
         foreach ($roles as $role) {
             $result[] = [
@@ -48,15 +46,15 @@ class OptionsController extends Controller
 
     private function permissions()
     {
-        //get all permissions
+        // get all permissions
         $permissions = Permission::all();
 
-        //convert to array
+        // convert to array
         $result = [];
         foreach ($permissions as $permission) {
             $result[] = [
                 'value' => $permission->name,
-                'label' => $permission->name
+                'label' => $permission->name,
             ];
         }
 

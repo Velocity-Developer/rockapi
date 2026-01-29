@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class InvoiceController extends Controller
 {
@@ -20,10 +20,10 @@ class InvoiceController extends Controller
     {
         $query = Invoice::with([
             'customer',
-            'items.webhost:id_webhost,nama_web'
+            'items.webhost:id_webhost,nama_web',
         ]);
 
-        //berdasarkan nomor invoice
+        // berdasarkan nomor invoice
         if ($request->input('search_nomor')) {
             $query->where('nomor', $request->input('search_nomor'));
         }
@@ -40,7 +40,7 @@ class InvoiceController extends Controller
             });
         }
 
-        //filter customer_id
+        // filter customer_id
         if ($request->input('customer_id')) {
             $query->where('customer_id', $request->input('customer_id'));
         }
@@ -68,27 +68,27 @@ class InvoiceController extends Controller
 
         // Filter berdasarkan unit
         if ($request->input('unit')) {
-            $query->where('unit', 'like', '%' . $request->input('unit') . '%');
+            $query->where('unit', 'like', '%'.$request->input('unit').'%');
         }
 
-        //filter search_nama_web
+        // filter search_nama_web
         if ($request->input('search_nama_web') && $request->input('search_nomor') == null) {
             $search = $request->input('search_nama_web');
 
             $query->whereHas('items', function ($q) use ($search) {
-                $q->where('nama', 'like', '%' . $search . '%')
+                $q->where('nama', 'like', '%'.$search.'%')
                     ->orWhereHas('webhost', function ($q2) use ($search) {
-                        $q2->where('nama_web', 'like', '%' . $search . '%');
+                        $q2->where('nama_web', 'like', '%'.$search.'%');
                     });
             });
         }
 
-        //filter search_hp
+        // filter search_hp
         if ($request->input('search_hp') && $request->input('search_nomor') == null) {
             $search_hp = $request->input('search_hp');
             $query->where(function ($query) use ($search_hp) {
                 $query->whereHas('customer', function ($q) use ($search_hp) {
-                    $q->where('hp', 'like', '%' . $search_hp . '%');
+                    $q->where('hp', 'like', '%'.$search_hp.'%');
                 });
             });
         }
@@ -176,7 +176,8 @@ class InvoiceController extends Controller
             return response()->json($invoice, 201);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+
+            return response()->json(['message' => 'Terjadi kesalahan: '.$e->getMessage()], 500);
         }
     }
 
@@ -187,10 +188,10 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::with([
             'customer',
-            'items.webhost:id_webhost,nama_web'
+            'items.webhost:id_webhost,nama_web',
         ])->find($id);
 
-        if (!$invoice) {
+        if (! $invoice) {
             return response()->json(['message' => 'Invoice tidak ditemukan'], 404);
         }
 
@@ -204,7 +205,7 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::find($id);
 
-        if (!$invoice) {
+        if (! $invoice) {
             return response()->json(['message' => 'Invoice tidak ditemukan'], 404);
         }
 
@@ -296,7 +297,8 @@ class InvoiceController extends Controller
             return response()->json($invoice);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+
+            return response()->json(['message' => 'Terjadi kesalahan: '.$e->getMessage()], 500);
         }
     }
 
@@ -307,7 +309,7 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::find($id);
 
-        if (!$invoice) {
+        if (! $invoice) {
             return response()->json(['message' => 'Invoice tidak ditemukan'], 404);
         }
 
@@ -325,7 +327,8 @@ class InvoiceController extends Controller
             return response()->json(['message' => 'Invoice berhasil dihapus']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+
+            return response()->json(['message' => 'Terjadi kesalahan: '.$e->getMessage()], 500);
         }
     }
 
@@ -336,10 +339,10 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::with([
             'customer',
-            'items.webhost:id_webhost,nama_web'
+            'items.webhost:id_webhost,nama_web',
         ])->find($id);
 
-        if (!$invoice) {
+        if (! $invoice) {
             return response()->json(['message' => 'Invoice tidak ditemukan'], 404);
         }
 
@@ -369,7 +372,7 @@ class InvoiceController extends Controller
         $pdf->setPaper('A4', 'portrait');
 
         // Set filename
-        $filename = 'Invoice-' . $invoice->nomor . '.pdf';
+        $filename = 'Invoice-'.$invoice->nomor.'.pdf';
 
         // Check if download parameter is true
         if ($request->get('download') && $request->get('download') === 'true') {
@@ -384,9 +387,10 @@ class InvoiceController extends Controller
      */
     private function formatDate(?string $date): string
     {
-        if (!$date || $date === '0000-00-00') {
+        if (! $date || $date === '0000-00-00') {
             return '-';
         }
+
         return Carbon::parse($date)->format('d/m/Y');
     }
 

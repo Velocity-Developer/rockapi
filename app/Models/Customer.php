@@ -9,19 +9,19 @@ class Customer extends Model
     //
     protected $fillable = ['nama', 'email', 'hp', 'wa', 'hp_2', 'alamat', 'telegram', 'hpads', 'saldo', 'jenis_kelamin', 'usia'];
 
-    //relasi ke invoice
+    // relasi ke invoice
     public function invoices()
     {
         return $this->hasMany(Invoice::class);
     }
 
-    //relasi many to many ke CsMainProject
+    // relasi many to many ke CsMainProject
     public function csMainProjects()
     {
         return $this->belongsToMany(CsMainProject::class, 'customer_cs_main_project');
     }
 
-    //relasi many to many ke Webhost
+    // relasi many to many ke Webhost
     public function webhosts()
     {
         return $this->belongsToMany(Webhost::class, 'customer_webhost', 'customer_id', 'webhost_id', 'id');

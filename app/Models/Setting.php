@@ -16,28 +16,29 @@ class Setting extends Model
         'is_array' => 'boolean',
     ];
 
-    //simpan setting
+    // simpan setting
     public static function set($key, $value)
     {
         if (is_array($value)) {
-            $value      = json_encode($value);
-            $is_array   = true;
+            $value = json_encode($value);
+            $is_array = true;
         } else {
             $is_array = false;
         }
 
-        //createorupdate by key
+        // createorupdate by key
         $setting = self::updateOrCreate(
-            ['key'       => $key],
+            ['key' => $key],
             [
-                'value'     => $value,
-                'is_array'  => $is_array
+                'value' => $value,
+                'is_array' => $is_array,
             ]
         );
+
         return $setting;
     }
 
-    //ambil setting
+    // ambil setting
     public static function get($key, $default = null)
     {
         $setting = self::where('key', $key)->first();

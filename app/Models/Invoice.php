@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Invoice extends Model
 {
@@ -53,13 +53,13 @@ class Invoice extends Model
         return $this->hasMany(InvoiceItem::class);
     }
 
-    //accessor url_pdf_preview
+    // accessor url_pdf_preview
     public function getUrlPdfPreviewAttribute()
     {
         return url("/api/invoice/{$this->id}/pdf");
     }
 
-    //accessor url_pdf_download
+    // accessor url_pdf_download
     public function getUrlPdfDownloadAttribute()
     {
         return url("/api/invoice/{$this->id}/pdf?download=true");
@@ -96,7 +96,7 @@ class Invoice extends Model
                 }
 
                 // Format nomor invoice: UNITYYMMDD0001
-                $invoice->nomor = $unitPrefix . $today . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+                $invoice->nomor = $unitPrefix.$today.str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
             }
         });
     }

@@ -1,39 +1,39 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PostsController;
-use App\Http\Controllers\TermsController;
-use App\Http\Controllers\DataOpsiController;
-use App\Http\Controllers\WebhostController;
-use App\Http\Controllers\BillingController;
-use App\Http\Controllers\BillDataWebController;
-use App\Http\Controllers\TransaksiIklanGoogleController;
-use App\Http\Controllers\JenisBlmTerpilihController;
 use App\Http\Controllers\BankTransaksiController;
-use App\Http\Controllers\SaldoBankController;
-use App\Http\Controllers\CsMainProjectController;
-use App\Http\Controllers\WmProjectController;
-use App\Http\Controllers\ProjectListController;
-use App\Http\Controllers\LaporanNilaiController;
-use App\Http\Controllers\ProjectManagerController;
+use App\Http\Controllers\BillDataWebController;
+use App\Http\Controllers\BillingController;
 use App\Http\Controllers\CheckPaketController;
+use App\Http\Controllers\ClientSupportController;
+use App\Http\Controllers\CsMainProjectController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DataOpsiController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\JenisBlmTerpilihController;
+use App\Http\Controllers\JournalCategoryController;
+use App\Http\Controllers\JournalController;
+use App\Http\Controllers\LaporanNilaiController;
+use App\Http\Controllers\ModuleProjectController;
+use App\Http\Controllers\NotificationDebugController;
+use App\Http\Controllers\PostsController;
+use App\Http\Controllers\ProjectListController;
+use App\Http\Controllers\ProjectManagerController;
+use App\Http\Controllers\RekapChatController;
+use App\Http\Controllers\RekapFormController;
+use App\Http\Controllers\SaldoBankController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\ServerPackageController;
 use App\Http\Controllers\ServerUserController;
-use App\Http\Controllers\JournalCategoryController;
-use App\Http\Controllers\JournalController;
-use App\Http\Controllers\UsersController;
-use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\TodoController;
-use App\Http\Controllers\TodoCategoryController;
-use App\Http\Controllers\NotificationDebugController;
 use App\Http\Controllers\TelegramController;
-use App\Http\Controllers\ClientSupportController;
-use App\Http\Controllers\ModuleProjectController;
-use App\Http\Controllers\RekapFormController;
-use App\Http\Controllers\RekapChatController;
+use App\Http\Controllers\TermsController;
+use App\Http\Controllers\TodoCategoryController;
+use App\Http\Controllers\TodoController;
+use App\Http\Controllers\TransaksiIklanGoogleController;
+use App\Http\Controllers\UsersController;
+use App\Http\Controllers\WebhostController;
+use App\Http\Controllers\WmProjectController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // return $request->user();
@@ -42,7 +42,7 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // Dapatkan semua permissions
     $permissons = $request->user()->getPermissionsViaRoles();
 
-    //collection permissions
+    // collection permissions
     $results['user_permissions'] = collect($permissons)->pluck('name');
 
     unset($results->roles);
@@ -52,81 +52,81 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResources([
-        'posts'                 => PostsController::class,
-        'terms'                 => TermsController::class,
-        'webhost'               => WebhostController::class,
-        'bank_transaksi'        => BankTransaksiController::class,
-        'saldo_bank'            => SaldoBankController::class,
-        'cs_main_project'       => CsMainProjectController::class,
-        'wm_project'            => WmProjectController::class,
-        'servers'               => ServerController::class,
-        'server_packages'       => ServerPackageController::class,
-        'server_users'          => ServerUserController::class,
-        'journal_category'      => JournalCategoryController::class,
-        'journal'               => JournalController::class,
-        'invoice'               => InvoiceController::class,
-        'customer'              => CustomerController::class,
-        'todo_category'         => TodoCategoryController::class,
-        'module-projects'       => ModuleProjectController::class,
-        'rekap-form'            => RekapFormController::class,
-        'rekap-chat'            => RekapChatController::class,
+        'posts' => PostsController::class,
+        'terms' => TermsController::class,
+        'webhost' => WebhostController::class,
+        'bank_transaksi' => BankTransaksiController::class,
+        'saldo_bank' => SaldoBankController::class,
+        'cs_main_project' => CsMainProjectController::class,
+        'wm_project' => WmProjectController::class,
+        'servers' => ServerController::class,
+        'server_packages' => ServerPackageController::class,
+        'server_users' => ServerUserController::class,
+        'journal_category' => JournalCategoryController::class,
+        'journal' => JournalController::class,
+        'invoice' => InvoiceController::class,
+        'customer' => CustomerController::class,
+        'todo_category' => TodoCategoryController::class,
+        'module-projects' => ModuleProjectController::class,
+        'rekap-form' => RekapFormController::class,
+        'rekap-chat' => RekapChatController::class,
     ]);
 
-    //data_opsi
+    // data_opsi
     Route::get('data_opsi/{key}', [DataOpsiController::class, 'get']);
     Route::get('data_opsis', [DataOpsiController::class, 'gets']);
 
-    //search webhost
+    // search webhost
     Route::get('webhost_search/{keyword}', [WebhostController::class, 'search']);
 
-    //billing
+    // billing
     Route::get('billing', [BillingController::class, 'index']);
     Route::get('billing_prediksi_bulanini', [BillingController::class, 'prediksi_bulanini']);
 
-    //bill_dataweb
+    // bill_dataweb
     Route::get('bill_dataweb', [BillDataWebController::class, 'index']);
 
-    //transaksi_iklan_google
+    // transaksi_iklan_google
     Route::get('transaksi_iklan_google', [TransaksiIklanGoogleController::class, 'index']);
-    //jenis_blm_terpilih
+    // jenis_blm_terpilih
     Route::get('jenis_blm_terpilih', [JenisBlmTerpilihController::class, 'index']);
 
-    //bank_transaksi/search_jenis
+    // bank_transaksi/search_jenis
     Route::get('bank_transaksi_search_jenis/{keyword}', [BankTransaksiController::class, 'search_jenis']);
-    //bank_transaksi_last_transaksi
+    // bank_transaksi_last_transaksi
     Route::get('bank_transaksi_last_transaksi', [BankTransaksiController::class, 'get_last_transaksi']);
 
-    //bank_transaksi/grafik_transaksi_prive
+    // bank_transaksi/grafik_transaksi_prive
     Route::get('bank_transaksi_grafik_transaksi_prive', [BankTransaksiController::class, 'grafik_transaksi_prive']);
 
-    //bank_transaksi_export
+    // bank_transaksi_export
     Route::get('bank_transaksi_export', [BankTransaksiController::class, 'export']);
 
-    //project_list
+    // project_list
     Route::get('project_list', [ProjectListController::class, 'index']);
 
-    //laporan_nilai
+    // laporan_nilai
     Route::get('laporan_nilai', [LaporanNilaiController::class, 'index']);
 
-    //project_manager
+    // project_manager
     Route::get('project_manager', [ProjectManagerController::class, 'index']);
     Route::post('project_manager_save', [ProjectManagerController::class, 'save']);
 
-    //client_support
+    // client_support
     Route::get('client_support', [ClientSupportController::class, 'index']);
     Route::post('client_support/store', [ClientSupportController::class, 'store']);
     Route::get('client_support_by_tgl/{tanggal}', [ClientSupportController::class, 'by_tanggal']);
     Route::delete('client_support/destroy', [ClientSupportController::class, 'destroy']);
 
-    //lain_lain
+    // lain_lain
     Route::get('/check_paket', CheckPaketController::class);
 
-    //server
+    // server
     Route::get('/servers_sync_packages/{id}', [ServerController::class, 'sync_packages']);
     Route::get('/servers_sync_package_detail/{idpackage}', [ServerController::class, 'sync_packageDetail']);
     Route::get('/servers_sync_users/{id}', [ServerController::class, 'sync_users']);
     Route::get('/servers_sync_user_detail/{iduserserver}', [ServerController::class, 'sync_userDetail']);
-    //search cs_main_project
+    // search cs_main_project
     Route::get('cs_main_project_search/{keyword}', [CsMainProjectController::class, 'search']);
     Route::get('cs_main_project_lastdata', [CsMainProjectController::class, 'lastdata']);
 
@@ -169,7 +169,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/notifications', [NotificationDebugController::class, 'testNotificationCreation']);
     });
 
-    //module_project
+    // module_project
     Route::get('module-project-total-by-type', [ModuleProjectController::class, 'totalByType']);
 });
 
@@ -182,6 +182,6 @@ Route::prefix('telegram')->group(function () {
     Route::get('/status', [TelegramController::class, 'status']);
 });
 
-require __DIR__ . '/api-dash.php';
-require __DIR__ . '/api-laporan.php';
-require __DIR__ . '/api-public.php';
+require __DIR__.'/api-dash.php';
+require __DIR__.'/api-laporan.php';
+require __DIR__.'/api-public.php';

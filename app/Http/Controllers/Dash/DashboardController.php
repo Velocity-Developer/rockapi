@@ -3,33 +3,30 @@
 namespace App\Http\Controllers\Dash;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Post;
 use App\Models\CsMainProject;
+use App\Models\Post;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-
     public function welcome()
     {
-        //dapatkan total CsMainProject bulan ini
+        // dapatkan total CsMainProject bulan ini
         $totalCsMainProject = CsMainProject::whereMonth('tgl_masuk', date('m'))
             ->whereYear('tgl_masuk', date('Y'))
             ->count();
 
-        //tanggal sekarang
+        // tanggal sekarang
         $now = Carbon::now();
         $tanggalSekarang = $now->day;
 
         // range bulan lalu
         $start = $now->copy()->subMonth()->startOfMonth();
-        $end   = $now->copy()->subMonth()->startOfMonth()->addDays($tanggalSekarang - 1);
+        $end = $now->copy()->subMonth()->startOfMonth()->addDays($tanggalSekarang - 1);
 
         $totalCsMainProjectLastMonth = CsMainProject::whereBetween('tgl_masuk', [$start, $end])->count();
 
-
-        //hitung persentase
+        // hitung persentase
         $persentase = ($totalCsMainProject - $totalCsMainProjectLastMonth) / $totalCsMainProjectLastMonth * 100;
 
         return response()->json([
@@ -41,7 +38,7 @@ class DashboardController extends Controller
 
     public function chart_bulanini()
     {
-        //dapatkan array data perhari CsMainProject bulan ini
+        // dapatkan array data perhari CsMainProject bulan ini
         $data = [];
         $labels = [];
         for ($i = 1; $i <= date('t'); $i++) {
@@ -50,7 +47,7 @@ class DashboardController extends Controller
                 ->count();
 
             $data[] = $count;
-            $labels[] = date('d', strtotime(date('Y-m-') . $i));
+            $labels[] = date('d', strtotime(date('Y-m-').$i));
         }
 
         return response()->json([
@@ -61,7 +58,7 @@ class DashboardController extends Controller
 
     public function chart_tahunini()
     {
-        //array bulan
+        // array bulan
         $bulan = [
             'Januari',
             'Februari',
@@ -77,8 +74,8 @@ class DashboardController extends Controller
             'Desember',
         ];
 
-        //dapatkan array data perbulan CsMainProject tahun ini,
-        //dikelompokkan dari kolom jenis
+        // dapatkan array data perbulan CsMainProject tahun ini,
+        // dikelompokkan dari kolom jenis
         $gets = CsMainProject::whereYear('tgl_masuk', Carbon::now()->year)
             ->groupBy('month', 'jenis')
             ->selectRaw('MONTH(tgl_masuk) as month, jenis, COUNT(*) as jenis_count')
@@ -90,7 +87,6 @@ class DashboardController extends Controller
             return $gets->jenis;
         })->toArray();
 
-
         $datasets = [];
         foreach ($jenises as $i => $jn) {
 
@@ -100,7 +96,7 @@ class DashboardController extends Controller
                 $datah[] = $jenisCount;
             }
 
-            //default hidden
+            // default hidden
             $skip = [
                 'Jasa buat google maps',
                 'Lain-lain',
@@ -111,16 +107,16 @@ class DashboardController extends Controller
                 'Jasa Pembuatan Logo',
                 'Compro PDF',
                 'Jasa Input Produk',
-                'Jasa rating google maps'
+                'Jasa rating google maps',
             ];
             $hidden = in_array($jn, $skip) ? true : false;
 
             $datasets[] = [
-                'pointRadius'   => 1,
-                'tension'       => 0.4,
-                'label'         => $jn,
-                'data'          => $datah,
-                'hidden'        => $hidden,
+                'pointRadius' => 1,
+                'tension' => 0.4,
+                'label' => $jn,
+                'data' => $datah,
+                'hidden' => $hidden,
             ];
         }
 
@@ -134,7 +130,7 @@ class DashboardController extends Controller
 
     public function chart_hariini()
     {
-        //dapatkan CsMainProject hari ini
+        // dapatkan CsMainProject hari ini
         $hariini = date('Y-m-d');
 
         $gets = CsMainProject::where('tgl_masuk', $hariini)
@@ -160,7 +156,7 @@ class DashboardController extends Controller
         return response()->json([
             'labels' => $jenises,
             'data' => $data,
-            'raw'   => $gets,
+            'raw' => $gets,
         ]);
     }
 
@@ -172,6 +168,7 @@ class DashboardController extends Controller
         $Posts = Post::with('author:id,name,avatar')
             ->orderBy('date', 'desc')
             ->paginate(8);
+
         return response()->json($Posts);
     }
 }

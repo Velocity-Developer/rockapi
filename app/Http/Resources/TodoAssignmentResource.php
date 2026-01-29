@@ -41,16 +41,17 @@ class TodoAssignmentResource extends JsonResource
                         'id' => $this->assignable->id,
                         'name' => $this->assignable->name,
                         'avatar' => $this->assignable->avatar,
-                        'type' => 'user'
+                        'type' => 'user',
                     ];
                 } elseif ($this->assignable_type === 'Spatie\Permission\Models\Role') {
                     return [
                         'id' => $this->assignable->id,
                         'name' => $this->assignable->name,
                         'type' => 'role',
-                        'user_count' => $this->assignable->users_count ?? 0
+                        'user_count' => $this->assignable->users_count ?? 0,
                     ];
                 }
+
                 return null;
             }),
 
@@ -59,7 +60,7 @@ class TodoAssignmentResource extends JsonResource
                 return [
                     'id' => $this->assignedBy->id,
                     'name' => $this->assignedBy->name,
-                    'avatar' => $this->assignedBy->avatar
+                    'avatar' => $this->assignedBy->avatar,
                 ];
             }),
 

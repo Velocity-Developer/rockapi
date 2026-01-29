@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TodoCategory;
 use App\Http\Resources\TodoCategoryResource;
-use Illuminate\Http\Request;
+use App\Models\TodoCategory;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class TodoCategoryController extends Controller
 {
@@ -15,7 +15,7 @@ class TodoCategoryController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => TodoCategoryResource::collection($categories)
+            'data' => TodoCategoryResource::collection($categories),
         ]);
     }
 
@@ -27,7 +27,7 @@ class TodoCategoryController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => TodoCategoryResource::collection($categories)
+            'data' => TodoCategoryResource::collection($categories),
         ]);
     }
 
@@ -38,7 +38,7 @@ class TodoCategoryController extends Controller
             'color' => 'nullable|string|max:7',
             'icon' => 'nullable|string|max:50',
             'description' => 'nullable|string',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
         ]);
 
         $category = TodoCategory::create([
@@ -46,13 +46,13 @@ class TodoCategoryController extends Controller
             'color' => $request->color ?? '#6b7280',
             'icon' => $request->icon,
             'description' => $request->description,
-            'is_active' => $request->boolean('is_active', true)
+            'is_active' => $request->boolean('is_active', true),
         ]);
 
         return response()->json([
             'success' => true,
             'data' => new TodoCategoryResource($category),
-            'message' => 'Category created successfully'
+            'message' => 'Category created successfully',
         ], 201);
     }
 
@@ -62,18 +62,18 @@ class TodoCategoryController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => new TodoCategoryResource($todoCategory)
+            'data' => new TodoCategoryResource($todoCategory),
         ]);
     }
 
     public function update(Request $request, TodoCategory $todoCategory): JsonResponse
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:todo_categories,name,' . $todoCategory->id,
+            'name' => 'required|string|max:255|unique:todo_categories,name,'.$todoCategory->id,
             'color' => 'nullable|string|max:7',
             'icon' => 'nullable|string|max:50',
             'description' => 'nullable|string',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
         ]);
 
         $todoCategory->update([
@@ -81,13 +81,13 @@ class TodoCategoryController extends Controller
             'color' => $request->color ?? $todoCategory->color,
             'icon' => $request->icon,
             'description' => $request->description,
-            'is_active' => $request->boolean('is_active', $todoCategory->is_active)
+            'is_active' => $request->boolean('is_active', $todoCategory->is_active),
         ]);
 
         return response()->json([
             'success' => true,
             'data' => new TodoCategoryResource($todoCategory),
-            'message' => 'Category updated successfully'
+            'message' => 'Category updated successfully',
         ]);
     }
 
@@ -97,7 +97,7 @@ class TodoCategoryController extends Controller
         if ($todoCategory->todos()->exists()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cannot delete category with existing todos'
+                'message' => 'Cannot delete category with existing todos',
             ], 422);
         }
 
@@ -105,7 +105,7 @@ class TodoCategoryController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Category deleted successfully'
+            'message' => 'Category deleted successfully',
         ]);
     }
 }

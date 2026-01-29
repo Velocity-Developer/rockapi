@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Webhost;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class InvoiceSeeder extends Seeder
 {
@@ -20,6 +20,7 @@ class InvoiceSeeder extends Seeder
 
         if ($webhosts->isEmpty()) {
             $this->command->info('Tidak ada data webhost. Silakan jalankan WebhostSeeder terlebih dahulu.');
+
             return;
         }
 
@@ -38,10 +39,10 @@ class InvoiceSeeder extends Seeder
 
             $invoice = Invoice::create([
                 'unit' => 'vd',
-                'nama_klien' => 'Klien ' . $webhost->nama_web,
-                'alamat_klien' => 'Alamat contoh Klien ' . $i,
-                'telepon_klien' => '0812' . rand(1000000, 9999999),
-                'note' => 'Catatan untuk invoice #' . $i,
+                'nama_klien' => 'Klien '.$webhost->nama_web,
+                'alamat_klien' => 'Alamat contoh Klien '.$i,
+                'telepon_klien' => '0812'.rand(1000000, 9999999),
+                'note' => 'Catatan untuk invoice #'.$i,
                 'status' => $status,
                 'subtotal' => 0,
                 'pajak' => null,
@@ -61,7 +62,7 @@ class InvoiceSeeder extends Seeder
                 InvoiceItem::create([
                     'invoice_id' => $invoice->id,
                     'webhost_id' => $webhost->id_webhost,
-                    'nama' => ucfirst($jenis) . ' ' . $webhost->nama_web,
+                    'nama' => ucfirst($jenis).' '.$webhost->nama_web,
                     'jenis' => $jenis,
                     'harga' => $harga,
                 ]);

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Webhost;
+use Illuminate\Http\Request;
 
 class WebhostController extends Controller
 {
@@ -28,7 +28,7 @@ class WebhostController extends Controller
      */
     public function show(string $id)
     {
-        //get by id, with paket,csMainProjects
+        // get by id, with paket,csMainProjects
         $webhost = Webhost::with(
             'paket',
             'csMainProjects',
@@ -53,30 +53,31 @@ class WebhostController extends Controller
      */
     public function destroy(string $id)
     {
-        //get by id
+        // get by id
         $webhost = Webhost::find($id);
         $webhost->delete();
+
         return response()->json($webhost);
     }
 
-    //search by keyword
+    // search by keyword
     public function search(string $keyword)
     {
-        //jika keyword kosong, atau kurang dari 3 karakter
+        // jika keyword kosong, atau kurang dari 3 karakter
         if (empty($keyword) || $keyword && strlen($keyword) < 3) {
             return response()->json(['message' => 'Keyword minimal 3 karakter'], 404);
         }
 
-        //hapus http:// dan https:// dari keyword
+        // hapus http:// dan https:// dari keyword
         $keyword = $keyword ? preg_replace('/^https?:\/\//', '', $keyword) : $keyword;
 
-        //get nama_web by keyword, ambil kolom nama_web dan id_webhost
-        $webhosts = Webhost::where('nama_web', 'like', '%' . $keyword . '%')
+        // get nama_web by keyword, ambil kolom nama_web dan id_webhost
+        $webhosts = Webhost::where('nama_web', 'like', '%'.$keyword.'%')
             ->select('nama_web', 'id_webhost')
             ->limit(200)
             ->get();
 
-        //jika kosong
+        // jika kosong
         if ($webhosts->isEmpty()) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);
         }

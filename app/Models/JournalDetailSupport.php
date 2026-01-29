@@ -12,10 +12,10 @@ class JournalDetailSupport extends Model
         'wa',
         'email',
         'biaya',
-        'tanggal_bayar'
+        'tanggal_bayar',
     ];
 
-    //relasi ke journal
+    // relasi ke journal
     public function journal()
     {
         return $this->belongsTo(Journal::class, 'journal_id');

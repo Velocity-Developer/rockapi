@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class ModuleProject extends Model
 {
@@ -14,16 +14,16 @@ class ModuleProject extends Model
         'version',
         'github_url',
         'download_url',
-        'type'
+        'type',
     ];
 
     protected $casts = [
-        'type' => 'string'
+        'type' => 'string',
     ];
 
     public function getTypeLabel(): string
     {
-        return match($this->type) {
+        return match ($this->type) {
             'theme' => 'Theme',
             'plugin' => 'Plugin',
             'child_theme' => 'Child Theme',

@@ -2,12 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Carbon\Carbon;
 
 class TodoList extends Model
 {
@@ -20,7 +18,7 @@ class TodoList extends Model
         'due_date',
         'category_id',
         'is_private',
-        'notes'
+        'notes',
     ];
 
     protected $casts = [
@@ -30,20 +28,27 @@ class TodoList extends Model
         'created_by' => 'integer',
     ];
 
-    //appends due_date_days_left
+    // appends due_date_days_left
     protected $appends = ['due_date_days_left', 'is_overdue'];
 
     // Status constants
     const STATUS_PENDING = 'pending';
+
     const STATUS_ASSIGNED = 'assigned';
+
     const STATUS_IN_PROGRESS = 'in_progress';
+
     const STATUS_COMPLETED = 'completed';
+
     const STATUS_DECLINED = 'declined';
 
     // Priority constants
     const PRIORITY_LOW = 'low';
+
     const PRIORITY_MEDIUM = 'medium';
+
     const PRIORITY_HIGH = 'high';
+
     const PRIORITY_URGENT = 'urgent';
 
     public function creator(): BelongsTo
@@ -79,12 +84,14 @@ class TodoList extends Model
     public function assignedUsers()
     {
         $userIds = $this->userAssignments()->pluck('assignable_id');
+
         return User::whereIn('id', $userIds)->get();
     }
 
     public function assignedRoles()
     {
         $roleIds = $this->roleAssignments()->pluck('assignable_id');
+
         return \Spatie\Permission\Models\Role::whereIn('id', $roleIds)->get();
     }
 
@@ -109,6 +116,7 @@ class TodoList extends Model
 
         // Check role assignment
         $userRoleIds = $user->roles->pluck('id');
+
         return $this->assignments()->where('assignable_type', 'Spatie\Permission\Models\Role')->whereIn('assignable_id', $userRoleIds)->exists();
     }
 
@@ -177,10 +185,10 @@ class TodoList extends Model
         return round(($completedAssignments / $totalAssignments) * 100);
     }
 
-    //attribute due_date_days_left
+    // attribute due_date_days_left
     public function getDueDateDaysLeftAttribute(): ?int
     {
-        if (!$this->due_date) {
+        if (! $this->due_date) {
             return null;
         }
 
@@ -191,7 +199,7 @@ class TodoList extends Model
         return $now->diffInDays($dueDate, false);
     }
 
-    //attribute is_overdue
+    // attribute is_overdue
     public function getIsOverdueAttribute(): bool
     {
         return $this->due_date_days_left < 0;

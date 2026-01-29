@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Term;
+use Illuminate\Database\Seeder;
 
 class TermSeeder extends Seeder
 {
@@ -13,27 +12,27 @@ class TermSeeder extends Seeder
      */
     public function run(): void
     {
-        //create default terms
+        // create default terms
         Term::create([
-            'name'      => 'Uncategorized',
-            'slug'      => 'uncategorized',
-            'taxonomy'  => 'category',
+            'name' => 'Uncategorized',
+            'slug' => 'uncategorized',
+            'taxonomy' => 'category',
         ]);
         Term::create([
-            'name'      => 'Blog',
-            'slug'      => 'blog',
-            'taxonomy'  => 'category',
+            'name' => 'Blog',
+            'slug' => 'blog',
+            'taxonomy' => 'category',
         ]);
 
         Term::create([
-            'name'      => 'story',
-            'slug'      => 'story',
-            'taxonomy'  => 'tag',
+            'name' => 'story',
+            'slug' => 'story',
+            'taxonomy' => 'tag',
         ]);
         Term::create([
-            'name'      => 'Velocity Developer',
-            'slug'      => 'velocity-developer',
-            'taxonomy'  => 'tag',
+            'name' => 'Velocity Developer',
+            'slug' => 'velocity-developer',
+            'taxonomy' => 'tag',
         ]);
     }
 }

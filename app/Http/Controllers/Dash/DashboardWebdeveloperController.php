@@ -3,13 +3,11 @@
 namespace App\Http\Controllers\Dash;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\CsMainProject;
 use Carbon\Carbon;
 
 class DashboardWebdeveloperController extends Controller
 {
-
     private $jenis_project_webdeveloper = [
         'Jasa Update Web',
         'Pembuatan',
@@ -23,25 +21,25 @@ class DashboardWebdeveloperController extends Controller
 
     public function welcome()
     {
-        //dapatkan total CsMainProject bulan ini
+        // dapatkan total CsMainProject bulan ini
         $totalCsMainProject = CsMainProject::whereMonth('tgl_masuk', date('m'))
             ->whereYear('tgl_masuk', date('Y'))
             ->whereIn('jenis', $this->jenis_project_webdeveloper)
             ->count();
 
-        //tanggal sekarang
+        // tanggal sekarang
         $now = Carbon::now();
         $tanggalSekarang = $now->day;
 
         // range bulan lalu
         $start = $now->copy()->subMonth()->startOfMonth();
-        $end   = $now->copy()->subMonth()->startOfMonth()->addDays($tanggalSekarang - 1);
+        $end = $now->copy()->subMonth()->startOfMonth()->addDays($tanggalSekarang - 1);
 
         $totalCsMainProjectLastMonth = CsMainProject::whereBetween('tgl_masuk', [$start, $end])
             ->whereIn('jenis', $this->jenis_project_webdeveloper)
             ->count();
 
-        //hitung persentase
+        // hitung persentase
         $persentase = ($totalCsMainProject - $totalCsMainProjectLastMonth) / $totalCsMainProjectLastMonth * 100;
 
         return response()->json([
@@ -67,7 +65,7 @@ class DashboardWebdeveloperController extends Controller
             'September',
             'Oktober',
             'November',
-            'Desember'
+            'Desember',
         ];
 
         // Dapatkan data 12 bulan terakhir dari bulan ini
@@ -84,13 +82,14 @@ class DashboardWebdeveloperController extends Controller
         COUNT(*) as total
     ")
             ->groupBy('bulan_tahun', 'dikerjakan_oleh')
-            ->orderByRaw("MIN(tgl_masuk)")
+            ->orderByRaw('MIN(tgl_masuk)')
             ->get();
 
         $projects = $projects->groupBy('bulan_tahun')->map(function ($items) {
             return $items->mapWithKeys(function ($item) {
                 $oleh = str_replace(',', '', $item->dikerjakan_oleh);
                 $oleh = str_replace('[100]', '', $oleh);
+
                 return [$oleh => $item->total];
             });
         });
@@ -102,8 +101,8 @@ class DashboardWebdeveloperController extends Controller
             $date = $now->copy()->subMonths($i);
             $monthName = $bulan[$date->month - 1];
             $year = $date->year;
-            $labels[] = $monthName . ' ' . $year;
-            $setlabel[$date->month . '-' . $year] = $i;
+            $labels[] = $monthName.' '.$year;
+            $setlabel[$date->month.'-'.$year] = $i;
         }
 
         // Inisialisasi data untuk setiap kategori
@@ -142,8 +141,8 @@ class DashboardWebdeveloperController extends Controller
                     'borderColor' => 'rgba(255, 144, 33, 1)',
                     'borderWidth' => 2,
                     'borderRadius' => 5,
-                ]
-            ]
+                ],
+            ],
         ];
 
         return response()->json($chartData);
@@ -153,7 +152,7 @@ class DashboardWebdeveloperController extends Controller
     {
         $chartData = [];
 
-        //Projek Biasa
+        // Projek Biasa
         $projects_biasa = CsMainProject::whereIn('jenis', $this->jenis_project_webdeveloper)
             ->where('dikerjakan_oleh', 'LIKE', '%,10%')
             ->whereDoesntHave('wm_project')
@@ -176,7 +175,7 @@ class DashboardWebdeveloperController extends Controller
             ->limit(100)
             ->count();
 
-        //Projek Custom
+        // Projek Custom
         $projects_custom = CsMainProject::whereIn('jenis', $this->jenis_project_webdeveloper)
             ->where('dikerjakan_oleh', 'LIKE', '%,12%')
             ->whereDoesntHave('wm_project')
@@ -201,17 +200,17 @@ class DashboardWebdeveloperController extends Controller
 
         $chartData = [
             'labels' => [
-                'Biasa - belum dikerjakan : ' . $projects_biasa,
-                'Biasa - dalam pengerjaan : ' . $projects_biasa_run,
-                'Custom - belum dikerjakan : ' . $projects_custom,
-                'Custom - dalam pengerjaan : ' . $projects_custom_run,
+                'Biasa - belum dikerjakan : '.$projects_biasa,
+                'Biasa - dalam pengerjaan : '.$projects_biasa_run,
+                'Custom - belum dikerjakan : '.$projects_custom,
+                'Custom - dalam pengerjaan : '.$projects_custom_run,
             ],
             'datas' => [
                 $projects_biasa,
                 $projects_biasa_run,
                 $projects_custom,
-                $projects_custom_run
-            ]
+                $projects_custom_run,
+            ],
         ];
 
         return response()->json($chartData);

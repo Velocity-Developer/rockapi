@@ -1,25 +1,25 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UsersController;
-use App\Http\Controllers\Dash\MediaController;
 use App\Http\Controllers\Dash\ConfigController;
 use App\Http\Controllers\Dash\DashboardController;
 use App\Http\Controllers\Dash\DashboardWebdeveloperController;
-use App\Http\Controllers\Dash\OptionsController;
+use App\Http\Controllers\Dash\MediaController;
 use App\Http\Controllers\Dash\NotificationsController;
+use App\Http\Controllers\Dash\OptionsController;
 use App\Http\Controllers\Dash\PermissionsController;
 use App\Http\Controllers\Dash\RolesController;
+use App\Http\Controllers\UsersController;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResources([
-        'users'         => UsersController::class,
-        'permissions'   => PermissionsController::class,
-        'roles'         => RolesController::class,
-        'dash/media'    => MediaController::class,
+        'users' => UsersController::class,
+        'permissions' => PermissionsController::class,
+        'roles' => RolesController::class,
+        'dash/media' => MediaController::class,
     ]);
 
-    //dashboard
+    // dashboard
     Route::get('dashboard/welcome', [DashboardController::class, 'welcome']);
     Route::get('dashboard/chart_bulanini', [DashboardController::class, 'chart_bulanini']);
     Route::get('dashboard/chart_tahunini', [DashboardController::class, 'chart_tahunini']);
@@ -27,15 +27,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('dashboard/datatable', [DashboardController::class, 'datatable']);
     Route::get('dashboard/chart_project_tahun_terakhir', [DashboardController::class, 'chart_project_tahun_terakhir']);
 
-    //dashboard webdeveloper
+    // dashboard webdeveloper
     Route::get('dashboard/welcome_webdeveloper', [DashboardWebdeveloperController::class, 'welcome']);
     Route::get('dashboard/chart_project_tahun_terakhir_webdeveloper', [DashboardWebdeveloperController::class, 'chart_project_tahun_terakhir_webdeveloper']);
     Route::get('dashboard/chart_project_saat_ini_webdeveloper', [DashboardWebdeveloperController::class, 'chart_project_saat_ini_webdeveloper']);
 
-    //options
+    // options
     Route::get('option/{key}', [OptionsController::class, 'get']);
 
-    //notifications
+    // notifications
     Route::get('notifications', [NotificationsController::class, 'index']);
     Route::post('notifications/mark-as-read', [NotificationsController::class, 'markAsRead']);
     Route::post('notifications/mark-all-as-read', [NotificationsController::class, 'markAllAsRead']);

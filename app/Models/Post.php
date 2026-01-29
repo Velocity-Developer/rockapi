@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Spatie\Image\Enums\Fit;
 
 class Post extends Model implements HasMedia
 {
@@ -39,10 +39,10 @@ class Post extends Model implements HasMedia
     ];
 
     protected $hidden = [
-        'media'
+        'media',
     ];
 
-    //relasi author
+    // relasi author
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
@@ -68,18 +68,18 @@ class Post extends Model implements HasMedia
 
         if (! $media) {
             return [
-                'full'      => null,
+                'full' => null,
                 'thumbnail' => null,
-                'medium'    => null,
-                'default'   => asset('assets/images/default-featured_image.jpg')
+                'medium' => null,
+                'default' => asset('assets/images/default-featured_image.jpg'),
             ];
         }
 
         return [
-            'full'      => $media->getFullUrl(), // URL gambar asli
+            'full' => $media->getFullUrl(), // URL gambar asli
             'thumbnail' => $media->getFullUrl('thumbnail'), // URL versi thumbnail
-            'medium'    => $media->getFullUrl('medium'),
-            'default'   => asset('assets/images/default-featured_image.jpg')
+            'medium' => $media->getFullUrl('medium'),
+            'default' => asset('assets/images/default-featured_image.jpg'),
         ];
     }
 
@@ -87,6 +87,7 @@ class Post extends Model implements HasMedia
     public function getCategoryAttribute()
     {
         $terms = $this->terms()->where('taxonomy', 'category')->get();
+
         return $terms;
     }
 
@@ -94,6 +95,7 @@ class Post extends Model implements HasMedia
     public function getTagsAttribute()
     {
         $terms = $this->terms()->where('taxonomy', 'tag')->get();
+
         return $terms;
     }
 
@@ -115,19 +117,19 @@ class Post extends Model implements HasMedia
             ->nonQueued();
     }
 
-    //boot
+    // boot
     public static function boot()
     {
         parent::boot();
 
         static::creating(function ($post) {
-            $post->slug = Str::slug($post->title) . '-' . Str::random(5);
+            $post->slug = Str::slug($post->title).'-'.Str::random(5);
         });
 
         static::updating(function ($post) {
-            //jika title berubah
+            // jika title berubah
             if ($post->isDirty('title')) {
-                $post->slug = Str::slug($post->title) . '-' . Str::random(5);
+                $post->slug = Str::slug($post->title).'-'.Str::random(5);
             }
         });
 

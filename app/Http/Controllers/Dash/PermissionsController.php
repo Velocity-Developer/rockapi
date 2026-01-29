@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Dash;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
 class PermissionsController extends Controller
@@ -14,7 +13,7 @@ class PermissionsController extends Controller
      */
     public function index()
     {
-        //daftar permissions
+        // daftar permissions
         $permissions = Permission::all();
 
         return response()->json($permissions);
@@ -29,7 +28,7 @@ class PermissionsController extends Controller
             'name' => 'required',
         ]);
 
-        //simpan permission
+        // simpan permission
         $permission = Permission::create(['name' => $request->name, 'guard_name' => 'web']);
 
         return response()->json($permission);
@@ -66,7 +65,7 @@ class PermissionsController extends Controller
      */
     public function destroy(string $id)
     {
-        //remove permission by name
+        // remove permission by name
         $permission = Permission::findByName($id, 'web');
         $permission->delete();
     }

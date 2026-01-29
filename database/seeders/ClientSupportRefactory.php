@@ -2,13 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\CsMainProjectClientSupport;
+use App\Models\Webhost;
+use App\Models\WebhostClientSupport;
+use Exception;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use App\Models\CsMainProjectClientSupport;
-use App\Models\WebhostClientSupport;
-use App\Models\Webhost;
-use Exception;
 
 class ClientSupportRefactory extends Seeder
 {
@@ -32,7 +31,7 @@ class ClientSupportRefactory extends Seeder
                 ->get();
             $clientSupportDataCount = $clientSupportData->count();
 
-            $this->command->info('Ditemukan ' . $clientSupportDataCount . ' record yang akan diproses.');
+            $this->command->info('Ditemukan '.$clientSupportDataCount.' record yang akan diproses.');
 
             $processedCount = 0;
             $errorCount = 0;
@@ -45,7 +44,7 @@ class ClientSupportRefactory extends Seeder
                 'perbaikan_revisi_1',
                 'revisi_2',
                 'perbaikan_revisi_2',
-                'update_web'
+                'update_web',
             ];
 
             foreach ($clientSupportData as $data) {
@@ -71,7 +70,7 @@ class ClientSupportRefactory extends Seeder
                         // Buat record untuk setiap ID
                         foreach ($ids as $csMainProjectId) {
                             // Validasi ID adalah numeric
-                            if (!is_numeric($csMainProjectId)) {
+                            if (! is_numeric($csMainProjectId)) {
                                 continue;
                             }
 
@@ -84,7 +83,7 @@ class ClientSupportRefactory extends Seeder
                                 [
                                     'cs_main_project_id' => (int) $csMainProjectId,
                                     'layanan' => $layanan,
-                                    'tanggal' => $data->tgl ?? null
+                                    'tanggal' => $data->tgl ?? null,
                                 ]
                             );
 
@@ -95,7 +94,7 @@ class ClientSupportRefactory extends Seeder
 
                     // Proses kolom tanya_jawab untuk WebhostClientSupport
                     $tanyaJawabString = $data->tanya_jawab ?? '';
-                    if (!empty($tanyaJawabString)) {
+                    if (! empty($tanyaJawabString)) {
                         // Parse domain dari string tanya_jawab
                         $domains = $this->parseDomains($tanyaJawabString);
 
@@ -137,17 +136,17 @@ class ClientSupportRefactory extends Seeder
                     // Rollback transaksi jika terjadi error
                     DB::rollBack();
                     $errorCount++;
-                    $this->command->error("Error memproses record ID {$data->id_cs_project}: " . $e->getMessage());
+                    $this->command->error("Error memproses record ID {$data->id_cs_project}: ".$e->getMessage());
                 }
             }
 
-            $this->command->info("Proses selesai!");
+            $this->command->info('Proses selesai!');
             $this->command->info("Total record tb_clientsupport diproses: {$processedCount}");
             $this->command->info("Total record CsMainProjectClientSupport dibuat: {$totalCsInserted}");
             $this->command->info("Total record WebhostClientSupport dibuat: {$totalWebhostInserted}");
             $this->command->info("Total error: {$errorCount}");
         } catch (Exception $e) {
-            $this->command->error('Error dalam proses refactory: ' . $e->getMessage());
+            $this->command->error('Error dalam proses refactory: '.$e->getMessage());
         }
     }
 
@@ -163,7 +162,7 @@ class ClientSupportRefactory extends Seeder
         $normalizedDomains = [];
         foreach ($domains as $domain) {
             $normalized = $this->normalizeDomain(trim($domain));
-            if (!empty($normalized)) {
+            if (! empty($normalized)) {
                 $normalizedDomains[] = $normalized;
             }
         }
@@ -199,12 +198,12 @@ class ClientSupportRefactory extends Seeder
         // Cari exact match dulu
         $webhost = Webhost::where('nama_web', $domain)->first();
 
-        if (!$webhost) {
+        if (! $webhost) {
             // Cari dengan LIKE jika tidak ada exact match
-            $webhost = Webhost::where('nama_web', 'like', '%' . $domain . '%')->first();
+            $webhost = Webhost::where('nama_web', 'like', '%'.$domain.'%')->first();
         }
 
-        if (!$webhost) {
+        if (! $webhost) {
             // Cari dengan normalisasi nama_web dari database
             $webhosts = Webhost::all();
             foreach ($webhosts as $wh) {

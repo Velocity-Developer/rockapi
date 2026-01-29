@@ -31,24 +31,24 @@ class ServerUser extends Model
     ];
 
     protected $casts = [
-        'cron'      => 'boolean',
-        'php'       => 'boolean',
-        'spam'      => 'boolean',
-        'ssh'       => 'boolean',
-        'ssl'       => 'boolean',
+        'cron' => 'boolean',
+        'php' => 'boolean',
+        'spam' => 'boolean',
+        'ssh' => 'boolean',
+        'ssl' => 'boolean',
         'suspended' => 'boolean',
         'wordpress' => 'boolean',
-        'domains'   => 'array',
-        'users'     => 'array',
+        'domains' => 'array',
+        'users' => 'array',
     ];
 
-    //relasi ke tabel server
+    // relasi ke tabel server
     public function server()
     {
         return $this->belongsTo(Server::class, 'server_id');
     }
 
-    //relasi ke tabel server_package,
+    // relasi ke tabel server_package,
     public function server_package()
     {
         return $this->belongsTo(ServerPackage::class, 'server_package_id');

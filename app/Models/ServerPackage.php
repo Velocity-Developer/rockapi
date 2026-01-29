@@ -15,13 +15,13 @@ class ServerPackage extends Model
         'quota',
     ];
 
-    //relasi one ke tabel server
+    // relasi one ke tabel server
     public function server()
     {
         return $this->belongsTo(Server::class, 'server_id');
     }
 
-    //relasi ke tabel server_user
+    // relasi ke tabel server_user
     public function server_user()
     {
         return $this->hasMany(ServerUser::class, 'server_package_id');

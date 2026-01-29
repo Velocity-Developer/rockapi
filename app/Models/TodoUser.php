@@ -62,11 +62,11 @@ class TodoUser extends Model
 
     public function isCompleted(): bool
     {
-        return !is_null($this->completed_at);
+        return ! is_null($this->completed_at);
     }
 
     public function isPending(): bool
     {
-        return !is_null($this->taken_at) && is_null($this->completed_at);
+        return ! is_null($this->taken_at) && is_null($this->completed_at);
     }
 }

@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use App\Services\ServerServices;
 use App\Models\Server;
 use App\Models\ServerPackage;
 use App\Models\ServerUser;
+use App\Services\ServerServices;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ServerController extends Controller
 {
@@ -21,10 +20,10 @@ class ServerController extends Controller
             'ip_address',
             'hostname',
             'port',
-            'is_active'
+            'is_active',
         ]);
 
-        //pagination
+        // pagination
         $per_page = $request->input('per_page', 20);
 
         $servers = $query->paginate($per_page);
@@ -35,6 +34,7 @@ class ServerController extends Controller
     public function show($id)
     {
         $server = Server::findOrFail($id);
+
         return response()->json($server);
     }
 
@@ -44,10 +44,10 @@ class ServerController extends Controller
             'name' => 'required|string|unique:servers,name',
             'type' => 'required|string|in:directadmin,cpanel,plesk,other',
             'ip_address' => 'nullable|ip',
-            'hostname'  => 'nullable|string',
-            'port'      => 'required|integer',
-            'username'  => 'required|string',
-            'password'  => 'required|string',
+            'hostname' => 'nullable|string',
+            'port' => 'required|integer',
+            'username' => 'required|string',
+            'password' => 'required|string',
             'is_active' => 'required|boolean',
         ]);
 
@@ -67,14 +67,14 @@ class ServerController extends Controller
         $server = Server::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'name'          => 'sometimes|string',
-            'type'          => 'sometimes|string|in:directadmin,cpanel,plesk,other',
-            'ip_address'    => 'nullable|ip',
-            'hostname'      => 'nullable|string',
-            'port'          => 'sometimes|integer',
-            'username'      => 'nullable|string',
-            'password'      => 'nullable|string',
-            'is_active'     => 'required|boolean',
+            'name' => 'sometimes|string',
+            'type' => 'sometimes|string|in:directadmin,cpanel,plesk,other',
+            'ip_address' => 'nullable|ip',
+            'hostname' => 'nullable|string',
+            'port' => 'sometimes|integer',
+            'username' => 'nullable|string',
+            'password' => 'nullable|string',
+            'is_active' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -107,12 +107,12 @@ class ServerController extends Controller
             return response()->json($packages, 500);
         }
 
-        //loop
+        // loop
         $newPackages = [];
         foreach ($packages as $package) {
             $package = ServerPackage::updateOrCreate([
                 'server_id' => $id,
-                'name'      => $package,
+                'name' => $package,
             ]);
             $newPackages[] = $package;
         }
@@ -122,7 +122,7 @@ class ServerController extends Controller
 
     public function sync_packageDetail($idpackage)
     {
-        //get serverPackage by id
+        // get serverPackage by id
         $serverPackage = ServerPackage::find($idpackage);
         $server_id = $serverPackage->server_id;
         $packageName = $serverPackage->name;
@@ -134,7 +134,7 @@ class ServerController extends Controller
             return response()->json($packages, 500);
         }
 
-        //save serverPackage
+        // save serverPackage
         $serverPackage->update([
             'bandwidth' => $packages['bandwidth'],
             'email_daily_limit' => $packages['email_daily_limit'],
@@ -154,12 +154,12 @@ class ServerController extends Controller
             return response()->json($users, 500);
         }
 
-        //loop simpan serverUser
+        // loop simpan serverUser
         $newUsers = [];
         foreach ($users as $user) {
             $user = ServerUser::updateOrCreate([
                 'server_id' => $id,
-                'username'  => $user,
+                'username' => $user,
             ]);
             $newUsers[] = $user;
         }
@@ -169,7 +169,7 @@ class ServerController extends Controller
 
     public function sync_userDetail($iduserserver)
     {
-        //get serverUser by id
+        // get serverUser by id
         $serverUser = ServerUser::find($iduserserver);
         $server_id = $serverUser->server_id;
         $username = $serverUser->username;
@@ -181,29 +181,29 @@ class ServerController extends Controller
             return response()->json($users, 500);
         }
 
-        //save serverUser
+        // save serverUser
         $serverUser->update([
-            'cron'          => $users['cron'],
-            'domain'        => $users['domain'],
-            'domains'       => $users['domains'],
-            'ip'            => $users['ip'],
-            'lets_encrypt'  => $users['letsEncrypt'],
-            'name'          => $users['name'],
-            'ns1'           => $users['ns1'],
-            'ns2'           => $users['ns2'],
-            'package'       => $users['package'],
-            'php'           => $users['php'],
-            'spam'          => $users['spam'],
-            'ssh'           => $users['ssh'],
-            'ssl'           => $users['ssl'],
-            'suspended'     => $users['suspended'],
-            'user_type'     => $users['userType'],
-            'users'         => $users['users'],
-            'wordpress'     => $users['wordpress'],
-            'quotaLim'     => $users['quotaLim'],
+            'cron' => $users['cron'],
+            'domain' => $users['domain'],
+            'domains' => $users['domains'],
+            'ip' => $users['ip'],
+            'lets_encrypt' => $users['letsEncrypt'],
+            'name' => $users['name'],
+            'ns1' => $users['ns1'],
+            'ns2' => $users['ns2'],
+            'package' => $users['package'],
+            'php' => $users['php'],
+            'spam' => $users['spam'],
+            'ssh' => $users['ssh'],
+            'ssl' => $users['ssl'],
+            'suspended' => $users['suspended'],
+            'user_type' => $users['userType'],
+            'users' => $users['users'],
+            'wordpress' => $users['wordpress'],
+            'quotaLim' => $users['quotaLim'],
         ]);
 
-        //get ServerPackage by name and id server
+        // get ServerPackage by name and id server
         $serverPackage = ServerPackage::where('server_id', $server_id)->where('name', $users['package'])->first();
         if ($serverPackage) {
             $serverUser->server_package_id = $serverPackage->id ?? '';

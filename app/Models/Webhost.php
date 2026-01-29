@@ -42,25 +42,25 @@ class Webhost extends Model
         'usia',
     ];
 
-    //relasi one ke tabel paket
+    // relasi one ke tabel paket
     public function paket()
     {
         return $this->belongsTo(Paket::class, 'id_paket');
     }
 
-    //relasi many ke tabel cs_main_project
+    // relasi many ke tabel cs_main_project
     public function csMainProjects()
     {
         return $this->hasMany(CsMainProject::class, 'id_webhost');
     }
 
-    //relasi many ke tabel journal
+    // relasi many ke tabel journal
     public function journals()
     {
         return $this->hasMany(Journal::class, 'webhost_id');
     }
 
-    //relasi many to many ke Customer
+    // relasi many to many ke Customer
     public function customers()
     {
         return $this->belongsToMany(Customer::class, 'customer_webhost', 'webhost_id', 'customer_id', 'id_webhost');

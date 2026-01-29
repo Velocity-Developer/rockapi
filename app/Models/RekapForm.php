@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 
 class RekapForm extends Model
 {
     public $timestamps = true;
+
     protected $fillable = [
         'id',
         'source',
@@ -32,6 +33,7 @@ class RekapForm extends Model
     protected $appends = ['created_at_wib'];
 
     const CREATED_AT = 'created_at';
+
     const UPDATED_AT = 'updated_at';
 
     public function getCreatedAtAttribute($value)
@@ -47,7 +49,7 @@ class RekapForm extends Model
         )->format('Y-m-d H:i:sP');
     }
 
-    //relasi dengan log konversi
+    // relasi dengan log konversi
     public function log_konversi()
     {
         return $this->hasMany(RekapFormsLogKonversi::class);

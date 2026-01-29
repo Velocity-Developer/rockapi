@@ -20,10 +20,10 @@ class PmProject extends Model
         'konfirm_revisi_1',
         'fr1',
         'tutorial_password',
-        'selesai'
+        'selesai',
     ];
 
-    //relasi one ke tabel cs_main_project
+    // relasi one ke tabel cs_main_project
     public function csMainProject()
     {
         return $this->belongsTo(CsMainProject::class, 'id');

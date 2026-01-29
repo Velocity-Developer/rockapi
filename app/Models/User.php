@@ -4,17 +4,17 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, SoftDeletes, Notifiable, HasApiTokens, HasRoles;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -63,43 +63,43 @@ class User extends Authenticatable
         'user_roles',
     ];
 
-    //relasi ke karyawan
+    // relasi ke karyawan
     public function karyawan()
     {
         return $this->belongsTo(Karyawan::class, 'id_karyawan');
     }
 
-    //relasi ke TodoUser (pivot table for todo assignments with journal tracking)
+    // relasi ke TodoUser (pivot table for todo assignments with journal tracking)
     public function todoUsers()
     {
         return $this->hasMany(TodoUser::class);
     }
 
-    //relasi ke WmProject
+    // relasi ke WmProject
     public function wm_project()
     {
         return $this->hasMany(WmProject::class, 'user_id');
     }
 
-    //relasi ke CsMainProjectClientSupport
+    // relasi ke CsMainProjectClientSupport
     public function cs_main_project_client_supports()
     {
         return $this->hasMany(CsMainProjectClientSupport::class, 'user_id');
     }
 
-    //relasi ke webhost_client_support
+    // relasi ke webhost_client_support
     public function webhost_client_supports()
     {
         return $this->hasMany(WebhostClientSupport::class, 'user_id');
     }
 
-    //permissions
+    // permissions
     public function get_permissions()
     {
         return $this->getPermissionNames();
     }
 
-    //accessor untuk roles
+    // accessor untuk roles
     public function getUserRolesAttribute()
     {
         $roles = $this->roles()->get();
@@ -107,6 +107,7 @@ class User extends Authenticatable
         foreach ($roles as $role) {
             $result[] = $role->name;
         }
+
         return $result;
     }
 
@@ -114,21 +115,22 @@ class User extends Authenticatable
     public function getAvatarUrlAttribute()
     {
         if ($this->avatar && $this->avatar) {
-            return asset('storage/' . $this->avatar);
+            return asset('storage/'.$this->avatar);
         }
         // return asset('assets/images/default-avatar.jpg');
-        //samarkan id
+        // samarkan id
         $id = str_replace(['=', '/', '+'], '', base64_encode($this->id));
-        //tampilkan avatar dari dicebear
-        return 'https://api.dicebear.com/9.x/bottts-neutral/svg?seed=' . $id . '9v0';
+
+        // tampilkan avatar dari dicebear
+        return 'https://api.dicebear.com/9.x/bottts-neutral/svg?seed='.$id.'9v0';
     }
 
-    //boot
+    // boot
     protected static function boot()
     {
         parent::boot();
 
-        //jika create, dan username kosong, maka generate username dari name
+        // jika create, dan username kosong, maka generate username dari name
         static::creating(function ($model) {
             if (empty($model->username)) {
                 $model->username = Str::replace('-', '_', Str::slug($model->name));

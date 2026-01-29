@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Term;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use App\Models\Term;
 
 class TermsController extends Controller
 {
@@ -37,27 +37,27 @@ class TermsController extends Controller
         }
 
         $request->validate([
-            'name'          => 'required|string',
-            'description'   => 'nullable|string',
-            'taxonomy'      => 'required|string',
+            'name' => 'required|string',
+            'description' => 'nullable|string',
+            'taxonomy' => 'required|string',
         ]);
 
-        //cek slug apakah sudah ada
-        $slug = Str::slug($request->taxonomy . '-' . $request->name);
+        // cek slug apakah sudah ada
+        $slug = Str::slug($request->taxonomy.'-'.$request->name);
         $term = Term::where('slug', $slug)->first();
         if ($term) {
             return response()->json([
                 'message' => 'Nama term sudah ada.',
                 '_data' => [
-                    'errors' => 'The slug has already been taken.'
-                ]
+                    'errors' => 'The slug has already been taken.',
+                ],
             ], 422);
         }
 
         $term = Term::create([
-            'name'          => $request->name,
-            'description'   => $request->description,
-            'taxonomy'      => $request->taxonomy ?? 'category',
+            'name' => $request->name,
+            'description' => $request->description,
+            'taxonomy' => $request->taxonomy ?? 'category',
         ]);
 
         return response()->json($term);
@@ -70,6 +70,7 @@ class TermsController extends Controller
     {
         //
         $term = Term::find($id);
+
         return response()->json($term);
     }
 
@@ -88,8 +89,8 @@ class TermsController extends Controller
         }
 
         $request->validate([
-            'name'          => 'required|string',
-            'description'   => 'nullable|string',
+            'name' => 'required|string',
+            'description' => 'nullable|string',
         ]);
 
         $term = Term::find($id);

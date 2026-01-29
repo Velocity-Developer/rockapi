@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\JournalCategory;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 
 class JournalCategoryController extends Controller
 {
@@ -16,17 +15,17 @@ class JournalCategoryController extends Controller
     {
         $query = JournalCategory::orderBy('name');
 
-        //filter
+        // filter
         if ($request->input('role') && $request->input('role') !== 'admin') {
             $query->where('role', $request->input('role'));
         }
 
-        //search
+        // search
         if ($request->input('search')) {
-            $query->where('name', 'like', '%' . $request->input('search') . '%');
+            $query->where('name', 'like', '%'.$request->input('search').'%');
         }
 
-        //pagination
+        // pagination
         $per_page = $request->input('per_page', 10);
         $categories = $query->paginate($per_page);
 
@@ -39,17 +38,17 @@ class JournalCategoryController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'name'          => 'required|string|max:255',
-            'description'   => 'nullable|string',
-            'icon'          => 'nullable|string',
-            'role'          => 'nullable|string',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'icon' => 'nullable|string',
+            'role' => 'nullable|string',
         ]);
 
         $category = JournalCategory::create([
-            'name'          => $request->name,
-            'description'   => $request->description,
-            'icon'          => $request->icon,
-            'role'          => $request->role,
+            'name' => $request->name,
+            'description' => $request->description,
+            'icon' => $request->icon,
+            'role' => $request->role,
         ]);
 
         return response()->json($category);
@@ -61,6 +60,7 @@ class JournalCategoryController extends Controller
     public function show(string $id): JsonResponse
     {
         $category = JournalCategory::findOrFail($id);
+
         return response()->json($category);
     }
 
@@ -70,18 +70,18 @@ class JournalCategoryController extends Controller
     public function update(Request $request, string $id): JsonResponse
     {
         $request->validate([
-            'name'          => 'required|string|max:255',
-            'description'   => 'nullable|string',
-            'icon'          => 'nullable|string',
-            'role'          => 'nullable|string',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'icon' => 'nullable|string',
+            'role' => 'nullable|string',
         ]);
 
         $category = JournalCategory::findOrFail($id);
         $category->update([
-            'name'          => $request->name,
-            'description'   => $request->description,
-            'icon'          => $request->icon,
-            'role'          => $request->role,
+            'name' => $request->name,
+            'description' => $request->description,
+            'icon' => $request->icon,
+            'role' => $request->role,
         ]);
 
         return response()->json($category);
@@ -100,7 +100,7 @@ class JournalCategoryController extends Controller
             if ($category->journals()->exists()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Cannot delete journal category that is being used by journals'
+                    'message' => 'Cannot delete journal category that is being used by journals',
                 ], 400);
             }
 
@@ -108,18 +108,18 @@ class JournalCategoryController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Journal category deleted successfully'
+                'message' => 'Journal category deleted successfully',
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Journal category not found'
+                'message' => 'Journal category not found',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete journal category',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -128,7 +128,7 @@ class JournalCategoryController extends Controller
     {
         $query = JournalCategory::orderBy('name');
 
-        //filter
+        // filter
         if ($request->input('role')) {
             $query->where('role', $request->input('role'));
         }

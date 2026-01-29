@@ -14,6 +14,7 @@ class MediaController extends Controller
     public function index()
     {
         $allMedia = Media::latest()->paginate(60);
+
         return response()->json($allMedia);
     }
 
@@ -46,10 +47,10 @@ class MediaController extends Controller
      */
     public function destroy(string $id)
     {
-        //get media
+        // get media
         $media = Media::find($id);
 
-        //delete media
+        // delete media
         $media->delete();
     }
 }

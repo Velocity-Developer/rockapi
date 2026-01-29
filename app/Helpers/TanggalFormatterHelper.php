@@ -2,9 +2,6 @@
 
 namespace App\Helpers;
 
-use Carbon\Carbon;
-use Locale;
-
 class TanggalFormatterHelper
 {
     public function toIndonesianMonthYear(string $date): string
@@ -25,6 +22,7 @@ class TanggalFormatterHelper
         ];
 
         [$year, $month] = explode('-', $date);
-        return ($months[$month] ?? $month) . ' ' . $year;
+
+        return ($months[$month] ?? $month).' '.$year;
     }
 }

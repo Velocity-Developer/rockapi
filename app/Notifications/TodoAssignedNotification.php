@@ -13,6 +13,7 @@ class TodoAssignedNotification extends Notification implements ShouldQueue
     use Queueable;
 
     public $todo;
+
     public $assignedBy;
 
     /**
@@ -61,13 +62,13 @@ class TodoAssignedNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Todo Baru Ditugaskan')
-            ->greeting('Halo ' . $notifiable->name . ',')
+            ->greeting('Halo '.$notifiable->name.',')
             ->line("{$this->assignedBy->name} telah menugaskan todo baru kepada Anda:")
-            ->line('**' . $this->todo->title . '**')
+            ->line('**'.$this->todo->title.'**')
             ->line($this->todo->description ?? '')
-            ->line('Prioritas: ' . ucfirst($this->todo->priority))
+            ->line('Prioritas: '.ucfirst($this->todo->priority))
             ->when($this->todo->due_date, function ($message) {
-                $message->line('Deadline: ' . $this->todo->due_date->format('d M Y H:i'));
+                $message->line('Deadline: '.$this->todo->due_date->format('d M Y H:i'));
             })
             ->action('Lihat Todo', url("/todo/{$this->todo->id}"))
             ->line('Terima kasih telah menggunakan aplikasi kami!');

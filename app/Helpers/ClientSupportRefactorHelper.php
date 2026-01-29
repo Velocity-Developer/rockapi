@@ -2,13 +2,13 @@
 
 namespace App\Helpers;
 
-use Illuminate\Support\Facades\DB;
 use App\Models\CsMainProjectClientSupport;
-use App\Models\WebhostClientSupport;
 use App\Models\Webhost;
+use App\Models\WebhostClientSupport;
+use Illuminate\Support\Facades\DB;
 
-/* 
-Helper class untuk refactor data 
+/*
+Helper class untuk refactor data
 dari tb_clientsupport ke CsMainProjectClientSupport dan WebhostClientSupport
 */
 
@@ -21,8 +21,8 @@ class ClientSupportRefactorHelper
         $result = [];
         $message = '';
 
-        //pastikan $tanggal Y-m-d, jika bukan ubah ke Y-m-d
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal)) {
+        // pastikan $tanggal Y-m-d, jika bukan ubah ke Y-m-d
+        if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal)) {
             $tanggal = date('Y-m-d', strtotime($tanggal));
         }
         $result['tanggal'] = $tanggal;
@@ -33,22 +33,22 @@ class ClientSupportRefactorHelper
             'perbaikan_revisi_1',
             'revisi_2',
             'perbaikan_revisi_2',
-            'update_web'
+            'update_web',
         ];
 
-        //get data dari tabel 'tb_clientsupport' berdasarkan $tanggal
+        // get data dari tabel 'tb_clientsupport' berdasarkan $tanggal
         $clientSupportData = DB::table('tb_clientsupport')
             ->where('tgl', $tanggal)
             ->first();
 
-        //jika tidak ada data, return
-        if (!$clientSupportData) {
-            $message .= 'Tidak ada data untuk tanggal ' . $tanggal;
+        // jika tidak ada data, return
+        if (! $clientSupportData) {
+            $message .= 'Tidak ada data untuk tanggal '.$tanggal;
         }
 
         // Proses setiap kolom layanan untuk CsMainProjectClientSupport
         foreach ($layananColumns as $layanan) {
-            //jika layanan tidak ada, continue
+            // jika layanan tidak ada, continue
             if (empty($clientSupportData->$layanan)) {
                 continue;
             }
@@ -65,7 +65,7 @@ class ClientSupportRefactorHelper
             // Buat record untuk setiap ID
             foreach ($cs_main_project_ids as $id) {
 
-                //id bukan 0
+                // id bukan 0
                 if ($id == 0) {
                     continue;
                 }
@@ -76,7 +76,7 @@ class ClientSupportRefactorHelper
                     ->where('tanggal', $tanggal)
                     ->first();
 
-                if (!$existingRecord) {
+                if (! $existingRecord) {
                     // Jika tidak ada, buat record baru
                     CsMainProjectClientSupport::create([
                         'cs_main_project_id' => $id,
@@ -89,15 +89,15 @@ class ClientSupportRefactorHelper
 
         // Proses kolom tanya_jawab untuk WebhostClientSupport
         $tanya_jawab = $clientSupportData->tanya_jawab ?? '';
-        if (!empty($tanya_jawab)) {
+        if (! empty($tanya_jawab)) {
 
             // Parse domain dari string tanya_jawab
             $domains = $instance->parseDomains($tanya_jawab);
             foreach ($domains as $domain) {
 
-                //cari webhost_id berdasarkan nama domain
+                // cari webhost_id berdasarkan nama domain
                 $webhost = Webhost::where('nama_web', $domain)->first();
-                if (!$webhost) {
+                if (! $webhost) {
                     continue;
                 }
 
@@ -107,7 +107,7 @@ class ClientSupportRefactorHelper
                     ->where('tanggal', $tanggal)
                     ->first();
 
-                if (!$existingRecord) {
+                if (! $existingRecord) {
                     // Jika tidak ada, buat record baru
                     WebhostClientSupport::create([
                         'webhost_id' => $webhost->id_webhost,
@@ -125,7 +125,7 @@ class ClientSupportRefactorHelper
                 ->update(['export' => 3]);
         }
 
-        //respon 
+        // respon
         return $result;
     }
 
@@ -141,7 +141,7 @@ class ClientSupportRefactorHelper
         $normalizedDomains = [];
         foreach ($domains as $domain) {
             $normalized = $this->normalizeDomain(trim($domain));
-            if (!empty($normalized)) {
+            if (! empty($normalized)) {
                 $normalizedDomains[] = $normalized;
             }
         }

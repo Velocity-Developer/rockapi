@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-use App\Notifications\TodoAssignedNotification;
-use App\Models\User;
 use App\Models\TodoList;
+use App\Models\User;
+use App\Notifications\TodoAssignedNotification;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class NotificationDebugController extends Controller
 {
@@ -18,45 +18,45 @@ class NotificationDebugController extends Controller
 
             // 1. Check if notifications table exists
             $tableExists = DB::getSchemaBuilder()->hasTable('notifications');
-            Log::info('Notifications table exists: ' . ($tableExists ? 'YES' : 'NO'));
+            Log::info('Notifications table exists: '.($tableExists ? 'YES' : 'NO'));
 
-            if (!$tableExists) {
+            if (! $tableExists) {
                 return response()->json([
                     'error' => 'Notifications table does not exist',
-                    'solution' => 'Run: php artisan migrate'
+                    'solution' => 'Run: php artisan migrate',
                 ], 500);
             }
 
             // 2. Check database connection
-            Log::info('Database connection: ' . DB::connection()->getPdo()?->getAttribute(\PDO::ATTR_CONNECTION_STATUS) ?? 'NO CONNECTION');
+            Log::info('Database connection: '.DB::connection()->getPdo()?->getAttribute(\PDO::ATTR_CONNECTION_STATUS) ?? 'NO CONNECTION');
 
             // 3. Get a test user
             $testUser = User::first();
-            Log::info('Test user found: ' . ($testUser ? $testUser->name . ' (ID: ' . $testUser->id . ')' : 'NO USER'));
+            Log::info('Test user found: '.($testUser ? $testUser->name.' (ID: '.$testUser->id.')' : 'NO USER'));
 
-            if (!$testUser) {
+            if (! $testUser) {
                 return response()->json([
-                    'error' => 'No users found in database'
+                    'error' => 'No users found in database',
                 ], 500);
             }
 
             // 4. Create a test todo or get existing
             $testTodo = TodoList::first();
-            Log::info('Test todo found: ' . ($testTodo ? $testTodo->title . ' (ID: ' . $testTodo->id . ')' : 'NO TODO'));
+            Log::info('Test todo found: '.($testTodo ? $testTodo->title.' (ID: '.$testTodo->id.')' : 'NO TODO'));
 
-            if (!$testTodo) {
+            if (! $testTodo) {
                 return response()->json([
-                    'error' => 'No todos found in database'
+                    'error' => 'No todos found in database',
                 ], 500);
             }
 
             // 5. Count notifications before
             $countBefore = DB::table('notifications')->count();
-            Log::info('Notifications count before: ' . $countBefore);
+            Log::info('Notifications count before: '.$countBefore);
 
             // 6. Check queue configuration
-            Log::info('Queue connection: ' . config('queue.default'));
-            Log::info('ShouldQueue interface: ' . (class_implements(TodoAssignedNotification::class)['Illuminate\Contracts\Queue\ShouldQueue'] ?? 'NO'));
+            Log::info('Queue connection: '.config('queue.default'));
+            Log::info('ShouldQueue interface: '.(class_implements(TodoAssignedNotification::class)['Illuminate\Contracts\Queue\ShouldQueue'] ?? 'NO'));
 
             // 7. Try to create notification directly (sync)
             Log::info('Creating notification directly...');
@@ -67,7 +67,7 @@ class NotificationDebugController extends Controller
 
             // 8. Count notifications after
             $countAfter = DB::table('notifications')->count();
-            Log::info('Notifications count after: ' . $countAfter);
+            Log::info('Notifications count after: '.$countAfter);
 
             // 9. Get the created notification
             $latestNotification = DB::table('notifications')
@@ -76,11 +76,11 @@ class NotificationDebugController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->first();
 
-            Log::info('Latest notification: ' . ($latestNotification ? 'ID: ' . $latestNotification->id . ', Type: ' . $latestNotification->type : 'NONE'));
+            Log::info('Latest notification: '.($latestNotification ? 'ID: '.$latestNotification->id.', Type: '.$latestNotification->type : 'NONE'));
 
             // 10. Check queue jobs table
             $jobsCount = DB::table('jobs')->count();
-            Log::info('Queue jobs count: ' . $jobsCount);
+            Log::info('Queue jobs count: '.$jobsCount);
 
             // 11. Test queue worker status
             Log::info('Queue configuration checked');
@@ -92,8 +92,8 @@ class NotificationDebugController extends Controller
                 'debug_data' => [
                     'notifications_table_exists' => $tableExists,
                     'database_connection' => 'OK',
-                    'test_user' => $testUser->name . ' (ID: ' . $testUser->id . ')',
-                    'test_todo' => $testTodo->title . ' (ID: ' . $testTodo->id . ')',
+                    'test_user' => $testUser->name.' (ID: '.$testUser->id.')',
+                    'test_todo' => $testTodo->title.' (ID: '.$testTodo->id.')',
                     'notifications_count_before' => $countBefore,
                     'notifications_count_after' => $countAfter,
                     'notifications_created' => $countAfter - $countBefore,
@@ -101,22 +101,22 @@ class NotificationDebugController extends Controller
                         'id' => $latestNotification->id,
                         'type' => $latestNotification->type,
                         'notifiable_id' => $latestNotification->notifiable_id,
-                        'created_at' => $latestNotification->created_at
+                        'created_at' => $latestNotification->created_at,
                     ] : null,
                     'queue_jobs_count' => $jobsCount,
                     'queue_connection' => config('queue.default'),
-                    'should_queue' => class_implements(TodoAssignedNotification::class)['Illuminate\Contracts\Queue\ShouldQueue'] ?? false
-                ]
+                    'should_queue' => class_implements(TodoAssignedNotification::class)['Illuminate\Contracts\Queue\ShouldQueue'] ?? false,
+                ],
             ]);
         } catch (\Exception $e) {
-            Log::error('Notification debug error: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
+            Log::error('Notification debug error: '.$e->getMessage());
+            Log::error('Stack trace: '.$e->getTraceAsString());
 
             return response()->json([
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'trace' => collect($e->getTrace())->take(5)
+                'trace' => collect($e->getTrace())->take(5),
             ], 500);
         }
     }

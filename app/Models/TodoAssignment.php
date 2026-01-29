@@ -15,22 +15,26 @@ class TodoAssignment extends Model
         'assigned_by',
         'assigned_at',
         'completed_at',
-        'status'
+        'status',
     ];
 
     protected $casts = [
         'assigned_at' => 'datetime',
-        'completed_at' => 'datetime'
+        'completed_at' => 'datetime',
     ];
 
-    //append
+    // append
     protected $appends = ['tipe'];
 
     // Status constants
     const STATUS_PENDING = 'pending';
+
     const STATUS_ASSIGNED = 'assigned';
+
     const STATUS_IN_PROGRESS = 'in_progress';
+
     const STATUS_COMPLETED = 'completed';
+
     const STATUS_DECLINED = 'declined';
 
     public function todo(): BelongsTo
@@ -52,7 +56,7 @@ class TodoAssignment extends Model
     {
         return $this->update([
             'status' => self::STATUS_COMPLETED,
-            'completed_at' => now()
+            'completed_at' => now(),
         ]);
     }
 
@@ -60,7 +64,7 @@ class TodoAssignment extends Model
     {
         return $this->update([
             'status' => self::STATUS_IN_PROGRESS,
-            'completed_at' => null
+            'completed_at' => null,
         ]);
     }
 
@@ -68,7 +72,7 @@ class TodoAssignment extends Model
     {
         return $this->update([
             'status' => self::STATUS_DECLINED,
-            'completed_at' => null
+            'completed_at' => null,
         ]);
     }
 
@@ -143,7 +147,7 @@ class TodoAssignment extends Model
         };
     }
 
-    //attribute
+    // attribute
     public function getTipeAttribute(): string
     {
         return $this->getAssignableTypeLabel();

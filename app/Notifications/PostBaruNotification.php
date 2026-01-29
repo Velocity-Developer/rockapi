@@ -3,7 +3,6 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Str;
@@ -11,6 +10,7 @@ use Illuminate\Support\Str;
 class PostBaruNotification extends Notification
 {
     use Queueable;
+
     public $post;
 
     /**
@@ -35,10 +35,10 @@ class PostBaruNotification extends Notification
     public function toDatabase($notifiable)
     {
         return [
-            'title'     => $this->post->title,
-            'excerpt'   => Str::limit($this->post->content, 100),
-            'id'        => $this->post->id,
-            'type'      => 'post',
+            'title' => $this->post->title,
+            'excerpt' => Str::limit($this->post->content, 100),
+            'id' => $this->post->id,
+            'type' => 'post',
         ];
     }
 

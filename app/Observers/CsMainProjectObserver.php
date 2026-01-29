@@ -4,7 +4,6 @@ namespace App\Observers;
 
 use App\Models\CsMainProject;
 use App\Models\CsMainProjectInfo;
-use App\Models\Webhost;
 
 class CsMainProjectObserver
 {
@@ -17,10 +16,10 @@ class CsMainProjectObserver
         $dikerjakan_oleh = $csMainProject->dikerjakan_oleh;
         $jenis_project = null;
         if ($dikerjakan_oleh) {
-            $data = explode(",", $dikerjakan_oleh);
+            $data = explode(',', $dikerjakan_oleh);
             $result = [];
             foreach ($data as $item) {
-                //jika kosong, skip
+                // jika kosong, skip
                 if ($item == '') {
                     continue;
                 }
@@ -48,10 +47,10 @@ class CsMainProjectObserver
         $dikerjakan_oleh = $csMainProject->dikerjakan_oleh;
         $jenis_project = null;
         if ($dikerjakan_oleh) {
-            $data = explode(",", $dikerjakan_oleh);
+            $data = explode(',', $dikerjakan_oleh);
             $result = [];
             foreach ($data as $item) {
-                //jika kosong, skip
+                // jika kosong, skip
                 if ($item == '') {
                     continue;
                 }

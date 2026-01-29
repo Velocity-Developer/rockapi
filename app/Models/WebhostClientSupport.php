@@ -13,25 +13,25 @@ class WebhostClientSupport extends Model
         'user_id',
     ];
 
-    //hide
+    // hide
     protected $hidden = [
         'created_at',
         'updated_at',
     ];
 
-    //cast
+    // cast
     protected $casts = [
         'webhost_id' => 'integer',
         'user_id' => 'integer',
     ];
 
-    //relasi ke Webhost
+    // relasi ke Webhost
     public function webhost()
     {
         return $this->belongsTo(Webhost::class, 'webhost_id');
     }
 
-    //relasi ke User
+    // relasi ke User
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

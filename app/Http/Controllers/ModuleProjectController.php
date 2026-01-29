@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\ModuleProject;
+use Illuminate\Http\Request;
 
 class ModuleProjectController extends Controller
 {
@@ -12,10 +12,10 @@ class ModuleProjectController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage   = (int) ($request->input('per_page', 20));
-        $orderBy   = $request->input('order_by', 'created_at');
-        $order     = $request->input('order', 'desc');
-        $search    = $request->input('q');
+        $perPage = (int) ($request->input('per_page', 20));
+        $orderBy = $request->input('order_by', 'created_at');
+        $order = $request->input('order', 'desc');
+        $search = $request->input('q');
 
         $query = ModuleProject::query();
 
@@ -54,7 +54,7 @@ class ModuleProjectController extends Controller
         }
 
         // Simple whitelist for order_by
-        if (!in_array($orderBy, ['name', 'version', 'type', 'github_url', 'download_url', 'created_at', 'updated_at'])) {
+        if (! in_array($orderBy, ['name', 'version', 'type', 'github_url', 'download_url', 'created_at', 'updated_at'])) {
             $orderBy = 'created_at';
         }
         $order = strtolower($order) === 'asc' ? 'asc' : 'desc';
@@ -62,6 +62,7 @@ class ModuleProjectController extends Controller
         $query->orderBy($orderBy, $order);
 
         $moduleProjects = $query->paginate($perPage);
+
         return response()->json($moduleProjects);
     }
 
@@ -71,14 +72,15 @@ class ModuleProjectController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'         => 'required|string|min:2|max:255',
-            'version'      => 'required|string|max:50',
-            'github_url'   => 'nullable|url|max:500',
+            'name' => 'required|string|min:2|max:255',
+            'version' => 'required|string|max:50',
+            'github_url' => 'nullable|url|max:500',
             'download_url' => 'nullable|url|max:500',
-            'type'         => 'required|in:theme,plugin,child_theme',
+            'type' => 'required|in:theme,plugin,child_theme',
         ]);
 
         $moduleProject = ModuleProject::create($validated);
+
         return response()->json($moduleProject, 201);
     }
 
@@ -88,9 +90,10 @@ class ModuleProjectController extends Controller
     public function show(string $id)
     {
         $moduleProject = ModuleProject::find($id);
-        if (!$moduleProject) {
+        if (! $moduleProject) {
             return response()->json(['message' => 'Module Project tidak ditemukan'], 404);
         }
+
         return response()->json($moduleProject);
     }
 
@@ -100,19 +103,20 @@ class ModuleProjectController extends Controller
     public function update(Request $request, string $id)
     {
         $moduleProject = ModuleProject::find($id);
-        if (!$moduleProject) {
+        if (! $moduleProject) {
             return response()->json(['message' => 'Module Project tidak ditemukan'], 404);
         }
 
         $validated = $request->validate([
-            'name'         => 'required|string|min:2|max:255',
-            'version'      => 'required|string|max:50',
-            'github_url'   => 'nullable|url|max:500',
+            'name' => 'required|string|min:2|max:255',
+            'version' => 'required|string|max:50',
+            'github_url' => 'nullable|url|max:500',
             'download_url' => 'nullable|url|max:500',
-            'type'         => 'required|in:theme,plugin,child_theme',
+            'type' => 'required|in:theme,plugin,child_theme',
         ]);
 
         $moduleProject->update($validated);
+
         return response()->json($moduleProject);
     }
 
@@ -122,15 +126,16 @@ class ModuleProjectController extends Controller
     public function destroy(string $id)
     {
         $moduleProject = ModuleProject::find($id);
-        if (!$moduleProject) {
+        if (! $moduleProject) {
             return response()->json(['message' => 'Module Project tidak ditemukan'], 404);
         }
 
         $moduleProject->delete();
+
         return response()->json(['message' => 'Module Project berhasil dihapus']);
     }
 
-    //statistik total by type
+    // statistik total by type
     public function totalByType()
     {
         $total = ModuleProject::selectRaw('type, count(*) as total')

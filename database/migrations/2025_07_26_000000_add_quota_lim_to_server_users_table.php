@@ -6,23 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-  /**
-   * Run the migrations.
-   */
-  public function up(): void
-  {
-    Schema::table('server_users', function (Blueprint $table) {
-      $table->string('quotaLim')->nullable()->after('package');
-    });
-  }
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('server_users', function (Blueprint $table) {
+            $table->string('quotaLim')->nullable()->after('package');
+        });
+    }
 
-  /**
-   * Reverse the migrations.
-   */
-  public function down(): void
-  {
-    Schema::table('server_users', function (Blueprint $table) {
-      $table->dropColumn('quotaLim');
-    });
-  }
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('server_users', function (Blueprint $table) {
+            $table->dropColumn('quotaLim');
+        });
+    }
 };

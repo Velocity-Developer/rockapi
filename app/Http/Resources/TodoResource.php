@@ -42,11 +42,12 @@ class TodoResource extends JsonResource
             // Dates formatting
             'formatted_created_at' => $this->created_at->format('Y-m-d H:i'),
             'formatted_updated_at' => $this->updated_at->format('Y-m-d H:i'),
-            'formatted_due_date' => $this->when($this->due_date, fn() => $this->due_date->format('Y-m-d')),
+            'formatted_due_date' => $this->when($this->due_date, fn () => $this->due_date->format('Y-m-d')),
             'due_date_days_left' => $this->when($this->due_date, function () {
                 if ($this->due_date->isFuture()) {
                     return $this->due_date->diffInDays(now());
                 }
+
                 return $this->due_date->isPast() ? -1 : 0;
             }),
 
@@ -55,7 +56,7 @@ class TodoResource extends JsonResource
                 return [
                     'id' => $this->creator->id,
                     'name' => $this->creator->name,
-                    'avatar' => $this->creator->avatar
+                    'avatar' => $this->creator->avatar,
                 ];
             }),
 
@@ -65,7 +66,7 @@ class TodoResource extends JsonResource
                     'id' => $this->category->id,
                     'name' => $this->category->name,
                     'color' => $this->category->color,
-                    'icon' => $this->category->icon
+                    'icon' => $this->category->icon,
                 ] : null;
             }),
 
@@ -93,7 +94,7 @@ class TodoResource extends JsonResource
                             'name' => $assignment->assignable->name,
                             'avatar' => $assignment->assignable->avatar,
                             'status' => $assignment->status,
-                            'status_label' => $assignment->getStatusLabel()
+                            'status_label' => $assignment->getStatusLabel(),
                         ];
                     }),
                     'roles' => $roles->map(function ($assignment) {
@@ -102,9 +103,9 @@ class TodoResource extends JsonResource
                             'name' => $assignment->assignable->name,
                             'status' => $assignment->status,
                             'status_label' => $assignment->getStatusLabel(),
-                            'user_count' => $assignment->assignable->users_count ?? 0
+                            'user_count' => $assignment->assignable->users_count ?? 0,
                         ];
-                    })
+                    }),
                 ];
             }),
 
@@ -122,7 +123,7 @@ class TodoResource extends JsonResource
 
     private function getStatusLabel(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'assigned' => 'Assigned',
             'in_progress' => 'In Progress',
             'completed' => 'Completed',
@@ -133,7 +134,7 @@ class TodoResource extends JsonResource
 
     private function getPriorityLabel(): string
     {
-        return match($this->priority) {
+        return match ($this->priority) {
             'low' => 'Low',
             'medium' => 'Medium',
             'high' => 'High',
@@ -144,7 +145,7 @@ class TodoResource extends JsonResource
 
     private function getPriorityColor(): string
     {
-        return match($this->priority) {
+        return match ($this->priority) {
             'low' => '#6b7280',     // gray
             'medium' => '#3b82f6',  // blue
             'high' => '#f59e0b',    // amber

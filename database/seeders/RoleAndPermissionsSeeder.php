@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RoleAndPermissionsSeeder extends Seeder
 {
@@ -14,7 +13,7 @@ class RoleAndPermissionsSeeder extends Seeder
      */
     public function run(): void
     {
-        //buat permission jika belum ada
+        // buat permission jika belum ada
         $permissions = [
             'page-dashboard',
             'page-users',
@@ -32,14 +31,14 @@ class RoleAndPermissionsSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            //check permission
-            if (!Permission::where('name', $permission)->exists()) {
+            // check permission
+            if (! Permission::where('name', $permission)->exists()) {
                 Permission::create(['name' => $permission]);
-                $this->command->info('Permission created: ' . $permission);
+                $this->command->info('Permission created: '.$permission);
             }
         }
 
-        //buat default role
+        // buat default role
         $roles = [
             'admin',
             'owner',
@@ -57,10 +56,10 @@ class RoleAndPermissionsSeeder extends Seeder
         ];
 
         foreach ($roles as $role) {
-            //check role
-            if (!Role::where('name', $role)->exists()) {
+            // check role
+            if (! Role::where('name', $role)->exists()) {
                 Role::create(['name' => $role]);
-                $this->command->info('Role created: ' . $role);
+                $this->command->info('Role created: '.$role);
             }
 
             if ($role == 'admin') {

@@ -22,7 +22,7 @@ class Server extends Model
         'is_active' => 'boolean',
     ];
 
-    //hidden
+    // hidden
     protected $hidden = [
         'password',
         'created_at',
@@ -41,13 +41,13 @@ class Server extends Model
         $this->attributes['password'] = Crypt::encryptString($value);
     }
 
-    //relasi ke tabel server_package
+    // relasi ke tabel server_package
     public function server_package()
     {
         return $this->hasMany(ServerPackage::class, 'server_id');
     }
 
-    //relasi ke tabel server_user
+    // relasi ke tabel server_user
     public function server_user()
     {
         return $this->hasMany(ServerUser::class, 'server_package_id');

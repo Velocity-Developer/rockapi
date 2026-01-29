@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Customer;
+use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
@@ -12,10 +12,10 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage   = (int) ($request->input('per_page', 20));
-        $orderBy   = $request->input('order_by', 'created_at');
-        $order     = $request->input('order', 'desc');
-        $search    = $request->input('q');
+        $perPage = (int) ($request->input('per_page', 20));
+        $orderBy = $request->input('order_by', 'created_at');
+        $order = $request->input('order', 'desc');
+        $search = $request->input('q');
 
         $query = Customer::query();
 
@@ -27,25 +27,23 @@ class CustomerController extends Controller
             });
         }
 
-        //hp
+        // hp
         if ($request->input('hp')) {
             $query->where('hp', $request->input('hp'));
         }
 
-        //email
+        // email
         if ($request->input('email')) {
             $query->where('email', $request->input('email'));
         }
 
-        //alamat
+        // alamat
         if ($request->input('alamat')) {
             $query->where('alamat', 'like', "%{$request->input('alamat')}%");
         }
 
-
-
         // Simple whitelist for order_by
-        if (!in_array($orderBy, ['nama', 'email', 'hp', 'created_at', 'updated_at'])) {
+        if (! in_array($orderBy, ['nama', 'email', 'hp', 'created_at', 'updated_at'])) {
             $orderBy = 'created_at';
         }
         $order = strtolower($order) === 'asc' ? 'asc' : 'desc';
@@ -53,6 +51,7 @@ class CustomerController extends Controller
         $query->orderBy($orderBy, $order);
 
         $customers = $query->paginate($perPage);
+
         return response()->json($customers);
     }
 
@@ -62,9 +61,9 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama'   => 'required|string|min:2',
-            'email'  => 'nullable|email',
-            'hp'     => 'nullable|string',
+            'nama' => 'required|string|min:2',
+            'email' => 'nullable|email',
+            'hp' => 'nullable|string',
             'alamat' => 'nullable|string',
             'telegram' => 'nullable|string',
             'hpads' => 'nullable|string',
@@ -74,6 +73,7 @@ class CustomerController extends Controller
         ]);
 
         $customer = Customer::create($validated);
+
         return response()->json($customer, 201);
     }
 
@@ -83,9 +83,10 @@ class CustomerController extends Controller
     public function show(string $id)
     {
         $customer = Customer::find($id);
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['message' => 'Customer tidak ditemukan'], 404);
         }
+
         return response()->json($customer);
     }
 
@@ -95,14 +96,14 @@ class CustomerController extends Controller
     public function update(Request $request, string $id)
     {
         $customer = Customer::find($id);
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['message' => 'Customer tidak ditemukan'], 404);
         }
 
         $validated = $request->validate([
-            'nama'   => 'required|string|min:2',
-            'email'  => 'nullable|email',
-            'hp'     => 'nullable|string',
+            'nama' => 'required|string|min:2',
+            'email' => 'nullable|email',
+            'hp' => 'nullable|string',
             'alamat' => 'nullable|string',
             'telegram' => 'nullable|string',
             'hpads' => 'nullable|string',
@@ -112,6 +113,7 @@ class CustomerController extends Controller
         ]);
 
         $customer->update($validated);
+
         return response()->json($customer);
     }
 
@@ -121,10 +123,11 @@ class CustomerController extends Controller
     public function destroy(string $id)
     {
         $customer = Customer::find($id);
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['message' => 'Customer tidak ditemukan'], 404);
         }
         $customer->delete();
+
         return response()->json(['message' => 'Customer berhasil dihapus']);
     }
 }
