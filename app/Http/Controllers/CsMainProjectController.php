@@ -14,6 +14,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Customer;
 use App\Models\Setting;
+use App\Models\CsMainProjectInfo;
 use Carbon\Carbon;
 
 /**
@@ -254,7 +255,16 @@ class CsMainProjectController extends Controller
             }
 
             // =============================
-            // 12. Return response
+            // 12. Update waktu_plus CsMainProjectInfo
+            // =============================
+            if ($request->has('waktu_plus')) {
+                $cs_main_project->cs_main_project_info()->update([
+                    'waktu_plus' => $request->waktu_plus
+                ]);
+            }
+
+            // =============================
+            // 13. Return response
             // =============================
             return response()->json([
                 'cs_main_project' => $cs_main_project,
@@ -460,9 +470,17 @@ class CsMainProjectController extends Controller
                 Setting::set('kategori_web', $daftar_kategori_web);
             }
 
+            // =============================
+            // 11. Update waktu_plus CsMainProjectInfo
+            // =============================
+            if ($request->has('waktu_plus')) {
+                $cs_main_project->cs_main_project_info()->update([
+                    'waktu_plus' => $request->waktu_plus
+                ]);
+            }
 
             // =============================
-            // 11. Return response
+            // 12. Return response
             // =============================
 
             //get WmProject where id = $cs_main_project->id
