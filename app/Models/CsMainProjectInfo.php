@@ -10,6 +10,7 @@ class CsMainProjectInfo extends Model
         'cs_main_project_id',
         'author_id',
         'jenis_project',
+        'waktu_plus',
     ];
 
     //relasi ke CsMainProject
