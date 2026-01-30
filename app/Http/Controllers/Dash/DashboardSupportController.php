@@ -15,4 +15,12 @@ class DashboardSupportController extends Controller
         $result = $DashboardSupport->project_support_paket();
         return response()->json($result);
     }
+
+    //
+    public function jurnal_daily()
+    {
+        $DashboardSupport = new DashboardSupport;
+        $result = $DashboardSupport->journal_support_daily();
+        return response()->json($result);
+    }
 }

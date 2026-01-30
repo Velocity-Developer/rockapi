@@ -4,6 +4,7 @@ namespace App\Services\Analytics;
 
 use Illuminate\Support\Facades\DB;
 use App\Models\CsMainProject;
+use App\Models\Journal;
 
 class DashboardSupport
 {
@@ -18,6 +19,25 @@ class DashboardSupport
             ->whereYear('tb_cs_main_project.tgl_masuk', date('Y'))
             ->select('tb_paket.paket', DB::raw('count(*) as total'))
             ->groupBy('tb_paket.paket')
+            ->get();
+
+        return $data;
+    }
+
+    public function journal_support_daily()
+    {
+        $data = Journal::query()
+            ->join('journal_categories', 'journals.journal_category_id', '=', 'journal_categories.id')
+            ->where('journals.role', 'support')
+            ->whereMonth('journals.start', date('m'))
+            ->whereYear('journals.start', date('Y'))
+            ->select(
+                DB::raw('DATE(journals.start) as date'),
+                'journal_categories.name as category',
+                DB::raw('count(*) as total')
+            )
+            ->groupBy('date', 'category')
+            ->orderBy('date', 'asc')
             ->get();
 
         return $data;

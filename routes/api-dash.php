@@ -47,6 +47,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // dashboard support
     Route::get('dashboard/analytic/support/paket', [DashboardSupportController::class, 'paket']);
+    Route::get('dashboard/analytic/support/jurnal_daily', [DashboardSupportController::class, 'jurnal_daily']);
 });
 
 Route::get('dash/config', [ConfigController::class, 'index']);
