@@ -9,6 +9,7 @@ use App\Http\Controllers\Dash\OptionsController;
 use App\Http\Controllers\Dash\PermissionsController;
 use App\Http\Controllers\Dash\RolesController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\Dash\DashboardSupportController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -43,6 +44,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('user/updatepassword/{id}', [UsersController::class, 'updatePassword']);
     Route::put('user/updateavatar/{id}', [UsersController::class, 'updateAvatar']);
     Route::post('dash/setconfig', [ConfigController::class, 'setconfig']);
+
+    // dashboard support
+    Route::get('dashboard/analytic/support/paket', [DashboardSupportController::class, 'paket']);
 });
 
 Route::get('dash/config', [ConfigController::class, 'index']);
