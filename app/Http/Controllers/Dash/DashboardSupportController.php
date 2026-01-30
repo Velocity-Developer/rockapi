@@ -23,4 +23,11 @@ class DashboardSupportController extends Controller
         $result = $DashboardSupport->journal_support_daily();
         return response()->json($result);
     }
+
+    public function dashboard_counts()
+    {
+        $DashboardSupport = new DashboardSupport;
+        $result = $DashboardSupport->dashboard_counts();
+        return response()->json($result);
+    }
 }
