@@ -14,12 +14,22 @@ class LaporanNilaiController extends Controller
         $results = ['users' => [], 'data' => []];
 
         // Ambil user webdeveloper beserta project yang sudah difilter
-        $users = User::whereHas('roles', fn ($query) => $query->where('name', 'webdeveloper'))
+        $users = User::whereHas('roles', fn($query) => $query->where('name', 'webdeveloper'))
             ->where('status', 'active')
             ->whereNotIn('name', ['webdeveloper', 'Web Custom', 'Web Biasa'])
             ->select('id', 'name', 'avatar')
             ->with(['wm_project' => function ($q) use ($bulan, $tahun, $jenisProject) {
-                $q->whereHas('cs_main_project', function ($query) use ($jenisProject) {
+                $q->select([
+                    'id',
+                    'id_wm_project',
+                    'id_karyawan',
+                    'user_id',
+                    'date_mulai',
+                    'date_selesai',
+                    'status_multi',
+                    'status_project',
+                    'webmaster'
+                ])->whereHas('cs_main_project', function ($query) use ($jenisProject) {
                     $query->whereIn('jenis', [
                         'Jasa Update Web',
                         'Pembuatan',
@@ -51,7 +61,7 @@ class LaporanNilaiController extends Controller
                     ->whereDate('date_mulai', '>=', now()->subYear())
                     ->with(['cs_main_project' => function ($q) {
                         $q->select('id', 'jenis', 'deskripsi', 'tgl_deadline', 'dikerjakan_oleh', 'id_webhost', 'dibayar')
-                            ->with('webhost', 'webhost.paket');
+                            ->with('webhost:id_webhost,id_paket,nama_web', 'webhost.paket:id_paket,paket', 'cs_main_project_info');
                     }]);
             }])
             ->get();
