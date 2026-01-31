@@ -87,6 +87,11 @@ class LaporanNilaiController extends Controller
                 return $project->cs_main_project ? $project->cs_main_project->dibayar : 0;
             });
 
+            //hitung total bobot
+            $total_bobot = $user->wm_project->sum(function ($project) {
+                return $project->cs_main_project ? $project->cs_main_project->cs_main_project_info->bobot : 0;
+            });
+
             // Ubah ke persen (hindari pembagian nol)
             $percent_dibayar = $total_all_dibayar > 0
                 ? round(($total_dibayar / $total_all_dibayar) * 100, 2)
@@ -100,6 +105,7 @@ class LaporanNilaiController extends Controller
                 'selesai' => $total_selesai,
                 'progress' => $total_progress,
                 'total_dibayar' => $percent_dibayar,
+                'total_bobot' => $total_bobot,
             ];
 
             $results['data'][$user->id] = [
