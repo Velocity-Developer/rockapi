@@ -21,6 +21,7 @@ class ProjectListController extends Controller
             'webhost.paket:id_paket,paket',
             'wm_project:id_wm_project,id_karyawan,user_id,id,date_mulai,date_selesai,catatan,status_multi,webmaster,status_project',
             'wm_project.user:id,name,avatar',
+            'cs_main_project_info:id,cs_main_project_id,waktu_plus'
         );
 
         $query->select('id', 'id_webhost', 'jenis', 'deskripsi', 'tgl_deadline', 'dikerjakan_oleh');
@@ -39,7 +40,7 @@ class ProjectListController extends Controller
         // filter webhost.nama_web
         if ($request->input('nama_web')) {
             $query->whereHas('webhost', function ($query) use ($request) {
-                $query->where('nama_web', 'like', '%'.$request->input('nama_web').'%');
+                $query->where('nama_web', 'like', '%' . $request->input('nama_web') . '%');
             });
         }
 
@@ -52,7 +53,7 @@ class ProjectListController extends Controller
 
         // filter jenis_project
         if ($request->input('jenis_project')) {
-            $query->where('dikerjakan_oleh', 'LIKE', '%,'.$request->input('jenis_project').'%');
+            $query->where('dikerjakan_oleh', 'LIKE', '%,' . $request->input('jenis_project') . '%');
         }
 
         // Apply date filter if both start and end dates are provided
