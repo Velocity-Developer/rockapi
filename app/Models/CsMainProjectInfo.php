@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class CsMainProjectInfo extends Model
 {
@@ -12,6 +13,31 @@ class CsMainProjectInfo extends Model
         'jenis_project',
         'waktu_plus',
     ];
+
+    protected $appends = ['bobot'];
+
+    // 
+    protected function bobot(): Attribute
+    {
+        return Attribute::get(
+            function () {
+                // Ambil jenis dari relasi cs_main_project
+                $dikerjakan_oleh = $this->cs_main_project->dikerjakan_oleh ?? null;
+
+                // Klasifikasi bobot berdasarkan jenis
+                // Sesuaikan case dan value sesuai kebutuhan
+                $nilaiBobot = 0;
+                if (str_contains($dikerjakan_oleh, ',12')) {
+                    $nilaiBobot = 3;
+                } else if (str_contains($dikerjakan_oleh, ',10')) {
+                    $nilaiBobot = 0.5;
+                }
+
+                // Tambahkan dengan waktu_plus (jika ada)
+                return $nilaiBobot + ($this->waktu_plus ?? 0);
+            }
+        );
+    }
 
     // relasi ke CsMainProject
     public function cs_main_project()
