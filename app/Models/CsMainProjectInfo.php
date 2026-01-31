@@ -28,9 +28,9 @@ class CsMainProjectInfo extends Model
                 // Sesuaikan case dan value sesuai kebutuhan
                 $nilaiBobot = 0;
                 if (str_contains($dikerjakan_oleh, ',12')) {
-                    $nilaiBobot = 3;
+                    $nilaiBobot = 2;
                 } else if (str_contains($dikerjakan_oleh, ',10')) {
-                    $nilaiBobot = 0.5;
+                    $nilaiBobot = 0.3;
                 }
 
                 // Tambahkan dengan waktu_plus (jika ada)
