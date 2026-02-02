@@ -5,6 +5,7 @@ namespace App\Services\Analytics;
 use Illuminate\Support\Facades\DB;
 use App\Models\CsMainProject;
 use App\Models\Journal;
+use App\Models\User;
 use Carbon\Carbon;
 
 class DashboardSupport
@@ -124,10 +125,11 @@ class DashboardSupport
         $dataUser = $queryUser->join('users', 'journals.user_id', '=', 'users.id')
             ->select(
                 'users.name as user_name',
+                'users.id as user_id',
                 DB::raw('COUNT(journals.id) as total_journal'),
                 DB::raw('AVG(TIMESTAMPDIFF(MINUTE, journals.start, journals.end)) as avg_minutes')
             )
-            ->groupBy('users.name')
+            ->groupBy('users.name', 'users.id')
             ->get();
 
         // Clone query untuk rincian user per kategori
@@ -152,6 +154,11 @@ class DashboardSupport
             ->groupBy('category')
             ->get();
 
+        //data user support
+        $dataUserSupport = User::role('support')
+            ->select('id', 'name')
+            ->get();
+
         return [
             'month'     => $month,
             'user_id'   => $userId,
@@ -159,7 +166,8 @@ class DashboardSupport
             'data_user' => $dataUser,
             'data_user_details' => $dataUserDetails,
             'total_avg' => $totalAvg,
-            'total_journal' => $totalJournal
+            'total_journal' => $totalJournal,
+            'data_user_support' => $dataUserSupport,
         ];
     }
 }
