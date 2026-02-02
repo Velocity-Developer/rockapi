@@ -5,6 +5,7 @@ namespace App\Services\Analytics;
 use Illuminate\Support\Facades\DB;
 use App\Models\CsMainProject;
 use App\Models\Journal;
+use Carbon\Carbon;
 
 class DashboardSupport
 {
@@ -51,10 +52,17 @@ class DashboardSupport
             ->whereYear('journals.start', date('Y'))
             ->whereNotNull('journals.end');
 
+        // ✅ Filter bulan
         if ($month) {
-            $query->whereMonth('journals.start', $month);
+            // $month format: YYYY-MM (contoh: 2026-02)
+            $date = Carbon::createFromFormat('Y-m', $month);
+
+            $query->whereYear('journals.start', $date->year)
+                ->whereMonth('journals.start', $date->month);
         } else {
-            $query->whereMonth('journals.start', date('m'));
+            // default: bulan & tahun sekarang
+            $query->whereYear('journals.start', now()->year)
+                ->whereMonth('journals.start', now()->month);
         }
 
         if ($userId) {
@@ -68,7 +76,11 @@ class DashboardSupport
             ->groupBy('category')
             ->get();
 
-        return $data;
+        return [
+            'month'     => $month,
+            'user_id'   => $userId,
+            'data'      => $data
+        ];
     }
 
     public function dashboard_counts()

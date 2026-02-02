@@ -171,6 +171,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // module_project
     Route::get('module-project-total-by-type', [ModuleProjectController::class, 'totalByType']);
+
+    Route::get('/journal_timsupport_rangkuman', [JournalController::class, 'timsupport_rangkuman']);
 });
 
 // Invoice PDF route
@@ -182,6 +184,6 @@ Route::prefix('telegram')->group(function () {
     Route::get('/status', [TelegramController::class, 'status']);
 });
 
-require __DIR__.'/api-dash.php';
-require __DIR__.'/api-laporan.php';
-require __DIR__.'/api-public.php';
+require __DIR__ . '/api-dash.php';
+require __DIR__ . '/api-laporan.php';
+require __DIR__ . '/api-public.php';
