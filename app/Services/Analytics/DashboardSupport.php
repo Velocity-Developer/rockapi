@@ -43,6 +43,34 @@ class DashboardSupport
         return $data;
     }
 
+    public function journal_response_time_avg($month = null, $userId = null)
+    {
+        $query = Journal::query()
+            ->join('journal_categories', 'journals.journal_category_id', '=', 'journal_categories.id')
+            ->where('journals.role', 'support')
+            ->whereYear('journals.start', date('Y'))
+            ->whereNotNull('journals.end');
+
+        if ($month) {
+            $query->whereMonth('journals.start', $month);
+        } else {
+            $query->whereMonth('journals.start', date('m'));
+        }
+
+        if ($userId) {
+            $query->where('journals.user_id', $userId);
+        }
+
+        $data = $query->select(
+            'journal_categories.name as category',
+            DB::raw('AVG(TIMESTAMPDIFF(MINUTE, journals.start, journals.end)) as avg_minutes')
+        )
+            ->groupBy('category')
+            ->get();
+
+        return $data;
+    }
+
     public function dashboard_counts()
     {
         $projek_belum_dikerjakan = CsMainProject::query()
