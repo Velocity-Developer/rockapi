@@ -115,9 +115,13 @@ class DashboardSupport
         $totalAvg = $queryTotal->select(
             DB::raw('AVG(TIMESTAMPDIFF(MINUTE, journals.start, journals.end)) as total_avg_minutes')
         )->value('total_avg_minutes');
+        $totalJournal = $queryTotal->select(
+            DB::raw('COUNT(journals.id) as total_journal')
+        )->value('total_journal');
 
         $data = $query->select(
             'journal_categories.name as category',
+            DB::raw('COUNT(journals.id) as total_journal'),
             DB::raw('AVG(TIMESTAMPDIFF(MINUTE, journals.start, journals.end)) as avg_minutes')
         )
             ->groupBy('category')
@@ -127,7 +131,8 @@ class DashboardSupport
             'month'     => $month,
             'user_id'   => $userId,
             'data'      => $data,
-            'total_avg' => $totalAvg
+            'total_avg' => $totalAvg,
+            'total_journal' => $totalJournal
         ];
     }
 }
