@@ -146,6 +146,20 @@ class DashboardSupport
             ->orderBy('journal_categories.name')
             ->get();
 
+        // Clone query untuk data harian jika user_id ada
+        $dataDaily = [];
+        if ($userId) {
+            $queryDaily = clone $query;
+            $dataDaily = $queryDaily->select(
+                DB::raw('DATE(journals.start) as date'),
+                DB::raw('COUNT(journals.id) as total_journal'),
+                DB::raw('AVG(TIMESTAMPDIFF(MINUTE, journals.start, journals.end)) as avg_minutes')
+            )
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get();
+        }
+
         $data = $query->select(
             'journal_categories.name as category',
             DB::raw('COUNT(journals.id) as total_journal'),
@@ -165,6 +179,7 @@ class DashboardSupport
             'data'      => $data,
             'data_user' => $dataUser,
             'data_user_details' => $dataUserDetails,
+            'data_daily' => $dataDaily,
             'total_avg' => $totalAvg,
             'total_journal' => $totalJournal,
             'data_user_support' => $dataUserSupport,
