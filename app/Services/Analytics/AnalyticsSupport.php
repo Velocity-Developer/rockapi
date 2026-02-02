@@ -8,7 +8,7 @@ use App\Models\Journal;
 use App\Models\User;
 use Carbon\Carbon;
 
-class DashboardSupport
+class AnalyticsSupport
 {
     public function project_support_paket()
     {

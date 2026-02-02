@@ -6,7 +6,7 @@ use App\Models\Journal;
 use App\Models\JournalDetailSupport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Services\Analytics\DashboardSupport;
+use App\Services\Analytics\AnalyticsSupport;
 
 class JournalController extends Controller
 {
@@ -371,7 +371,7 @@ class JournalController extends Controller
         $month = $request->input('month', date('Y-m'));
         $userId = $request->input('user_id', null);
 
-        $analytic = new DashboardSupport();
+        $analytic = new AnalyticsSupport();
         $data = $analytic->journal_response_time_avg($month, $userId);
 
         return response()->json($data);
