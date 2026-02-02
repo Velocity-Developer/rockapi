@@ -119,6 +119,31 @@ class DashboardSupport
             DB::raw('COUNT(journals.id) as total_journal')
         )->value('total_journal');
 
+        // Clone query untuk data user
+        $queryUser = clone $query;
+        $dataUser = $queryUser->join('users', 'journals.user_id', '=', 'users.id')
+            ->select(
+                'users.name as user_name',
+                DB::raw('COUNT(journals.id) as total_journal'),
+                DB::raw('AVG(TIMESTAMPDIFF(MINUTE, journals.start, journals.end)) as avg_minutes')
+            )
+            ->groupBy('users.name')
+            ->get();
+
+        // Clone query untuk rincian user per kategori
+        $queryUserDetails = clone $query;
+        $dataUserDetails = $queryUserDetails->join('users', 'journals.user_id', '=', 'users.id')
+            ->select(
+                'users.name as user_name',
+                'journal_categories.name as category_name',
+                DB::raw('COUNT(journals.id) as total_journal'),
+                DB::raw('AVG(TIMESTAMPDIFF(MINUTE, journals.start, journals.end)) as avg_minutes')
+            )
+            ->groupBy('users.name', 'journal_categories.name')
+            ->orderBy('users.name')
+            ->orderBy('journal_categories.name')
+            ->get();
+
         $data = $query->select(
             'journal_categories.name as category',
             DB::raw('COUNT(journals.id) as total_journal'),
@@ -131,6 +156,8 @@ class DashboardSupport
             'month'     => $month,
             'user_id'   => $userId,
             'data'      => $data,
+            'data_user' => $dataUser,
+            'data_user_details' => $dataUserDetails,
             'total_avg' => $totalAvg,
             'total_journal' => $totalJournal
         ];
