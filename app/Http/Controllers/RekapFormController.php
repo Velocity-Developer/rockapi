@@ -265,6 +265,54 @@ class RekapFormController extends Controller
         ]);
     }
 
+    // update cek_konversi_nominal_ads by array of id
+    public function update_cek_konversi_nominal_ads(Request $request)
+    {
+        // validate request
+        $request->validate([
+            'data' => 'required|array|min:1',
+            'data.*.id' => 'required|integer',
+            'data.*.cek_konversi_nominal' => 'required|boolean',
+            'data.*.jobid' => 'nullable|string',
+            'data.*.kirim_konversi_id' => 'nullable|integer',
+            'data.*.conversion_action_id' => 'nullable|string',
+        ]);
+
+        // loop data
+        $results = [];
+        foreach ($request->input('data') as $item) {
+
+            // cek rekap form
+            $rekapForm = RekapForm::find($item['id']);
+            if (! $rekapForm) {
+
+                $results[] = [
+                    'id' => $item['id'],
+                    'cek_konversi_ads' => $item['cek_konversi_nominal'],
+                    'message' => 'RekapForm not found',
+                ];
+                Log::error('RekapForm not found', $item);
+
+                continue;
+            }
+
+            $rekapForm->update([
+                'cek_konversi_nominal' => $item['cek_konversi_nominal'],
+            ]);
+
+            // create log konversi
+            if ($item['kirim_konversi_id'] || $item['jobid'] || $item['conversion_action_id']) {
+                RekapFormsLogKonversi::create([
+                    'rekap_form_id' => $rekapForm->id,
+                    'kirim_konversi_id' => $item['kirim_konversi_id'] ?? null,
+                    'jobid' => $item['jobid'] ?? null,
+                    'conversion_action_id' => $item['conversion_action_id'] ?? null,
+                ]);
+            }
+        }
+    }
+
+
     public function get_konversi_nominal_ads(Request $request)
     {
         // query RekapForm
