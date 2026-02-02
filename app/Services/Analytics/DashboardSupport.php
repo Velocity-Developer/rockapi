@@ -44,45 +44,6 @@ class DashboardSupport
         return $data;
     }
 
-    public function journal_response_time_avg($month = null, $userId = null)
-    {
-        $query = Journal::query()
-            ->join('journal_categories', 'journals.journal_category_id', '=', 'journal_categories.id')
-            ->where('journals.role', 'support')
-            ->whereYear('journals.start', date('Y'))
-            ->whereNotNull('journals.end');
-
-        // ✅ Filter bulan
-        if ($month) {
-            // $month format: YYYY-MM (contoh: 2026-02)
-            $date = Carbon::createFromFormat('Y-m', $month);
-
-            $query->whereYear('journals.start', $date->year)
-                ->whereMonth('journals.start', $date->month);
-        } else {
-            // default: bulan & tahun sekarang
-            $query->whereYear('journals.start', now()->year)
-                ->whereMonth('journals.start', now()->month);
-        }
-
-        if ($userId) {
-            $query->where('journals.user_id', $userId);
-        }
-
-        $data = $query->select(
-            'journal_categories.name as category',
-            DB::raw('AVG(TIMESTAMPDIFF(MINUTE, journals.start, journals.end)) as avg_minutes')
-        )
-            ->groupBy('category')
-            ->get();
-
-        return [
-            'month'     => $month,
-            'user_id'   => $userId,
-            'data'      => $data
-        ];
-    }
-
     public function dashboard_counts()
     {
         $projek_belum_dikerjakan = CsMainProject::query()
@@ -121,6 +82,52 @@ class DashboardSupport
             'projek_dikerjakan_bulan' => $projek_dikerjakan_bulan,
             'projek_pending_bulan' => $projek_pending_bulan,
             'jurnal_hari_ini' => $jurnal_hari_ini,
+        ];
+    }
+
+    public function journal_response_time_avg($month = null, $userId = null)
+    {
+        $query = Journal::query()
+            ->join('journal_categories', 'journals.journal_category_id', '=', 'journal_categories.id')
+            ->where('journals.role', 'support')
+            ->whereYear('journals.start', date('Y'))
+            ->whereNotNull('journals.end');
+
+        // ✅ Filter bulan
+        if ($month) {
+            // $month format: YYYY-MM (contoh: 2026-02)
+            $date = Carbon::createFromFormat('Y-m', $month);
+
+            $query->whereYear('journals.start', $date->year)
+                ->whereMonth('journals.start', $date->month);
+        } else {
+            // default: bulan & tahun sekarang
+            $query->whereYear('journals.start', now()->year)
+                ->whereMonth('journals.start', now()->month);
+        }
+
+        if ($userId) {
+            $query->where('journals.user_id', $userId);
+        }
+
+        // Clone query untuk total rata-rata
+        $queryTotal = clone $query;
+        $totalAvg = $queryTotal->select(
+            DB::raw('AVG(TIMESTAMPDIFF(MINUTE, journals.start, journals.end)) as total_avg_minutes')
+        )->value('total_avg_minutes');
+
+        $data = $query->select(
+            'journal_categories.name as category',
+            DB::raw('AVG(TIMESTAMPDIFF(MINUTE, journals.start, journals.end)) as avg_minutes')
+        )
+            ->groupBy('category')
+            ->get();
+
+        return [
+            'month'     => $month,
+            'user_id'   => $userId,
+            'data'      => $data,
+            'total_avg' => $totalAvg
         ];
     }
 }
