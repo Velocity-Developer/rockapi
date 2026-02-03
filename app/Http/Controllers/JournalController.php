@@ -32,6 +32,20 @@ class JournalController extends Controller
             });
         }
 
+        // filter journal_role
+        if ($request->input('journal_role')) {
+            $query->where('role', $request->input('journal_role'));
+        }
+
+        // filter has_end_date
+        if ($request->has('has_end_date')) {
+            if ($request->boolean('has_end_date')) {
+                $query->whereNotNull('end');
+            } else {
+                $query->whereNull('end');
+            }
+        }
+
         // filter user_id
         if ($request->input('user_id')) {
             $query->where('user_id', $request->input('user_id'));
