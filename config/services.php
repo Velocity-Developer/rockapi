@@ -48,4 +48,9 @@ return [
         'username' => env('DIRECTADMIN_USERNAME'),
         'password' => env('DIRECTADMIN_PASSWORD'),
     ],
+
+    'app' => [
+        'mode' => env('APP_MODE', 'production'),
+        'url_production' => env('APP_URL_PRODUCTION', env('APP_URL')),
+    ],
 ];
