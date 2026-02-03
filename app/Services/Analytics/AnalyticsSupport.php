@@ -162,10 +162,14 @@ class AnalyticsSupport
 
         $data = $query->select(
             'journal_categories.name as category',
+            'journal_categories.id as category_id',
             DB::raw('COUNT(journals.id) as total_journal'),
             DB::raw('AVG(TIMESTAMPDIFF(MINUTE, journals.start, journals.end)) as avg_minutes')
         )
-            ->groupBy('category')
+            ->groupBy(
+                'journal_categories.id',
+                'journal_categories.name'
+            )
             ->get();
 
         //data user support

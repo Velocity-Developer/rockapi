@@ -80,6 +80,13 @@ class JournalController extends Controller
             });
         }
 
+        //filter by month
+        if ($request->input('month')) {
+            $month = $request->input('month');
+            $query->whereMonth('start', date('m', strtotime($month)));
+            $query->whereYear('start', date('Y', strtotime($month)));
+        }
+
         // order by start
         $order_by = $request->input('order_by', 'start');
         $order = $request->input('order', 'asc');
