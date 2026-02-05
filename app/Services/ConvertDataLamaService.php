@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\BiayaAds;
+use App\Models\Konversi;
 use Illuminate\Support\Facades\DB;
 
 class ConvertDataLamaService
@@ -41,6 +42,26 @@ class ConvertDataLamaService
         return (int) preg_replace('/[^0-9]/', '', $biayaLama);
     }
 
+    protected function normalizeValue(?string $valueLama): ?float
+    {
+        if ($valueLama === null || $valueLama === '') {
+            return null;
+        }
+        $cleaned = preg_replace('/[^0-9.]/', '', $valueLama);
+        return $cleaned !== '' ? (float) $cleaned : null;
+    }
+
+    protected function mapKonversiRows(array $rows, string $kategori): array
+    {
+        return array_map(function ($row) use ($kategori) {
+            return [
+                'tanggal' => $row->date,
+                'value' => $this->normalizeValue($row->value),
+                'kategori' => $kategori,
+            ];
+        }, $rows);
+    }
+
     protected function mapRows(array $rows, string $kategori): array
     {
         return array_map(function ($row) use ($kategori) {
@@ -65,7 +86,7 @@ class ConvertDataLamaService
         );
 
         $normalized = collect($combined)->filter(
-            fn ($item) => $item['bulan'] && $item['biaya'] > 0
+            fn($item) => $item['bulan'] && $item['biaya'] > 0
         )->values();
 
         $result = [];
@@ -75,6 +96,36 @@ class ConvertDataLamaService
                 ['biaya' => $row['biaya']]
             );
             $result[] = $biaya;
+        }
+
+        return $result;
+    }
+
+    public function handle_konversi()
+    {
+        $konversi = DB::table('tb_konversi')->select('date', 'value')->get()->all();
+        $display = DB::table('tb_konversi_display')->select('date', 'value')->get()->all();
+        $wa5 = DB::table('tb_konversi_wa5')->select('date', 'value')->get()->all();
+        $organik = DB::table('tb_konversi_organik')->select('date', 'value')->get()->all();
+
+        $combined = array_merge(
+            $this->mapKonversiRows($konversi, 'general'),
+            $this->mapKonversiRows($display, 'display'),
+            $this->mapKonversiRows($wa5, 'wa5'),
+            $this->mapKonversiRows($organik, 'organik')
+        );
+
+        $filtered = collect($combined)->filter(
+            fn($item) => $item['tanggal'] && $item['value'] !== null
+        )->values();
+
+        $result = [];
+        foreach ($filtered as $row) {
+            $konversi = Konversi::updateOrCreate(
+                ['tanggal' => $row['tanggal'], 'kategori' => $row['kategori']],
+                ['value' => $row['value']]
+            );
+            $result[] = $konversi;
         }
 
         return $result;
