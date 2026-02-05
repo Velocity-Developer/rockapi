@@ -10,6 +10,7 @@ use App\Models\HargaDomain;
 use App\Models\RekapChat;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Services\ConvertDataLamaService;
 
 class NetProfitController extends Controller
 {
@@ -81,6 +82,16 @@ class NetProfitController extends Controller
             // get total biaya ads by bulan
             $biaya_ads = BiayaAds::where('bulan', $the_bulan)->sum('biaya');
 
+            // jika kosong, maka jalankan fungsi service ConvertDataLamaService::handle_biaya_ads
+            if (! $biaya_ads) {
+                try {
+                    (new ConvertDataLamaService)->handle_biaya_ads();
+                    $biaya_ads = BiayaAds::where('bulan', $the_bulan)->sum('biaya');
+                } catch (\Exception $e) {
+                    return response()->json(['error' => $e->getMessage()], 500);
+                }
+            }
+
             $omzet = 0;
             $total_order = 0;
             $projects = [];
@@ -127,7 +138,7 @@ class NetProfitController extends Controller
                 'projects' => $projects,
                 'chat_ads' => $chat_ads,
                 'chat_details' => $chat_details,
-                'persen_order' => $persen_order ? round($persen_order, 1).'%' : 0,
+                'persen_order' => $persen_order ? round($persen_order, 1) . '%' : 0,
                 'profit_kotor_order' => $profit_kotor_order,
                 'net_profit' => $net_profit,
                 'biaya_per_order' => $biaya_per_order,
