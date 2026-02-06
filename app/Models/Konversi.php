@@ -15,7 +15,7 @@ class Konversi extends Model
     protected $table = 'konversi';
 
     protected $fillable = [
-        'tanggal',
+        'date',
         'value',
         'kategori',
     ];
