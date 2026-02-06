@@ -18,6 +18,28 @@
         "route": "/journal/timsupport"
     },
     {
+        "key": "timsupport",
+        "label": "Jurnal Support",
+        "icon": "lucide:headset",
+        "items": [
+            {
+                "key": "journal_timsupport",
+                "label": "Semua",
+                "route": "/journal/timsupport"
+            },
+            {
+                "key": "journal_timsupport_ongoing",
+                "label": "Blm Selesai",
+                "route": "/journal/timsupport?status=ongoing"
+            },
+            {
+                "key": "journal_timsupport_followup",
+                "label": "Followup",
+                "route": "/journal/timsupport?status=followup"
+            }
+        ]
+    },
+    {
         "key": "project_list_support",
         "label": "Project Update Web",
         "icon": "lucide:folder-up",
