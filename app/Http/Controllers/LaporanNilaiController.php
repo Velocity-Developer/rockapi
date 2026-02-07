@@ -14,7 +14,7 @@ class LaporanNilaiController extends Controller
         $results = ['users' => [], 'data' => []];
 
         // Ambil user webdeveloper beserta project yang sudah difilter
-        $users = User::whereHas('roles', fn($query) => $query->where('name', 'webdeveloper'))
+        $users = User::whereHas('roles', fn ($query) => $query->where('name', 'webdeveloper'))
             ->where('status', 'active')
             ->whereNotIn('name', ['webdeveloper', 'Web Custom', 'Web Biasa'])
             ->select('id', 'name', 'avatar')
@@ -28,7 +28,7 @@ class LaporanNilaiController extends Controller
                     'date_selesai',
                     'status_multi',
                     'status_project',
-                    'webmaster'
+                    'webmaster',
                 ])->whereHas('cs_main_project', function ($query) use ($jenisProject) {
                     $query->whereIn('jenis', [
                         'Jasa Update Web',
@@ -87,7 +87,7 @@ class LaporanNilaiController extends Controller
                 return $project->cs_main_project ? $project->cs_main_project->dibayar : 0;
             });
 
-            //hitung total bobot
+            // hitung total bobot
             $total_bobot = $user->wm_project->sum(function ($project) {
                 return $project->cs_main_project ? $project->cs_main_project->cs_main_project_info->bobot : 0;
             });

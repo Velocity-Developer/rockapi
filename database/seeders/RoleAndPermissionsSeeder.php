@@ -28,14 +28,14 @@ class RoleAndPermissionsSeeder extends Seeder
             'delete-post',
             'edit-term',
             'add-billing',
-            'timsupport-journal-perform-tim'
+            'timsupport-journal-perform-tim',
         ];
 
         foreach ($permissions as $permission) {
             // check permission
             if (! Permission::where('name', $permission)->exists()) {
                 Permission::create(['name' => $permission]);
-                $this->command->info('Permission created: ' . $permission);
+                $this->command->info('Permission created: '.$permission);
             }
         }
 
@@ -60,7 +60,7 @@ class RoleAndPermissionsSeeder extends Seeder
             // check role
             if (! Role::where('name', $role)->exists()) {
                 Role::create(['name' => $role]);
-                $this->command->info('Role created: ' . $role);
+                $this->command->info('Role created: '.$role);
             }
 
             if ($role == 'admin') {

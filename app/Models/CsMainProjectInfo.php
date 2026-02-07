@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
 
 class CsMainProjectInfo extends Model
 {
@@ -16,7 +16,7 @@ class CsMainProjectInfo extends Model
 
     protected $appends = ['bobot'];
 
-    // 
+    //
     protected function bobot(): Attribute
     {
         return Attribute::get(
@@ -29,7 +29,7 @@ class CsMainProjectInfo extends Model
                 $nilaiBobot = 0;
                 if (str_contains($dikerjakan_oleh, ',12')) {
                     $nilaiBobot = 2;
-                } else if (str_contains($dikerjakan_oleh, ',10')) {
+                } elseif (str_contains($dikerjakan_oleh, ',10')) {
                     $nilaiBobot = 0.3;
                 }
 

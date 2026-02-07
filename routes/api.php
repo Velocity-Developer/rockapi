@@ -184,6 +184,6 @@ Route::prefix('telegram')->group(function () {
     Route::get('/status', [TelegramController::class, 'status']);
 });
 
-require __DIR__ . '/api-dash.php';
-require __DIR__ . '/api-laporan.php';
-require __DIR__ . '/api-public.php';
+require __DIR__.'/api-dash.php';
+require __DIR__.'/api-laporan.php';
+require __DIR__.'/api-public.php';

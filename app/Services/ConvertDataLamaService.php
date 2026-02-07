@@ -48,6 +48,7 @@ class ConvertDataLamaService
             return null;
         }
         $cleaned = preg_replace('/[^0-9.]/', '', $valueLama);
+
         return $cleaned !== '' ? (float) $cleaned : null;
     }
 
@@ -86,7 +87,7 @@ class ConvertDataLamaService
         );
 
         $normalized = collect($combined)->filter(
-            fn($item) => $item['bulan'] && $item['biaya'] > 0
+            fn ($item) => $item['bulan'] && $item['biaya'] > 0
         )->values();
 
         $result = [];
@@ -116,7 +117,7 @@ class ConvertDataLamaService
         );
 
         $filtered = collect($combined)->filter(
-            fn($item) => $item['tanggal'] && $item['value'] !== null
+            fn ($item) => $item['tanggal'] && $item['value'] !== null
         )->values();
 
         $result = [];

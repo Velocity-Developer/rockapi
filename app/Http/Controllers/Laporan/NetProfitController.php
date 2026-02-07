@@ -8,9 +8,9 @@ use App\Models\BiayaAds;
 use App\Models\CsMainProject;
 use App\Models\HargaDomain;
 use App\Models\RekapChat;
+use App\Services\ConvertDataLamaService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Services\ConvertDataLamaService;
 
 class NetProfitController extends Controller
 {
@@ -138,7 +138,7 @@ class NetProfitController extends Controller
                 'projects' => $projects,
                 'chat_ads' => $chat_ads,
                 'chat_details' => $chat_details,
-                'persen_order' => $persen_order ? round($persen_order, 1) . '%' : 0,
+                'persen_order' => $persen_order ? round($persen_order, 1).'%' : 0,
                 'profit_kotor_order' => $profit_kotor_order,
                 'net_profit' => $net_profit,
                 'biaya_per_order' => $biaya_per_order,

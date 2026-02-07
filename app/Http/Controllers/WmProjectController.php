@@ -93,8 +93,8 @@ class WmProjectController extends Controller
                 'user_id' => $request->user_id,
             ],
             [
-                'title' => 'Pengerjaan project ' . $cs_main_project->webhost->nama_web,
-                'description' => 'Pengerjaan project ' . $cs_main_project->webhost->nama_web,
+                'title' => 'Pengerjaan project '.$cs_main_project->webhost->nama_web,
+                'description' => 'Pengerjaan project '.$cs_main_project->webhost->nama_web,
                 'start' => $request->date_mulai,
                 'end' => $request->date_selesai,
                 'status' => 'ongoing',
@@ -206,8 +206,8 @@ class WmProjectController extends Controller
                 'user_id' => $request->user_id,
             ],
             [
-                'title' => 'Pengerjaan project ' . $cs_main_project->webhost->nama_web,
-                'description' => 'Pengerjaan project ' . $cs_main_project->webhost->nama_web,
+                'title' => 'Pengerjaan project '.$cs_main_project->webhost->nama_web,
+                'description' => 'Pengerjaan project '.$cs_main_project->webhost->nama_web,
                 'start' => $request->date_mulai,
                 'end' => $request->date_selesai,
                 'status' => $request->date_selesai ? 'completed' : 'ongoing',

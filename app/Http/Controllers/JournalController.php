@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Journal;
 use App\Models\JournalDetailSupport;
+use App\Services\Analytics\AnalyticsSupport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Services\Analytics\AnalyticsSupport;
 
 class JournalController extends Controller
 {
@@ -69,18 +69,18 @@ class JournalController extends Controller
         // filter search
         if ($request->filled('search')) {
             $query->where(function ($query) use ($request) {
-                $query->where('title', 'like', '%' . $request->search . '%')
-                    ->orWhere('description', 'like', '%' . $request->search . '%')
+                $query->where('title', 'like', '%'.$request->search.'%')
+                    ->orWhere('description', 'like', '%'.$request->search.'%')
                     ->orWhereHas('webhost', function ($q) use ($request) {
-                        $q->where('nama_web', 'like', '%' . $request->search . '%');
+                        $q->where('nama_web', 'like', '%'.$request->search.'%');
                     });
             });
         }
 
         // filter date_start & date_end
         if ($request->input('date_start') && $request->input('date_end')) {
-            $start = $request->input('date_start') . ' 00:00:00';
-            $end = $request->input('date_end') . ' 23:59:59';
+            $start = $request->input('date_start').' 00:00:00';
+            $end = $request->input('date_end').' 23:59:59';
 
             $query->where(function ($q) use ($start, $end) {
                 // Jurnal yang dimulai dalam rentang tanggal
@@ -94,7 +94,7 @@ class JournalController extends Controller
             });
         }
 
-        //filter by month
+        // filter by month
         if ($request->input('month')) {
             $month = $request->input('month');
             $query->whereMonth('start', date('m', strtotime($month)));
@@ -142,11 +142,11 @@ class JournalController extends Controller
             $allJournalsQuery->where('priority', $request->input('priority'));
         }
         if ($request->input('search')) {
-            $allJournalsQuery->where('title', 'like', '%' . $request->input('search') . '%');
+            $allJournalsQuery->where('title', 'like', '%'.$request->input('search').'%');
         }
         if ($request->input('date_start') && $request->input('date_end')) {
-            $start = $request->input('date_start') . ' 00:00:00';
-            $end = $request->input('date_end') . ' 23:59:59';
+            $start = $request->input('date_start').' 00:00:00';
+            $end = $request->input('date_end').' 23:59:59';
 
             $allJournalsQuery->where(function ($q) use ($start, $end) {
                 // Jurnal yang dimulai dalam rentang tanggal
@@ -392,7 +392,7 @@ class JournalController extends Controller
         $month = $request->input('month', date('Y-m'));
         $userId = $request->input('user_id', null);
 
-        $analytic = new AnalyticsSupport();
+        $analytic = new AnalyticsSupport;
         $data = $analytic->journal_response_time_avg($month, $userId);
 
         return response()->json($data);

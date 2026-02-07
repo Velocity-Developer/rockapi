@@ -38,9 +38,10 @@ class ConvertKonversiCommand extends Command
             $result = $this->convertService->handle_konversi();
 
             $this->info('Migrasi data konversi berhasil!');
-            $this->info('Total data dimigrasi: ' . count($result));
+            $this->info('Total data dimigrasi: '.count($result));
         } catch (\Exception $e) {
-            $this->error('Terjadi kesalahan: ' . $e->getMessage());
+            $this->error('Terjadi kesalahan: '.$e->getMessage());
+
             return 1;
         }
 

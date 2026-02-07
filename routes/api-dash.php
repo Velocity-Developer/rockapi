@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Dash\ConfigController;
 use App\Http\Controllers\Dash\DashboardController;
+use App\Http\Controllers\Dash\DashboardSupportController;
 use App\Http\Controllers\Dash\DashboardWebdeveloperController;
 use App\Http\Controllers\Dash\MediaController;
 use App\Http\Controllers\Dash\NotificationsController;
@@ -9,7 +10,6 @@ use App\Http\Controllers\Dash\OptionsController;
 use App\Http\Controllers\Dash\PermissionsController;
 use App\Http\Controllers\Dash\RolesController;
 use App\Http\Controllers\UsersController;
-use App\Http\Controllers\Dash\DashboardSupportController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->group(function () {

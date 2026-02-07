@@ -40,7 +40,7 @@ class ProjectListController extends Controller
         // filter webhost.nama_web
         if ($request->input('nama_web')) {
             $query->whereHas('webhost', function ($query) use ($request) {
-                $query->where('nama_web', 'like', '%' . $request->input('nama_web') . '%');
+                $query->where('nama_web', 'like', '%'.$request->input('nama_web').'%');
             });
         }
 
@@ -53,7 +53,7 @@ class ProjectListController extends Controller
 
         // filter jenis_project
         if ($request->input('jenis_project')) {
-            $query->where('dikerjakan_oleh', 'LIKE', '%,' . $request->input('jenis_project') . '%');
+            $query->where('dikerjakan_oleh', 'LIKE', '%,'.$request->input('jenis_project').'%');
         }
 
         // Apply date filter if both start and end dates are provided

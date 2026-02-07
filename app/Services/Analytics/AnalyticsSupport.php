@@ -2,11 +2,11 @@
 
 namespace App\Services\Analytics;
 
-use Illuminate\Support\Facades\DB;
 use App\Models\CsMainProject;
 use App\Models\Journal;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AnalyticsSupport
 {
@@ -172,15 +172,15 @@ class AnalyticsSupport
             )
             ->get();
 
-        //data user support
+        // data user support
         $dataUserSupport = User::role('support')
             ->select('id', 'name')
             ->get();
 
         return [
-            'month'     => $month,
-            'user_id'   => $userId,
-            'data'      => $data,
+            'month' => $month,
+            'user_id' => $userId,
+            'data' => $data,
             'data_user' => $dataUser,
             'data_user_details' => $dataUserDetails,
             'data_daily' => $dataDaily,

@@ -312,7 +312,6 @@ class RekapFormController extends Controller
         }
     }
 
-
     public function get_konversi_nominal_ads(Request $request)
     {
         // query RekapForm
