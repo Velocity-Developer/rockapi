@@ -14,7 +14,7 @@ class CronRekapFormServices
     {
 
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer '.env('VELOCITYCOM_API_KEY'),
+            'Authorization' => 'Bearer ' . env('VELOCITYCOM_API_KEY'),
         ])->get('https://velocitydeveloper.com/wp-json/greeting/v1/rekap?type=today');
 
         if ($response->failed()) {
@@ -22,7 +22,7 @@ class CronRekapFormServices
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
-            Log::channel('cron')->info('CronRekapFormServices | menit | gagal | '.$response->body());
+            Log::channel('cron')->info('CronRekapFormServices | menit | gagal | ' . $response->body());
         }
 
         $data = $response->json();
@@ -48,12 +48,13 @@ class CronRekapFormServices
                     'gclid' => $item['gclid'] ?? null,
                     'created_at' => $item['created_at'] ?? now(),
                     'updated_at' => now(),
+                    'label' => $item['label'] ?? null,
 
                     // inject manual
                     'source' => 'vdcom',
                     'source_id' => (int) ($item['id'] ?? 0),
                 ];
-            })->filter(fn ($row) => ! empty($row['source_id']))->values()->toArray();
+            })->filter(fn($row) => ! empty($row['source_id']))->values()->toArray();
 
             // simpan semua data_rekap ke table rekap_form menggunakan upsert untuk bulk insert/update
             $rekapForm = \App\Models\RekapForm::upsert(
@@ -64,7 +65,7 @@ class CronRekapFormServices
 
             return $rekapForm;
         } else {
-            Log::channel('cron')->info('CronRekapFormServices | menit | gagal | '.json_encode($data));
+            Log::channel('cron')->info('CronRekapFormServices | menit | gagal | ' . json_encode($data));
         }
 
         // simpan waktu last cron rekapform daily
@@ -79,15 +80,15 @@ class CronRekapFormServices
         Setting::set('last_cron_rekapform_full', Carbon::now());
 
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer '.env('VELOCITYCOM_API_KEY'),
-        ])->get('https://velocitydeveloper.com/wp-json/greeting/v1/rekap?type=full&per_page='.$per_page);
+            'Authorization' => 'Bearer ' . env('VELOCITYCOM_API_KEY'),
+        ])->get('https://velocitydeveloper.com/wp-json/greeting/v1/rekap?type=full&per_page=' . $per_page);
 
         if ($response->failed()) {
             Log::error('Failed to send rekap form', [
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
-            Log::channel('cron')->info('CronRekapFormServices | full | gagal | '.$response->body());
+            Log::channel('cron')->info('CronRekapFormServices | full | gagal | ' . $response->body());
         }
 
         $data = $response->json();
@@ -113,13 +114,14 @@ class CronRekapFormServices
                     'gclid' => $item['gclid'] ?? null,
                     'created_at' => $item['created_at'] ?? now(),
                     'updated_at' => now(),
+                    'label' => $item['label'] ?? null,
 
                     // inject manual
                     'source' => 'vdcom',
                     'source_id' => (int) ($item['id'] ?? 0),
 
                 ];
-            })->filter(fn ($row) => ! empty($row['source_id']))->values()->toArray();
+            })->filter(fn($row) => ! empty($row['source_id']))->values()->toArray();
 
             // simpan semua data_rekap ke table rekap_form menggunakan upsert untuk bulk insert/update
             $rekapForm = \App\Models\RekapForm::upsert(
@@ -134,7 +136,7 @@ class CronRekapFormServices
                 'total_records' => $data['total_records'],
             ];
         } else {
-            Log::channel('cron')->info('CronRekapFormServices | full | gagal | '.json_encode($data));
+            Log::channel('cron')->info('CronRekapFormServices | full | gagal | ' . json_encode($data));
         }
     }
 
@@ -143,7 +145,7 @@ class CronRekapFormServices
     {
 
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer '.env('VELOCITYCOM_API_KEY'),
+            'Authorization' => 'Bearer ' . env('VELOCITYCOM_API_KEY'),
         ])->get('https://velocitydeveloper.com/id/wp-json/greeting/v1/rekap?type=today');
 
         if ($response->failed()) {
@@ -151,7 +153,7 @@ class CronRekapFormServices
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
-            Log::channel('cron')->info('CronRekapFormServices velocitydeveloper.com/id | menit | gagal | '.$response->body());
+            Log::channel('cron')->info('CronRekapFormServices velocitydeveloper.com/id | menit | gagal | ' . $response->body());
         }
 
         $data = $response->json();
@@ -189,7 +191,7 @@ class CronRekapFormServices
                     'source' => 'vdcom_id',
                     'source_id' => (int) ($item['id'] ?? 0),
                 ];
-            })->filter(fn ($row) => ! empty($row['source_id']))->values()->toArray();
+            })->filter(fn($row) => ! empty($row['source_id']))->values()->toArray();
 
             // simpan semua data_rekap ke table rekap_form menggunakan upsert untuk bulk insert/update
             $rekapForm = \App\Models\RekapForm::upsert(
@@ -200,7 +202,7 @@ class CronRekapFormServices
 
             return $rekapForm;
         } else {
-            Log::channel('cron')->info('CronRekapFormServices velocitydeveloper.com/id | menit | gagal | '.json_encode($data));
+            Log::channel('cron')->info('CronRekapFormServices velocitydeveloper.com/id | menit | gagal | ' . json_encode($data));
         }
 
         // simpan waktu last cron rekapform daily
@@ -213,15 +215,15 @@ class CronRekapFormServices
         Log::channel('cron')->info('CronRekapFormServices velocitydeveloper.com/id | full | start');
 
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer '.env('VELOCITYCOM_API_KEY'),
-        ])->get('https://velocitydeveloper.com/id/wp-json/greeting/v1/rekap?type=full&per_page='.$per_page);
+            'Authorization' => 'Bearer ' . env('VELOCITYCOM_API_KEY'),
+        ])->get('https://velocitydeveloper.com/id/wp-json/greeting/v1/rekap?type=full&per_page=' . $per_page);
 
         if ($response->failed()) {
             Log::error('Failed to send rekap form', [
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
-            Log::channel('cron')->info('CronRekapFormServices velocitydeveloper.com/id | full | gagal | '.$response->body());
+            Log::channel('cron')->info('CronRekapFormServices velocitydeveloper.com/id | full | gagal | ' . $response->body());
         }
 
         $data = $response->json();
@@ -259,7 +261,7 @@ class CronRekapFormServices
                     'source' => 'vdcom_id',
                     'source_id' => (int) ($item['id'] ?? 0),
                 ];
-            })->filter(fn ($row) => ! empty($row['source_id']))->values()->toArray();
+            })->filter(fn($row) => ! empty($row['source_id']))->values()->toArray();
 
             // simpan semua data_rekap ke table rekap_form menggunakan upsert untuk bulk insert/update
             $rekapForm = \App\Models\RekapForm::upsert(
@@ -274,7 +276,7 @@ class CronRekapFormServices
                 'total_records' => $data['total_records'],
             ];
         } else {
-            Log::channel('cron')->info('CronRekapFormServices velocitydeveloper.com/id | full | gagal | '.json_encode($data));
+            Log::channel('cron')->info('CronRekapFormServices velocitydeveloper.com/id | full | gagal | ' . json_encode($data));
         }
 
         // simpan waktu last cron rekapform full
