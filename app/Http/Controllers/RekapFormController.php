@@ -320,7 +320,7 @@ class RekapFormController extends Controller
         // query RekapForm
         $query = RekapForm::with('log_konversi');
 
-        $search = $request->input('q');
+        $search = $request->query('q');
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
@@ -329,10 +329,10 @@ class RekapFormController extends Controller
             });
         }
 
-        $status = $request->input('status', 'sesuai');
+        $status = $request->query('status', 'sesuai');
         $query->where('status', $status);
 
-        $cek_konversi_ads = $request->input('cek_konversi_ads', 1);
+        $cek_konversi_ads = $request->query('cek_konversi_ads', 1);
         $query->where('cek_konversi_ads', $cek_konversi_ads);
 
         // created_at diatas 2026-01-10 00:00:00
@@ -349,15 +349,15 @@ class RekapFormController extends Controller
         $query->whereNotNull('kategori_konversi_nominal')
             ->where('kategori_konversi_nominal', '!=', '');
 
-        $cek_konversi_nominal = $request->input('cek_konversi_nominal', 0);
+        $cek_konversi_nominal = $request->query('cek_konversi_nominal', 0);
         $query->where('cek_konversi_nominal', $cek_konversi_nominal);
 
-        $orderBy = $request->input('order_by', 'created_at');
-        $order = $request->input('order', 'asc');
+        $orderBy = $request->query('order_by', 'created_at');
+        $order = $request->query('order', 'asc');
         $query->orderBy($orderBy, $order);
 
-        $pagination = $request->input('pagination', true);
-        $perPage = (int) ($request->input('per_page', 100));
+        $pagination = $request->query('pagination', true);
+        $perPage = (int) ($request->query('per_page', 100));
         if ($pagination) {
             $results = $query->paginate($perPage);
         } else {
