@@ -12,6 +12,7 @@ class RekapFormsLogKonversi extends Model
         'kirim_konversi_id',
         'jobid',
         'conversion_action_id',
+        'status',
     ];
 
     /**
