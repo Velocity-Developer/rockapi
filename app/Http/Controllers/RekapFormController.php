@@ -347,7 +347,18 @@ class RekapFormController extends Controller
         $query->where('cek_konversi_ads', $cek_konversi_ads);
 
         // created_at diatas 2026-01-10 00:00:00
-        $query->where('created_at', '>', Carbon::create(2026, 1, 10)->startOfDay());
+        // $query->where('created_at', '>', Carbon::create(2026, 1, 10)->startOfDay());
+
+        // created_at diatas 2026-01-10 00:00:00 dan max 90 hari
+        $hardLimit = Carbon::create(2026, 1, 10)->startOfDay();
+        $last90Days = now()->subDays(90)->startOfDay();
+
+        // ambil tanggal yang paling baru
+        $fromDate = $hardLimit->greaterThan($last90Days)
+            ? $hardLimit
+            : $last90Days;
+
+        $query->where('created_at', '>=', $fromDate);
 
         // pastikan source adalah vdcom dan tidio
         $query->whereIn('source', ['vdcom', 'tidio']);
