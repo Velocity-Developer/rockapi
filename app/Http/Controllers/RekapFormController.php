@@ -216,7 +216,8 @@ class RekapFormController extends Controller
         $request->validate([
             'data' => 'required|array|min:1',
             'data.*.id' => 'required|integer',
-            'data.*.cek_konversi_ads' => 'required|boolean',
+            'data.*.cek_konversi_ads' => 'nullable|boolean',
+            'data.*.cek_konversi_nominal' => 'nullable|boolean',
             'data.*.jobid' => 'nullable|string',
             'data.*.kirim_konversi_id' => 'nullable|integer',
             'data.*.conversion_action_id' => 'nullable|string',
@@ -240,9 +241,19 @@ class RekapFormController extends Controller
                 continue;
             }
 
-            $rekapForm->update([
-                'cek_konversi_ads' => $item['cek_konversi_ads'],
-            ]);
+            // update cek_konversi_ads
+            if (isset($item['cek_konversi_ads'])) {
+                $rekapForm->update([
+                    'cek_konversi_ads' => $item['cek_konversi_ads'],
+                ]);
+            }
+
+            // update cek_konversi_nominal
+            if (isset($item['cek_konversi_nominal'])) {
+                $rekapForm->update([
+                    'cek_konversi_nominal' => $item['cek_konversi_nominal'],
+                ]);
+            }
 
             // create log konversi
             if ($item['kirim_konversi_id'] || $item['jobid'] || $item['conversion_action_id']) {
