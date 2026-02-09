@@ -392,4 +392,34 @@ class RekapFormController extends Controller
 
         return response()->json($results);
     }
+
+    // update failed id
+    public function update_failed(Request $request)
+    {
+        // validate request
+        $request->validate([
+            'id' => 'required|integer',
+            'failed' => 'required|integer',
+        ]);
+
+        // cek rekap form
+        $rekapForm = RekapForm::find($request->input('id'));
+        if (! $rekapForm) {
+            return response()->json([
+                'id' => $request->input('id'),
+                'failed' => $request->input('failed'),
+                'message' => 'RekapForm not found',
+            ]);
+        }
+
+        $rekapForm->update([
+            'failed' => $request->input('failed'),
+        ]);
+
+        return response()->json([
+            'id' => $request->input('id'),
+            'failed' => $request->input('failed'),
+            'message' => 'RekapForm updated',
+        ]);
+    }
 }
