@@ -27,6 +27,7 @@ class RekapForm extends Model
         'cek_konversi_ads',
         'kategori_konversi_nominal',
         'cek_konversi_nominal',
+        'failed',
         'created_at',
         'updated_at',
     ];
