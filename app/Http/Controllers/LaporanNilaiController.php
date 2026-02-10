@@ -89,7 +89,18 @@ class LaporanNilaiController extends Controller
 
             // hitung total bobot
             $total_bobot = $user->wm_project->sum(function ($project) {
-                return $project->cs_main_project && $project->cs_main_project->cs_main_project_info ? $project->cs_main_project->cs_main_project_info->bobot : 0;
+                $bobot = 0;
+                if ($project->cs_main_project && $project->cs_main_project->cs_main_project_info) {
+                    $bobot = $project->cs_main_project->cs_main_project_info->bobot;
+                } else if (!$project->cs_main_project->cs_main_project_info && $project->cs_main_project->dikerjakan_oleh) {
+                    $dikerjakan_oleh = $project->cs_main_project->dikerjakan_oleh ?? null;
+                    if (str_contains($dikerjakan_oleh, ',12')) {
+                        $bobot = 2;
+                    } elseif (str_contains($dikerjakan_oleh, ',10')) {
+                        $bobot = 0.3;
+                    }
+                }
+                return $bobot;
             });
 
             // Ubah ke persen (hindari pembagian nol)
