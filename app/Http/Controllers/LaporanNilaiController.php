@@ -13,12 +13,18 @@ class LaporanNilaiController extends Controller
         $jenisProject = $request->input('jenis_project');
         $results = ['users' => [], 'data' => []];
 
+        $now = now();
+        $isCurrentMonth = (
+            (int)$bulan === (int)$now->month &&
+            (int)$tahun === (int)$now->year
+        );
+
         // Ambil user webdeveloper beserta project yang sudah difilter
         $users = User::whereHas('roles', fn($query) => $query->where('name', 'webdeveloper'))
             ->where('status', 'active')
             ->whereNotIn('name', ['webdeveloper', 'Web Custom', 'Web Biasa'])
             ->select('id', 'name', 'avatar')
-            ->with(['wm_project' => function ($q) use ($bulan, $tahun, $jenisProject) {
+            ->with(['wm_project' => function ($q) use ($bulan, $tahun, $jenisProject, $isCurrentMonth) {
                 $q->select([
                     'id',
                     'id_wm_project',
@@ -49,11 +55,23 @@ class LaporanNilaiController extends Controller
                         $query->where('dikerjakan_oleh', 'LIKE', "%,$jenisProject%");
                     }
                 })
-                    ->where(function ($query) use ($bulan, $tahun) {
-                        $query->whereMonth('date_selesai', $bulan)
-                            ->whereYear('date_selesai', $tahun)
-                            ->orWhereNull('date_selesai')
-                            ->orWhere('date_selesai', '');
+                    ->where(function ($query) use ($bulan, $tahun, $isCurrentMonth) {
+                        // $query->whereMonth('date_selesai', $bulan)
+                        //     ->whereYear('date_selesai', $tahun)
+                        //     ->orWhereNull('date_selesai')
+                        //     ->orWhere('date_selesai', '');
+                        // 1️⃣ Project selesai di bulan laporan
+                        $query->where(function ($q) use ($bulan, $tahun) {
+                            $q->whereMonth('date_selesai', $bulan)
+                                ->whereYear('date_selesai', $tahun);
+                        });
+                        // 2️⃣ Project masih berjalan → HANYA jika bulan sekarang
+                        if ($isCurrentMonth) {
+                            $query->orWhere(function ($q) {
+                                $q->whereNull('date_selesai')
+                                    ->orWhere('date_selesai', '');
+                            });
+                        }
                     })
                     // ✅ Tambahan filter supaya harus ada date_mulai
                     ->whereNotNull('date_mulai')
