@@ -137,11 +137,13 @@ class AnalyticsSupport
         $dataUserDetails = $queryUserDetails->join('users', 'journals.user_id', '=', 'users.id')
             ->select(
                 'users.name as user_name',
+                'users.id as user_id',
                 'journal_categories.name as category_name',
+                'journal_categories.id as category_id',
                 DB::raw('COUNT(journals.id) as total_journal'),
                 DB::raw('AVG(TIMESTAMPDIFF(MINUTE, journals.start, journals.end)) as avg_minutes')
             )
-            ->groupBy('users.name', 'journal_categories.name')
+            ->groupBy('users.name', 'users.id', 'journal_categories.name', 'journal_categories.id')
             ->orderBy('users.name')
             ->orderBy('journal_categories.name')
             ->get();
