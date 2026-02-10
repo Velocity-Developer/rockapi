@@ -93,8 +93,8 @@ class WmProjectController extends Controller
                 'user_id' => $request->user_id,
             ],
             [
-                'title' => 'Pengerjaan project '.$cs_main_project->webhost->nama_web,
-                'description' => 'Pengerjaan project '.$cs_main_project->webhost->nama_web,
+                'title' => 'Pengerjaan project ' . $cs_main_project->webhost->nama_web,
+                'description' => 'Pengerjaan project ' . $cs_main_project->webhost->nama_web,
                 'start' => $request->date_mulai,
                 'end' => $request->date_selesai,
                 'status' => 'ongoing',
@@ -116,6 +116,19 @@ class WmProjectController extends Controller
         $wm_project = WmProject::with('cs_main_project:id,dikerjakan_oleh', 'cs_main_project.cs_main_project_info:cs_main_project_id,waktu_plus')
             ->where('id_wm_project', $id)
             ->first();
+        $wm_project->journal = null;
+
+        if ($wm_project) {
+            // ambil Journal
+            $journal = Journal::with('detail_support')
+                ->where('cs_main_project_id', $wm_project->id_cs_main_project)
+                ->where('user_id', $wm_project->user_id)
+                ->first();
+
+            if ($journal) {
+                $wm_project->journal = $journal;
+            }
+        }
 
         return response()->json($wm_project);
     }
@@ -206,8 +219,8 @@ class WmProjectController extends Controller
                 'user_id' => $request->user_id,
             ],
             [
-                'title' => 'Pengerjaan project '.$cs_main_project->webhost->nama_web,
-                'description' => 'Pengerjaan project '.$cs_main_project->webhost->nama_web,
+                'title' => 'Pengerjaan project ' . $cs_main_project->webhost->nama_web,
+                'description' => 'Pengerjaan project ' . $cs_main_project->webhost->nama_web,
                 'start' => $request->date_mulai,
                 'end' => $request->date_selesai,
                 'status' => $request->date_selesai ? 'completed' : 'ongoing',
