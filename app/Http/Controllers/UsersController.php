@@ -21,9 +21,9 @@ class UsersController extends Controller
 
         $keyword = $request->input('keyword');
         if ($keyword) {
-            $query->where('name', 'LIKE', '%'.$keyword.'%')
-                ->orWhere('username', 'LIKE', '%'.$keyword.'%')
-                ->orWhere('email', 'LIKE', '%'.$keyword.'%');
+            $query->where('name', 'LIKE', '%' . $keyword . '%')
+                ->orWhere('username', 'LIKE', '%' . $keyword . '%')
+                ->orWhere('email', 'LIKE', '%' . $keyword . '%');
         }
 
         // filter by role
@@ -32,6 +32,12 @@ class UsersController extends Controller
             $query->whereHas('roles', function ($query) use ($role) {
                 $query->where('name', $role);
             });
+        }
+
+        //status
+        $status = $request->input('status');
+        if ($status) {
+            $query->where('status', $status);
         }
 
         $users = $query->paginate($per_page);
@@ -203,16 +209,16 @@ class UsersController extends Controller
         }
 
         try {
-            $users = User::where('name', 'LIKE', '%'.$keyword.'%')
-                ->orWhere('username', 'LIKE', '%'.$keyword.'%')
-                ->orWhere('email', 'LIKE', '%'.$keyword.'%')
+            $users = User::where('name', 'LIKE', '%' . $keyword . '%')
+                ->orWhere('username', 'LIKE', '%' . $keyword . '%')
+                ->orWhere('email', 'LIKE', '%' . $keyword . '%')
                 ->select('id', 'name', 'username', 'email', 'status', 'hp', 'alamat')
                 ->limit(20)
                 ->get();
 
             if ($users->isEmpty()) {
                 return response()->json([
-                    'message' => 'Tidak ada user yang ditemukan dengan keyword: '.$keyword,
+                    'message' => 'Tidak ada user yang ditemukan dengan keyword: ' . $keyword,
                 ], 404);
             }
 
