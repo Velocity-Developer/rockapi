@@ -14,7 +14,7 @@ class LaporanNilaiController extends Controller
         $results = ['users' => [], 'data' => []];
 
         // Ambil user webdeveloper beserta project yang sudah difilter
-        $users = User::whereHas('roles', fn ($query) => $query->where('name', 'webdeveloper'))
+        $users = User::whereHas('roles', fn($query) => $query->where('name', 'webdeveloper'))
             ->where('status', 'active')
             ->whereNotIn('name', ['webdeveloper', 'Web Custom', 'Web Biasa'])
             ->select('id', 'name', 'avatar')
@@ -89,7 +89,7 @@ class LaporanNilaiController extends Controller
 
             // hitung total bobot
             $total_bobot = $user->wm_project->sum(function ($project) {
-                return $project->cs_main_project ? $project->cs_main_project->cs_main_project_info->bobot : 0;
+                return $project->cs_main_project && $project->cs_main_project->cs_main_project_info ? $project->cs_main_project->cs_main_project_info->bobot : 0;
             });
 
             // Ubah ke persen (hindari pembagian nol)
