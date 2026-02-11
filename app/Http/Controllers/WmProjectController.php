@@ -120,7 +120,8 @@ class WmProjectController extends Controller
 
         if ($wm_project) {
             // ambil Journal
-            $journal = Journal::with('detail_support')
+            $journal = Journal::with('detail_support:id,journal_id,hp,wa')
+                ->select('id', 'title', 'cs_main_project_id', 'user_id', 'role', 'journal_category_id')
                 ->where('cs_main_project_id', $wm_project->id_cs_main_project)
                 ->where('user_id', $wm_project->user_id)
                 ->first();
