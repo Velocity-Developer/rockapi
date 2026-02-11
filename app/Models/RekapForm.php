@@ -22,6 +22,7 @@ class RekapForm extends Model
         'utm_medium',
         'greeting',
         'status',
+        'status_analisa',
         'label',
         'gclid',
         'cek_konversi_ads',
