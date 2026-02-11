@@ -118,6 +118,12 @@
         ]
     },
     {
+        "key": "journal",
+        "label": "Jurnal Tim Ads",
+        "icon": "lucide:headphones",
+        "route": "/journal/timads"
+    },
+    {
         "key": "project_list",
         "label": "Daftar Project",
         "icon": "lucide:folder-code",

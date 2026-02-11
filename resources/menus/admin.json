@@ -151,6 +151,11 @@
                 "route": "/journal/timsupport"
             },
             {
+                "key": "journal_timads",
+                "label": "Jurnal Tim Ads",
+                "route": "/journal/timads"
+            },
+            {
                 "key": "journal_categories",
                 "label": "Kategori Jurnal",
                 "route": "/journal/category"

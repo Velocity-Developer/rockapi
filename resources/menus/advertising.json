@@ -12,6 +12,12 @@
         "route": "/todos"
     },
     {
+        "key": "journal_timads",
+        "label": "Jurnal",
+        "route": "/journal/timads",
+        "icon": "lucide:clipboard-list"
+    },
+    {
         "key": "invoice",
         "label": "Invoice",
         "icon": "lucide:file-text",
