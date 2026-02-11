@@ -36,6 +36,8 @@ class WmProjectController extends Controller
             'status_multi' => 'required|string|in:pending,selesai',
             'user_id' => 'required|integer',
             'status_project' => 'nullable|string',
+            'journal_support_klien_hp' => 'nullable|string',
+            'journal_support_klien_wa' => 'nullable|string',
         ]);
 
         if ($request->user_id) {
@@ -86,7 +88,7 @@ class WmProjectController extends Controller
         }
 
         // update or create Journal
-        Journal::updateOrCreate(
+        $journal = Journal::updateOrCreate(
             [
                 'webhost_id' => $cs_main_project->id_webhost,
                 'cs_main_project_id' => $request->id_cs_main_project,
@@ -103,6 +105,14 @@ class WmProjectController extends Controller
                 'journal_category_id' => $journal_category->id ?? null,
             ],
         );
+
+        //jika ada add journal support klien
+        if ($request->journal_support_klien_hp || $request->journal_support_klien_wa) {
+            $journal->detail_support()->create([
+                'hp' => $request->journal_support_klien_hp,
+                'wa' => $request->journal_support_klien_wa,
+            ]);
+        }
 
         return response()->json($wm_project);
     }
@@ -122,7 +132,7 @@ class WmProjectController extends Controller
             // ambil Journal
             $journal = Journal::with('detail_support:id,journal_id,hp,wa')
                 ->select('id', 'title', 'cs_main_project_id', 'user_id', 'role', 'journal_category_id')
-                ->where('cs_main_project_id', $wm_project->id_cs_main_project)
+                ->where('cs_main_project_id', $wm_project->id)
                 ->where('user_id', $wm_project->user_id)
                 ->first();
 
@@ -213,7 +223,7 @@ class WmProjectController extends Controller
         }
 
         // update or create Journal
-        Journal::updateOrCreate(
+        $journal = Journal::updateOrCreate(
             [
                 'webhost_id' => $cs_main_project->id_webhost,
                 'cs_main_project_id' => $request->id_cs_main_project,
@@ -230,6 +240,17 @@ class WmProjectController extends Controller
                 'journal_category_id' => $journal_category->id ?? null,
             ],
         );
+
+        //jika ada add journal support klien, update / create
+        if ($request->journal_support_klien_hp || $request->journal_support_klien_wa) {
+            $journal->detail_support()->updateOrCreate(
+                [],
+                [
+                    'hp' => $request->journal_support_klien_hp,
+                    'wa' => $request->journal_support_klien_wa,
+                ],
+            );
+        }
 
         // get PmProject
         $pm_project = PmProject::where('id', $request->id_cs_main_project)->first();
