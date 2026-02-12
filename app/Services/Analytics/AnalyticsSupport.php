@@ -91,7 +91,6 @@ class AnalyticsSupport
         $query = Journal::query()
             ->join('journal_categories', 'journals.journal_category_id', '=', 'journal_categories.id')
             ->where('journals.role', 'support')
-            ->whereYear('journals.start', date('Y'))
             ->whereNotNull('journals.end');
 
         // ✅ Filter bulan
