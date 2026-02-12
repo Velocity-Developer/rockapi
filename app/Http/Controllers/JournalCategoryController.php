@@ -22,12 +22,23 @@ class JournalCategoryController extends Controller
 
         // search
         if ($request->input('search')) {
-            $query->where('name', 'like', '%'.$request->input('search').'%');
+            $query->where('name', 'like', '%' . $request->input('search') . '%');
         }
 
-        // pagination
         $per_page = $request->input('per_page', 10);
-        $categories = $query->paginate($per_page);
+
+        // pagination
+        $pagination = filter_var(
+            $request->query('pagination', true),
+            FILTER_VALIDATE_BOOLEAN
+        );
+        if ($pagination) {
+            $categories = $query->paginate($per_page);
+        } else {
+            $categories = [
+                'data' => $query->limit($per_page)->get()
+            ];
+        }
 
         return response()->json($categories);
     }
