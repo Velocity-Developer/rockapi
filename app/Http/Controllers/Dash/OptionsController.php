@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dash;
 use App\Http\Controllers\Controller;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Cache;
 
 class OptionsController extends Controller
 {
@@ -28,36 +29,34 @@ class OptionsController extends Controller
 
     private function roles()
     {
-        // get roles
-        $roles = Role::all();
-
-        // convert to array
-        $result = [];
-        foreach ($roles as $role) {
-            $result[] = [
-                'value' => $role->name,
-                'label' => $role->name,
-                'id' => $role->id,
-            ];
-        }
-
-        return $result;
+        return Cache::remember('options.roles', now()->addHours(6), function () {
+            return Role::query()
+                ->select('id', 'name')
+                ->get()
+                ->map(function ($role) {
+                    return [
+                        'value' => $role->name,
+                        'label' => $role->name,
+                        'id'    => $role->id,
+                    ];
+                })
+                ->toArray();
+        });
     }
 
     private function permissions()
     {
-        // get all permissions
-        $permissions = Permission::all();
+        return Cache::remember('options.permissions', now()->addHours(6), function () {
 
-        // convert to array
-        $result = [];
-        foreach ($permissions as $permission) {
-            $result[] = [
-                'value' => $permission->name,
-                'label' => $permission->name,
-            ];
-        }
-
-        return $result;
+            return Permission::query()
+                ->select('name')
+                ->orderBy('name')
+                ->get()
+                ->map(fn($permission) => [
+                    'value' => $permission->name,
+                    'label' => $permission->name,
+                ])
+                ->toArray();
+        });
     }
 }
