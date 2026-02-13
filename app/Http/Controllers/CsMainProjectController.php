@@ -13,6 +13,9 @@ use App\Models\Setting;
 use App\Models\TransaksiMasuk;
 use App\Models\Webhost;
 use App\Models\WmProject;
+use App\Models\Journal;
+use App\Models\JournalCategory;
+use App\Models\JournalDetailSupport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -100,7 +103,7 @@ class CsMainProjectController extends Controller
             $karyawan_list = $request->input('dikerjakan_oleh', []);
             $persen = count($karyawan_list) > 0 ? 100 / count($karyawan_list) : 100;
             foreach ($karyawan_list as $value) {
-                $di_kerjakan_oleh .= ','.$value.'['.$persen.']';
+                $di_kerjakan_oleh .= ',' . $value . '[' . $persen . ']';
             }
 
             // =============================
@@ -265,7 +268,41 @@ class CsMainProjectController extends Controller
             }
 
             // =============================
-            // 13. Return response
+            // 13. Jika user role = 'advertising' buat journal
+            // =============================
+            $journal = null;
+            if (auth()->user()->hasRole('advertising')) {
+                $journal_category_id = 19; // Default: Buat Iklan
+                if ($request->input('jenis') == 'Deposit Iklan Google') {
+                    $journal_category_id = 18; // Deposit
+                }
+
+                $journal = Journal::create([
+                    'title' => ($request->input('jenis') ?? 'Project Baru') . ': ' . ($webhost->nama_web ?? '-'),
+                    'description' => ($request->input('jenis') ?? 'Project Baru') . ': ' . ($webhost->nama_web ?? '-') . ' <br> ' . $request->input('deskripsi'),
+                    'start' => $request->input('tgl_masuk') ?? now()->format('Y-m-d'),
+                    'status' => 'ongoing',
+                    'priority' => 'medium',
+                    'user_id' => auth()->id(),
+                    'role' => 'advertising',
+                    'webhost_id' => $webhost->id_webhost,
+                    'cs_main_project_id' => $cs_main_project->id,
+                    'journal_category_id' => $journal_category_id,
+                ]);
+
+                // simpan detail_support
+                JournalDetailSupport::create([
+                    'journal_id' => $journal->id,
+                    'hp' => $request->input('hp') ?? '',
+                    'wa' => null,
+                    'email' => $request->input('email') ?? '',
+                    'biaya' => $request->input('biaya') ?? null,
+                    'tanggal_bayar' => null,
+                ]);
+            }
+
+            // =============================
+            // 14. Return response
             // =============================
             return response()->json([
                 'cs_main_project' => $cs_main_project,
@@ -273,6 +310,7 @@ class CsMainProjectController extends Controller
                 'transaksi_masuk' => $transaksi_masuk,
                 'pm_project' => $pm_project,
                 'invoice' => $invoice,
+                'journal' => $journal
             ]);
         });
     }
@@ -360,7 +398,7 @@ class CsMainProjectController extends Controller
                 $count = count($request->input('dikerjakan_oleh'));
                 $persen = 100 / $count;
                 foreach ($request->input('dikerjakan_oleh') as $value) {
-                    $di_kerjakan_oleh .= ','.$value.'['.$persen.']';
+                    $di_kerjakan_oleh .= ',' . $value . '[' . $persen . ']';
                 }
             }
 
@@ -527,10 +565,10 @@ class CsMainProjectController extends Controller
         // query dasar
         $query = CsMainProject::with('webhost:id_webhost,nama_web')
             ->where(function ($q) use ($keyword) {
-                $q->where('jenis', 'like', '%'.$keyword.'%')
-                    ->orWhere('deskripsi', 'like', '%'.$keyword.'%')
+                $q->where('jenis', 'like', '%' . $keyword . '%')
+                    ->orWhere('deskripsi', 'like', '%' . $keyword . '%')
                     ->orWhereHas('webhost', function ($subQ) use ($keyword) {
-                        $subQ->where('nama_web', 'like', '%'.$keyword.'%');
+                        $subQ->where('nama_web', 'like', '%' . $keyword . '%');
                     });
             });
 
