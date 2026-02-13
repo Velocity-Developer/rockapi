@@ -32,6 +32,7 @@ use App\Http\Controllers\TransaksiIklanGoogleController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\WebhostController;
 use App\Http\Controllers\WmProjectController;
+use App\Http\Controllers\FollowupAdvertiserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -70,6 +71,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'module-projects' => ModuleProjectController::class,
         'rekap-form' => RekapFormController::class,
         'rekap-chat' => RekapChatController::class,
+        'followup-advertiser' => FollowupAdvertiserController::class
     ]);
 
     // data_opsi
@@ -184,6 +186,6 @@ Route::prefix('telegram')->group(function () {
     Route::get('/status', [TelegramController::class, 'status']);
 });
 
-require __DIR__.'/api-dash.php';
-require __DIR__.'/api-laporan.php';
-require __DIR__.'/api-public.php';
+require __DIR__ . '/api-dash.php';
+require __DIR__ . '/api-laporan.php';
+require __DIR__ . '/api-public.php';
