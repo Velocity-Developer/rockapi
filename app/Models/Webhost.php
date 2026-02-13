@@ -65,4 +65,13 @@ class Webhost extends Model
     {
         return $this->belongsToMany(Customer::class, 'customer_webhost', 'webhost_id', 'customer_id', 'id_webhost');
     }
+
+    // relasi many ke tabel tb_followup_advertiser
+    public function followup_advertiser()
+    {
+        return $this->hasOne(FollowupAdvertiser::class, 'id_webhost_ads')->withDefault([
+            'id_webhost_ads' => null,
+            'status_ads' => null,
+        ]);
+    }
 }

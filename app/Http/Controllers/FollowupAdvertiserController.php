@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\FollowupAdvertiser;
+use App\Models\CsMainProject;
 
 class FollowupAdvertiserController extends Controller
 {
@@ -13,7 +14,8 @@ class FollowupAdvertiserController extends Controller
     public function index(Request $request)
     {
         //
-        $query = FollowupAdvertiser::query();
+        $query = CsMainProject::with('webhost:id_webhost,nama_web,id_paket,wa', 'webhost.paket', 'webhost.followup_advertiser');
+        $query->select('id', 'id_webhost', 'tgl_masuk', 'jenis');
 
         $orderBy = $request->query('order_by', 'id');
         $order = $request->query('order', 'desc');

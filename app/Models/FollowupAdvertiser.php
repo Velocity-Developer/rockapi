@@ -13,7 +13,14 @@ class FollowupAdvertiser extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'bulan',
-        'biaya',
+        'id_webhost_ads',
+        'status_ads',
+        'update_ads',
     ];
+
+    // relasi many ke tabel webhost
+    public function journals()
+    {
+        return $this->belongsTo(Webhost::class, 'webhost_id');
+    }
 }
