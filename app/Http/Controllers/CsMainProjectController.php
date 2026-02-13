@@ -279,8 +279,8 @@ class CsMainProjectController extends Controller
 
                 $journal = Journal::create([
                     'title' => ($request->input('jenis') ?? 'Project Baru') . ': ' . ($webhost->nama_web ?? '-'),
-                    'description' => ($request->input('jenis') ?? 'Project Baru') . ': ' . ($webhost->nama_web ?? '-') . ' <br> ' . $request->input('deskripsi'),
-                    'start' => $request->input('tgl_masuk') ?? now()->format('Y-m-d'),
+                    'description' => ($request->input('jenis') ?? 'Project Baru') . ': ' . ($webhost->nama_web ?? '-') . ',<br>' . $request->input('deskripsi'),
+                    'start' => now(),
                     'status' => 'ongoing',
                     'priority' => 'medium',
                     'user_id' => auth()->id(),
