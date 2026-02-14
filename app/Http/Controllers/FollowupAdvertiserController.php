@@ -33,8 +33,9 @@ class FollowupAdvertiserController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'bulan' => 'required|string',
-            'biaya' => 'required|numeric',
+            'id_webhost_ads' => 'required|integer',
+            'status_ads' => 'required|string',
+            'update_ads' => 'required|date',
         ]);
 
         $data = FollowupAdvertiser::create($validated);
@@ -62,8 +63,9 @@ class FollowupAdvertiserController extends Controller
         $data = FollowupAdvertiser::findOrFail($id);
 
         $validated = $request->validate([
-            'bulan' => 'required|string',
-            'biaya' => 'required|numeric',
+            'id_webhost_ads' => 'required|integer',
+            'status_ads' => 'required|string',
+            'update_ads' => 'required|date',
         ]);
 
         $data->update($validated);
