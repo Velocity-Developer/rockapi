@@ -12,23 +12,31 @@ class CheckLostWebhostCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'csmainproject:check-lost-webhost';
+    protected $signature = 'csmainproject:check-lost-webhost {jenis? : Filter berdasarkan jenis project (CS/PM/WM)}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Mengecek data CsMainProject yang memiliki id_webhost yang tidak ada di tabel tb_webhost';
+    protected $description = 'Mengecek data CsMainProject yang memiliki id_webhost yang tidak ada di tabel tb_webhost (opsional filter berdasarkan jenis)';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $this->info('Mengecek data CsMainProject yang kehilangan referensi Webhost...');
+        $jenis = $this->argument('jenis');
 
-        $orphans = CsMainProject::whereDoesntHave('webhost')->get();
+        $this->info('Mengecek data CsMainProject yang kehilangan referensi Webhost' . ($jenis ? " untuk jenis: $jenis" : "") . '...');
+
+        $query = CsMainProject::whereDoesntHave('webhost');
+
+        if ($jenis) {
+            $query->where('jenis', $jenis);
+        }
+
+        $orphans = $query->get();
 
         if ($orphans->isEmpty()) {
             $this->info('Tidak ditemukan data CsMainProject yang kehilangan referensi Webhost.');
