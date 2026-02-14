@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class CsMainProjectInfo extends Model
 {
@@ -14,7 +16,7 @@ class CsMainProjectInfo extends Model
         'waktu_plus',
     ];
 
-    protected $appends = ['bobot'];
+    // protected $appends = ['bobot'];
 
     //
     protected function bobot(): Attribute

@@ -56,10 +56,6 @@ class LaporanNilaiController extends Controller
                     }
                 })
                     ->where(function ($query) use ($bulan, $tahun, $isCurrentMonth) {
-                        // $query->whereMonth('date_selesai', $bulan)
-                        //     ->whereYear('date_selesai', $tahun)
-                        //     ->orWhereNull('date_selesai')
-                        //     ->orWhere('date_selesai', '');
                         // 1️⃣ Project selesai di bulan laporan
                         $query->where(function ($q) use ($bulan, $tahun) {
                             $q->whereMonth('date_selesai', $bulan)
@@ -108,17 +104,14 @@ class LaporanNilaiController extends Controller
             // hitung total bobot
             $total_bobot = $user->wm_project->sum(function ($project) {
                 $bobot = 0;
-                if ($project->cs_main_project && $project->cs_main_project->cs_main_project_info) {
-                    $bobot = $project->cs_main_project->cs_main_project_info->bobot;
-                } else if (!$project->cs_main_project->cs_main_project_info && $project->cs_main_project->dikerjakan_oleh) {
-                    $dikerjakan_oleh = $project->cs_main_project->dikerjakan_oleh ?? null;
-                    if (str_contains($dikerjakan_oleh, ',12')) {
-                        $bobot = 2;
-                    } elseif (str_contains($dikerjakan_oleh, ',10')) {
-                        $bobot = 0.3;
-                    }
+                $dikerjakan_oleh = $project->cs_main_project->dikerjakan_oleh ?? null;
+                if (str_contains($dikerjakan_oleh, ',12')) {
+                    $bobot = 2;
+                } elseif (str_contains($dikerjakan_oleh, ',10')) {
+                    $bobot = 0.3;
                 }
-                return $bobot;
+                $waktu_plus = $project->cs_main_project->cs_main_project_info->waktu_plus ?? 0;
+                return $bobot + $waktu_plus;
             });
 
             // Ubah ke persen (hindari pembagian nol)
@@ -137,11 +130,44 @@ class LaporanNilaiController extends Controller
                 'total_bobot' => $total_bobot,
             ];
 
+            //loop projects
+            $wm_project = [];
+            foreach ($user->wm_project as $project) {
+
+                $bobot = 0;
+                $dikerjakan_oleh = $project->cs_main_project->dikerjakan_oleh ?? null;
+                if (str_contains($dikerjakan_oleh, ',12')) {
+                    $bobot = 2;
+                } elseif (str_contains($dikerjakan_oleh, ',10')) {
+                    $bobot = 0.3;
+                }
+                $waktu_plus = $project->cs_main_project->cs_main_project_info->waktu_plus ?? 0;
+                $bobot += $waktu_plus;
+
+                $wm_project[] = [
+                    'cs_main_project' => [
+                        'webhost' => $project->cs_main_project->webhost,
+                        'dikerjakan_oleh' => $project->cs_main_project->dikerjakan_oleh,
+                        'jenis' => $project->cs_main_project->jenis,
+                        'cs_main_project_info' => [
+                            'bobot' => $bobot,
+                            'waktu_plus' => $project->cs_main_project->cs_main_project_info->waktu_plus ?? 0
+                        ],
+                    ],
+                    'dikerjakan_oleh' => $dikerjakan_oleh,
+                    'bobot' => $bobot,
+                    'status_multi'  => $project->status_multi,
+                    'status_project'  => $project->status_project,
+                    'date_mulai_formatted'  => $project->date_mulai_formatted,
+                    'date_selesai_formatted'  => $project->date_selesai_formatted,
+                ];
+            }
+
             $results['data'][$user->id] = [
                 'id' => $user->id,
                 'name' => $user->name,
                 'avatar' => $user->avatar_url,
-                'projects' => $user->wm_project,
+                'projects' => $wm_project,
                 'total_dibayar' => $total_dibayar,
             ];
         }
