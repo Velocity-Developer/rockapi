@@ -31,11 +31,17 @@ class CsMainProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // get cs_main_project, dengan paginasi 20
-        $cs_main_project = CsMainProject::with('webhost', 'webhost.paket')
-            ->paginate(20);
+        $query = CsMainProject::query();
+
+        $query->with('webhost', 'webhost.paket', 'cs_main_project_info', 'cs_main_project_info.author:id,name');
+
+        $order = $request->query('order', 'desc');
+        $query->orderBy('tgl_masuk', $order);
+
+        $per_page = $request->query('per_page', 25);
+        $cs_main_project = $query->paginate($per_page)->withPath('/cs_main_project');
 
         return response()->json($cs_main_project);
     }
