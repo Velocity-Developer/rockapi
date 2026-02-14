@@ -595,9 +595,9 @@ class CsMainProjectController extends Controller
     {
         // get 10 last data by CsMainProject.CsMainProjectInfos = created_at
         // urutkan berdasarkan created_at desc
-        $cs_main_project = CsMainProject::select('tb_cs_main_project.*')
+        $cs_main_project = CsMainProject::select('tb_cs_main_project.id', 'tb_cs_main_project.jenis', 'tb_cs_main_project.id_webhost')
             ->join('cs_main_project_infos', 'cs_main_project_infos.cs_main_project_id', '=', 'tb_cs_main_project.id')
-            ->with('cs_main_project_info', 'webhost:id_webhost,nama_web')
+            ->with('cs_main_project_info:id,cs_main_project_id,author_id,created_at', 'webhost:id_webhost,nama_web', 'cs_main_project_info.author:id,name')
             ->orderBy('cs_main_project_infos.created_at', 'desc')
             ->limit(10)
             ->get();
