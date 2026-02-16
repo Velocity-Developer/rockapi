@@ -49,4 +49,10 @@ class FollowupAdvertiserAnalytics
                 ->pluck('total', 'status_ads');
         });
     }
+
+    public function forget_cache($bulan)
+    {
+        Cache::forget("cs_main_project_blm_followup_{$bulan}");
+        Cache::forget("followup_advertiser_count_by_status_{$bulan}");
+    }
 }

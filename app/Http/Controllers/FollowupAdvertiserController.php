@@ -77,6 +77,11 @@ class FollowupAdvertiserController extends Controller
             'journal_category_id' => $journalCategory->id,
         ]);
 
+        //foget cache
+        $bln = date('Y-m', strtotime($followup_advertiser->update_ads));
+        $FollowupAdvertiserAnalytics = new FollowupAdvertiserAnalytics;
+        $FollowupAdvertiserAnalytics->forget_cache($bln);
+
         return response()->json([
             'message' => 'Data berhasil disimpan',
             'data' => $followup_advertiser,
@@ -107,6 +112,11 @@ class FollowupAdvertiserController extends Controller
         ]);
 
         $data->update($validated);
+
+        //foget cache
+        $bln = date('Y-m', strtotime($data->update_ads));
+        $FollowupAdvertiserAnalytics = new FollowupAdvertiserAnalytics;
+        $FollowupAdvertiserAnalytics->forget_cache($bln);
 
         return response()->json([
             'message' => 'Data berhasil diperbarui',
