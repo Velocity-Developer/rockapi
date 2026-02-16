@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\FollowupAdvertiser;
 use App\Models\CsMainProject;
+use App\Models\Journal;
+use App\Models\JournalCategory;
+use App\Models\Webhost;
+use Illuminate\Support\Facades\Auth;
 
 class FollowupAdvertiserController extends Controller
 {
@@ -38,11 +42,41 @@ class FollowupAdvertiserController extends Controller
             'update_ads' => 'required|date',
         ]);
 
-        $data = FollowupAdvertiser::create($validated);
+        $user = Auth::user();
+        $followup_advertiser = FollowupAdvertiser::create($validated);
+
+        // dapatkan journal_category dengan name = 'Follow up'
+        $journalCategory = JournalCategory::where('name', 'Follow up')->where('role', 'advertising')->first();
+        // jika tidak ada, buat baru
+        if (! $journalCategory) {
+            $journalCategory = JournalCategory::create([
+                'name' => 'Follow up',
+                'role' => 'advertising',
+                'description' => 'Kategori untuk Follow up Tim advertising',
+                'icon' => '✅',
+            ]);
+        }
+
+        //get webhost
+        $webhost = Webhost::where('id_webhost', $followup_advertiser->id_webhost_ads)->first();
+
+        // Create journal entry first
+        $journal = Journal::create([
+            'title' => 'Follow Up ' . $webhost->nama_web,
+            'description' => 'Follow Up Ads untuk project pembuatan ' . $webhost->nama_web,
+            'start' => now(),
+            'end' => now(),
+            'status' => 'completed',
+            'priority' => 'medium',
+            'user_id' => $user->id,
+            'role' => 'advertising',
+            'journal_category_id' => $journalCategory->id,
+        ]);
 
         return response()->json([
             'message' => 'Data berhasil disimpan',
-            'data' => $data
+            'data' => $followup_advertiser,
+            'journal' => $journal
         ], 201);
     }
 
