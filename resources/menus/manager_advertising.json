@@ -118,10 +118,21 @@
         ]
     },
     {
-        "key": "journal",
-        "label": "Jurnal Tim Ads",
-        "icon": "lucide:headphones",
-        "route": "/journal/timads"
+        "key": "timadvertising",
+        "label": "Tim Ads",
+        "icon": "lucide:megaphone",
+        "items": [
+            {
+                "key": "journal_timads",
+                "label": "Jurnal Tim Ads",
+                "route": "/journal/timads"
+            },
+            {
+                "key": "followup_advertiser_pembuatan",
+                "label": "FollowUp Pembuatan",
+                "route": "/followup-advertiser-pembuatan"
+            }
+        ]
     },
     {
         "key": "project_list",

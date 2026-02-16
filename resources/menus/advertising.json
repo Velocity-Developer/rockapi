@@ -18,6 +18,12 @@
         "icon": "lucide:clipboard-list"
     },
     {
+        "key": "followup_advertiser_pembuatan",
+        "label": "FollowUp Pembuatan",
+        "icon": "lucide:message-square-share",
+        "route": "/followup-advertiser-pembuatan"
+    },
+    {
         "key": "invoice",
         "label": "Invoice",
         "icon": "lucide:file-text",

@@ -195,6 +195,23 @@
         ]
     },
     {
+        "key": "timadvertising",
+        "label": "Tim Ads",
+        "icon": "lucide:megaphone",
+        "items": [
+            {
+                "key": "journal_timads",
+                "label": "Jurnal Tim Ads",
+                "route": "/journal/timads"
+            },
+            {
+                "key": "followup_advertiser_pembuatan",
+                "label": "FollowUp Pembuatan",
+                "route": "/followup-advertiser-pembuatan"
+            }
+        ]
+    },
+    {
         "key": "todos",
         "label": "TodoList",
         "icon": "lucide:check-square",
