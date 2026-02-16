@@ -175,6 +175,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('module-project-total-by-type', [ModuleProjectController::class, 'totalByType']);
 
     Route::get('/journal_timsupport_rangkuman', [JournalController::class, 'timsupport_rangkuman']);
+    Route::get('/followup_advertiser_analytics', [FollowupAdvertiserController::class, 'analytics']);
 });
 
 // Invoice PDF route

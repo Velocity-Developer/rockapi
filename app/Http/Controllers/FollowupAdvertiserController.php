@@ -9,6 +9,7 @@ use App\Models\Journal;
 use App\Models\JournalCategory;
 use App\Models\Webhost;
 use Illuminate\Support\Facades\Auth;
+use App\Services\Analytics\FollowupAdvertiserAnalytics;
 
 class FollowupAdvertiserController extends Controller
 {
@@ -21,7 +22,10 @@ class FollowupAdvertiserController extends Controller
         $query = CsMainProject::with('webhost:id_webhost,nama_web,id_paket,wa', 'webhost.paket', 'webhost.followup_advertiser');
         $query->select('id', 'id_webhost', 'tgl_masuk', 'jenis');
 
-        $orderBy = $request->query('order_by', 'id');
+        //jenis
+        $query->whereIn('jenis', ['Pembuatan', 'Pembuatan apk', 'Pembuatan apk custom', 'Pembuatan web konsep', 'Pembuatan Tanpa Domain', 'Pembuatan Tanpa Hosting', 'Pembuatan Tanpa Domain+Hosting']);
+
+        $orderBy = $request->query('order_by', 'tgl_masuk');
         $order = $request->query('order', 'desc');
         $query->orderBy($orderBy, $order);
 
@@ -120,6 +124,27 @@ class FollowupAdvertiserController extends Controller
 
         return response()->json([
             'message' => 'Data berhasil dihapus'
+        ]);
+    }
+
+    public function analytics()
+    {
+        $bln = date('Y-m');
+
+        // Tambahkan data 'analytics'
+        $FollowupAdvertiserAnalytics = new FollowupAdvertiserAnalytics;
+        $blm_followup = $FollowupAdvertiserAnalytics->cs_main_project_blm_followup($bln);
+        $by_status = $FollowupAdvertiserAnalytics->count_by_status($bln);
+
+        //
+        // if (isset($by_status['-'])) {
+        //     $by_status['-'] = $by_status['-'] + $blm_followup;
+        // };
+
+        return response()->json([
+            'bulan' => $bln,
+            'blm_followup' => $blm_followup,
+            'status' => $by_status,
         ]);
     }
 }
