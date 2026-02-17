@@ -81,7 +81,7 @@ class NetProfitController extends Controller
             $harga_domain = $harga_domain ? $harga_domain->biaya_normalized : 0;
 
             // get total biaya ads by bulan
-            $biaya_ads = BiayaAds::where('bulan', $the_bulan)->sum('biaya');
+            $biaya_ads = BiayaAds::where('bulan', $the_bulan)->where('kategori', 'ads')->sum('biaya');
 
             // jika kosong, maka jalankan fungsi service ConvertDataLamaService::handle_biaya_ads
             if (! $biaya_ads) {
