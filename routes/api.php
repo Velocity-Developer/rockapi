@@ -33,6 +33,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\WebhostController;
 use App\Http\Controllers\WmProjectController;
 use App\Http\Controllers\FollowupAdvertiserController;
+use App\Http\Controllers\HargaDomainController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -71,7 +72,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'module-projects' => ModuleProjectController::class,
         'rekap-form' => RekapFormController::class,
         'rekap-chat' => RekapChatController::class,
-        'followup-advertiser' => FollowupAdvertiserController::class
+        'followup-advertiser' => FollowupAdvertiserController::class,
+        'harga-domain' => HargaDomainController::class
     ]);
 
     // data_opsi
