@@ -35,6 +35,7 @@ use App\Http\Controllers\WmProjectController;
 use App\Http\Controllers\FollowupAdvertiserController;
 use App\Http\Controllers\HargaDomainController;
 use App\Http\Controllers\QualityController;
+use App\Http\Controllers\CutiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -75,7 +76,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'rekap-chat' => RekapChatController::class,
         'followup-advertiser' => FollowupAdvertiserController::class,
         'harga-domain' => HargaDomainController::class,
-        'quality' => QualityController::class
+        'quality' => QualityController::class,
+        'cuti' => CutiController::class
     ]);
 
     // data_opsi
