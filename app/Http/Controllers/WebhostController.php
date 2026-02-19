@@ -72,8 +72,8 @@ class WebhostController extends Controller
         $keyword = $keyword ? preg_replace('/^https?:\/\//', '', $keyword) : $keyword;
 
         // get nama_web by keyword, ambil kolom nama_web dan id_webhost
-        $webhosts = Webhost::where('nama_web', 'like', '%'.$keyword.'%')
-            ->select('nama_web', 'id_webhost')
+        $webhosts = Webhost::where('nama_web', 'like', '%' . $keyword . '%')
+            ->select('nama_web', 'id_webhost', 'kategori')
             ->limit(200)
             ->get();
 
