@@ -30,7 +30,7 @@ class FollowupAdvertiserController extends Controller
         $query->orderBy($orderBy, $order);
 
         $perPage = (int) ($request->query('per_page', 20));
-        $datas = $query->paginate($perPage);
+        $datas = $query->paginate($perPage)->withPath('/followup-advertiser-pembuatan');
 
         return response()->json($datas);
     }
