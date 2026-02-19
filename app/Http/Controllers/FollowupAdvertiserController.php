@@ -19,7 +19,7 @@ class FollowupAdvertiserController extends Controller
     public function index(Request $request)
     {
         //
-        $query = CsMainProject::with('webhost:id_webhost,nama_web,id_paket,wa', 'webhost.paket', 'webhost.followup_advertiser');
+        $query = CsMainProject::with('webhost:id_webhost,nama_web,id_paket,wa,kategori', 'webhost.paket', 'webhost.followup_advertiser');
         $query->select('id', 'id_webhost', 'tgl_masuk', 'jenis');
 
         //jenis
