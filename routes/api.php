@@ -34,6 +34,7 @@ use App\Http\Controllers\WebhostController;
 use App\Http\Controllers\WmProjectController;
 use App\Http\Controllers\FollowupAdvertiserController;
 use App\Http\Controllers\HargaDomainController;
+use App\Http\Controllers\QualityController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -73,7 +74,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'rekap-form' => RekapFormController::class,
         'rekap-chat' => RekapChatController::class,
         'followup-advertiser' => FollowupAdvertiserController::class,
-        'harga-domain' => HargaDomainController::class
+        'harga-domain' => HargaDomainController::class,
+        'quality' => QualityController::class
     ]);
 
     // data_opsi
