@@ -12,4 +12,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('laporan/perpanjang_web_jangka', [PerpanjangWebJangkaController::class, 'index']);
     Route::get('laporan/net_profit', [NetProfitController::class, 'index']);
     Route::get('laporan/siklus_layanan', [SiklusLayananController::class, 'index']);
+    Route::get('laporan/net_profit_perpanjangan', [NetProfitController::class, 'perpanjangan']);
 });

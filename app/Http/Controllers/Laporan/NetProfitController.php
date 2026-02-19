@@ -180,4 +180,78 @@ class NetProfitController extends Controller
 
         return $query;
     }
+
+    public function perpanjangan(Request $request)
+    {
+        $formatter = new TanggalFormatterHelper;
+
+        $dari = $request->query('bulan_dari'); // format = YYYY-MMM
+        // dapatkan hari pertama dari bulan $dari
+        $dari = Carbon::parse($dari)->startOfMonth()->format('Y-m-d 00:00:00');
+        $sampai = $request->query('bulan_sampai'); // format = YYYY-MMM
+        // dapatkan hari terakhir dari bulan $sampai
+        $sampai = Carbon::parse($sampai)->endOfMonth()->format('Y-m-d 23:59:59');
+
+        // query
+        $query = CsMainProject::with([
+            'webhost:id_webhost,nama_web,id_paket,via,waktu',
+            'webhost.paket:id_paket,paket',
+        ]);
+
+        // jenis = jenis_pembuatan
+        $query->where('jenis', 'Perpanjangan');
+
+        // filter by tgl_masuk
+        $query->whereBetween('tgl_masuk', [$dari, $sampai]);
+
+        // filter relasi webhost via
+        // $query->whereHas('webhost', function ($query) use ($dari, $sampai) {
+        //     $query->whereIn('via', ['Whatsapp', 'Tidio Chat', 'Telegram'])
+        //         ->whereBetween('waktu', [$dari, $sampai]);
+        // });
+
+        // order by tgl_masuk
+        $query->orderBy('tgl_masuk', 'desc');
+
+        $raw_data = $query->get();
+
+        // group by tgl_masuk: year and month
+        $raw_data = $raw_data->groupBy(function ($item) {
+            return Carbon::parse($item->tgl_masuk)->format('Ym');
+        });
+
+        $raw_data = $raw_data->map(function ($item) use ($formatter) {
+
+            $the_bulan = Carbon::parse($item->first()->tgl_masuk)->format('Y-m');
+
+            // format bulan
+            $bulan_formatted = $formatter->toIndonesianMonthYear($the_bulan);
+
+            // get harga domain by bulan
+            $harga_domain = HargaDomain::where('bulan', $bulan_formatted)->first();
+            $harga_domain = $harga_domain ? $harga_domain->biaya_normalized : 0;
+
+            $omzet = 0;
+            foreach ($item as $value) {
+                $omzet += $value->dibayar;
+            }
+            return [
+                'label' => $formatter->toIndonesianMonthYear($item->first()->tgl_masuk),
+                'total' => count($item),
+                'omzet' => $omzet,
+                'harga_domain' => $harga_domain,
+                'biaya_domain' => $harga_domain * count($item),
+                'profit' => $omzet - ($harga_domain * count($item)),
+            ];
+        });
+
+        // array remove key
+        $raw_data = $raw_data->values()->toArray();
+
+        return [
+            'dari' => $dari,
+            'sampai' => $sampai,
+            'data' => $raw_data,
+        ];
+    }
 }
