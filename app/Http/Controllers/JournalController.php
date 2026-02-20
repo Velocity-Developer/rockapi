@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Journal;
 use App\Models\JournalDetailSupport;
+use App\Models\User;
 use App\Services\Analytics\AnalyticsSupport;
 use App\Services\Analytics\AnalyticsAdvertising;
 use Illuminate\Http\JsonResponse;
@@ -410,6 +411,13 @@ class JournalController extends Controller
         $analytic = new AnalyticsAdvertising;
         $bycategory = $analytic->journal_advertising_count_by_category($month, $userId);
 
-        return response()->json(['by_category' => $bycategory]);
+        $dataUserAds = User::role('advertising')
+            ->select('id', 'name')
+            ->get();
+
+        return response()->json([
+            'by_category' => $bycategory,
+            'users_ads' => $dataUserAds
+        ]);
     }
 }
