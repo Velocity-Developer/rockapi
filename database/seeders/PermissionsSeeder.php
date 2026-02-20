@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class PermissionsSeeder extends Seeder
 {
@@ -40,5 +41,9 @@ class PermissionsSeeder extends Seeder
                 $this->command->info('Permission created: ' . $permission);
             }
         }
+
+        //give admin all
+        $role_admin = Role::where('name', 'admin')->first();
+        $role_admin->givePermissionTo(Permission::all());
     }
 }
