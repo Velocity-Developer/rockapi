@@ -13,6 +13,7 @@ class AnalyticsAdvertising
     public function journal_advertising_count_by_category($month = null, $userId = null)
     {
         $query = Journal::query()
+            ->with('journalCategory:id,name,icon')
             ->where('role', 'advertising');
 
         if ($month) {
