@@ -408,6 +408,12 @@ class JournalController extends Controller
         $month = $request->input('month', date('Y-m'));
         $userId = $request->input('user_id', null);
 
+        //get user
+        $userData = [];
+        if ($userId) {
+            $userData = User::select('id', 'name', 'email')->find($userId);
+        }
+
         $analytic = new AnalyticsAdvertising;
         $bycategory = $analytic->journal_advertising_count_by_category($month, $userId);
 
@@ -417,7 +423,8 @@ class JournalController extends Controller
 
         return response()->json([
             'by_category' => $bycategory,
-            'users_ads' => $dataUserAds
+            'users_ads' => $dataUserAds,
+            'user_data' => $userData
         ]);
     }
 }
