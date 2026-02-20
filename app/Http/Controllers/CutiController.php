@@ -41,6 +41,19 @@ class CutiController extends Controller
         'Afif'
     ];
 
+    private function tambahJamMenit(string $jam1, string $jam2): string
+    {
+        [$h1, $m1] = array_map('intval', explode(':', $jam1));
+        [$h2, $m2] = array_map('intval', explode(':', $jam2));
+
+        $totalMenit = ($h1 * 60 + $m1) + ($h2 * 60 + $m2);
+
+        $jam   = floor($totalMenit / 60) % 24;
+        $menit = $totalMenit % 60;
+
+        return sprintf('%02d:%02d', $jam, $menit);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -81,10 +94,45 @@ class CutiController extends Controller
         $items = $query->get();
 
         $grouped = $items->groupBy('nama')->map(function ($rows, $nama) {
+
+            $sakit = 0;
+            $cuti = 0;
+            $blm_diganti = '00:00';
+            $total = $tambahan = [];
+            foreach ($rows->values() as $item) {
+
+                if ($item->detail == 'Sakit' && $item->time == "00:00") {
+                    $sakit += 1;
+                }
+                if ($item->detail == 'Cuti' && $item->jenis == 'Full') {
+                    $cuti += 1;
+                }
+                if ($item->jenis == 'Jam' && $item->time !== "00:00" && $item->tipe == "Belum diganti") {
+                    $blm_diganti = $this->tambahJamMenit($blm_diganti, $item->time);
+                }
+
+                if ($item['jenis'] == 'Full') {
+                    $total[$item['detail']][] = $item['tanggal'];
+                }
+                if ($item['jenis'] == 'Jam') {
+                    $tambahan[$item['tipe']][] = $item['time'];
+                }
+            }
+
+            $tambahan['Sakit'][] = isset($total['Sakit']) ? (count($total['Sakit']) * 7) : 0;
+            $tambahan['Belum diganti'][] = isset($total['Cuti']) ? (count($total['Cuti']) * 7) : 0;
+
             return [
-                'nama' => $nama,
-                'total' => $rows->count(),
-                'items' => $rows->values(),
+                'nama'      => $nama,
+                'total'     => $rows->count(),
+                'items'     => $rows->values(),
+                'totals'    => $total,
+                'tambahan'  => $tambahan,
+                'detail'    => [
+                    'Sakit' => $sakit,
+                    'Cuti' => $cuti,
+                    'Blm diganti' => $blm_diganti,
+                ],
             ];
         })->values();
 
