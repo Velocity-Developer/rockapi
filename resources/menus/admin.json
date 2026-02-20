@@ -208,6 +208,11 @@
                 "key": "followup_advertiser_pembuatan",
                 "label": "FollowUp Pembuatan",
                 "route": "/followup-advertiser-pembuatan"
+            },
+            {
+                "key": "journal_timads_rangkuman",
+                "label": "Rangkuman",
+                "route": "/journal/timads-rangkuman"
             }
         ]
     },
