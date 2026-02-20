@@ -7,12 +7,50 @@ use Illuminate\Http\Request;
 
 class CutiController extends Controller
 {
+
+    public $karyawans = [
+        'Aditya',
+        'Aditya K',
+        'Agus',
+        'Bima',
+        'Dita',
+        'Eko',
+        'Ihsan',
+        'Irawan',
+        'Galib',
+        'Muh',
+        'Siti',
+        'Yuda',
+        'Kendra',
+        'Yoga',
+        'Viki',
+        'ayu',
+        'Sudqi',
+        'Sofian',
+        'Fajar',
+        'Lingga',
+        'Reza',
+        'Anggun',
+        'Dini',
+        'Rosa',
+        'Putri',
+        'Fajar Agung',
+        'Erna',
+        'Niken',
+        'Yaya',
+        'Afif'
+    ];
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
         $query = Cuti::query();
+
+        if ($request->input('tahun')) {
+            $query->whereYear('tanggal', $request->input('tahun'));
+        }
 
         if ($request->input('nama')) {
             $query->where('nama', 'like', '%' . $request->input('nama') . '%');
@@ -38,27 +76,22 @@ class CutiController extends Controller
             $query->whereDate('tanggal', '<=', $request->input('tanggal_to'));
         }
 
-        $orderBy = $request->input('order_by', 'tanggal');
-        $order = strtolower($request->input('order', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $query->orderBy('tanggal', 'asc');
 
-        $query->orderBy($orderBy, $order);
+        $items = $query->get();
 
-        $perPage = (int) $request->input('per_page', 50);
-
-        $pagination = filter_var(
-            $request->query('pagination', true),
-            FILTER_VALIDATE_BOOLEAN
-        );
-
-        if ($pagination) {
-            $data = $query->paginate($perPage);
-        } else {
-            $data = [
-                'data' => $query->limit($perPage)->get(),
+        $grouped = $items->groupBy('nama')->map(function ($rows, $nama) {
+            return [
+                'nama' => $nama,
+                'total' => $rows->count(),
+                'items' => $rows->values(),
             ];
-        }
+        })->values();
 
-        return response()->json($data);
+        return response()->json([
+            'karyawans' => $this->karyawans,
+            'data' => $grouped
+        ]);
     }
 
     /**
