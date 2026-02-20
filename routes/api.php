@@ -180,6 +180,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // module_project
     Route::get('module-project-total-by-type', [ModuleProjectController::class, 'totalByType']);
 
+    Route::get('/journal_timads_rangkuman', [JournalController::class, 'timads_rangkuman']);
     Route::get('/journal_timsupport_rangkuman', [JournalController::class, 'timsupport_rangkuman']);
     Route::get('/followup_advertiser_analytics', [FollowupAdvertiserController::class, 'analytics']);
 });
