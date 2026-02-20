@@ -26,18 +26,27 @@ class AnalyticsSupport
         return $data;
     }
 
-    public function journal_support_daily()
+    public function journal_support_daily($bulan = null)
     {
-        $data = Journal::query()
+        $query = Journal::query()
             ->join('journal_categories', 'journals.journal_category_id', '=', 'journal_categories.id')
-            ->where('journals.role', 'support')
-            ->whereMonth('journals.start', date('m'))
-            ->whereYear('journals.start', date('Y'))
-            ->select(
-                DB::raw('DATE(journals.start) as date'),
-                'journal_categories.name as category',
-                DB::raw('count(*) as total')
-            )
+            ->where('journals.role', 'support');
+
+        if ($bulan) {
+            $date = Carbon::createFromFormat('Y-m', $bulan);
+
+            $query->whereYear('journals.start', $date->year)
+                ->whereMonth('journals.start', $date->month);
+        } else {
+            $query->whereMonth('journals.start', date('m'))
+                ->whereYear('journals.start', date('Y'));
+        }
+
+        $data = $query->select(
+            DB::raw('DATE(journals.start) as date'),
+            'journal_categories.name as category',
+            DB::raw('count(*) as total')
+        )
             ->groupBy('date', 'category')
             ->orderBy('date', 'asc')
             ->get();
