@@ -420,6 +420,8 @@ class JournalController extends Controller
 
         $dataUserAds = User::role('advertising')
             ->select('id', 'name')
+            ->whereNotIn('id', [9])
+            ->where('status', 'active')
             ->get();
 
         $categories = JournalCategory::where('role', 'advertising')->get();
