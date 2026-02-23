@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Journal;
+use App\Models\JournalCategory;
 use App\Models\JournalDetailSupport;
 use App\Models\User;
 use App\Services\Analytics\AnalyticsSupport;
@@ -421,8 +422,12 @@ class JournalController extends Controller
             ->select('id', 'name')
             ->get();
 
+        $categories = JournalCategory::where('role', 'advertising')->get();
+
         return response()->json([
+            'categories' => $categories,
             'by_category' => $bycategory,
+            'by_category_user' => $analytic->journal_advertising_count_by_category_and_user($month),
             'users_ads' => $dataUserAds,
             'user_data' => $userData
         ]);

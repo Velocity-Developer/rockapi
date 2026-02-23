@@ -38,4 +38,34 @@ class AnalyticsAdvertising
             ->orderBy('journal_category_id')
             ->get();
     }
+
+    public function journal_advertising_count_by_category_and_user($month = null)
+    {
+        $query = Journal::query()
+            ->with([
+                'journalCategory:id,name,icon',
+                'user:id,name',
+            ])
+            ->where('role', 'advertising');
+
+        if ($month) {
+            $date = Carbon::createFromFormat('Y-m', $month);
+
+            $query->whereYear('start', $date->year)
+                ->whereMonth('start', $date->month);
+        } else {
+            $query->whereYear('start', now()->year)
+                ->whereMonth('start', now()->month);
+        }
+
+        return $query->select(
+            'journal_category_id',
+            'user_id',
+            DB::raw('COUNT(*) as total')
+        )
+            ->groupBy('journal_category_id', 'user_id')
+            ->orderBy('journal_category_id')
+            ->orderBy('user_id')
+            ->get();
+    }
 }
