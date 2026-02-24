@@ -103,7 +103,8 @@ class NetProfitController extends Controller
             if (! $biaya_ads) {
                 try {
                     (new ConvertDataLamaService)->handle_biaya_ads();
-                    $biaya_ads = BiayaAds::where('bulan', $the_bulan)->sum('biaya');
+                    $biaya_ads = BiayaAds::where('bulan', $the_bulan)->where('kategori', $kategori_biaya_ads)->sum('biaya');
+                    $biaya_ads = $biaya_ads ?? 0;
                 } catch (\Exception $e) {
                     return response()->json(['error' => $e->getMessage()], 500);
                 }
