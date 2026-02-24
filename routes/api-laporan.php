@@ -4,6 +4,7 @@ use App\Http\Controllers\Laporan\NetProfitController;
 use App\Http\Controllers\Laporan\PerpanjangWebJangkaController;
 use App\Http\Controllers\Laporan\ProjectProfitController;
 use App\Http\Controllers\Laporan\SiklusLayananController;
+use App\Http\Controllers\Laporan\OrderKumulatifController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -13,4 +14,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('laporan/net_profit', [NetProfitController::class, 'index']);
     Route::get('laporan/siklus_layanan', [SiklusLayananController::class, 'index']);
     Route::get('laporan/net_profit_perpanjangan', [NetProfitController::class, 'perpanjangan']);
+    Route::get('laporan/order_kumulatif', [OrderKumulatifController::class, 'index']);
 });
