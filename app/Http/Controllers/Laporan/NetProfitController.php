@@ -146,6 +146,7 @@ class NetProfitController extends Controller
             $biaya_per_chat = $biaya_ads / $chat_ads;
 
             return [
+                'bulan' => $the_bulan,
                 'label' => $formatter->toIndonesianMonthYear($item->first()->tgl_masuk),
                 'omzet' => $omzet,
                 'order' => $total_project,
