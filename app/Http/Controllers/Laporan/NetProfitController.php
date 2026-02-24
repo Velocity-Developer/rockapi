@@ -127,6 +127,7 @@ class NetProfitController extends Controller
             $profit_kotor_order = $profit_kotor / $total_order;
             $net_profit = $profit_kotor - $biaya_ads;
             $biaya_per_order = $biaya_ads / $total_order;
+            $biaya_per_chat = $biaya_ads / $chat_ads;
 
             return [
                 'label' => $formatter->toIndonesianMonthYear($item->first()->tgl_masuk),
@@ -143,6 +144,7 @@ class NetProfitController extends Controller
                 'profit_kotor_order' => $profit_kotor_order,
                 'net_profit' => $net_profit,
                 'biaya_per_order' => $biaya_per_order,
+                'biaya_per_chat' => $biaya_per_chat,
             ];
         });
 
