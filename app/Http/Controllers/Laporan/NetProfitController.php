@@ -27,6 +27,19 @@ class NetProfitController extends Controller
         // dapatkan hari terakhir dari bulan $sampai
         $sampai = Carbon::parse($sampai)->endOfMonth()->format('Y-m-d 23:59:59');
 
+        $period = \Carbon\CarbonPeriod::create(
+            Carbon::parse($dari)->startOfMonth(),
+            '1 month',
+            Carbon::parse($sampai)->startOfMonth()
+        );
+
+        $all_months = collect();
+
+        foreach ($period as $date) {
+            $key = $date->format('Ym');
+            $all_months[$key] = $date->format('Y-m');
+        }
+
         $campaign = $request->input('campaign');
         //set vias_filter_string
         if ($campaign == 'ads_k2') {
@@ -80,77 +93,71 @@ class NetProfitController extends Controller
         $raw_data = $query->get();
 
         // group by tgl_masuk: year and month
-        $raw_data = $raw_data->groupBy(function ($item) {
+        $grouped = $raw_data->groupBy(function ($item) {
             return Carbon::parse($item->tgl_masuk)->format('Ym');
         });
 
+        $final_data = collect();
+
         // hitung total biaya
-        $raw_data = $raw_data->map(function ($item) use ($formatter, $rekap_chat, $kategori_biaya_ads) {
+        foreach ($all_months as $key => $the_bulan) {
 
-            $the_bulan = Carbon::parse($item->first()->tgl_masuk)->format('Y-m');
+            $items = $grouped[$key] ?? collect();
 
-            // format bulan
             $bulan_formatted = $formatter->toIndonesianMonthYear($the_bulan);
 
-            // get harga domain by bulan
             $harga_domain = HargaDomain::where('bulan', $bulan_formatted)->first();
             $harga_domain = $harga_domain ? $harga_domain->biaya_normalized : 0;
 
-            // get total biaya ads by bulan
-            $biaya_ads = BiayaAds::where('bulan', $the_bulan)->where('kategori', $kategori_biaya_ads)->sum('biaya');
-
-            // jika kosong, maka jalankan fungsi service ConvertDataLamaService::handle_biaya_ads
-            if (! $biaya_ads) {
-                try {
-                    (new ConvertDataLamaService)->handle_biaya_ads();
-                    $biaya_ads = BiayaAds::where('bulan', $the_bulan)->where('kategori', $kategori_biaya_ads)->sum('biaya');
-                    $biaya_ads = $biaya_ads ?? 0;
-                } catch (\Exception $e) {
-                    return response()->json(['error' => $e->getMessage()], 500);
-                }
-            }
+            $biaya_ads = BiayaAds::where('bulan', $the_bulan)
+                ->where('kategori', $kategori_biaya_ads)
+                ->sum('biaya') ?? 0;
 
             $omzet = 0;
             $total_order = 0;
             $projects = [];
 
-            foreach ($item as $value) {
+            foreach ($items as $value) {
 
-                // waktu chat pertama
-                $waktu_chat_pertama = $value->webhost->waktu;
-                // ubah format
-                $waktu_chat_pertama = Carbon::parse($waktu_chat_pertama)->format('Y-m');
-                // sisipkan ke dalam item
-                $value->waktu_chat_pertama = Carbon::parse($waktu_chat_pertama)->format('Y-m-d');
-
-                // ubah format tgl_masuk
+                $waktu_chat_pertama = Carbon::parse($value->webhost->waktu)->format('Y-m');
                 $bln_masuk = Carbon::parse($value->tgl_masuk)->format('Y-m');
 
-                // jika waktu_chat_pertama = tgl_masuk
                 if ($waktu_chat_pertama == $bln_masuk) {
                     $omzet += $value->dibayar;
-                    $total_order += 1;
+                    $total_order++;
                     $projects[] = $value;
                 }
             }
 
-            // $total_project = $item->count();
-            $total_project = $total_order;
-            $biaya_domain = $harga_domain * $total_project;
+            $biaya_domain = $harga_domain * $total_order;
             $profit_kotor = $omzet - $biaya_domain;
-            $chat_ads = $rekap_chat[$the_bulan] ? $rekap_chat[$the_bulan]['total'] : 0;
-            $chat_details = $rekap_chat[$the_bulan] ? $rekap_chat[$the_bulan]['details'] : [];
-            $persen_order = ($total_order / $chat_ads) * 100;
-            $profit_kotor_order = $profit_kotor / $total_order;
-            $net_profit = $profit_kotor - $biaya_ads;
-            $biaya_per_order = $biaya_ads / $total_order;
-            $biaya_per_chat = $biaya_ads / $chat_ads;
 
-            return [
+            $chat_ads = $rekap_chat[$the_bulan]['total'] ?? 0;
+            $chat_details = $rekap_chat[$the_bulan]['details'] ?? [];
+
+            $persen_order = $chat_ads > 0
+                ? round(($total_order / $chat_ads) * 100, 1) . '%'
+                : '0%';
+
+            $profit_kotor_order = $total_order > 0
+                ? $profit_kotor / $total_order
+                : 0;
+
+            $net_profit = $profit_kotor - $biaya_ads;
+
+            $biaya_per_order = $total_order > 0
+                ? $biaya_ads / $total_order
+                : 0;
+
+            $biaya_per_chat = $chat_ads > 0
+                ? $biaya_ads / $chat_ads
+                : 0;
+
+            $final_data->push([
                 'bulan' => $the_bulan,
-                'label' => $formatter->toIndonesianMonthYear($item->first()->tgl_masuk),
+                'label' => $bulan_formatted,
                 'omzet' => $omzet,
-                'order' => $total_project,
+                'order' => $total_order,
                 'biaya_iklan' => (int) $biaya_ads,
                 'harga_domain' => $harga_domain,
                 'biaya_domain' => $biaya_domain,
@@ -158,22 +165,19 @@ class NetProfitController extends Controller
                 'projects' => $projects,
                 'chat_ads' => $chat_ads,
                 'chat_details' => $chat_details,
-                'persen_order' => $persen_order ? round($persen_order, 1) . '%' : 0,
+                'persen_order' => $persen_order,
                 'profit_kotor_order' => $profit_kotor_order,
                 'net_profit' => $net_profit,
                 'biaya_per_order' => $biaya_per_order,
                 'biaya_per_chat' => $biaya_per_chat,
-            ];
-        });
-
-        // array remove key
-        $raw_data = $raw_data->values()->toArray();
+            ]);
+        }
 
         return response()->json([
             'dari' => $dari,
             'sampai' => $sampai,
             'campaign' => $campaign,
-            'data' => $raw_data,
+            'data' => $final_data->reverse()->values(),
             'rekap_chat' => $rekap_chat,
         ]);
     }
