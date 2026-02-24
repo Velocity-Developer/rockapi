@@ -27,8 +27,24 @@ class NetProfitController extends Controller
         // dapatkan hari terakhir dari bulan $sampai
         $sampai = Carbon::parse($sampai)->endOfMonth()->format('Y-m-d 23:59:59');
 
+        $campaign = $request->input('campaign');
+        //set vias_filter_string
+        if ($campaign == 'ads_k2') {
+            $vias_filter = ['Whatsapp K2', 'Tidio Chat K2'];
+            $kategori_biaya_ads = 'ads_k2';
+        } else if ($campaign == 'ads_k3') {
+            $vias_filter = ['Whatsapp K3', 'Tidio Chat K3'];
+            $kategori_biaya_ads = 'ads_k3';
+        } else if ($campaign == 'ads3') {
+            $vias_filter = ['Whatsapp 3', 'Tidio Chat 3'];
+            $kategori_biaya_ads = 'ads3';
+        } else {
+            $vias_filter = ['Whatsapp', 'Tidio Chat', 'Telegram'];
+            $kategori_biaya_ads = 'ads';
+        }
+
         // rekap chat
-        $rekap_chat = $this->rekap_chat($dari, $sampai);
+        $rekap_chat = $this->rekap_chat($dari, $sampai, $vias_filter);
 
         $jenis_pembuatan = [
             'Pembuatan',
@@ -53,8 +69,8 @@ class NetProfitController extends Controller
         $query->whereBetween('tgl_masuk', [$dari, $sampai]);
 
         // filter relasi webhost via
-        $query->whereHas('webhost', function ($query) use ($dari, $sampai) {
-            $query->whereIn('via', ['Whatsapp', 'Tidio Chat', 'Telegram'])
+        $query->whereHas('webhost', function ($query) use ($dari, $sampai, $vias_filter) {
+            $query->whereIn('via', $vias_filter)
                 ->whereBetween('waktu', [$dari, $sampai]);
         });
 
@@ -69,7 +85,7 @@ class NetProfitController extends Controller
         });
 
         // hitung total biaya
-        $raw_data = $raw_data->map(function ($item) use ($formatter, $rekap_chat) {
+        $raw_data = $raw_data->map(function ($item) use ($formatter, $rekap_chat, $kategori_biaya_ads) {
 
             $the_bulan = Carbon::parse($item->first()->tgl_masuk)->format('Y-m');
 
@@ -81,7 +97,7 @@ class NetProfitController extends Controller
             $harga_domain = $harga_domain ? $harga_domain->biaya_normalized : 0;
 
             // get total biaya ads by bulan
-            $biaya_ads = BiayaAds::where('bulan', $the_bulan)->where('kategori', 'ads')->sum('biaya');
+            $biaya_ads = BiayaAds::where('bulan', $the_bulan)->where('kategori', $kategori_biaya_ads)->sum('biaya');
 
             // jika kosong, maka jalankan fungsi service ConvertDataLamaService::handle_biaya_ads
             if (! $biaya_ads) {
@@ -159,10 +175,10 @@ class NetProfitController extends Controller
         ]);
     }
 
-    private function rekap_chat($dari, $sampai)
+    private function rekap_chat($dari, $sampai, $vias_filter)
     {
         $query = RekapChat::whereBetween('chat_pertama', [$dari, $sampai])
-            ->whereIn('via', ['Telegram', 'Tidio Chat', 'Whatsapp'])
+            ->whereIn('via', $vias_filter)
             ->whereNotIn('alasan', ['Salah Sambung'])
             ->get();
 
