@@ -170,6 +170,7 @@ class NetProfitController extends Controller
         return response()->json([
             'dari' => $dari,
             'sampai' => $sampai,
+            'campaign' => $campaign,
             'data' => $raw_data,
             'rekap_chat' => $rekap_chat,
         ]);
