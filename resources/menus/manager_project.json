@@ -58,5 +58,11 @@
         "label": "TodoList",
         "icon": "lucide:check-square",
         "route": "/todos"
+    },
+    {
+        "key": "kelola_quality",
+        "label": "Kelola Quality",
+        "icon": "lucide:circle-check-big",
+        "route": "/kelola_quality"
     }
 ]

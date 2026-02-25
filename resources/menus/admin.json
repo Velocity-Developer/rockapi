@@ -259,6 +259,11 @@
                 "key": "other_module_projects",
                 "label": "Module Projects",
                 "route": "/other/module-projects"
+            },
+            {
+                "key": "kelola_quality",
+                "label": "Kelola Quality",
+                "route": "/kelola_quality"
             }
         ]
     },
