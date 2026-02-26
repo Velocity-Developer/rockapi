@@ -34,5 +34,11 @@
         "label": "Customer",
         "icon": "lucide:users-round",
         "route": "/customer"
+    },
+    {
+        "key": "laporan_siklus_layanan",
+        "label": "Siklus Layanan",
+        "icon": "lucide:file-chart-line",
+        "route": "/laporan/siklus_layanan"
     }
 ]
