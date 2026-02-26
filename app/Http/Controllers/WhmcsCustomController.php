@@ -10,9 +10,8 @@ class WhmcsCustomController extends Controller
 {
     public function expired_domains(Request $request, WHMCSCustomService $whmcs): JsonResponse
     {
-        $date = (int) $request->input('date', date('Y-m-d'));
-
-        $domains = $whmcs->getDomainsExpiry($date) ?? [];
+        $month = $request->input('month', date('Y-m'));
+        $domains = $whmcs->getDomainsExpiry($month) ?? [];
         return response()->json($domains);
     }
 }

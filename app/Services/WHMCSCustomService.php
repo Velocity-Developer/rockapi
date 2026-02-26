@@ -50,7 +50,7 @@ class WHMCSCustomService
                 ];
             }
 
-            return $response->json('data') ?? [];
+            return $response->json() ?? [];
         } catch (ConnectionException $e) {
             return ['success' => false, 'type' => 'connection', 'message' => $e->getMessage()];
         } catch (RequestException $e) {
