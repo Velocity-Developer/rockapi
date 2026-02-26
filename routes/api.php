@@ -37,6 +37,7 @@ use App\Http\Controllers\HargaDomainController;
 use App\Http\Controllers\QualityController;
 use App\Http\Controllers\CutiController;
 use App\Http\Controllers\BiayaAdsController;
+use App\Http\Controllers\WhmcsCustomController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -185,6 +186,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/journal_timads_rangkuman', [JournalController::class, 'timads_rangkuman']);
     Route::get('/journal_timsupport_rangkuman', [JournalController::class, 'timsupport_rangkuman']);
     Route::get('/followup_advertiser_analytics', [FollowupAdvertiserController::class, 'analytics']);
+
+    //WHMCS Custom
+    Route::get('/whmcs-custom/expired-domains', [WhmcsCustomController::class, 'expired_domains']);
 });
 
 // Invoice PDF route
