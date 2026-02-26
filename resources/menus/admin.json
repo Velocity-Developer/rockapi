@@ -122,9 +122,9 @@
                 "route": "/laporan/net_profit"
             },
             {
-                "key": "laporan_siklus_layanan",
-                "label": "Siklus Layanan",
-                "route": "/laporan/siklus_layanan"
+                "key": "laporan_klien_perpanjang",
+                "label": "Klien Perpanjang",
+                "route": "/laporan/klien-perpanjang"
             },
             {
                 "key": "rekap_chat",
