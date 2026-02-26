@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 
 class WHMCSCustomService
 {
@@ -11,7 +13,7 @@ class WHMCSCustomService
 
     public function __construct()
     {
-        $this->apiUrl = config('services.whmcs.api_url');
+        $this->apiUrl = config('services.whmcs.custom_url');
     }
 
     public function getProducts(): array
@@ -24,14 +26,48 @@ class WHMCSCustomService
         return $response->json('packages') ?? [];
     }
 
-    public function getDomainsExpiry($date = null): array
+    public function getDomainsExpiry(?string $date = null): array
     {
-        $response = Http::timeout(30)->get($this->apiUrl . '/get-domains.php', [
+        $params = [
+            'action'       => 'expiry',
             'responsetype' => 'json',
-            'action' => 'expiry',
-            'date'   => $date ?? date('Y-m-d'),
-        ]);
+            'timeout'      => 30,
+        ];
 
-        return $response->json('data') ?? [];
+        if (!empty($date)) {
+            $params['date'] = $date;
+        }
+
+        $url = rtrim($this->apiUrl, '/') . '/get-domains.php';
+
+        try {
+            $response = Http::timeout(30)->get($url, $params);
+
+            if ($response->failed()) {
+                return [
+                    'success' => false,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'json' => $response->json(),
+                    'url'    => $url . '?' . http_build_query($params),
+                ];
+            }
+
+            return $response->json('data') ?? [];
+        } catch (ConnectionException $e) {
+            return ['success' => false, 'type' => 'connection', 'message' => $e->getMessage()];
+        } catch (RequestException $e) {
+            // biasanya muncul kalau pakai ->throw()
+            return [
+                'success' => false,
+                'type' => 'request',
+                'status' => optional($e->response)->status(),
+                'body' => optional($e->response)->body(),
+                'message' => $e->getMessage(),
+                'url'    => $url . '?' . http_build_query($params),
+            ];
+        } catch (\Throwable $e) {
+            return ['success' => false, 'type' => 'other', 'message' => $e->getMessage()];
+        }
     }
 }
