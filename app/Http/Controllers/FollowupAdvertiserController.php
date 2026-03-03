@@ -47,7 +47,11 @@ class FollowupAdvertiserController extends Controller
         ]);
 
         $user = Auth::user();
-        $followup_advertiser = FollowupAdvertiser::create($validated);
+        $followup_advertiser = FollowupAdvertiser::create([
+            'id_webhost_ads' => intval($validated['id_webhost_ads']),
+            'status_ads' => $validated['status_ads'],
+            'update_ads' => $validated['update_ads'],
+        ]);
 
         // dapatkan journal_category dengan name = 'Follow up'
         $journalCategory = JournalCategory::where('name', 'Follow up')->where('role', 'advertising')->first();

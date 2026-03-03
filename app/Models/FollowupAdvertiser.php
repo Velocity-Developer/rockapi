@@ -21,6 +21,6 @@ class FollowupAdvertiser extends Model
     // relasi many ke tabel webhost
     public function journals()
     {
-        return $this->belongsTo(Webhost::class, 'webhost_id');
+        return $this->belongsTo(Webhost::class, 'id_webhost_ads');
     }
 }
