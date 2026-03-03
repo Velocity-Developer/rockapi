@@ -10,6 +10,7 @@ use App\Services\Analytics\AnalyticsSupport;
 use App\Services\Analytics\AnalyticsAdvertising;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Services\JournalServices;
 
 class JournalController extends Controller
 {
@@ -204,7 +205,7 @@ class JournalController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request, JournalServices $journalServices): JsonResponse
     {
         $request->validate([
             'title' => 'required|string',
@@ -220,53 +221,7 @@ class JournalController extends Controller
             'journal_category_id' => 'nullable|exists:journal_categories,id',
         ]);
 
-        if (! $request->input('user_id')) {
-            $user_id = auth()->user()->id;
-            $request->merge(['user_id' => $user_id]);
-        }
-
-        $journal = Journal::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'start' => $request->start,
-            'end' => $request->end,
-            'status' => $request->status,
-            'priority' => $request->priority,
-            'user_id' => $request->user_id,
-            'role' => $request->role,
-            'webhost_id' => $request->webhost_id,
-            'cs_main_project_id' => $request->cs_main_project_id,
-            'journal_category_id' => $request->journal_category_id,
-        ]);
-
-        // .simpan detail_support
-        if ($request->detail_support) {
-            $detailSupport = $request->detail_support;
-
-            // Cek apakah minimal salah satu field memiliki nilai
-            $hasData = ! empty($detailSupport['hp']) ||
-                ! empty($detailSupport['wa']) ||
-                ! empty($detailSupport['email']) ||
-                ! empty($detailSupport['biaya']) ||
-                ! empty($detailSupport['tanggal_bayar']);
-
-            if ($hasData) {
-                // update or create
-                JournalDetailSupport::updateOrCreate(
-                    ['journal_id' => $journal->id],
-                    [
-                        'hp' => $detailSupport['hp'] ?? '',
-                        'wa' => $detailSupport['wa'] ?? '',
-                        'email' => $detailSupport['email'] ?? '',
-                        'biaya' => $detailSupport['biaya'] ?? null,
-                        'tanggal_bayar' => $detailSupport['tanggal_bayar'] ?? null,
-                    ]
-                );
-            }
-        }
-
-        // get journal by id
-        $journal = Journal::with(['user', 'journalCategory', 'detail_support'])->findOrFail($journal->id);
+        $journal = $journalServices->store($request);
 
         return response()->json($journal);
     }
