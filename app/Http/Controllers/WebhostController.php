@@ -27,16 +27,43 @@ class WebhostController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
+
+        $with = $request->query('with');
+        if (!$with) {
+            $with = [
+                'paket',
+                'csMainProjects',
+                'csMainProjects.wm_project:id_wm_project,id_karyawan,user_id,id,date_mulai,date_selesai,catatan,status_multi,webmaster,status_project',
+                'csMainProjects.wm_project.user:id,name,avatar',
+                'customers'
+            ];
+        } else if ($with === 'false') {
+            $with = [];
+        } else {
+            $with = $with ? explode(',', $with) : [];
+        }
+
+        $select = $request->query('select');
+        if ($select) {
+            $select = $select ? explode(',', $select) : [];
+        }
+
+        $query = Webhost::query();
+        if ($with) {
+            $query->with($with);
+        }
+        if ($select) {
+            $query->select($select);
+        } else {
+            $query->select('id_webhost', 'nama_web', 'kategori');
+        }
+
+        $webhost = $query->find($id);
+
         // get by id, with paket,csMainProjects
-        $webhost = Webhost::with(
-            'paket',
-            'csMainProjects',
-            'csMainProjects.wm_project:id_wm_project,id_karyawan,user_id,id,date_mulai,date_selesai,catatan,status_multi,webmaster,status_project',
-            'csMainProjects.wm_project.user:id,name,avatar',
-            'customers'
-        )->find($id);
+        // $webhost = Webhost::with($with)->select($select)->find($id);
 
         return response()->json($webhost);
     }
