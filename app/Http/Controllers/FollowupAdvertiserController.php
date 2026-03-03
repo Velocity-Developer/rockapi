@@ -22,6 +22,23 @@ class FollowupAdvertiserController extends Controller
         $query = CsMainProject::with('webhost:id_webhost,nama_web,id_paket,wa,kategori', 'webhost.paket', 'webhost.followup_advertiser');
         $query->select('id', 'id_webhost', 'tgl_masuk', 'jenis');
 
+        //kategori = webhost.kategori
+        $kategori = $request->query('kategori', '');
+        if ($kategori) {
+            $query->whereHas('webhost', function ($q) use ($kategori) {
+                $q->where('kategori', $kategori);
+            });
+        }
+
+        //search = webhost.nama_web, webhost.wa
+        $search = $request->query('search', '');
+        if ($search) {
+            $query->whereHas('webhost', function ($q) use ($search) {
+                $q->where('nama_web', 'like', '%' . $search . '%')
+                    ->orWhere('wa', 'like', '%' . $search . '%');
+            });
+        }
+
         //jenis
         $query->whereIn('jenis', ['Pembuatan', 'Pembuatan apk', 'Pembuatan apk custom', 'Pembuatan web konsep', 'Pembuatan Tanpa Domain', 'Pembuatan Tanpa Hosting', 'Pembuatan Tanpa Domain+Hosting']);
 
