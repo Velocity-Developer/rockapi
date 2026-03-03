@@ -27,6 +27,9 @@ class InvoiceController extends Controller
         if ($request->input('search_nomor')) {
             $query->where('nomor', $request->input('search_nomor'));
         }
+        if ($request->input('nomor')) {
+            $query->where('nomor', $request->input('nomor'));
+        }
 
         // Filter berdasarkan status
         if ($request->input('status')) {
@@ -68,7 +71,7 @@ class InvoiceController extends Controller
 
         // Filter berdasarkan unit
         if ($request->input('unit')) {
-            $query->where('unit', 'like', '%'.$request->input('unit').'%');
+            $query->where('unit', 'like', '%' . $request->input('unit') . '%');
         }
 
         // filter search_nama_web
@@ -76,9 +79,9 @@ class InvoiceController extends Controller
             $search = $request->input('search_nama_web');
 
             $query->whereHas('items', function ($q) use ($search) {
-                $q->where('nama', 'like', '%'.$search.'%')
+                $q->where('nama', 'like', '%' . $search . '%')
                     ->orWhereHas('webhost', function ($q2) use ($search) {
-                        $q2->where('nama_web', 'like', '%'.$search.'%');
+                        $q2->where('nama_web', 'like', '%' . $search . '%');
                     });
             });
         }
@@ -88,7 +91,7 @@ class InvoiceController extends Controller
             $search_hp = $request->input('search_hp');
             $query->where(function ($query) use ($search_hp) {
                 $query->whereHas('customer', function ($q) use ($search_hp) {
-                    $q->where('hp', 'like', '%'.$search_hp.'%');
+                    $q->where('hp', 'like', '%' . $search_hp . '%');
                 });
             });
         }
@@ -177,7 +180,7 @@ class InvoiceController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['message' => 'Terjadi kesalahan: '.$e->getMessage()], 500);
+            return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
         }
     }
 
@@ -298,7 +301,7 @@ class InvoiceController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['message' => 'Terjadi kesalahan: '.$e->getMessage()], 500);
+            return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
         }
     }
 
@@ -328,7 +331,7 @@ class InvoiceController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['message' => 'Terjadi kesalahan: '.$e->getMessage()], 500);
+            return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
         }
     }
 
@@ -372,7 +375,7 @@ class InvoiceController extends Controller
         $pdf->setPaper('A4', 'portrait');
 
         // Set filename
-        $filename = 'Invoice-'.$invoice->nomor.'.pdf';
+        $filename = 'Invoice-' . $invoice->nomor . '.pdf';
 
         // Check if download parameter is true
         if ($request->get('download') && $request->get('download') === 'true') {
