@@ -32,10 +32,10 @@ class WebhostController extends Controller
 
         $query = Webhost::query();
         $with = $request->query('with');
-        if ($with) {
+        if ($with && $with !== 'false') {
             $with = $with ? explode(',', $with) : '';
             $query->with($with);
-        } else {
+        } else if (empty($with)) {
             $query->with(
                 'paket',
                 'csMainProjects',
