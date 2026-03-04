@@ -27,7 +27,7 @@ class TodoUser extends Model
 
     public function todo(): BelongsTo
     {
-        return $this->belongsTo(Todo::class);
+        return $this->belongsTo(TodoList::class);
     }
 
     public function journal(): BelongsTo
