@@ -31,7 +31,17 @@ class WHMCSSyncServices
         foreach ($domains as $domain) {
             WhmcsDomain::updateOrCreate(
                 ['whmcs_id' => $domain['id']],
-                $domain
+                [
+                    'whmcs_userid' => $domain['userid'],
+                    'domain' => $domain['domain'],
+                    'expirydate' => $domain['expirydate'],
+                    'registrationdate' => $domain['registrationdate'],
+                    'nextduedate' => $domain['nextduedate'],
+                    'type' => $domain['type'],
+                    'status' => $domain['status'],
+                    'registrar' => $domain['registrar'],
+                    'user_email' => $domain['user_email'],
+                ]
             );
         }
 

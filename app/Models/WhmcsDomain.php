@@ -8,6 +8,7 @@ class WhmcsDomain extends Model
 {
     protected $fillable = [
         'whmcs_id',
+        'whmcs_userid',
         'domain',
         'expirydate',
         'registrationdate',
