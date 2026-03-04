@@ -149,7 +149,7 @@ class AnalyticsSupport
                 'journal_categories.name as category_name',
                 'journal_categories.id as category_id',
                 DB::raw('COUNT(journals.id) as total_journal'),
-                DB::raw('AVG(TIMESTAMPDIFF(MINUTE, journals.start, journals.end)) as avg_minutes')
+                DB::raw('SUM(TIMESTAMPDIFF(MINUTE, journals.start, journals.end)) as avg_minutes')
             )
             ->groupBy('users.name', 'users.id', 'journal_categories.name', 'journal_categories.id')
             ->orderBy('users.name')
