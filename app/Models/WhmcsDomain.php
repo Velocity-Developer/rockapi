@@ -15,5 +15,12 @@ class WhmcsDomain extends Model
         'type',
         'status',
         'registrar',
+        'user_email'
     ];
+
+    // relasi ke tabel webhost
+    public function webhost()
+    {
+        return $this->belongsTo(Webhost::class, 'domain', 'nama_web');
+    }
 }

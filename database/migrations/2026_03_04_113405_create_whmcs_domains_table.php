@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('type')->nullable();
             $table->string('status')->nullable();
             $table->string('registrar')->nullable();
+            $table->string('user_email')->nullable();
             $table->timestamps();
         });
     }
