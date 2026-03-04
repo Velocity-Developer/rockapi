@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\WhmcsDomain;
+use App\Models\WhmcsUser;
 use App\Services\WHMCSCustomService;
 
 class WHMCSSyncServices
@@ -41,6 +42,16 @@ class WHMCSSyncServices
                     'status' => $domain['status'],
                     'registrar' => $domain['registrar'],
                     'user_email' => $domain['user_email'],
+                ]
+            );
+
+            // menyimpan data user ke tabel whmcs_users
+            WhmcsUser::updateOrCreate(
+                ['whmcs_id' => $domain['userid']],
+                [
+                    'email' => $domain['user_email'],
+                    'firstname' => $domain['user_first_name'],
+                    'lastname' => $domain['user_last_name'],
                 ]
             );
         }
