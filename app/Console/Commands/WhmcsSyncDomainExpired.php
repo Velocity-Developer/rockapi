@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\WhmcsDomain;
-use App\Services\WHMCSCustomService;
+use App\Services\WHMCSSyncServices;
 use Illuminate\Support\Facades\Log;
 
 class WhmcsSyncDomainExpired extends Command
@@ -29,23 +29,13 @@ class WhmcsSyncDomainExpired extends Command
     public function handle()
     {
         // mengambil data domain yang sudah expired dari WHMCS
-        $domains = (new WHMCSCustomService())->getDomainsExpiry();
+        $domains = (new WHMCSSyncServices())->syncDomainExpired();
 
-        //if success = false
-        if (isset($domains['success']) && $domains['success'] === false) {
-            Log::error('Failed to synchronize domain expired: ' . $domains['message']);
-            $this->info('Failed to synchronize domain expired.');
+        //if domains = 0
+        if ($domains === 0) {
+            Log::info('No domain expired synchronized.');
+            $this->info('No domain expired synchronized.');
             return;
-        }
-
-        $domains = $domains['data'] ?? [];
-
-        // menyimpan data domain ke tabel whmcs_domains
-        foreach ($domains as $domain) {
-            WhmcsDomain::updateOrCreate(
-                ['whmcs_id' => $domain['id']],
-                $domain
-            );
         }
 
         $this->info('Domain expired synchronized successfully.');
