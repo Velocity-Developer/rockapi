@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\WhmcsDomain;
+use App\Models\WhmcsHosting;
 use App\Models\WhmcsUser;
 use App\Services\WHMCSCustomService;
 
@@ -57,5 +58,45 @@ class WHMCSSyncServices
         }
 
         return count($domains);
+    }
+
+    /**
+     * sync hosting expired from WHMCS
+     */
+    public function syncHostingExpired($month = null)
+    {
+        // mengambil data hosting expired dari WHMCS
+        $hostings = (new WHMCSCustomService())->getHostingsExpiry($month);
+
+        //if success = false
+        if (isset($hostings['success']) && $hostings['success'] === false) {
+            return 0;
+        }
+
+        //if data is empty
+        if (empty($hostings['data'])) {
+            return 0;
+        }
+
+        $hostings = $hostings['data'] ?? [];
+
+        // menyimpan data hosting ke tabel whmcs_hostings
+        foreach ($hostings as $hosting) {
+            WhmcsHosting::updateOrCreate(
+                ['whmcs_id' => $hosting['id']],
+                [
+                    'whmcs_userid' => $hosting['userid'],
+                    'domain' => $hosting['domain'],
+                    'nextduedate' => $hosting['nextduedate'],
+                    'billingcycle' => $hosting['billingcycle'],
+                    'domainstatus' => $hosting['domainstatus'],
+                    'package_name' => $hosting['package_name'],
+                    'package_servertype' => $hosting['package_servertype'],
+                    'package_name_id' => $hosting['package_name_id'],
+                ]
+            );
+        }
+
+        return count($hostings);
     }
 }
