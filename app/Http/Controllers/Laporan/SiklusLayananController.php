@@ -209,16 +209,7 @@ class SiklusLayananController extends Controller
         $m = date('m', strtotime($month));
         $y = date('Y', strtotime($month));
 
-        $query = WhmcsUser::with([
-            'hostings' => function ($q) use ($m, $y) {
-                $q->whereMonth('nextduedate', $m)
-                    ->whereYear('nextduedate', $y);
-            },
-            'domains' => function ($q) use ($m, $y) {
-                $q->whereMonth('expirydate', $m)
-                    ->whereYear('expirydate', $y);
-            }
-        ]);
+        $query = WhmcsUser::with('hostings', 'domains');
 
         $query->where(function ($q) use ($m, $y) {
 
