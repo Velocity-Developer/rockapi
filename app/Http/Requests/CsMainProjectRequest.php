@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CsMainProjectRequest extends FormRequest
 {
@@ -31,7 +32,32 @@ class CsMainProjectRequest extends FormRequest
             'deskripsi' => 'nullable|string',
             'trf' => 'nullable|integer',
             'tgl_masuk' => 'required|string',
-            'tgl_deadline' => 'required|string',
+            'tgl_deadline' => [
+                Rule::requiredIf(in_array($this->jenis, [
+                    'Pembuatan apk',
+                    'Pembuatan apk biasa',
+                    'Pembuatan apk custom',
+                    'Pembuatan',
+                    'Pembuatan Tanpa Domain',
+                    'Pembuatan Tanpa Hosting',
+                    'Pembuatan Tanpa Domain+Hosting',
+                    'Jasa Input Produk',
+                    'Jasa Update Web',
+                    'Jasa Buat Email',
+                    'Jasa Ganti Domain',
+                    'Jasa SEO',
+                    'Jasa Buat Facebook',
+                    'Jasa Buat Akun Sosmed',
+                    'Jasa rating google maps',
+                    'Jasa buat google maps',
+                    'Redesign',
+                    'Jasa Pembuatan Logo',
+                    'Compro PDF',
+                    'Pembuatan web konsep',
+                ])),
+                'nullable',
+                'date'
+            ],
             'biaya' => 'required|integer',
             'dibayar' => 'nullable|integer',
             'saldo' => 'nullable|string',
