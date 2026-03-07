@@ -55,6 +55,25 @@ class WHMCSSyncServices
                     'lastname' => $domain['user_last_name'],
                 ]
             );
+
+            if (empty($domain['hosting_id'])) {
+                continue;
+            }
+
+            // menyimpan data hosting ke tabel whmcs_hostings
+            WhmcsHosting::updateOrCreate(
+                ['whmcs_id' => $domain['hosting_id']],
+                [
+                    'whmcs_userid' => $domain['hosting_userid'],
+                    'domain' => $domain['hosting_domain'],
+                    'nextduedate' => $domain['hosting_nextduedate'],
+                    'billingcycle' => $domain['hosting_billingcycle'],
+                    'domainstatus' => $domain['hosting_domainstatus'],
+                    'package_name' => $domain['hosting_package_name'],
+                    'package_servertype' => $domain['hosting_package_servertype'],
+                    'package_name_id' => $domain['hosting_package_name_id'],
+                ]
+            );
         }
 
         return count($domains);
