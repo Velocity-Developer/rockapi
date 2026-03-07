@@ -4,8 +4,13 @@ namespace App\Http\Controllers\Laporan;
 
 use App\Http\Controllers\Controller;
 use App\Models\Webhost;
+use App\Models\WhmcsUser;
+use App\Models\WhmcsHosting;
+use App\Models\WhmcsDomain;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Services\WHMCSSyncServices;
 
 class SiklusLayananController extends Controller
 {
@@ -115,8 +120,8 @@ class SiklusLayananController extends Controller
             ->flatMap->csMainProjects
             ->where('jenis', 'Perpanjangan') // hanya ambil yang jenis perpanjangan
             ->filter(function ($item) use ($tahun, $bulan) { // filter perpanjangan bulan ini
-                return \Carbon\Carbon::parse($item->tgl_masuk)->year == $tahun
-                    && \Carbon\Carbon::parse($item->tgl_masuk)->month == $bulan;
+                return Carbon::parse($item->tgl_masuk)->year == $tahun
+                    && Carbon::parse($item->tgl_masuk)->month == $bulan;
             })
             ->sum('dibayar');
 
@@ -194,5 +199,70 @@ class SiklusLayananController extends Controller
         ];
 
         return response()->json($results);
+    }
+
+    public function expiredWhmcs(Request $request)
+    {
+
+        $month = $request->input('month', date('Y-m'));
+
+        $m = date('m', strtotime($month));
+        $y = date('Y', strtotime($month));
+
+        $query = WhmcsUser::with([
+            'hostings' => function ($q) use ($m, $y) {
+                $q->whereMonth('nextduedate', $m)
+                    ->whereYear('nextduedate', $y);
+            },
+            'domains' => function ($q) use ($m, $y) {
+                $q->whereMonth('expirydate', $m)
+                    ->whereYear('expirydate', $y);
+            }
+        ]);
+
+        $query->where(function ($q) use ($m, $y) {
+
+            $q->whereHas('hostings', function ($q2) use ($m, $y) {
+                $q2->whereMonth('nextduedate', $m)
+                    ->whereYear('nextduedate', $y);
+            })
+
+                ->orWhereHas('domains', function ($q2) use ($m, $y) {
+                    $q2->whereMonth('expirydate', $m)
+                        ->whereYear('expirydate', $y);
+                });
+        });
+
+        $whmcsUsers = $query->get();
+
+        $data = [];
+
+        if ($whmcsUsers->isEmpty()) {
+
+            // mengambil data domain yang sudah expired dari WHMCS
+            (new WHMCSSyncServices())->syncDomainExpired($month);
+
+            // mengambil data hosting expired dari WHMCS
+            (new WHMCSSyncServices())->syncHostingExpired($month);
+
+            return response()->json([]);
+        }
+
+        foreach ($whmcsUsers as $user) {
+            //domains
+            foreach ($user->domains as $domain) {
+                $data[$domain->domain]['domain'] = $domain;
+                $data[$domain->domain]['domain_name'] = $domain->domain;
+            }
+            //hostings
+            foreach ($user->hostings as $hosting) {
+                $data[$hosting->domain]['hosting'] = $hosting;
+                $data[$hosting->domain]['domain_name'] = $hosting->domain;
+            }
+        }
+
+        $reindexed_array = array_values($data);
+
+        return response()->json($reindexed_array);
     }
 }

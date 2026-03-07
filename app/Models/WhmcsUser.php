@@ -18,4 +18,10 @@ class WhmcsUser extends Model
     {
         return $this->hasMany(WhmcsDomain::class, 'whmcs_userid', 'whmcs_id');
     }
+
+    //relasi one to many dengan whmcs_webhosting
+    public function hostings()
+    {
+        return $this->hasMany(WhmcsHosting::class, 'whmcs_userid', 'whmcs_id');
+    }
 }
