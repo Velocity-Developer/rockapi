@@ -29,5 +29,8 @@ Schedule::call(function () {
     \App\Services\CronRekapFormServices::full_id();
 })->hourly();
 
-// cron setiap hari jam 7:05 untuk synchronize domain expired
-Schedule::command('whmcs:sync-domain-expired')->dailyAt('07:05');
+// cron setiap hari jam 7:10 untuk synchronize domain expired
+Schedule::command('whmcs:sync-domain-expired')->dailyAt('07:10');
+
+// cron setiap hari jam 7:15 untuk synchronize hosting expired
+Schedule::command('whmcs:sync-hosting-expired')->dailyAt('07:15');
