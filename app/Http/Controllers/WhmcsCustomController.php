@@ -24,7 +24,7 @@ class WhmcsCustomController extends Controller
 
         $domains = Cache::remember($cacheKey, now()->addHours(5), function () use ($whmcs, $month) {
             $gets = $whmcs->getExpiredMonth($month) ?? [];
-            return $gets ? array_values($gets['data']) : [];
+            return $gets && isset($gets['data']) ? array_values($gets['data']) : [];
         });
 
         return response()->json($domains);
