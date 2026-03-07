@@ -273,6 +273,15 @@ class SiklusLayananController extends Controller
 
         $reindexed_array = array_values($data);
 
-        return response()->json($reindexed_array);
+        return response()->json([
+            'total' => count($reindexed_array),
+            'total_domain' => $whmcsUsers->sum(function ($item) {
+                return $item->domains->count();
+            }),
+            'total_hosting' => $whmcsUsers->sum(function ($item) {
+                return $item->hostings->count();
+            }),
+            'data' => $reindexed_array
+        ]);
     }
 }
