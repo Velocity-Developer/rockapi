@@ -33,8 +33,10 @@ class JournalServices
             'journal_category_id' => $request->journal_category_id,
         ]);
 
-        // simpan detail_support
-        $this->handleDetailSupport($journal->id, $request->detail_support);
+        // simpan detail_support,jika ada data
+        if ($request->detail_support['hp'] == '' || $request->detail_support['wa'] == '' || $request->detail_support['email'] == '' || $request->detail_support['biaya'] == '' || $request->detail_support['tanggal_bayar'] == '') {
+            $this->handleDetailSupport($journal->id, $request->detail_support);
+        }
 
         // return journal lengkap relasi
         return Journal::with([
