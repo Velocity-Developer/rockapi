@@ -94,6 +94,7 @@ class CsMainProjectController extends Controller
                     'wa' => $request->input('wa'),
                     'email' => $request->input('email'),
                     'saldo' => $request->input('saldo'),
+                    'kategori' => $input_kategori_web,
                 ]);
             }
 
