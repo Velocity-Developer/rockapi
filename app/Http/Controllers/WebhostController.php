@@ -69,7 +69,38 @@ class WebhostController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'email' => 'nullable|string',
+            'hp' => 'nullable|string',
+            'hpads' => 'nullable|string',
+            'id_paket' => 'nullable|integer',
+            'kategori' => 'nullable|string',
+            'nama_web' => 'nullable|string',
+            'telegram' => 'nullable|string',
+            'via' => 'nullable|string',
+            'wa' => 'nullable|string',
+            'tgl_mulai' => 'nullable|date',
+        ]);
+
+        //find by id
+        $webhost = Webhost::find($id);
+        // jika tidak ada
+        if (!$webhost) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        }
+        $webhost->update([
+            'email' => $request->email,
+            'hp' => $request->hp,
+            'hpads' => $request->hpads,
+            'id_paket' => $request->id_paket,
+            'kategori' => $request->kategori,
+            'nama_web' => $request->nama_web,
+            'telegram' => $request->telegram,
+            'via' => $request->via,
+            'wa' => $request->wa,
+            'tgl_mulai' => $request->tgl_mulai,
+        ]);
+        return response()->json($webhost);
     }
 
     /**
@@ -79,6 +110,10 @@ class WebhostController extends Controller
     {
         // get by id
         $webhost = Webhost::find($id);
+        // jika tidak ada
+        if (!$webhost) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        }
         $webhost->delete();
 
         return response()->json($webhost);
