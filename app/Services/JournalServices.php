@@ -34,7 +34,13 @@ class JournalServices
         ]);
 
         // simpan detail_support,jika ada data
-        if ($request->detail_support['hp'] == '' || $request->detail_support['wa'] == '' || $request->detail_support['email'] == '' || $request->detail_support['biaya'] == '' || $request->detail_support['tanggal_bayar'] == '') {
+        if (
+            isset($request->detail_support) ||
+            isset($request->detail_support['wa']) ||
+            isset($request->detail_support['email']) ||
+            isset($request->detail_support['biaya']) ||
+            isset($request->detail_support['tanggal_bayar'])
+        ) {
             $this->handleDetailSupport($journal->id, $request->detail_support);
         }
 
