@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Services\WHMCSSyncServices;
 use App\Models\WhmcsHosting;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class WhmcsSyncHostingExpired extends Command
 {
@@ -28,8 +29,15 @@ class WhmcsSyncHostingExpired extends Command
      */
     public function handle()
     {
+
+        //default menggunakan bulan ini
+        $month = date('Y-m');
+
+        $start = Carbon::createFromFormat('Y-m', $month)->startOfMonth()->format('Y-m-d');
+        $end   = Carbon::createFromFormat('Y-m', $month)->endOfMonth()->format('Y-m-d');
+
         // mengambil data hosting expired dari WHMCS
-        $hostings = (new WHMCSSyncServices())->syncHostingExpired();
+        $hostings = (new WHMCSSyncServices())->syncHostingExpired($start, $end);
 
         //if hostings = 0
         if ($hostings === 0) {

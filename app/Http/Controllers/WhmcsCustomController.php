@@ -7,6 +7,7 @@ use App\Services\WHMCSCustomService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use App\Services\WHMCSSyncServices;
+use Carbon\Carbon;
 
 class WhmcsCustomController extends Controller
 {
@@ -34,12 +35,20 @@ class WhmcsCustomController extends Controller
     public function re_sync_domain_hosting(Request $request, WHMCSCustomService $whmcs): JsonResponse
     {
         $month = $request->input('month', date('Y-m'));
+        $start_date = Carbon::createFromFormat('Y-m', $month)
+            ->startOfMonth()
+            ->toDateString();
+
+        $end_date = Carbon::createFromFormat('Y-m', $month)
+            ->addMonths(3) // tambahkan 3 bulan
+            ->endOfMonth()
+            ->toDateString();
 
         // mengambil data domain yang sudah expired dari WHMCS
         $domains = (new WHMCSSyncServices())->syncDomainExpired($month);
 
         // mengambil data hosting expired dari WHMCS
-        $hostings = (new WHMCSSyncServices())->syncHostingExpired($month);
+        $hostings = (new WHMCSSyncServices())->syncHostingExpired($start_date, $end_date);
 
         return response()->json([
             'domains' => $domains,

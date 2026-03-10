@@ -230,11 +230,14 @@ class SiklusLayananController extends Controller
 
         if ($whmcsUsers->isEmpty()) {
 
+            $start = Carbon::createFromFormat('Y-m', $month)->startOfMonth()->format('Y-m-d');
+            $end   = Carbon::createFromFormat('Y-m', $month)->endOfMonth()->format('Y-m-d');
+
             // mengambil data domain yang sudah expired dari WHMCS
             (new WHMCSSyncServices())->syncDomainExpired($month);
 
             // mengambil data hosting expired dari WHMCS
-            (new WHMCSSyncServices())->syncHostingExpired($month);
+            (new WHMCSSyncServices())->syncHostingExpired($start, $end);
 
             return response()->json([]);
         }

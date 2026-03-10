@@ -6,6 +6,7 @@ use App\Models\WhmcsDomain;
 use App\Models\WhmcsHosting;
 use App\Models\WhmcsUser;
 use App\Services\WHMCSCustomService;
+use Carbon\Carbon;
 
 class WHMCSSyncServices
 {
@@ -82,10 +83,11 @@ class WHMCSSyncServices
     /**
      * sync hosting expired from WHMCS
      */
-    public function syncHostingExpired($month = null)
+    public function syncHostingExpired($start, $end)
     {
+
         // mengambil data hosting expired dari WHMCS
-        $hostings = (new WHMCSCustomService())->getHostingsExpiry($month);
+        $hostings = (new WHMCSCustomService())->getHostingsExpiry($start, $end);
 
         //if success = false
         if (isset($hostings['success']) && $hostings['success'] === false) {
@@ -116,6 +118,6 @@ class WHMCSSyncServices
             );
         }
 
-        return count($hostings);
+        return $hostings;
     }
 }
