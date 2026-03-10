@@ -25,8 +25,14 @@ class WhmcsHosting extends Model
     }
 
     // relasi ke tabel whmcs_user
-    public function user()
+    public function whmcs_user()
     {
         return $this->belongsTo(WhmcsUser::class, 'whmcs_userid', 'whmcs_id');
+    }
+
+    // relasi ke tabel whmcs_domain
+    public function domain()
+    {
+        return $this->belongsTo(WhmcsDomain::class, 'domain', 'domain');
     }
 }
