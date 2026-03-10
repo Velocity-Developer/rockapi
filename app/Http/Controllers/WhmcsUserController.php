@@ -56,10 +56,24 @@ class WhmcsUserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
-        //get whmcs user by id
-        $whmcsUser = WhmcsUser::find($id);
+        $query = WhmcsUser::query();
+
+        //check if with parameter is domains or hostings
+        $with = $request->input('with', '');
+        if ($with) {
+            //explode with parameter
+            $with = explode(',', $with);
+            //trim each item in with array
+            $with = array_map('trim', $with);
+            $query->with($with);
+        }
+
+        //get whmcs by id
+        $query->where('id', $id);
+
+        $whmcsUser = $query->first();
 
         if (!$whmcsUser) {
             return response()->json(['message' => 'Whmcs User not found'], 404);
