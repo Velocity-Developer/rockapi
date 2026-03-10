@@ -38,6 +38,7 @@ use App\Http\Controllers\QualityController;
 use App\Http\Controllers\CutiController;
 use App\Http\Controllers\BiayaAdsController;
 use App\Http\Controllers\WhmcsCustomController;
+use App\Http\Controllers\WhmcsUserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -80,7 +81,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'harga-domain' => HargaDomainController::class,
         'quality' => QualityController::class,
         'cuti' => CutiController::class,
-        'biaya-ads' => BiayaAdsController::class
+        'biaya-ads' => BiayaAdsController::class,
+        'whmcs-user' => WhmcsUserController::class,
     ]);
 
     // data_opsi
