@@ -39,6 +39,7 @@ use App\Http\Controllers\CutiController;
 use App\Http\Controllers\BiayaAdsController;
 use App\Http\Controllers\WhmcsCustomController;
 use App\Http\Controllers\WhmcsUserController;
+use App\Http\Controllers\WhmcsDomainController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -83,6 +84,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'cuti' => CutiController::class,
         'biaya-ads' => BiayaAdsController::class,
         'whmcs-user' => WhmcsUserController::class,
+        'whmcs-domain' => WhmcsDomainController::class,
     ]);
 
     // data_opsi
