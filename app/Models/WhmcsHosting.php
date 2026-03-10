@@ -31,7 +31,7 @@ class WhmcsHosting extends Model
     }
 
     // relasi ke tabel whmcs_domain
-    public function domain()
+    public function whmcs_domain()
     {
         return $this->belongsTo(WhmcsDomain::class, 'domain', 'domain');
     }
