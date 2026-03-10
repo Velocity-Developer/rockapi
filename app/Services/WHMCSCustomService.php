@@ -27,13 +27,14 @@ class WHMCSCustomService
         return $response->json('packages') ?? [];
     }
 
-    public function getDomainsExpiry(?string $month = null): array
+    public function getDomainsExpiry(?string $start_date = null, ?string $end_date = null): array
     {
         $params = [
             'action'       => 'expiry',
             'responsetype' => 'json',
             'timeout'      => 30,
-            'month'         => $month ?? date('Y-m'),
+            'start_date'   => $start_date ?? Carbon::now()->startOfMonth()->format('Y-m-d'),
+            'end_date'     => $end_date ?? Carbon::now()->endOfMonth()->format('Y-m-d'),
         ];
 
         $url = rtrim($this->apiUrl, '/') . '/get-domains.php';

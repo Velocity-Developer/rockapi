@@ -45,7 +45,7 @@ class WhmcsCustomController extends Controller
             ->toDateString();
 
         // mengambil data domain yang sudah expired dari WHMCS
-        $domains = (new WHMCSSyncServices())->syncDomainExpired($month);
+        $domains = (new WHMCSSyncServices())->syncDomainExpired($start_date, $end_date);
 
         // mengambil data hosting expired dari WHMCS
         $hostings = (new WHMCSSyncServices())->syncHostingExpired($start_date, $end_date);

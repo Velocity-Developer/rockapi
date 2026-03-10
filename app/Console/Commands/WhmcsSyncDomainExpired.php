@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\WhmcsDomain;
 use App\Services\WHMCSSyncServices;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class WhmcsSyncDomainExpired extends Command
 {
@@ -28,8 +29,14 @@ class WhmcsSyncDomainExpired extends Command
      */
     public function handle()
     {
+        //default menggunakan bulan ini
+        $month = date('Y-m');
+
+        $start = Carbon::createFromFormat('Y-m', $month)->startOfMonth()->format('Y-m-d');
+        $end   = Carbon::createFromFormat('Y-m', $month)->endOfMonth()->format('Y-m-d');
+
         // mengambil data domain yang sudah expired dari WHMCS
-        $domains = (new WHMCSSyncServices())->syncDomainExpired();
+        $domains = (new WHMCSSyncServices())->syncDomainExpired($start, $end);
 
         //if domains = 0
         if ($domains === 0) {

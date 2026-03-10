@@ -13,10 +13,10 @@ class WHMCSSyncServices
     /**
      * sync domain expired from WHMCS
      */
-    public function syncDomainExpired($month = null)
+    public function syncDomainExpired($start_date, $end_date)
     {
         // mengambil data domain expired dari WHMCS
-        $domains = (new WHMCSCustomService())->getDomainsExpiry($month);
+        $domains = (new WHMCSCustomService())->getDomainsExpiry($start_date, $end_date);
 
         //if success = false
         if (isset($domains['success']) && $domains['success'] === false) {
@@ -67,7 +67,7 @@ class WHMCSSyncServices
                 [
                     'whmcs_userid' => $domain['hosting_userid'],
                     'domain' => $domain['hosting_domain'],
-                    'nextduedate' => $domain['hosting_nextduedate'],
+                    'nextduedate' => $domain['hosting_nextduedate'] && $domain['hosting_nextduedate'] !== '0000-00-00' ? $domain['hosting_nextduedate'] : null,
                     'billingcycle' => $domain['hosting_billingcycle'],
                     'domainstatus' => $domain['hosting_domainstatus'],
                     'package_name' => $domain['hosting_package_name'],
@@ -77,7 +77,7 @@ class WHMCSSyncServices
             );
         }
 
-        return count($domains);
+        return $domains;
     }
 
     /**
