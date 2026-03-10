@@ -249,20 +249,27 @@ class SiklusLayananController extends Controller
                 $data[$domain->domain]['domain'] = $domain;
                 $data[$domain->domain]['domain_name'] = $domain->domain;
                 $domain_name = $domain->domain;
+                $data[$domain_name]['user'] = [
+                    'id' => $user->id,
+                    'whmcs_id' => $user->whmcs_id,
+                    'email' => $user->email,
+                    'firstname' => $user->firstname,
+                    'lastname' => $user->lastname,
+                ];
             }
             //hostings
             foreach ($user->hostings as $hosting) {
                 $data[$hosting->domain]['hosting'] = $hosting;
                 $data[$hosting->domain]['domain_name'] = $hosting->domain;
                 $domain_name = $hosting->domain;
+                $data[$domain_name]['user'] = [
+                    'id' => $user->id,
+                    'whmcs_id' => $user->whmcs_id,
+                    'email' => $user->email,
+                    'firstname' => $user->firstname,
+                    'lastname' => $user->lastname,
+                ];
             }
-
-            $data[$domain_name]['user'] = [
-                'id' => $user->id,
-                'email' => $user->email,
-                'firstname' => $user->firstname,
-                'lastname' => $user->lastname,
-            ];
         }
 
         $reindexed_array = array_values($data);
