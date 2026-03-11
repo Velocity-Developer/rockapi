@@ -220,7 +220,7 @@ class SiklusLayananController extends Controller
                             $q2->select('id_webhost', 'nama_web')
                                 ->with([
                                     'csMainProjects' => function ($q3) {
-                                        $q3->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'deskripsi')
+                                        $q3->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'deskripsi', 'dibayar')
                                             ->where('jenis', 'Perpanjangan')
                                             ->orderByDesc('tgl_masuk')
                                             ->limit(1);
@@ -244,7 +244,7 @@ class SiklusLayananController extends Controller
                             $q2->select('id_webhost', 'nama_web')
                                 ->with([
                                     'csMainProjects' => function ($q3) {
-                                        $q3->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'deskripsi')
+                                        $q3->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'deskripsi', 'dibayar')
                                             ->where('jenis', 'Perpanjangan')
                                             ->orderByDesc('tgl_masuk')
                                             ->limit(1);
