@@ -215,6 +215,7 @@ class SiklusLayananController extends Controller
             'hostings' => function ($q) use ($m, $years) {
                 $q->whereMonth('nextduedate', $m)
                     ->whereIn(DB::raw('YEAR(nextduedate)'), $years)
+                    ->whereHas('webhost') // WAJIB ADA WEBHOST
                     ->with([
                         'webhost' => function ($q2) {
                             $q2->select('id_webhost', 'nama_web')
@@ -232,13 +233,7 @@ class SiklusLayananController extends Controller
             'domains' => function ($q) use ($m, $years) {
                 $q->whereMonth('expirydate', $m)
                     ->whereIn(DB::raw('YEAR(expirydate)'), $years)
-                    // ->with([
-                    //     'webhost.csMainProjects' => function ($q2) {
-                    //         $q2->where('jenis', 'Perpanjangan')
-                    //             ->orderByDesc('tgl_masuk')
-                    //             ->limit(1);
-                    //     }
-                    // ]);                    
+                    ->whereHas('webhost') // WAJIB ADA WEBHOST
                     ->with([
                         'webhost' => function ($q2) {
                             $q2->select('id_webhost', 'nama_web')
@@ -311,7 +306,7 @@ class SiklusLayananController extends Controller
                 if ($domain->expirydate) {
                     $data[$domain_name]['expiry']  = $domain->expirydate;
                     $expirytahun = date("Y", strtotime($domain->expirydate));
-                    $data[$domain_name]['status']  = $expirytahun > $y;
+                    $data[$domain_name]['status']  = $expirytahun > $y && isset($domain->webhost->csMainProjects) ? true : false;
                 }
             }
             //hostings
@@ -331,24 +326,27 @@ class SiklusLayananController extends Controller
                 if (!isset($data[$domain_name]['expiry']) || isset($data[$domain_name]['expiry']) && empty($data[$domain_name]['expiry'])) {
                     $data[$domain_name]['expiry']  = $hosting->nextduedate;
                     $expirytahun = date("Y", strtotime($hosting->nextduedate));
-                    $data[$domain_name]['status']  = $expirytahun > $y;
+                    $data[$domain_name]['status']  = $expirytahun > $y && isset($hosting->webhost->csMainProjects) ? true : false;
                 }
             }
         }
 
         $reindexed_array = array_values($data);
+        $total = count($reindexed_array);
+        $total_perpanjang = collect($reindexed_array)->filter(function ($item) {
+            return $item['status'] === true;
+        })->count();
 
         return response()->json([
-            'total' => count($reindexed_array),
+            'total' => $total,
             'total_domain' => $whmcsUsers->sum(function ($item) {
                 return $item->domains->count();
             }),
             'total_hosting' => $whmcsUsers->sum(function ($item) {
                 return $item->hostings->count();
             }),
-            'total_perpanjang' => collect($reindexed_array)->filter(function ($item) {
-                return $item['status'] === true;
-            })->count(),
+            'total_perpanjang' => $total_perpanjang,
+            'total_tidak_perpanjang' => ($total - $total_perpanjang),
             'data' => $reindexed_array
         ]);
     }
