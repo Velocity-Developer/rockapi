@@ -209,27 +209,49 @@ class SiklusLayananController extends Controller
         $m = date('m', strtotime($month));
         $y = date('Y', strtotime($month));
 
+        $years = [$y, $y + 1];
+
         $query = WhmcsUser::with([
-            'hostings' => function ($q) use ($m, $y) {
+            'hostings' => function ($q) use ($m, $years) {
                 $q->whereMonth('nextduedate', $m)
-                    ->whereYear('nextduedate', $y);
+                    ->whereIn(DB::raw('YEAR(nextduedate)'), $years)
+                    ->with([
+                        'webhost' => function ($q2) {
+                            $q2->select('id_webhost', 'nama_web')
+                                ->with([
+                                    'csMainProjects' => function ($q3) {
+                                        $q3->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'deskripsi')
+                                            ->where('jenis', 'Perpanjangan')
+                                            ->orderByDesc('tgl_masuk')
+                                            ->limit(1);
+                                    }
+                                ]);
+                        }
+                    ]);
             },
-            'domains' => function ($q) use ($m, $y) {
+            'domains' => function ($q) use ($m, $years) {
                 $q->whereMonth('expirydate', $m)
-                    ->whereYear('expirydate', $y);
+                    ->whereIn(DB::raw('YEAR(expirydate)'), $years)
+                    ->with([
+                        'webhost.csMainProjects' => function ($q2) {
+                            $q2->where('jenis', 'Perpanjangan')
+                                ->orderByDesc('tgl_masuk')
+                                ->limit(1);
+                        }
+                    ]);
             }
         ]);
 
-        $query->where(function ($q) use ($m, $y) {
+        $query->where(function ($q) use ($m, $years) {
 
-            $q->whereHas('hostings', function ($q2) use ($m, $y) {
+            $q->whereHas('hostings', function ($q2) use ($m, $years) {
                 $q2->whereMonth('nextduedate', $m)
-                    ->whereYear('nextduedate', $y);
+                    ->whereIn(DB::raw('YEAR(nextduedate)'), $years);
             })
 
-                ->orWhereHas('domains', function ($q2) use ($m, $y) {
+                ->orWhereHas('domains', function ($q2) use ($m, $years) {
                     $q2->whereMonth('expirydate', $m)
-                        ->whereYear('expirydate', $y);
+                        ->whereIn(DB::raw('YEAR(expirydate)'), $years);
                 });
         });
 
@@ -257,7 +279,7 @@ class SiklusLayananController extends Controller
             foreach ($user->domains as $domain) {
                 $data[$domain->domain]['domain'] = $domain;
                 $data[$domain->domain]['domain_name'] = $domain->domain;
-                $domain_name = $domain->domain;
+                $domain_name = strtolower($domain->domain);
                 $data[$domain_name]['user'] = [
                     'id' => $user->id,
                     'whmcs_id' => $user->whmcs_id,
@@ -270,7 +292,7 @@ class SiklusLayananController extends Controller
             foreach ($user->hostings as $hosting) {
                 $data[$hosting->domain]['hosting'] = $hosting;
                 $data[$hosting->domain]['domain_name'] = $hosting->domain;
-                $domain_name = $hosting->domain;
+                $domain_name = strtolower($hosting->domain);
                 $data[$domain_name]['user'] = [
                     'id' => $user->id,
                     'whmcs_id' => $user->whmcs_id,
