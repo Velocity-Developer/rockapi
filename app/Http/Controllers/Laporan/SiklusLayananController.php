@@ -346,6 +346,9 @@ class SiklusLayananController extends Controller
             'total_hosting' => $whmcsUsers->sum(function ($item) {
                 return $item->hostings->count();
             }),
+            'total_perpanjang' => collect($reindexed_array)->filter(function ($item) {
+                return $item['status'] === true;
+            })->count(),
             'data' => $reindexed_array
         ]);
     }
