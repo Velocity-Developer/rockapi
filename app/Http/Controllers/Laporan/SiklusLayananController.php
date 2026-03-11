@@ -287,12 +287,18 @@ class SiklusLayananController extends Controller
         }
 
         foreach ($whmcsUsers as $user) {
+
+            //jika nama email = 'bantuanvelocity@gmail.com', skip
+            if ($user->email == 'bantuanvelocity@gmail.com') {
+                continue;
+            }
+
             //domains
             $domain_name = '';
             foreach ($user->domains as $domain) {
-                $data[$domain->domain]['domain'] = $domain;
-                $data[$domain->domain]['domain_name'] = $domain->domain;
                 $domain_name = strtolower($domain->domain);
+                $data[$domain_name]['domain'] = $domain;
+                $data[$domain_name]['domain_name'] = $domain->domain;
                 $data[$domain_name]['user'] = [
                     'id' => $user->id,
                     'whmcs_id' => $user->whmcs_id,
@@ -302,6 +308,11 @@ class SiklusLayananController extends Controller
                 ];
                 $data[$domain_name]['webhost'] = $domain->webhost;
                 $data[$domain_name]['project'] = $domain->webhost->csMainProjects[0] ?? null;
+                if ($domain->expirydate) {
+                    $data[$domain_name]['expiry']  = $domain->expirydate;
+                    $expirytahun = date("Y", strtotime($domain->expirydate));
+                    $data[$domain_name]['status']  = $expirytahun > $y;
+                }
             }
             //hostings
             foreach ($user->hostings as $hosting) {
@@ -317,6 +328,11 @@ class SiklusLayananController extends Controller
                 ];
                 $data[$domain_name]['webhost'] = $hosting->webhost;
                 $data[$domain_name]['project'] = $hosting->webhost->csMainProjects[0] ?? null;
+                if (!isset($data[$domain_name]['expiry']) || isset($data[$domain_name]['expiry']) && empty($data[$domain_name]['expiry'])) {
+                    $data[$domain_name]['expiry']  = $hosting->nextduedate;
+                    $expirytahun = date("Y", strtotime($hosting->nextduedate));
+                    $data[$domain_name]['status']  = $expirytahun > $y;
+                }
             }
         }
 
