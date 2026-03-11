@@ -232,11 +232,24 @@ class SiklusLayananController extends Controller
             'domains' => function ($q) use ($m, $years) {
                 $q->whereMonth('expirydate', $m)
                     ->whereIn(DB::raw('YEAR(expirydate)'), $years)
+                    // ->with([
+                    //     'webhost.csMainProjects' => function ($q2) {
+                    //         $q2->where('jenis', 'Perpanjangan')
+                    //             ->orderByDesc('tgl_masuk')
+                    //             ->limit(1);
+                    //     }
+                    // ]);                    
                     ->with([
-                        'webhost.csMainProjects' => function ($q2) {
-                            $q2->where('jenis', 'Perpanjangan')
-                                ->orderByDesc('tgl_masuk')
-                                ->limit(1);
+                        'webhost' => function ($q2) {
+                            $q2->select('id_webhost', 'nama_web')
+                                ->with([
+                                    'csMainProjects' => function ($q3) {
+                                        $q3->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'deskripsi')
+                                            ->where('jenis', 'Perpanjangan')
+                                            ->orderByDesc('tgl_masuk')
+                                            ->limit(1);
+                                    }
+                                ]);
                         }
                     ]);
             }
@@ -287,6 +300,8 @@ class SiklusLayananController extends Controller
                     'firstname' => $user->firstname,
                     'lastname' => $user->lastname,
                 ];
+                $data[$domain_name]['webhost'] = $domain->webhost;
+                $data[$domain_name]['project'] = $domain->webhost->csMainProjects[0] ?? null;
             }
             //hostings
             foreach ($user->hostings as $hosting) {
@@ -300,6 +315,8 @@ class SiklusLayananController extends Controller
                     'firstname' => $user->firstname,
                     'lastname' => $user->lastname,
                 ];
+                $data[$domain_name]['webhost'] = $hosting->webhost;
+                $data[$domain_name]['project'] = $hosting->webhost->csMainProjects[0] ?? null;
             }
         }
 
