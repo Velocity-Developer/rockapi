@@ -342,7 +342,9 @@ class SiklusLayananController extends Controller
                     'lastname' => $user->lastname,
                 ];
                 $data[$domain_name]['webhost'] = $hosting->webhost;
-                $data[$domain_name]['project'] = $hosting->webhost->csMainProjects[0] ?? null;
+                if (!isset($data[$domain_name]['project']) || isset($data[$domain_name]['project']) && empty($data[$domain_name]['project'])) {
+                    $data[$domain_name]['project'] = $hosting->webhost->csMainProjects[0] ?? null;
+                }
                 if (!isset($data[$domain_name]['expiry']) || isset($data[$domain_name]['expiry']) && empty($data[$domain_name]['expiry'])) {
                     $data[$domain_name]['expiry']  = $hosting->nextduedate;
                     $expirytahun = date("Y", strtotime($hosting->nextduedate));
