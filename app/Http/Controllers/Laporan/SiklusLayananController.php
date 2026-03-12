@@ -218,7 +218,7 @@ class SiklusLayananController extends Controller
                     ->whereHas('webhost') // WAJIB ADA WEBHOST
                     ->with([
                         'webhost' => function ($q2) {
-                            $q2->select('id_webhost', 'nama_web')
+                            $q2->select('id_webhost', 'nama_web', 'tgl_mulai')
                                 ->with([
                                     'csMainProjects' => function ($q3) {
                                         $q3->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'deskripsi', 'dibayar')
@@ -246,7 +246,7 @@ class SiklusLayananController extends Controller
                     ->whereHas('webhost') // WAJIB ADA WEBHOST
                     ->with([
                         'webhost' => function ($q2) {
-                            $q2->select('id_webhost', 'nama_web')
+                            $q2->select('id_webhost', 'nama_web', 'tgl_mulai')
                                 ->with([
                                     'csMainProjects' => function ($q3) {
                                         $q3->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'deskripsi', 'dibayar')
@@ -311,6 +311,14 @@ class SiklusLayananController extends Controller
             //domains
             $domain_name = '';
             foreach ($user->domains as $domain) {
+
+                $webhost = $domain->webhost ?? null;
+                $webhostTahun = $webhost ? date("Y", strtotime($webhost->tgl_mulai)) : null;
+                //jika webhost.tgl_mulai 
+                if ($webhostTahun && $webhostTahun == $y) {
+                    continue;
+                }
+
                 $domain_name = strtolower($domain->domain);
                 $data[$domain_name]['domain'] = $domain;
                 $data[$domain_name]['domain_name'] = $domain->domain;
@@ -331,9 +339,17 @@ class SiklusLayananController extends Controller
             }
             //hostings
             foreach ($user->hostings as $hosting) {
+
+                $webhost = $hosting->webhost ?? null;
+                $webhostTahun = $webhost ? date("Y", strtotime($webhost->tgl_mulai)) : null;
+                //jika webhost.tgl_mulai 
+                if ($webhostTahun && $webhostTahun == $y) {
+                    continue;
+                }
+
+                $domain_name = strtolower($hosting->domain);
                 $data[$hosting->domain]['hosting'] = $hosting;
                 $data[$hosting->domain]['domain_name'] = $hosting->domain;
-                $domain_name = strtolower($hosting->domain);
                 $data[$domain_name]['user'] = [
                     'id' => $user->id,
                     'whmcs_id' => $user->whmcs_id,
