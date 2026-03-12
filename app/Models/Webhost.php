@@ -42,6 +42,16 @@ class Webhost extends Model
         'usia',
     ];
 
+    public $jenis_pembuatan = [
+        'Pembuatan',
+        'Pembuatan apk',
+        'Pembuatan apk custom',
+        'Pembuatan Tanpa Domain',
+        'Pembuatan Tanpa Hosting',
+        'Pembuatan Tanpa Domain+Hosting',
+        'Pembuatan web konsep',
+    ];
+
     // relasi one ke tabel paket
     public function paket()
     {
@@ -52,6 +62,21 @@ class Webhost extends Model
     public function csMainProjects()
     {
         return $this->hasMany(CsMainProject::class, 'id_webhost');
+    }
+
+    // relasi many ke tabel cs_main_project pembuatan
+    public function pembuatan()
+    {
+        return $this->hasOne(CsMainProject::class, 'id_webhost')
+            ->whereIn('jenis', $this->jenis_pembuatan);
+    }
+
+    // relasi many ke tabel cs_main_project perpanjang_terakhir
+    public function perpanjang_terakhir()
+    {
+        return $this->hasOne(CsMainProject::class, 'id_webhost')
+            ->where('jenis', 'Perpanjangan')
+            ->latest('tgl_masuk');
     }
 
     // relasi many ke tabel journal

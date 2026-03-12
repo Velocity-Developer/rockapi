@@ -225,6 +225,16 @@ class SiklusLayananController extends Controller
                                             ->where('jenis', 'Perpanjangan')
                                             ->orderByDesc('tgl_masuk')
                                             ->limit(1);
+                                    },
+                                    'pembuatan' => function ($q3) {
+                                        $q3->select(
+                                            'id',
+                                            'id_webhost',
+                                            'jenis',
+                                            'tgl_masuk',
+                                            'deskripsi',
+                                            'dibayar'
+                                        );
                                     }
                                 ]);
                         }
@@ -243,6 +253,16 @@ class SiklusLayananController extends Controller
                                             ->where('jenis', 'Perpanjangan')
                                             ->orderByDesc('tgl_masuk')
                                             ->limit(1);
+                                    },
+                                    'pembuatan' => function ($q3) {
+                                        $q3->select(
+                                            'id',
+                                            'id_webhost',
+                                            'jenis',
+                                            'tgl_masuk',
+                                            'deskripsi',
+                                            'dibayar'
+                                        );
                                     }
                                 ]);
                         }
