@@ -320,6 +320,7 @@ class SiklusLayananController extends Controller
                 }
 
                 $domain_name = strtolower($domain->domain);
+                $data[$domain_name]['status'] = false;
                 $data[$domain_name]['domain'] = $domain;
                 $data[$domain_name]['domain_name'] = $domain->domain;
                 $data[$domain_name]['user'] = [
@@ -349,8 +350,9 @@ class SiklusLayananController extends Controller
                 }
 
                 $domain_name = strtolower($hosting->domain);
-                $data[$hosting->domain]['hosting'] = $hosting;
-                $data[$hosting->domain]['domain_name'] = $hosting->domain;
+                $data[$domain_name]['status'] = false;
+                $data[$domain_name]['hosting'] = $hosting;
+                $data[$domain_name]['domain_name'] = $hosting->domain;
                 $data[$domain_name]['user'] = [
                     'id' => $user->id,
                     'whmcs_id' => $user->whmcs_id,
