@@ -333,6 +333,7 @@ class SiklusLayananController extends Controller
                 $data[$domain_name]['webhost'] = $domain->webhost;
                 $data[$domain_name]['webhost_available'] = $domain->webhost ? 1 : 0;
                 $data[$domain_name]['project'] = $domain->webhost->csMainProjects[0] ?? null;
+                $data[$domain_name]['project_available'] = $data[$domain_name]['project'] ? 1 : 0;
                 if ($domain->expirydate) {
                     $data[$domain_name]['expiry']  = $domain->expirydate;
                     $expirytahun = date("Y", strtotime($domain->expirydate));
@@ -350,7 +351,6 @@ class SiklusLayananController extends Controller
                 }
 
                 $domain_name = strtolower($hosting->domain);
-                $data[$domain_name]['status'] = false;
                 $data[$domain_name]['hosting'] = $hosting;
                 $data[$domain_name]['domain_name'] = $hosting->domain;
                 $data[$domain_name]['user'] = [
@@ -361,11 +361,13 @@ class SiklusLayananController extends Controller
                     'lastname' => $user->lastname,
                 ];
                 if (!isset($data[$domain_name]['webhost']) || isset($data[$domain_name]['webhost']) && empty($data[$domain_name]['webhost'])) {
+                    $data[$domain_name]['status'] = isset($data[$domain_name]['status']) ? $data[$domain_name]['status'] : false;
                     $data[$domain_name]['webhost'] = $hosting->webhost;
                     $data[$domain_name]['webhost_available'] = $hosting->webhost ? 1 : 0;
                 }
                 if (!isset($data[$domain_name]['project']) || isset($data[$domain_name]['project']) && empty($data[$domain_name]['project'])) {
                     $data[$domain_name]['project'] = $hosting->webhost->csMainProjects[0] ?? null;
+                    $data[$domain_name]['project_available'] = $data[$domain_name]['project'] ? 1 : 0;
                 }
                 if (!isset($data[$domain_name]['expiry']) || isset($data[$domain_name]['expiry']) && empty($data[$domain_name]['expiry'])) {
                     $data[$domain_name]['expiry']  = $hosting->nextduedate;
