@@ -56,8 +56,8 @@ class WhmcsCustomController extends Controller
             $hostings = (new WHMCSSyncServices())->syncHostingExpired($start_date, $end_date);
 
             return [
-                'domains' => count($domains),
-                'hostings' => count($hostings),
+                'domains' => $domains ? count($domains) : 0,
+                'hostings' => $hostings ? count($hostings) : 0,
             ];
         });
 
