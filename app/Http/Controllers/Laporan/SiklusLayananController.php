@@ -215,7 +215,7 @@ class SiklusLayananController extends Controller
             'hostings' => function ($q) use ($m, $years) {
                 $q->whereMonth('nextduedate', $m)
                     ->whereIn(DB::raw('YEAR(nextduedate)'), $years)
-                    ->whereHas('webhost') // WAJIB ADA WEBHOST
+                    // ->whereHas('webhost') // WAJIB ADA WEBHOST
                     ->with([
                         'webhost' => function ($q2) {
                             $q2->select('id_webhost', 'nama_web', 'tgl_mulai')
@@ -243,7 +243,7 @@ class SiklusLayananController extends Controller
             'domains' => function ($q) use ($m, $years) {
                 $q->whereMonth('expirydate', $m)
                     ->whereIn(DB::raw('YEAR(expirydate)'), $years)
-                    ->whereHas('webhost') // WAJIB ADA WEBHOST
+                    // ->whereHas('webhost') // WAJIB ADA WEBHOST
                     ->with([
                         'webhost' => function ($q2) {
                             $q2->select('id_webhost', 'nama_web', 'tgl_mulai')
@@ -330,6 +330,7 @@ class SiklusLayananController extends Controller
                     'lastname' => $user->lastname,
                 ];
                 $data[$domain_name]['webhost'] = $domain->webhost;
+                $data[$domain_name]['webhost_available'] = $domain->webhost ? 1 : 0;
                 $data[$domain_name]['project'] = $domain->webhost->csMainProjects[0] ?? null;
                 if ($domain->expirydate) {
                     $data[$domain_name]['expiry']  = $domain->expirydate;
@@ -357,7 +358,10 @@ class SiklusLayananController extends Controller
                     'firstname' => $user->firstname,
                     'lastname' => $user->lastname,
                 ];
-                $data[$domain_name]['webhost'] = $hosting->webhost;
+                if (!isset($data[$domain_name]['webhost']) || isset($data[$domain_name]['webhost']) && empty($data[$domain_name]['webhost'])) {
+                    $data[$domain_name]['webhost'] = $hosting->webhost;
+                    $data[$domain_name]['webhost_available'] = $hosting->webhost ? 1 : 0;
+                }
                 if (!isset($data[$domain_name]['project']) || isset($data[$domain_name]['project']) && empty($data[$domain_name]['project'])) {
                     $data[$domain_name]['project'] = $hosting->webhost->csMainProjects[0] ?? null;
                 }
