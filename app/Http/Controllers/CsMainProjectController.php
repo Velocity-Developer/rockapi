@@ -35,7 +35,22 @@ class CsMainProjectController extends Controller
     {
         $query = CsMainProject::query();
 
-        $query->with('webhost', 'webhost.paket', 'cs_main_project_info', 'cs_main_project_info.author:id,name');
+        if ($request->query('with')) {
+            $with = $request->query('with');
+            $with = is_string($with) ? explode(';', $with) : $with;
+            $with = array_map('trim', $with);
+
+            $query->with($with);
+        } else {
+            $query->with('webhost', 'webhost.paket', 'cs_main_project_info', 'cs_main_project_info.author:id,name');
+        }
+
+        if ($request->query('select')) {
+            $select = $request->query('select');
+            $select = is_string($select) ? explode(',', $select) : $select;
+            $select = array_map('trim', $select);
+            $query->select($select);
+        }
 
         // FILTER jika ada id_webhost
         $query->when(
