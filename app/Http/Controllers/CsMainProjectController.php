@@ -37,6 +37,13 @@ class CsMainProjectController extends Controller
 
         $query->with('webhost', 'webhost.paket', 'cs_main_project_info', 'cs_main_project_info.author:id,name');
 
+        // FILTER jika ada id_webhost
+        $query->when($request->query('id_webhost'), function ($q, $id_webhost) {
+            $q->whereHas('webhost', function ($q2) use ($id_webhost) {
+                $q2->where('id_webhost', $id_webhost);
+            });
+        });
+
         $order = $request->query('order', 'desc');
         $query->orderBy('tgl_masuk', $order);
 
