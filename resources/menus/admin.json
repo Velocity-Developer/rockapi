@@ -131,6 +131,11 @@
                 "label": "Rekap Chat",
                 "icon": "lucide:message-square-text",
                 "route": "/rekap_chat"
+            },
+            {
+                "key": "improve_chat",
+                "label": "Improve Chat",
+                "route": "/improve-chat"
             }
         ]
     },
