@@ -48,7 +48,7 @@ class ImproveChatController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nohp' => 'nullable|string',
-            'kategori' => 'nullable|string',
+            'kategori' => 'required|string',
             'masukkan' => 'required|string',
         ]);
 
@@ -89,7 +89,7 @@ class ImproveChatController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nohp' => 'nullable|string',
-            'kategori' => 'nullable|string',
+            'kategori' => 'required|string',
             'masukkan' => 'required|string',
         ]);
 
