@@ -35,7 +35,10 @@ class ImproveChatController extends Controller
         $perPage = (int) ($request->input('per_page', 100));
         $results = $query->paginate($perPage);
 
-        return response()->json($results);
+        return response()->json([
+            ...$results->toArray(),
+            'kategori' => ImproveChat::KATEGORI,
+        ]);
     }
 
     /**
