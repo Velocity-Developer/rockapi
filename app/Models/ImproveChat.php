@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class ImporveChat extends Model
+class ImproveChat extends Model
 {
     protected $fillable = [
         'nohp',
