@@ -167,6 +167,6 @@
         "key": "improve_chat",
         "label": "Improve Chat",
         "route": "/improve-chat",
-        "icon": "lucide:message-square-code"
+        "icon": "lucide:message-square-diff"
     }
 ]
