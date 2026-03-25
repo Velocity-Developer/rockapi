@@ -88,7 +88,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'whmcs-user' => WhmcsUserController::class,
         'whmcs-domain' => WhmcsDomainController::class,
         'whmcs-hosting' => WhmcsHostingController::class,
-        'imporve-chat' => ImproveChatController::class,
+        'improve-chat' => ImproveChatController::class,
     ]);
 
     // data_opsi
