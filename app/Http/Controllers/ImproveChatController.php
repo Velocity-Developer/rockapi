@@ -26,6 +26,12 @@ class ImproveChatController extends Controller
             });
         }
 
+        //filter kategori        
+        $kategori = $request->input('kategori');
+        if ($kategori) {
+            $query->where('kategori', $kategori);
+        }
+
         // Sorting
         $orderBy = $request->input('order_by', 'id');
         $order = $request->input('order', 'desc');
