@@ -58,5 +58,11 @@
         "label": "Customer",
         "icon": "lucide:users-round",
         "route": "/customer"
+    },
+    {     
+        "key": "improve_chat",
+        "label": "Improve Chat",
+        "route": "/improve-chat",
+        "icon": "lucide:message-square-diff"
     }
 ]
