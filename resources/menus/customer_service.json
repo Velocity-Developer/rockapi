@@ -40,5 +40,11 @@
         "label": "Klien Perpanjang",
         "route": "/laporan/klien-perpanjang",
         "icon": "lucide:file-chart-line"
+    },
+    {     
+        "key": "improve_chat",
+        "label": "Improve Chat",
+        "route": "/improve-chat",
+        "icon": "lucide:message-square-diff"
     }
 ]
