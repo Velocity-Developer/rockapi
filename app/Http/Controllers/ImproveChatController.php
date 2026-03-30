@@ -14,6 +14,14 @@ class ImproveChatController extends Controller
      */
     public function index(Request $request)
     {
+        $user = auth()->user();
+        $user_roles = $user->getRoleNames();
+
+        $listKategori = ImproveChat::KATEGORI;
+        if ($user_roles && in_array('customer_service', json_decode($user_roles, true))) {
+            $listKategori = ['CS'];
+        }
+
         $query = ImproveChat::query();
 
         // Search functionality
@@ -30,6 +38,8 @@ class ImproveChatController extends Controller
         $kategori = $request->input('kategori');
         if ($kategori) {
             $query->where('kategori', $kategori);
+        } else {
+            $query->whereIn('kategori', $listKategori);
         }
 
         // Sorting
@@ -41,9 +51,10 @@ class ImproveChatController extends Controller
         $perPage = (int) ($request->input('per_page', 100));
         $results = $query->paginate($perPage);
 
+
         return response()->json([
             ...$results->toArray(),
-            'kategori' => ImproveChat::KATEGORI,
+            'kategori' => $listKategori
         ]);
     }
 
