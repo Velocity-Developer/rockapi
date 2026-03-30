@@ -32,6 +32,7 @@ class PermissionsSeeder extends Seeder
             'timsupport-journal-perform-tim',
             'timads-journal-perform-tim',
             'edit-cuti',
+            'add-improve-chat'
         ];
 
         foreach ($permissions as $permission) {
