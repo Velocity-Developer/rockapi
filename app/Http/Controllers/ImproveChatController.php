@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ImproveChat;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ImproveChatController extends Controller
 {
-
+    use AuthorizesRequests;
     /**
      * Display a listing of the resource.
      */
@@ -117,7 +118,10 @@ class ImproveChatController extends Controller
             ], 422);
         }
 
-        $ImproveChat = ImproveChat::find($id);
+        $ImproveChat = ImproveChat::findOrFail($id);
+
+        $this->authorize('update', $ImproveChat);
+
         if (!$ImproveChat) {
             return response()->json(['message' => 'Improve Chat not found'], 404);
         }
@@ -136,7 +140,10 @@ class ImproveChatController extends Controller
      */
     public function destroy(string $id)
     {
-        $ImproveChat = ImproveChat::find($id);
+        $ImproveChat = ImproveChat::findOrFail($id);
+
+        $this->authorize('delete', $ImproveChat);
+
         if (!$ImproveChat) {
             return response()->json(['message' => 'Improve Chat not found'], 404);
         }
