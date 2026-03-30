@@ -25,6 +25,8 @@ class ImproveChatController extends Controller
 
         $query = ImproveChat::query();
 
+        $query->with('user:id,name');
+
         // Search functionality
         $search = $request->input('q');
         if ($search) {
@@ -92,7 +94,7 @@ class ImproveChatController extends Controller
      */
     public function show(string $id)
     {
-        $ImproveChat = ImproveChat::find($id);
+        $ImproveChat = ImproveChat::findOrFail($id);
         if (!$ImproveChat) {
             return response()->json(['message' => 'Improve Chat not found'], 404);
         }

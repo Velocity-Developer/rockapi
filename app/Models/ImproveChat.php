@@ -23,6 +23,12 @@ class ImproveChat extends Model
         'user_id',
     ];
 
+    // relasi ke User
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     protected static function booted()
     {
         static::creating(function ($model) {
