@@ -8,12 +8,12 @@ use Illuminate\Support\Facades\Auth;
 class ImproveChat extends Model
 {
     public const KATEGORI = [
-        'CS',
-        'Revisi',
-        'Support',
-        'AM',
-        'Ads',
-        'PM'
+        'customer_service' => 'CS',
+        'revisi' => 'Revisi',
+        'support' => 'Support',
+        'am' => 'AM',
+        'advertising' => 'Ads',
+        'manager_project' => 'PM',
     ];
 
     protected $fillable = [
