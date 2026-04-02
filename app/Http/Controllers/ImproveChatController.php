@@ -64,7 +64,7 @@ class ImproveChatController extends Controller
                     'label' => $label
                 ];
             })->values(),
-            'query' => $query
+            'listKategori' => $listKategori
         ]);
     }
 
