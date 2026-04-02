@@ -20,7 +20,8 @@ class ImproveChatSeeder extends Seeder
             return;
         }
 
-        $kategoris = ['CS', 'Revisi', 'Support', 'AM', 'Ads', 'PM'];
+        $kategoris = ['customer_service', 'revisi', 'support', 'am', 'advertising', 'manager_project'];
+
         $masukkans = [
             'Fokus pada respons cepat dan ramah.',
             'Pastikan setiap jawaban memberi kepastian langkah berikutnya (misalnya: “Tim kami akan update dalam 1x24 jam”).',
