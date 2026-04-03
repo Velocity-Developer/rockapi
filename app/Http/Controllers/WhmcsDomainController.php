@@ -11,9 +11,21 @@ class WhmcsDomainController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = WhmcsDomain::query();
+
+        if ($request->input('search')) {
+            $query->where('domain', 'like', '%' . $request->input('search') . '%')
+                ->orWhere('user_email', 'like', '%' . $request->input('search') . '%');
+        }
+
+        $per_page = $request->input('per_page', 20);
+        $results = $query->paginate($per_page);
+
+        $results->withPath('/whmcs-domain');
+
+        return response()->json($results);
     }
 
     /**
