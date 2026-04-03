@@ -20,6 +20,10 @@ class WhmcsDomainController extends Controller
                 ->orWhere('user_email', 'like', '%' . $request->input('search') . '%');
         }
 
+        if ($request->input('uppercase_only') && $request->input('uppercase_only') === 'true') {
+            $query->whereRaw("REGEXP_LIKE(domain, '[A-Z]', 'c')");
+        }
+
         $per_page = $request->input('per_page', 20);
         $results = $query->paginate($per_page);
 
