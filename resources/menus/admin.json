@@ -140,6 +140,23 @@
         ]
     },
     {
+        "key": "whmcs",
+        "label": "WHMCS",
+        "icon": "lucide:pc-case",
+        "items": [
+            {
+                "key": "whmcs_domain",
+                "label": "Domain",
+                "route": "/whmcs-domain"
+            },
+            {
+                "key": "whmcs_user",
+                "label": "User",
+                "route": "/whmcs-users"
+            }
+        ]
+    },
+    {
         "key": "journals",
         "label": "Jurnal",
         "icon": "lucide:clipboard-list",
