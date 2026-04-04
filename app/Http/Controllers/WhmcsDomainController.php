@@ -74,7 +74,38 @@ class WhmcsDomainController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        //validate request
+        $validated = $request->validate([
+            'domain' => 'required|string|max:255',
+            'expirydate' => 'required|date',
+            'nextduedate' => 'required|date',
+            'registrationdate' => 'required|date',
+            'status' => 'required|string',
+            'user_email' => 'required|string',
+            'whmcs_id' => 'required|integer',
+            'whmcs_userid' => 'required|integer',
+        ]);
+
+        //get whmcs domain by id
+        $WhmcsDomain = WhmcsDomain::findOrFail($id);
+
+        if (!$WhmcsDomain) {
+            return response()->json(['message' => 'Whmcs Domain not found'], 404);
+        }
+
+        //update whmcs domain
+        $WhmcsDomain->update([
+            'domain' => $validated['domain'],
+            // 'expirydate' => $validated['expirydate'],
+            // 'nextduedate' => $validated['nextduedate'],
+            // 'registrationdate' => $validated['registrationdate'],
+            // 'status' => $validated['status'],
+            // 'user_email' => $validated['user_email'],
+            // 'whmcs_id' => $validated['whmcs_id'],
+            // 'whmcs_userid' => $validated['whmcs_userid'],
+        ]);
+
+        return response()->json($WhmcsDomain);
     }
 
     /**
