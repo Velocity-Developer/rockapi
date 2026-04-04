@@ -7,6 +7,7 @@ use App\Models\WhmcsHosting;
 use App\Models\WhmcsUser;
 use App\Services\WHMCSCustomService;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class WHMCSSyncServices
 {
@@ -36,7 +37,7 @@ class WHMCSSyncServices
                 ['whmcs_id' => $domain['id']],
                 [
                     'whmcs_userid' => $domain['userid'],
-                    'domain' => $domain['domain'],
+                    'domain' => Str::lower($domain['domain']),
                     'expirydate' => $domain['expirydate'],
                     'registrationdate' => $domain['registrationdate'],
                     'nextduedate' => $domain['nextduedate'],
@@ -66,7 +67,7 @@ class WHMCSSyncServices
                 ['whmcs_id' => $domain['hosting_id']],
                 [
                     'whmcs_userid' => $domain['hosting_userid'],
-                    'domain' => $domain['hosting_domain'],
+                    'domain' => Str::lower($domain['hosting_domain']),
                     'nextduedate' => $domain['hosting_nextduedate'] && $domain['hosting_nextduedate'] !== '0000-00-00' ? $domain['hosting_nextduedate'] : null,
                     'billingcycle' => $domain['hosting_billingcycle'],
                     'domainstatus' => $domain['hosting_domainstatus'],
