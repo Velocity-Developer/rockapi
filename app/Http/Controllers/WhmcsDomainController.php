@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\WhmcsUser;
 use App\Models\WhmcsDomain;
+use App\Models\Webhost;
+use Illuminate\Support\Str;
 
 class WhmcsDomainController extends Controller
 {
@@ -120,5 +122,79 @@ class WhmcsDomainController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function webhost_search(Request $request)
+    {
+
+        // validasi
+        $validated = $request->validate([
+            'domain' => 'required|string',
+            'email' => 'required|string',
+            'id' => 'required|integer',
+        ]);
+
+        $domain = Str::lower(trim($validated['domain']));
+        $email = Str::lower(trim($validated['email']));
+
+        // ambil data whmcs
+        $whmcs = WhmcsDomain::findOrFail($validated['id']);
+
+
+        // =====================
+        // 1. EXACT MATCH
+        // =====================
+        $exact = Webhost::whereRaw('LOWER(nama_web) = ?', [$domain])
+            ->whereRaw('LOWER(email) = ?', [$email])
+            ->get();
+
+        if ($exact->count() === 1) {
+
+            $whmcs->update([
+                'webhost_id' => $exact->first()->id_webhost,
+            ]);
+
+            return response()->json([
+                'type' => 'exact',
+                'auto_assigned' => true,
+                'data' => $exact,
+                'whmcs_domain' => $whmcs,
+            ]);
+        }
+
+        // =====================
+        // 2. DOMAIN ONLY
+        // =====================
+        $domainOnly = Webhost::whereRaw('LOWER(nama_web) = ?', [$domain])
+            ->get();
+
+        if ($domainOnly->count() === 1) {
+
+            $whmcs->update([
+                'webhost_id' => $domainOnly->first()->id_webhost
+            ]);
+
+            return response()->json([
+                'type' => 'domain_only',
+                'auto_assigned' => true,
+                'data' => $domainOnly,
+                'whmcs_domain' => $whmcs
+            ]);
+        }
+
+
+        // =====================
+        // 3. SIMILAR (NO AUTO)
+        // =====================
+        $similar = Webhost::where('nama_web', 'like', "%{$domain}%")
+            ->limit(5)
+            ->get();
+
+        return response()->json([
+            'type' => 'manual',
+            'auto_assigned' => false,
+            'data' => $similar,
+            'whmcs_domain' => $whmcs
+        ]);
     }
 }

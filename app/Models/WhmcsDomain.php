@@ -16,7 +16,8 @@ class WhmcsDomain extends Model
         'type',
         'status',
         'registrar',
-        'user_email'
+        'user_email',
+        'webhost_id',
     ];
 
     // relasi ke tabel webhost
