@@ -15,6 +15,8 @@ class WhmcsDomainController extends Controller
     {
         $query = WhmcsDomain::query();
 
+        $query->with(['whmcs_user', 'webhost_data']);
+
         if ($request->input('search')) {
             $query->where('domain', 'like', '%' . $request->input('search') . '%')
                 ->orWhere('user_email', 'like', '%' . $request->input('search') . '%');
@@ -22,6 +24,10 @@ class WhmcsDomainController extends Controller
 
         if ($request->input('uppercase_only') && $request->input('uppercase_only') === 'true') {
             $query->whereRaw("REGEXP_LIKE(domain, '[A-Z]', 'c')");
+        }
+
+        if ($request->input('webhost_disable') === 'true') {
+            $query->whereNull('webhost_id');
         }
 
         $per_page = $request->input('per_page', 20);
