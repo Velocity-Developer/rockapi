@@ -310,6 +310,12 @@
                 "label": "Media",
                 "icon": "lucide:images",
                 "route": "/dash/media"
+            },
+            {
+                "key": "dash_admin_tools",
+                "label": "Admin Tools",
+                "icon": "lucide:shield-cog-corner",
+                "route": "/dash/admin-tools"
             }
         ]
     }

@@ -27,7 +27,7 @@ class ClearLogs extends Command
     {
         $files = glob(storage_path('logs/*.log'));
         foreach ($files as $file) {
-            file_put_contents($file, '');
+            unlink($file);
         }
         $this->info('Logs have been cleared!');
     }
