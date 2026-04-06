@@ -9,6 +9,7 @@ use App\Http\Controllers\Dash\NotificationsController;
 use App\Http\Controllers\Dash\OptionsController;
 use App\Http\Controllers\Dash\PermissionsController;
 use App\Http\Controllers\Dash\RolesController;
+use App\Http\Controllers\Dash\AdminToolsController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -49,6 +50,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('dashboard/analytic/support/paket', [DashboardSupportController::class, 'paket']);
     Route::get('dashboard/analytic/support/jurnal_daily', [DashboardSupportController::class, 'jurnal_daily']);
     Route::get('dashboard/analytic/support/dashboard_counts', [DashboardSupportController::class, 'dashboard_counts']);
+
+    Route::get('dash/admin-tools', [AdminToolsController::class, 'index']);
+    Route::post('dash/admin-tools-run', [AdminToolsController::class, 'run']);
 });
 
 Route::get('dash/config', [ConfigController::class, 'index']);
