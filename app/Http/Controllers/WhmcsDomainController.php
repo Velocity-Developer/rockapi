@@ -32,6 +32,10 @@ class WhmcsDomainController extends Controller
             $query->whereNull('webhost_id');
         }
 
+        if ($request->input('status')) {
+            $query->whereStatus($request->input('status'));
+        }
+
         $per_page = $request->input('per_page', 20);
         $results = $query->paginate($per_page);
 
