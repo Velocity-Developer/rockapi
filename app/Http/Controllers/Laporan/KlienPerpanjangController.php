@@ -420,7 +420,7 @@ class KlienPerpanjangController extends Controller
             $perpanjang = rand(10, 10000);
             $tidak_perpanjang = rand(100, 1000);
             $total = $perpanjang + $tidak_perpanjang;
-            $ratio = $perpanjang / $total;
+            $ratio = round($total / $perpanjang, 2);
 
             $data[] = [
                 'month' => $month['name'],
