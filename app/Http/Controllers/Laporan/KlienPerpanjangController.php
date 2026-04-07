@@ -396,4 +396,58 @@ class KlienPerpanjangController extends Controller
             'data' => $reindexed_array
         ]);
     }
+
+    public function grafik(Request $request)
+    {
+        $year = (int) $request->input('tahun', now()->year) ?? now()->year;
+        $currentYear = now()->year;
+
+        // tentukan batas bulan
+        $maxMonth = ($year === $currentYear) ? now()->month : 12;
+
+        $months = collect(range(1, $maxMonth))
+            ->map(function ($month) use ($year) {
+                return [
+                    'month' => $month,
+                    'name'  => Carbon::create($year, $month, 1)->translatedFormat('F'),
+                    'year'  => $year,
+                ];
+            });
+
+        $data = [];
+        foreach ($months as $month) {
+
+            $perpanjang = rand(10, 10000);
+            $tidak_perpanjang = rand(100, 1000);
+            $total = $perpanjang + $tidak_perpanjang;
+            $ratio = $perpanjang / $total;
+
+            $data[] = [
+                'month' => $month['name'],
+                'year' => $month['year'],
+                'perpanjang' => $perpanjang,
+                'tidak_perpanjang' => $tidak_perpanjang,
+                'total' => $total,
+                'ratio' => $ratio,
+                'rincian' => [
+                    'Total' => rand(10000, 1000000),
+                    'Perpanjang' => rand(10000, 1000000),
+                    'Tidak Perpanjang' => rand(10000, 1000000),
+                    'Ratio Perpanjang' => rand(10000, 1000000),
+                    'Total Pemasukkan' => rand(10000, 1000000),
+                    'PPJ dari bulan ini' => rand(10000, 1000000),
+                    'PPJ dari bulan lain' => rand(10000, 1000000),
+                    'ppj bln ini yg terbayar di bln lalu' => rand(10000, 1000000),
+                    'Rata-rata biaya perpanjang' => rand(10000, 1000000),
+                    'Perpanjang termahal' => rand(10000, 1000000),
+                ],
+            ];
+        }
+
+        return response()->json([
+            'year' => $year,
+            'months' => $months,
+            'data' => $data,
+        ]);
+    }
 }
