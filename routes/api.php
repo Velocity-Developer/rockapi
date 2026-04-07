@@ -200,6 +200,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/whmcs-custom/expired-month', [WhmcsCustomController::class, 'expired_month']);
     Route::get('/whmcs-custom/sync-domains-hostings', [WhmcsCustomController::class, 're_sync_domain_hosting']);
     Route::post('/whmcs-domain-webhost-search', [WhmcsDomainController::class, 'webhost_search']);
+    Route::post('/whmcs-domain-webhost-select', [WhmcsDomainController::class, 'webhost_select']);
 });
 
 // Invoice PDF route

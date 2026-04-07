@@ -201,4 +201,27 @@ class WhmcsDomainController extends Controller
             'whmcs_domain' => $whmcs
         ]);
     }
+
+    public function webhost_select(Request $request)
+    {
+        // validasi
+        $validated = $request->validate([
+            'id' => 'required|integer',
+            'webhost_id' => 'required|integer',
+        ]);
+
+        //get whmcs domain by id
+        $whmcs = WhmcsDomain::findOrFail($validated['id']);
+
+        if (!$whmcs) {
+            return response()->json(['message' => 'Whmcs Domain not found'], 404);
+        }
+
+        //update whmcs domain
+        $whmcs->update([
+            'webhost_id' => $validated['webhost_id'],
+        ]);
+
+        return response()->json($whmcs);
+    }
 }
