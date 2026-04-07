@@ -112,7 +112,7 @@ class WhmcsDomainController extends Controller
             // 'nextduedate' => $validated['nextduedate'],
             // 'registrationdate' => $validated['registrationdate'],
             // 'status' => $validated['status'],
-            // 'user_email' => $validated['user_email'],
+            'user_email' => $validated['user_email'],
             // 'whmcs_id' => $validated['whmcs_id'],
             // 'whmcs_userid' => $validated['whmcs_userid'],
         ]);
