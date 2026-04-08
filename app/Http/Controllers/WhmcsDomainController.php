@@ -134,12 +134,12 @@ class WhmcsDomainController extends Controller
         // validasi
         $validated = $request->validate([
             'domain' => 'required|string',
-            'email' => 'required|string',
+            'email' => 'nullable|string',
             'id' => 'required|integer',
         ]);
 
         $domain = Str::lower(trim($validated['domain']));
-        $email = Str::lower(trim($validated['email']));
+        $email = $validated['email'] ? Str::lower(trim($validated['email'])) : null;
 
         // ambil data whmcs
         $whmcs = WhmcsDomain::findOrFail($validated['id']);
@@ -149,7 +149,7 @@ class WhmcsDomainController extends Controller
         // 1. EXACT MATCH
         // =====================
         $exact = Webhost::whereRaw('LOWER(nama_web) = ?', [$domain])
-            ->whereRaw('LOWER(email) = ?', [$email])
+            ->when($email, fn($query) => $query->whereRaw('LOWER(email) = ?', [$email]))
             ->get();
 
         if ($exact->count() === 1) {
