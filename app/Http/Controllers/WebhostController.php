@@ -53,6 +53,11 @@ class WebhostController extends Controller
 
         $webhost = $query->find($id);
 
+        // jika tidak ada
+        if (!$webhost) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        }
+
         // $webhost = Webhost::with(
         //     'paket',
         //     'csMainProjects',
