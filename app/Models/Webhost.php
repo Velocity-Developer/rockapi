@@ -99,4 +99,10 @@ class Webhost extends Model
             'status_ads' => null,
         ]);
     }
+
+    //relasi whmcs_domain
+    public function whmcs_domain()
+    {
+        return $this->hasOne(WhmcsDomain::class, 'webhost_id', 'id_webhost');
+    }
 }
