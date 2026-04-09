@@ -17,4 +17,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('laporan/klien_perpanjang', [KlienPerpanjangController::class, 'index']);
     Route::get('laporan/klien_perpanjang_expired_whmcs', [KlienPerpanjangController::class, 'expiredWhmcs']);
     Route::get('laporan/klien_perpanjang_grafik', [KlienPerpanjangController::class, 'grafik']);
+    Route::get('laporan/klien_perpanjang_grafik_data', [KlienPerpanjangController::class, 'grafikData']);
 });

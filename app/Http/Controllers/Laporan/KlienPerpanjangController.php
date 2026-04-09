@@ -435,6 +435,72 @@ class KlienPerpanjangController extends Controller
         ]);
     }
 
+    public function grafikData(Request $request)
+    {
+        $year = (int) $request->input('tahun', now()->year);
+        $monthNumber = (int) $request->input('bulan');
+        $jenis = $request->input('jenis');
+
+        if ($monthNumber < 1 || $monthNumber > 12) {
+            return response()->json(['message' => 'Bulan tidak valid'], 422);
+        }
+
+        if (! in_array($jenis, ['perpanjang', 'tidak_perpanjang'], true)) {
+            return response()->json(['message' => 'Jenis tidak valid'], 422);
+        }
+
+        if ($jenis === 'perpanjang') {
+            $rows = DB::table('tb_cs_main_project as p')
+                ->join('tb_webhost as w', 'w.id_webhost', '=', 'p.id_webhost')
+                ->leftJoin('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
+                ->where('p.jenis', 'Perpanjangan')
+                ->whereMonth('p.tgl_masuk', $monthNumber)
+                ->whereYear('p.tgl_masuk', $year)
+                ->select(
+                    'w.id_webhost',
+                    'w.nama_web',
+                    'w.tgl_mulai',
+                    'p.id as cs_main_project_id',
+                    'p.tgl_masuk',
+                    'p.deskripsi',
+                    'p.dibayar',
+                    'wd.domain',
+                    'wd.status as whmcs_status',
+                    'wd.expirydate'
+                )
+                ->orderByDesc('p.tgl_masuk')
+                ->get()
+                ->unique('id_webhost')
+                ->values();
+        } else {
+            $rows = DB::table('tb_webhost as w')
+                ->join('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
+                ->whereMonth('wd.expirydate', $monthNumber)
+                ->whereYear('wd.expirydate', $year)
+                ->where('wd.status', 'Expired')
+                ->select(
+                    'w.id_webhost',
+                    'w.nama_web',
+                    'w.tgl_mulai',
+                    'wd.domain',
+                    'wd.status as whmcs_status',
+                    'wd.expirydate'
+                )
+                ->orderBy('wd.expirydate')
+                ->get()
+                ->unique('id_webhost')
+                ->values();
+        }
+
+        return response()->json([
+            'year' => $year,
+            'bulan' => $monthNumber,
+            'jenis' => $jenis,
+            'total' => $rows->count(),
+            'data' => $rows,
+        ]);
+    }
+
     private function buildGrafikMonthData(int $year, int $monthNumber): array
     {
         $monthStart = Carbon::create($year, $monthNumber, 1)->startOfMonth();
