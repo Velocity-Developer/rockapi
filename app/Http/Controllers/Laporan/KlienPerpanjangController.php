@@ -401,9 +401,6 @@ class KlienPerpanjangController extends Controller
     {
         $year = (int) $request->input('tahun', now()->year);
         $currentYear = now()->year;
-        $yearStart = Carbon::create($year, 1, 1)->startOfYear();
-        $yearEnd = Carbon::create($year, 12, 31)->endOfYear();
-        $yearEndNext = Carbon::create($year + 1, 12, 31)->endOfYear();
 
         // tentukan batas bulan
         $maxMonth = ($year === $currentYear) ? now()->month : 12;
@@ -417,220 +414,18 @@ class KlienPerpanjangController extends Controller
                 ];
             });
 
-        // Ambil webhost beserta relasi yang relevan untuk laporan tahunan ini.
-        // Setelah semua relasi termuat, pengelompokan per bulan dilakukan di memory
-        // agar sumber data tetap konsisten dari model Webhost dan relasinya.
-        $webhosts = Webhost::query()
-            ->with([
-                'csMainProjects' => function ($query) use ($yearStart, $yearEnd) {
-                    $query->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'dibayar')
-                        ->where('jenis', 'Perpanjangan')
-                        ->whereBetween('tgl_masuk', [
-                            $yearStart->copy()->subMonth()->toDateString(),
-                            $yearEnd->copy()->addMonth()->toDateString(),
-                        ]);
-                },
-                'csMainProjects.transaksi_masuk' => function ($query) use ($yearStart, $yearEnd) {
-                    $query->select('id_transaksi_masuk', 'id', 'tgl', 'bayar', 'pelunasan')
-                        ->whereBetween('tgl', [
-                            $yearStart->copy()->subMonth()->toDateString(),
-                            $yearEnd->copy()->addMonth()->toDateString(),
-                        ]);
-                },
-                'whmcs_domain' => function ($query) use ($yearStart, $yearEnd) {
-                    $query->select('id', 'webhost_id', 'status', 'expirydate', 'domain')
-                        ->whereBetween('expirydate', [
-                            $yearStart->toDateString(),
-                            $yearEnd->copy()->addYear()->toDateString(),
-                        ]);
-                },
-                'perpanjang_terakhir',
-                'pembuatan',
-            ])
-            ->where(function ($query) use ($yearStart, $yearEnd, $yearEndNext) {
-                $query->whereHas('csMainProjects', function ($projectQuery) use ($yearStart, $yearEnd) {
-                    $projectQuery->whereBetween('tgl_masuk', [
-                        $yearStart->toDateString(),
-                        $yearEnd->toDateString(),
-                    ]);
-                })->orWhereHas('whmcs_domain', function ($domainQuery) use ($yearStart, $yearEndNext) {
-                    $domainQuery->whereBetween('expirydate', [
-                        $yearStart->toDateString(),
-                        $yearEndNext->toDateString(),
-                    ]);
-                });
-            })
-            ->get();
+        if ($request->filled('bulan')) {
+            $monthNumber = (int) $request->input('bulan');
+            if ($monthNumber < 1 || $monthNumber > 12) {
+                return response()->json(['message' => 'Bulan tidak valid'], 422);
+            }
+
+            return response()->json($this->buildGrafikMonthData($year, $monthNumber));
+        }
 
         $data = [];
         foreach ($months as $month) {
-            $monthStart = Carbon::create($month['year'], $month['month'], 1)->startOfMonth();
-            $monthEnd = $monthStart->copy()->endOfMonth();
-            $previousMonthStart = $monthStart->copy()->subMonth()->startOfMonth();
-            $previousMonthEnd = $monthStart->copy()->subMonth()->endOfMonth();
-
-            // Basis bulan laporan diambil dari bulan expiry domain WHMCS.
-            // Webhost hanya dihitung jika sudah ada pada atau sebelum tahun laporan,
-            // agar webhost baru di tahun berikutnya tidak ikut masuk bucket.
-            $webhostsBulanIni = $webhosts->filter(function ($webhost) use ($monthStart, $monthEnd, $year) {
-                if (! $webhost->whmcs_domain || empty($webhost->whmcs_domain->expirydate)) {
-                    return false;
-                }
-
-                $tahunMulai = null;
-                if (! empty($webhost->tgl_mulai)) {
-                    $tahunMulai = Carbon::parse($webhost->tgl_mulai)->year;
-                } elseif ($webhost->pembuatan && ! empty($webhost->pembuatan->tgl_masuk)) {
-                    $tahunMulai = Carbon::parse($webhost->pembuatan->tgl_masuk)->year;
-                }
-
-                if ($tahunMulai && $tahunMulai > $year) {
-                    return false;
-                }
-
-                $expiryDate = Carbon::parse($webhost->whmcs_domain->expirydate);
-                return (int) $expiryDate->month === (int) $monthStart->month;
-            });
-
-            // Bentuk semua data pembayaran perpanjangan dari relasi Webhost -> CsMainProjects
-            // -> transaksi_masuk. Jika transaksi belum ada, fallback ke tgl_masuk + dibayar project.
-            $webhostsDenganPembayaran = $webhostsBulanIni->map(function ($webhost) {
-                $paymentEntries = $webhost->csMainProjects
-                    ->flatMap(function ($project) {
-                        $entries = collect();
-
-                        if ($project->transaksi_masuk && $project->transaksi_masuk->isNotEmpty()) {
-                            $entries = $project->transaksi_masuk
-                                ->filter(function ($transaksi) {
-                                    return ! empty($transaksi->tgl) && (int) $transaksi->bayar > 0;
-                                })
-                                ->map(function ($transaksi) use ($project) {
-                                    return [
-                                        'project_id' => $project->id,
-                                        'payment_date' => Carbon::parse($transaksi->tgl),
-                                        'amount' => (int) $transaksi->bayar,
-                                    ];
-                                });
-                        }
-
-                        if ($entries->isEmpty() && ! empty($project->tgl_masuk) && (int) $project->dibayar > 0) {
-                            $entries = collect([
-                                [
-                                    'project_id' => $project->id,
-                                    'payment_date' => Carbon::parse($project->tgl_masuk),
-                                    'amount' => (int) $project->dibayar,
-                                ]
-                            ]);
-                        }
-
-                        return $entries;
-                    })
-                    ->values();
-
-                $webhost->setAttribute('renewal_payment_entries', $paymentEntries);
-                return $webhost;
-            });
-
-            // Webhost dianggap "perpanjang" jika expiry month sama dengan bucket bulan,
-            // tetapi expiry year sudah melewati tahun laporan. Contoh:
-            // laporan 2026, expiry 2027-04-28 => berarti renewal April 2026 sudah berhasil.
-            $perpanjangWebhosts = $webhostsDenganPembayaran->filter(function ($webhost) use ($year) {
-                if (! $webhost->whmcs_domain || empty($webhost->whmcs_domain->expirydate)) {
-                    return false;
-                }
-
-                $expiryDate = Carbon::parse($webhost->whmcs_domain->expirydate);
-                return (int) $expiryDate->year > (int) $year;
-            });
-
-            // Webhost dianggap "tidak_perpanjang" jika expiry month sama dengan bucket bulan,
-            // expiry year masih sama dengan tahun laporan, dan status domain sudah Expired.
-            $tidakPerpanjangWebhosts = $webhostsDenganPembayaran->filter(function ($webhost) use ($year) {
-                if (! $webhost->whmcs_domain || empty($webhost->whmcs_domain->expirydate)) {
-                    return false;
-                }
-
-                $expiryDate = Carbon::parse($webhost->whmcs_domain->expirydate);
-
-                return (int) $expiryDate->year === (int) $year
-                    && optional($webhost->whmcs_domain)->status === 'Expired';
-            });
-
-            $perpanjang = $perpanjangWebhosts->count();
-            $tidak_perpanjang = $tidakPerpanjangWebhosts->count();
-            $total = $perpanjang + $tidak_perpanjang;
-            $ratio = $total > 0 ? round(($perpanjang / $total) * 100, 2) : 0;
-
-            $paymentEntries = $perpanjangWebhosts
-                ->flatMap(function ($webhost) {
-                    return collect($webhost->renewal_payment_entries)->map(function ($entry) use ($webhost) {
-                        $entry['webhost_id'] = $webhost->id_webhost;
-                        return $entry;
-                    });
-                })
-                ->values();
-
-            // PPJ dari bulan ini:
-            // pembayaran perpanjangan yang bulan bayarnya sama dengan bulan expiry.
-            $ppjDariBulanIniEntries = $paymentEntries->filter(function ($entry) use ($monthStart, $monthEnd) {
-                return $entry['payment_date']->between($monthStart, $monthEnd);
-            });
-
-            // PPJ dari bulan lain:
-            // pembayaran perpanjangan untuk webhost bulan ini, tetapi dibayar
-            // bukan pada bulan expiry-nya.
-            $ppjDariBulanLainEntries = $paymentEntries->filter(function ($entry) use ($monthStart, $monthEnd) {
-                return ! $entry['payment_date']->between($monthStart, $monthEnd);
-            });
-
-            // PPJ bulan ini yang terbayar di bulan lalu:
-            // subset dari PPJ bulan lain yang dibayar tepat pada bulan sebelumnya.
-            $ppjBulanIniTerbayarBulanLaluEntries = $paymentEntries->filter(function ($entry) use ($previousMonthStart, $previousMonthEnd) {
-                return $entry['payment_date']->between($previousMonthStart, $previousMonthEnd);
-            });
-
-            $ppjDariBulanIni = $ppjDariBulanIniEntries
-                ->pluck('webhost_id')
-                ->unique()
-                ->count();
-
-            $ppjDariBulanLain = $ppjDariBulanLainEntries
-                ->pluck('webhost_id')
-                ->unique()
-                ->count();
-
-            $ppjBulanIniTerbayarBulanLalu = $ppjBulanIniTerbayarBulanLaluEntries
-                ->pluck('webhost_id')
-                ->unique()
-                ->count();
-
-            // Nominal umum perpanjangan untuk semua webhost yang masuk bucket bulan ini.
-            $nominalPerpanjang = $paymentEntries->sum('amount');
-            $perpanjangTermahal = $paymentEntries->max('amount') ?? 0;
-            $rataRataBiayaPerpanjang = $perpanjang > 0
-                ? round($nominalPerpanjang / $perpanjang, 2)
-                : 0;
-
-            $data[] = [
-                'month' => $month['name'],
-                'year' => $month['year'],
-                'perpanjang' => $perpanjang,
-                'tidak_perpanjang' => $tidak_perpanjang,
-                'total' => $total,
-                'ratio' => $ratio,
-                'rincian' => [
-                    'Total Webhost' => $total,
-                    'Webhost Perpanjang' => $perpanjang,
-                    'Webhost Tidak Perpanjang' => $tidak_perpanjang,
-                    'Ratio Perpanjang (%)' => $ratio,
-                    'Total Pemasukkan Perpanjang' => $nominalPerpanjang,
-                    'PPJ dari bulan ini' => $ppjDariBulanIni,
-                    'PPJ dari bulan lain' => $ppjDariBulanLain,
-                    'PPJ bulan ini yang terbayar di bulan lalu' => $ppjBulanIniTerbayarBulanLalu,
-                    'Rata-rata biaya perpanjang' => $rataRataBiayaPerpanjang,
-                    'Perpanjang termahal' => $perpanjangTermahal,
-                ],
-            ];
+            $data[] = $this->buildGrafikMonthData($year, (int) $month['month']);
         }
 
         return response()->json([
@@ -638,5 +433,155 @@ class KlienPerpanjangController extends Controller
             'months' => $months,
             'data' => $data,
         ]);
+    }
+
+    private function buildGrafikMonthData(int $year, int $monthNumber): array
+    {
+        $monthStart = Carbon::create($year, $monthNumber, 1)->startOfMonth();
+        $previousMonthStart = $monthStart->copy()->subMonth()->startOfMonth();
+        $previousMonthEnd = $monthStart->copy()->subMonth()->endOfMonth();
+
+        $pembuatanSub = DB::table('tb_cs_main_project')
+            ->select('id_webhost', DB::raw('MIN(tgl_masuk) as first_pembuatan_tgl'))
+            ->whereIn('jenis', $this->jenis_pembuatan)
+            ->groupBy('id_webhost');
+
+        $baseMonthRows = DB::table('tb_webhost as w')
+            ->join('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
+            ->leftJoinSub($pembuatanSub, 'pembuatan_first', function ($join) {
+                $join->on('pembuatan_first.id_webhost', '=', 'w.id_webhost');
+            })
+            ->whereMonth('wd.expirydate', $monthNumber)
+            ->where(function ($query) use ($year) {
+                $query->whereYear('w.tgl_mulai', '<=', $year)
+                    ->orWhere(function ($subQuery) use ($year) {
+                        $subQuery->whereNull('w.tgl_mulai')
+                            ->whereNotNull('pembuatan_first.first_pembuatan_tgl')
+                            ->whereYear('pembuatan_first.first_pembuatan_tgl', '<=', $year);
+                    });
+            })
+            ->select(
+                'w.id_webhost',
+                'w.nama_web',
+                'w.tgl_mulai',
+                'wd.id as whmcs_domain_id',
+                'wd.domain',
+                'wd.status',
+                'wd.expirydate',
+                'pembuatan_first.first_pembuatan_tgl'
+            )
+            ->distinct()
+            ->get();
+
+        $perpanjangRows = $baseMonthRows
+            ->filter(function ($row) use ($year) {
+                return ! empty($row->expirydate)
+                    && (int) Carbon::parse($row->expirydate)->year > $year;
+            })
+            ->values();
+
+        $tidakPerpanjangRows = $baseMonthRows
+            ->filter(function ($row) use ($year) {
+                return ! empty($row->expirydate)
+                    && (int) Carbon::parse($row->expirydate)->year === $year
+                    && $row->status === 'Expired';
+            })
+            ->values();
+
+        $perpanjangIds = $perpanjangRows->pluck('id_webhost')->unique()->values();
+        $tidakPerpanjangIds = $tidakPerpanjangRows->pluck('id_webhost')->unique()->values();
+
+        $perpanjang = $perpanjangIds->count();
+        $tidak_perpanjang = $tidakPerpanjangIds->count();
+        $total = $perpanjang + $tidak_perpanjang;
+        $ratio = $total > 0 ? round(($perpanjang / $total) * 100, 2) : 0;
+
+        $paymentEntries = collect();
+        if ($perpanjangIds->isNotEmpty()) {
+            $perpanjangProjects = DB::table('tb_cs_main_project')
+                ->whereIn('id_webhost', $perpanjangIds)
+                ->where('jenis', 'Perpanjangan')
+                ->select('id', 'id_webhost', 'tgl_masuk', 'dibayar')
+                ->orderByDesc('tgl_masuk')
+                ->get();
+
+            $projectIds = $perpanjangProjects->pluck('id')->unique()->values();
+            $transaksiByProject = collect();
+
+            if ($projectIds->isNotEmpty()) {
+                $transaksiByProject = DB::table('tb_transaksi_masuk')
+                    ->whereIn('id', $projectIds)
+                    ->where('bayar', '>', 0)
+                    ->select('id', 'tgl', 'bayar')
+                    ->get()
+                    ->groupBy('id');
+            }
+
+            $paymentEntries = $perpanjangProjects->flatMap(function ($project) use ($transaksiByProject) {
+                $transaksis = $transaksiByProject->get($project->id, collect());
+
+                if ($transaksis->isNotEmpty()) {
+                    return $transaksis
+                        ->filter(fn($transaksi) => ! empty($transaksi->tgl))
+                        ->map(function ($transaksi) use ($project) {
+                            return [
+                                'webhost_id' => $project->id_webhost,
+                                'payment_date' => Carbon::parse($transaksi->tgl),
+                                'amount' => (int) $transaksi->bayar,
+                            ];
+                        });
+                }
+
+                if (! empty($project->tgl_masuk) && (int) $project->dibayar > 0) {
+                    return [[
+                        'webhost_id' => $project->id_webhost,
+                        'payment_date' => Carbon::parse($project->tgl_masuk),
+                        'amount' => (int) $project->dibayar,
+                    ]];
+                }
+
+                return [];
+            })->values();
+        }
+
+        $ppjDariBulanIni = $paymentEntries
+            ->filter(fn($entry) => (int) $entry['payment_date']->month === $monthNumber && (int) $entry['payment_date']->year === $year)
+            ->pluck('webhost_id')
+            ->unique()
+            ->count();
+
+        $ppjDariBulanLain = $paymentEntries
+            ->filter(fn($entry) => ! ((int) $entry['payment_date']->month === $monthNumber && (int) $entry['payment_date']->year === $year))
+            ->pluck('webhost_id')
+            ->unique()
+            ->count();
+
+        $ppjBulanIniTerbayarBulanLalu = $paymentEntries
+            ->filter(fn($entry) => $entry['payment_date']->between($previousMonthStart, $previousMonthEnd))
+            ->pluck('webhost_id')
+            ->unique()
+            ->count();
+
+        return [
+            'month' => Carbon::create($year, $monthNumber, 1)->translatedFormat('F'),
+            'month_number' => $monthNumber,
+            'year' => $year,
+            'perpanjang' => $perpanjang,
+            'tidak_perpanjang' => $tidak_perpanjang,
+            'total' => $total,
+            'ratio' => $ratio,
+            'rincian' => [
+                'Total Webhost' => $total,
+                'Webhost Perpanjang' => $perpanjang,
+                'Webhost Tidak Perpanjang' => $tidak_perpanjang,
+                'Ratio Perpanjang (%)' => $ratio,
+                'Total Pemasukkan Perpanjang' => $paymentEntries->sum('amount'),
+                'PPJ dari bulan ini' => $ppjDariBulanIni,
+                'PPJ dari bulan lain' => $ppjDariBulanLain,
+                'PPJ bulan ini yang terbayar di bulan lalu' => $ppjBulanIniTerbayarBulanLalu,
+                'Rata-rata biaya perpanjang' => $perpanjang > 0 ? round($paymentEntries->sum('amount') / $perpanjang, 2) : 0,
+                'Perpanjang termahal' => $paymentEntries->max('amount') ?? 0,
+            ],
+        ];
     }
 }
