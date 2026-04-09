@@ -473,22 +473,47 @@ class KlienPerpanjangController extends Controller
             ->distinct()
             ->get();
 
+        // Perpanjang Bulan Ini:
+        // webhost yang memiliki cs_main_project jenis 'Perpanjangan'
+        // dengan tgl_masuk pada bulan dan tahun laporan.
+        $perpanjangProjectsThisMonth = DB::table('tb_cs_main_project')
+            ->where('jenis', 'Perpanjangan')
+            ->whereMonth('tgl_masuk', $monthNumber)
+            ->whereYear('tgl_masuk', $year)
+            ->select('id', 'id_webhost', 'tgl_masuk', 'dibayar')
+            ->orderByDesc('tgl_masuk')
+            ->get();
+
+        $perpanjangIds = $perpanjangProjectsThisMonth
+            ->pluck('id_webhost')
+            ->filter()
+            ->unique()
+            ->values();
+
         $perpanjangRows = $baseMonthRows
-            ->filter(function ($row) use ($year) {
-                return ! empty($row->expirydate)
-                    && (int) Carbon::parse($row->expirydate)->year > $year;
-            })
+            ->whereIn('id_webhost', $perpanjangIds)
             ->values();
 
-        $tidakPerpanjangRows = $baseMonthRows
-            ->filter(function ($row) use ($year) {
-                return ! empty($row->expirydate)
-                    && (int) Carbon::parse($row->expirydate)->year === $year
-                    && $row->status === 'Expired';
-            })
-            ->values();
+        // Tidak Perpanjang:
+        // query terpisah, langsung dari webhost + whmcs_domains.
+        // Definisinya murni: domain sudah Expired di bulan-tahun laporan.
+        $tidakPerpanjangRows = DB::table('tb_webhost as w')
+            ->join('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
+            ->whereMonth('wd.expirydate', $monthNumber)
+            ->whereYear('wd.expirydate', $year)
+            ->where('wd.status', 'Expired')
+            ->select(
+                'w.id_webhost',
+                'w.nama_web',
+                'w.tgl_mulai',
+                'wd.id as whmcs_domain_id',
+                'wd.domain',
+                'wd.status',
+                'wd.expirydate'
+            )
+            ->distinct()
+            ->get();
 
-        $perpanjangIds = $perpanjangRows->pluck('id_webhost')->unique()->values();
         $tidakPerpanjangIds = $tidakPerpanjangRows->pluck('id_webhost')->unique()->values();
 
         $perpanjang = $perpanjangIds->count();
