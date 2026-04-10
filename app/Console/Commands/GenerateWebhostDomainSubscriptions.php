@@ -14,7 +14,9 @@ class GenerateWebhostDomainSubscriptions extends Command
      *
      * @var string
      */
-    protected $signature = 'webhost:generate-domain-subscriptions {--dry-run : Tampilkan hasil tanpa menyimpan data}';
+    protected $signature = 'webhost:generate-domain-subscriptions
+                            {--dry-run : Tampilkan hasil tanpa menyimpan data}
+                            {--chunk=50 : Jumlah webhost yang diproses per batch}';
 
     /**
      * The console command description.
@@ -44,128 +46,134 @@ class GenerateWebhostDomainSubscriptions extends Command
     public function handle()
     {
         $dryRun = (bool) $this->option('dry-run');
+        $chunkSize = max((int) $this->option('chunk'), 1);
 
-        $this->info('Mencari webhost yang punya WHMCS domain dan registration date...');
+        $this->info("Mencari webhost yang punya WHMCS domain, registration date, dan belum punya subscription domain. Batch: {$chunkSize}");
 
-        $webhosts = Webhost::with([
+        $baseQuery = Webhost::with([
             'whmcs_domain',
             'csMainProjects' => function ($query) {
                 $query->whereIn('jenis', array_merge($this->jenisPembuatan, ['Perpanjangan']))
                     ->orderBy('tgl_masuk', 'asc')
                     ->orderBy('id', 'asc');
             },
-            'subscriptions' => function ($query) {
-                $query->where('service_type', 'domain')->orderBy('start_date');
-            },
         ])
             ->whereHas('whmcs_domain', function ($query) {
                 $query->whereNotNull('webhost_id')
                     ->whereNotNull('registrationdate');
             })
-            ->orderBy('id_webhost')
-            ->get();
+            ->whereDoesntHave('subscriptions', function ($query) {
+                $query->where('service_type', 'domain');
+            })
+            ->orderBy('id_webhost');
 
-        if ($webhosts->isEmpty()) {
+        if (! (clone $baseQuery)->exists()) {
             $this->warn('Tidak ada webhost yang cocok untuk digenerate.');
             return self::SUCCESS;
         }
 
         $createdRows = 0;
-        $skippedWebhosts = 0;
         $processedWebhosts = 0;
         $rowsPreview = [];
+        $batchNumber = 0;
 
-        foreach ($webhosts as $webhost) {
-            if ($webhost->subscriptions->isNotEmpty()) {
-                $skippedWebhosts++;
-                $this->line("Skip webhost {$webhost->id_webhost} ({$webhost->nama_web}) karena subscription domain sudah ada.");
-                continue;
-            }
+        $baseQuery->chunkById($chunkSize, function ($webhosts) use (
+            $dryRun,
+            &$createdRows,
+            &$processedWebhosts,
+            &$rowsPreview,
+            &$batchNumber
+        ) {
+            $batchNumber++;
+            $this->info("Memproses batch {$batchNumber} ({$webhosts->count()} webhost)...");
 
-            $domain = $webhost->whmcs_domain;
-            if (! $domain || ! $domain->registrationdate) {
-                $skippedWebhosts++;
-                continue;
-            }
+            foreach ($webhosts as $webhost) {
+                $domain = $webhost->whmcs_domain;
+                if (! $domain || ! $domain->registrationdate) {
+                    continue;
+                }
 
-            $registrationDate = Carbon::parse($domain->registrationdate)->startOfDay();
-            $expiryDate = $domain->expirydate ? Carbon::parse($domain->expirydate)->startOfDay() : null;
+                $registrationDate = Carbon::parse($domain->registrationdate)->startOfDay();
+                $expiryDate = $domain->expirydate ? Carbon::parse($domain->expirydate)->startOfDay() : null;
 
-            $pembuatanProject = $webhost->csMainProjects
-                ->first(fn ($project) => in_array($project->jenis, $this->jenisPembuatan, true));
+                $pembuatanProject = $webhost->csMainProjects
+                    ->first(fn ($project) => in_array($project->jenis, $this->jenisPembuatan, true));
 
-            $renewalProjects = $webhost->csMainProjects
-                ->filter(fn ($project) => $project->jenis === 'Perpanjangan')
-                ->values();
+                $renewalProjects = $webhost->csMainProjects
+                    ->filter(fn ($project) => $project->jenis === 'Perpanjangan')
+                    ->values();
 
-            $rows = [];
-            $cursorStart = $registrationDate->copy();
-
-            $rows[] = [
-                'webhost_id' => $webhost->id_webhost,
-                'cs_main_project_id' => $pembuatanProject?->id,
-                'parent_subscription_id' => null,
-                'source_type' => 'whmcs_domain',
-                'service_type' => 'domain',
-                'start_date' => $cursorStart->toDateString(),
-                'end_date' => $cursorStart->copy()->addYear()->toDateString(),
-                'renewed_from_date' => null,
-                'status' => 'expired',
-                'nominal' => $pembuatanProject?->dibayar ?? 0,
-                'description' => 'Generated from WHMCS registration date',
-            ];
-
-            foreach ($renewalProjects as $project) {
-                $renewedFromDate = $cursorStart->copy()->addYear();
-                $nextEndDate = $renewedFromDate->copy()->addYear();
+                $rows = [];
+                $cursorStart = $registrationDate->copy();
 
                 $rows[] = [
                     'webhost_id' => $webhost->id_webhost,
-                    'cs_main_project_id' => $project->id,
+                    'cs_main_project_id' => $pembuatanProject?->id,
                     'parent_subscription_id' => null,
-                    'source_type' => 'csmainproject',
+                    'source_type' => 'whmcs_domain',
                     'service_type' => 'domain',
-                    'start_date' => $renewedFromDate->toDateString(),
-                    'end_date' => $nextEndDate->toDateString(),
-                    'renewed_from_date' => $renewedFromDate->toDateString(),
+                    'start_date' => $cursorStart->toDateString(),
+                    'end_date' => $cursorStart->copy()->addYear()->toDateString(),
+                    'renewed_from_date' => null,
                     'status' => 'expired',
-                    'nominal' => $project->dibayar ?? 0,
-                    'description' => $project->deskripsi,
+                    'nominal' => $pembuatanProject?->dibayar ?? 0,
+                    'description' => 'Generated from WHMCS registration date',
                 ];
 
-                $cursorStart = $renewedFromDate->copy();
-            }
+                foreach ($renewalProjects as $project) {
+                    $renewedFromDate = $cursorStart->copy()->addYear();
+                    $nextEndDate = $renewedFromDate->copy()->addYear();
 
-            if ($expiryDate && ! empty($rows)) {
-                $rows[array_key_last($rows)]['end_date'] = $expiryDate->toDateString();
-            }
+                    $rows[] = [
+                        'webhost_id' => $webhost->id_webhost,
+                        'cs_main_project_id' => $project->id,
+                        'parent_subscription_id' => null,
+                        'source_type' => 'csmainproject',
+                        'service_type' => 'domain',
+                        'start_date' => $renewedFromDate->toDateString(),
+                        'end_date' => $nextEndDate->toDateString(),
+                        'renewed_from_date' => $renewedFromDate->toDateString(),
+                        'status' => 'expired',
+                        'nominal' => $project->dibayar ?? 0,
+                        'description' => $project->deskripsi,
+                    ];
 
-            if (! empty($rows)) {
-                $rows[array_key_last($rows)]['status'] = $this->resolveStatus($rows[array_key_last($rows)]['end_date']);
-            }
+                    $cursorStart = $renewedFromDate->copy();
+                }
 
-            $processedWebhosts++;
-            $rowsPreview[] = [
-                $webhost->id_webhost,
-                $webhost->nama_web,
-                $registrationDate->toDateString(),
-                $expiryDate?->toDateString(),
-                count($rows),
-            ];
+                if ($expiryDate && ! empty($rows)) {
+                    $rows[array_key_last($rows)]['end_date'] = $expiryDate->toDateString();
+                }
 
-            if ($dryRun) {
-                $createdRows += count($rows);
-                continue;
-            }
+                if (! empty($rows)) {
+                    $rows[array_key_last($rows)]['status'] = $this->resolveStatus($rows[array_key_last($rows)]['end_date']);
+                }
 
-            $parentId = null;
-            foreach ($rows as $row) {
-                $row['parent_subscription_id'] = $parentId;
-                $subscription = WebhostSubscription::create($row);
-                $parentId = $subscription->id;
-                $createdRows++;
+                $processedWebhosts++;
+                if (count($rowsPreview) < 20) {
+                    $rowsPreview[] = [
+                        $webhost->id_webhost,
+                        $webhost->nama_web,
+                        $registrationDate->toDateString(),
+                        $expiryDate?->toDateString(),
+                        count($rows),
+                    ];
+                }
+
+                if ($dryRun) {
+                    $createdRows += count($rows);
+                    continue;
+                }
+
+                $parentId = null;
+                foreach ($rows as $row) {
+                    $row['parent_subscription_id'] = $parentId;
+                    $subscription = WebhostSubscription::create($row);
+                    $parentId = $subscription->id;
+                    $createdRows++;
+                }
             }
-        }
+        }, 'id_webhost', 'id_webhost');
 
         if (! empty($rowsPreview)) {
             $this->table(
@@ -175,8 +183,8 @@ class GenerateWebhostDomainSubscriptions extends Command
         }
 
         $summaryMessage = $dryRun
-            ? "Dry run selesai. {$processedWebhosts} webhost diproses, {$createdRows} row akan dibuat, {$skippedWebhosts} webhost dilewati."
-            : "Generate selesai. {$processedWebhosts} webhost diproses, {$createdRows} row dibuat, {$skippedWebhosts} webhost dilewati.";
+            ? "Dry run selesai. {$processedWebhosts} webhost diproses, {$createdRows} row akan dibuat."
+            : "Generate selesai. {$processedWebhosts} webhost diproses, {$createdRows} row dibuat.";
 
         $this->info($summaryMessage);
 
