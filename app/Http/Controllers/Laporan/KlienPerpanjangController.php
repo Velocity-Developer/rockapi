@@ -512,22 +512,23 @@ class KlienPerpanjangController extends Controller
             ->whereIn('jenis', $this->jenis_pembuatan)
             ->groupBy('id_webhost');
 
-        $baseMonthRows = DB::table('tb_webhost as w')
-            ->join('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
+        // Perpanjang Bulan Ini:
+        // webhost yang memiliki cs_main_project jenis 'Perpanjangan'
+        // dengan tgl_masuk pada bulan dan tahun laporan.
+        $perpanjangProjectsThisMonth = DB::table('tb_cs_main_project as p')
+            ->join('tb_webhost as w', 'w.id_webhost', '=', 'p.id_webhost')
+            ->leftJoin('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
             ->leftJoinSub($pembuatanSub, 'pembuatan_first', function ($join) {
                 $join->on('pembuatan_first.id_webhost', '=', 'w.id_webhost');
             })
-            ->whereMonth('wd.expirydate', $monthNumber)
-            ->where(function ($query) use ($year) {
-                $query->whereYear('w.tgl_mulai', '<=', $year)
-                    ->orWhere(function ($subQuery) use ($year) {
-                        $subQuery->whereNull('w.tgl_mulai')
-                            ->whereNotNull('pembuatan_first.first_pembuatan_tgl')
-                            ->whereYear('pembuatan_first.first_pembuatan_tgl', '<=', $year);
-                    });
-            })
+            ->where('jenis', 'Perpanjangan')
+            ->whereMonth('p.tgl_masuk', $monthNumber)
+            ->whereYear('p.tgl_masuk', $year)
             ->select(
-                'w.id_webhost',
+                'p.id',
+                'p.id_webhost',
+                'p.tgl_masuk',
+                'p.dibayar',
                 'w.nama_web',
                 'w.tgl_mulai',
                 'wd.id as whmcs_domain_id',
@@ -536,18 +537,7 @@ class KlienPerpanjangController extends Controller
                 'wd.expirydate',
                 'pembuatan_first.first_pembuatan_tgl'
             )
-            ->distinct()
-            ->get();
-
-        // Perpanjang Bulan Ini:
-        // webhost yang memiliki cs_main_project jenis 'Perpanjangan'
-        // dengan tgl_masuk pada bulan dan tahun laporan.
-        $perpanjangProjectsThisMonth = DB::table('tb_cs_main_project')
-            ->where('jenis', 'Perpanjangan')
-            ->whereMonth('tgl_masuk', $monthNumber)
-            ->whereYear('tgl_masuk', $year)
-            ->select('id', 'id_webhost', 'tgl_masuk', 'dibayar')
-            ->orderByDesc('tgl_masuk')
+            ->orderByDesc('p.tgl_masuk')
             ->get();
 
         $perpanjangIds = $perpanjangProjectsThisMonth
@@ -556,8 +546,8 @@ class KlienPerpanjangController extends Controller
             ->unique()
             ->values();
 
-        $perpanjangRows = $baseMonthRows
-            ->whereIn('id_webhost', $perpanjangIds)
+        $perpanjangRows = $perpanjangProjectsThisMonth
+            ->unique('id_webhost')
             ->values();
 
         // Tidak Perpanjang:
@@ -585,7 +575,7 @@ class KlienPerpanjangController extends Controller
         $perpanjang = $perpanjangIds->count();
         $tidak_perpanjang = $tidakPerpanjangIds->count();
         $total = $perpanjang + $tidak_perpanjang;
-        $ratio = $total > 0 ? round(($perpanjang / $total) * 100, 2) : 0;
+        $ratio = $total > 0 ? round(($perpanjang / $total) * 100, 1) : 0;
 
         $paymentEntries = collect();
         if ($perpanjangIds->isNotEmpty()) {
