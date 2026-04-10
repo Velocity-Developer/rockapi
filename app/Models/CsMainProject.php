@@ -137,4 +137,9 @@ class CsMainProject extends Model
     {
         return $this->hasMany(Invoice::class, 'cs_main_project_id');
     }
+
+    public function webhostSubscriptions()
+    {
+        return $this->hasMany(WebhostSubscription::class, 'cs_main_project_id', 'id');
+    }
 }

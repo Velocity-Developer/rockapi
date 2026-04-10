@@ -105,4 +105,9 @@ class Webhost extends Model
     {
         return $this->hasOne(WhmcsDomain::class, 'webhost_id', 'id_webhost');
     }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(WebhostSubscription::class, 'webhost_id', 'id_webhost');
+    }
 }
