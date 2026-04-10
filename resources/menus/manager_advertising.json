@@ -73,11 +73,22 @@
         "icon": "lucide:file-chart-line",
         "route": "/laporan/net_profit"
     },
-    {     
-        "key": "laporan_klien_perpanjang",
-        "label": "Klien Perpanjang",
-        "route": "/laporan/klien-perpanjang",
-        "icon": "lucide:file-chart-line"
+    {
+        "key": "laporan_perpanjangan",
+        "label": "Perpanjangan",
+        "icon": "lucide:calendar-arrow-up",
+        "items": [
+            {
+                "key": "laporan_klien_perpanjang",
+                "label": "Klien Perpanjang",
+                "route": "/laporan/klien-perpanjang"
+            },
+            {
+                "key": "laporan_klien_perpanjang_grafik",
+                "label": "Grafik Klien Perpanjang",
+                "route": "/laporan/klien-perpanjang-grafik"
+            }
+        ]
     },
     {
         "key": "journal",

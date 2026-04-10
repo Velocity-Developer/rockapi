@@ -127,6 +127,11 @@
                 "route": "/laporan/klien-perpanjang"
             },
             {
+                "key": "laporan_klien_perpanjang_grafik",
+                "label": "Grafik Klien Perpanjang",
+                "route": "/laporan/klien-perpanjang-grafik"
+            },
+            {
                 "key": "rekap_chat",
                 "label": "Rekap Chat",
                 "icon": "lucide:message-square-text",
@@ -265,7 +270,7 @@
     {
         "key": "lain_lain",
         "label": "Lain-lain",
-        "icon": "lucide:more-horizontal",
+        "icon": "lucide:monitor-cloud",
         "items": [
             {
                 "key": "other_check_paket",
@@ -298,11 +303,13 @@
             {
                 "key": "setting_app",
                 "label": "General",
+                "icon": "lucide:cog",
                 "route": "/dash/settings"
             },
             {
                 "key": "setting_roles",
                 "label": "Roles",
+                "icon": "lucide:shield-user",
                 "route": "/dash/settings/roles"
             },
             {
