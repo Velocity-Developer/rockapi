@@ -291,6 +291,11 @@
                 "key": "kelola_quality",
                 "label": "Kelola Quality",
                 "route": "/kelola_quality"
+            },
+            {
+                "key": "webhost_subscriptions",
+                "label": "Webhost Subscriptions",
+                "route": "/webhost-subscriptions"
             }
         ]
     },
