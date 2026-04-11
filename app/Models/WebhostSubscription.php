@@ -18,6 +18,8 @@ class WebhostSubscription extends Model
         'status',
         'nominal',
         'description',
+        'payment_status',
+        'paid_at',
     ];
 
     protected $casts = [
