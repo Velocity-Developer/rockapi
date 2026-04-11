@@ -450,16 +450,25 @@ class KlienPerpanjangController extends Controller
         }
 
         if ($jenis === 'perpanjang') {
-            $rows = DB::table('tb_cs_main_project as p')
-                ->join('tb_webhost as w', 'w.id_webhost', '=', 'p.id_webhost')
+            $rows = DB::table('webhost_subscriptions as ws')
+                ->join('tb_webhost as w', 'w.id_webhost', '=', 'ws.webhost_id')
                 ->leftJoin('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
-                ->where('p.jenis', 'Perpanjangan')
-                ->whereMonth('p.tgl_masuk', $monthNumber)
-                ->whereYear('p.tgl_masuk', $year)
+                ->leftJoin('tb_cs_main_project as p', 'p.id', '=', 'ws.cs_main_project_id')
+                ->whereNotNull('ws.renewed_from_date')
+                ->whereMonth('ws.start_date', $monthNumber)
+                ->whereYear('ws.start_date', $year)
                 ->select(
                     'w.id_webhost',
                     'w.nama_web',
                     'w.tgl_mulai',
+                    'ws.id as subscription_id',
+                    'ws.start_date',
+                    'ws.end_date',
+                    'ws.renewed_from_date',
+                    'ws.status as subscription_status',
+                    'ws.payment_status',
+                    'ws.paid_at',
+                    'ws.nominal',
                     'p.id as cs_main_project_id',
                     'p.tgl_masuk',
                     'p.deskripsi',
@@ -468,25 +477,41 @@ class KlienPerpanjangController extends Controller
                     'wd.status as whmcs_status',
                     'wd.expirydate'
                 )
-                ->orderByDesc('p.tgl_masuk')
+                ->orderBy('ws.start_date')
                 ->get()
                 ->unique('id_webhost')
                 ->values();
         } else {
-            $rows = DB::table('tb_webhost as w')
-                ->join('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
-                ->whereMonth('wd.expirydate', $monthNumber)
-                ->whereYear('wd.expirydate', $year)
-                ->where('wd.status', 'Expired')
+            $rows = DB::table('webhost_subscriptions as ws')
+                ->join('tb_webhost as w', 'w.id_webhost', '=', 'ws.webhost_id')
+                ->leftJoin('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
+                ->whereMonth('ws.end_date', $monthNumber)
+                ->whereYear('ws.end_date', $year)
+                ->where('ws.status', 'expired')
+                ->whereNotExists(function ($query) use ($monthNumber, $year) {
+                    $query->select(DB::raw(1))
+                        ->from('webhost_subscriptions as renewal')
+                        ->whereColumn('renewal.webhost_id', 'ws.webhost_id')
+                        ->whereNotNull('renewal.renewed_from_date')
+                        ->whereMonth('renewal.start_date', $monthNumber)
+                        ->whereYear('renewal.start_date', $year);
+                })
                 ->select(
                     'w.id_webhost',
                     'w.nama_web',
                     'w.tgl_mulai',
+                    'ws.id as subscription_id',
+                    'ws.start_date',
+                    'ws.end_date',
+                    'ws.status as subscription_status',
+                    'ws.payment_status',
+                    'ws.paid_at',
+                    'ws.nominal',
                     'wd.domain',
                     'wd.status as whmcs_status',
                     'wd.expirydate'
                 )
-                ->orderBy('wd.expirydate')
+                ->orderBy('ws.end_date')
                 ->get()
                 ->unique('id_webhost')
                 ->values();
@@ -507,123 +532,46 @@ class KlienPerpanjangController extends Controller
         $previousMonthStart = $monthStart->copy()->subMonth()->startOfMonth();
         $previousMonthEnd = $monthStart->copy()->subMonth()->endOfMonth();
 
-        $pembuatanSub = DB::table('tb_cs_main_project')
-            ->select('id_webhost', DB::raw('MIN(tgl_masuk) as first_pembuatan_tgl'))
-            ->whereIn('jenis', $this->jenis_pembuatan)
-            ->groupBy('id_webhost');
+        $perpanjangRows = DB::table('webhost_subscriptions as ws')
+            ->whereNotNull('ws.renewed_from_date')
+            ->whereMonth('ws.start_date', $monthNumber)
+            ->whereYear('ws.start_date', $year)
+            ->select('ws.id', 'ws.webhost_id', 'ws.start_date', 'ws.end_date', 'ws.paid_at', 'ws.nominal')
+            ->get();
 
-        // Perpanjang Bulan Ini:
-        // webhost yang memiliki cs_main_project jenis 'Perpanjangan'
-        // dengan tgl_masuk pada bulan dan tahun laporan.
-        $perpanjangProjectsThisMonth = DB::table('tb_cs_main_project as p')
-            ->join('tb_webhost as w', 'w.id_webhost', '=', 'p.id_webhost')
-            ->leftJoin('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
-            ->leftJoinSub($pembuatanSub, 'pembuatan_first', function ($join) {
-                $join->on('pembuatan_first.id_webhost', '=', 'w.id_webhost');
+        $tidakPerpanjangRows = DB::table('webhost_subscriptions as ws')
+            ->whereMonth('ws.end_date', $monthNumber)
+            ->whereYear('ws.end_date', $year)
+            ->where('ws.status', 'expired')
+            ->whereNotExists(function ($query) use ($monthNumber, $year) {
+                $query->select(DB::raw(1))
+                    ->from('webhost_subscriptions as renewal')
+                    ->whereColumn('renewal.webhost_id', 'ws.webhost_id')
+                    ->whereNotNull('renewal.renewed_from_date')
+                    ->whereMonth('renewal.start_date', $monthNumber)
+                    ->whereYear('renewal.start_date', $year);
             })
-            ->where('jenis', 'Perpanjangan')
-            ->whereMonth('p.tgl_masuk', $monthNumber)
-            ->whereYear('p.tgl_masuk', $year)
-            ->select(
-                'p.id',
-                'p.id_webhost',
-                'p.tgl_masuk',
-                'p.dibayar',
-                'w.nama_web',
-                'w.tgl_mulai',
-                'wd.id as whmcs_domain_id',
-                'wd.domain',
-                'wd.status',
-                'wd.expirydate',
-                'pembuatan_first.first_pembuatan_tgl'
-            )
-            ->orderByDesc('p.tgl_masuk')
+            ->select('ws.id', 'ws.webhost_id', 'ws.start_date', 'ws.end_date', 'ws.paid_at', 'ws.nominal')
             ->get();
 
-        $perpanjangIds = $perpanjangProjectsThisMonth
-            ->pluck('id_webhost')
-            ->filter()
-            ->unique()
-            ->values();
-
-        $perpanjangRows = $perpanjangProjectsThisMonth
-            ->unique('id_webhost')
-            ->values();
-
-        // Tidak Perpanjang:
-        // query terpisah, langsung dari webhost + whmcs_domains.
-        // Definisinya murni: domain sudah Expired di bulan-tahun laporan.
-        $tidakPerpanjangRows = DB::table('tb_webhost as w')
-            ->join('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
-            ->whereMonth('wd.expirydate', $monthNumber)
-            ->whereYear('wd.expirydate', $year)
-            ->where('wd.status', 'Expired')
-            ->select(
-                'w.id_webhost',
-                'w.nama_web',
-                'w.tgl_mulai',
-                'wd.id as whmcs_domain_id',
-                'wd.domain',
-                'wd.status',
-                'wd.expirydate'
-            )
-            ->distinct()
-            ->get();
-
-        $tidakPerpanjangIds = $tidakPerpanjangRows->pluck('id_webhost')->unique()->values();
+        $perpanjangIds = $perpanjangRows->pluck('webhost_id')->unique()->values();
+        $tidakPerpanjangIds = $tidakPerpanjangRows->pluck('webhost_id')->unique()->values();
 
         $perpanjang = $perpanjangIds->count();
         $tidak_perpanjang = $tidakPerpanjangIds->count();
         $total = $perpanjang + $tidak_perpanjang;
         $ratio = $total > 0 ? round(($perpanjang / $total) * 100, 1) : 0;
 
-        $paymentEntries = collect();
-        if ($perpanjangIds->isNotEmpty()) {
-            $perpanjangProjects = DB::table('tb_cs_main_project')
-                ->whereIn('id_webhost', $perpanjangIds)
-                ->where('jenis', 'Perpanjangan')
-                ->select('id', 'id_webhost', 'tgl_masuk', 'dibayar')
-                ->orderByDesc('tgl_masuk')
-                ->get();
-
-            $projectIds = $perpanjangProjects->pluck('id')->unique()->values();
-            $transaksiByProject = collect();
-
-            if ($projectIds->isNotEmpty()) {
-                $transaksiByProject = DB::table('tb_transaksi_masuk')
-                    ->whereIn('id', $projectIds)
-                    ->where('bayar', '>', 0)
-                    ->select('id', 'tgl', 'bayar')
-                    ->get()
-                    ->groupBy('id');
-            }
-
-            $paymentEntries = $perpanjangProjects->flatMap(function ($project) use ($transaksiByProject) {
-                $transaksis = $transaksiByProject->get($project->id, collect());
-
-                if ($transaksis->isNotEmpty()) {
-                    return $transaksis
-                        ->filter(fn($transaksi) => ! empty($transaksi->tgl))
-                        ->map(function ($transaksi) use ($project) {
-                            return [
-                                'webhost_id' => $project->id_webhost,
-                                'payment_date' => Carbon::parse($transaksi->tgl),
-                                'amount' => (int) $transaksi->bayar,
-                            ];
-                        });
-                }
-
-                if (! empty($project->tgl_masuk) && (int) $project->dibayar > 0) {
-                    return [[
-                        'webhost_id' => $project->id_webhost,
-                        'payment_date' => Carbon::parse($project->tgl_masuk),
-                        'amount' => (int) $project->dibayar,
-                    ]];
-                }
-
-                return [];
-            })->values();
-        }
+        $paymentEntries = $perpanjangRows
+            ->filter(fn($row) => ! empty($row->paid_at))
+            ->map(function ($row) {
+                return [
+                    'webhost_id' => $row->webhost_id,
+                    'payment_date' => Carbon::parse($row->paid_at),
+                    'amount' => (float) $row->nominal,
+                ];
+            })
+            ->values();
 
         $ppjDariBulanIni = $paymentEntries
             ->filter(fn($entry) => (int) $entry['payment_date']->month === $monthNumber && (int) $entry['payment_date']->year === $year)
