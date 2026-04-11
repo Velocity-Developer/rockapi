@@ -26,6 +26,7 @@ class WebhostSubscription extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'renewed_from_date' => 'date',
+        'paid_at' => 'date',
         'nominal' => 'decimal:2',
     ];
 

@@ -116,6 +116,11 @@ class GenerateWebhostDomainSubscriptions extends Command
                     'end_date' => $cursorStart->copy()->addYear()->toDateString(),
                     'renewed_from_date' => null,
                     'status' => 'expired',
+                    'payment_status' => $this->resolvePaymentStatus(
+                        $pembuatanProject?->dibayar,
+                        $pembuatanProject?->biaya ?? $pembuatanProject?->dibayar
+                    ),
+                    'paid_at' => $this->resolvePaidAt($pembuatanProject?->tgl_masuk),
                     'nominal' => $pembuatanProject?->dibayar ?? 0,
                     'description' => 'Generated from WHMCS registration date',
                 ];
@@ -134,6 +139,8 @@ class GenerateWebhostDomainSubscriptions extends Command
                         'end_date' => $nextEndDate->toDateString(),
                         'renewed_from_date' => $renewedFromDate->toDateString(),
                         'status' => 'expired',
+                        'payment_status' => $this->resolvePaymentStatus($project->dibayar, $project->biaya),
+                        'paid_at' => $this->resolvePaidAt($project->tgl_masuk),
                         'nominal' => $project->dibayar ?? 0,
                         'description' => $project->deskripsi,
                     ];
@@ -167,6 +174,16 @@ class GenerateWebhostDomainSubscriptions extends Command
 
                 $parentId = null;
                 foreach ($rows as $row) {
+                    $existingSubscription = WebhostSubscription::where('webhost_id', $row['webhost_id'])
+                        ->where('service_type', $row['service_type'])
+                        ->where('cs_main_project_id', $row['cs_main_project_id'])
+                        ->first();
+
+                    if ($existingSubscription) {
+                        $parentId = $existingSubscription->id;
+                        continue;
+                    }
+
                     $row['parent_subscription_id'] = $parentId;
                     $subscription = WebhostSubscription::create($row);
                     $parentId = $subscription->id;
@@ -194,5 +211,34 @@ class GenerateWebhostDomainSubscriptions extends Command
     private function resolveStatus(string $endDate): string
     {
         return Carbon::parse($endDate)->lt(now()->startOfDay()) ? 'expired' : 'active';
+    }
+
+    private function resolvePaymentStatus($dibayar, $biaya): string
+    {
+        $dibayar = (int) ($dibayar ?? 0);
+        $biaya = (int) ($biaya ?? 0);
+
+        if ($dibayar <= 0) {
+            return 'unpaid';
+        }
+
+        if ($biaya > 0 && $dibayar < $biaya) {
+            return 'partial';
+        }
+
+        return 'paid';
+    }
+
+    private function resolvePaidAt($value): ?string
+    {
+        if (empty($value) || $value === '0000-00-00' || $value === '0000-00-00 00:00:00') {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($value)->toDateString();
+        } catch (\Throwable $th) {
+            return null;
+        }
     }
 }
