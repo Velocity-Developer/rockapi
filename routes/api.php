@@ -42,6 +42,7 @@ use App\Http\Controllers\WhmcsUserController;
 use App\Http\Controllers\WhmcsDomainController;
 use App\Http\Controllers\WhmcsHostingController;
 use App\Http\Controllers\ImproveChatController;
+use App\Http\Controllers\WebhostSubscriptionsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -89,6 +90,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'whmcs-domain' => WhmcsDomainController::class,
         'whmcs-hosting' => WhmcsHostingController::class,
         'improve-chat' => ImproveChatController::class,
+        'webhost-subscription' => WebhostSubscriptionsController::class,
     ]);
 
     // data_opsi
