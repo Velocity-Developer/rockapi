@@ -68,6 +68,20 @@ class WebhostSubscriptionsController extends Controller
             $q->whereIn('status', $status);
         });
 
+        $query->when($request->query('payment_status'), function ($q) use ($request) {
+            $paymentStatus = $request->query('payment_status');
+            $paymentStatus = is_array($paymentStatus) ? $paymentStatus : [$paymentStatus];
+            $q->whereIn('payment_status', $paymentStatus);
+        });
+
+        $query->when($request->query('search_nama_web'), function ($q) use ($request) {
+            $keyword = trim((string) $request->query('search_nama_web'));
+
+            $q->whereHas('webhost', function ($webhostQuery) use ($keyword) {
+                $webhostQuery->where('nama_web', 'like', '%' . $keyword . '%');
+            });
+        });
+
         $query->when($request->query('search'), function ($q) use ($request) {
             $keyword = trim((string) $request->query('search'));
 
