@@ -202,6 +202,8 @@ class WebhostSubscriptionsController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'renewed_from_date' => 'nullable|date',
             'status' => 'nullable|string|max:100',
+            'payment_status' => 'nullable|string|max:100',
+            'paid_at' => 'nullable|date',
             'nominal' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
         ]);
@@ -257,6 +259,7 @@ class WebhostSubscriptionsController extends Controller
         $validated['source_type'] = $validated['source_type'] ?? 'csmainproject';
         $validated['service_type'] = $validated['service_type'] ?? 'hosting';
         $validated['status'] = $validated['status'] ?? 'active';
+        $validated['payment_status'] = $validated['payment_status'] ?? 'unpaid';
 
         return $validated;
     }
