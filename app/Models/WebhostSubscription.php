@@ -14,25 +14,17 @@ class WebhostSubscription extends Model
         'service_type',
         'start_date',
         'end_date',
-        'renewed_from_date',
+        'nextduedate',
         'status',
-        'nominal',
-        'description',
         'payment_status',
         'paid_at',
-        'provider_status',
-        'provider_expiry_date',
-        'is_whmcs_mismatch',
     ];
 
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
-        'renewed_from_date' => 'date',
+        'nextduedate' => 'date',
         'paid_at' => 'date',
-        'provider_expiry_date' => 'date',
-        'is_whmcs_mismatch' => 'boolean',
-        'nominal' => 'decimal:2',
     ];
 
     public function webhost()
