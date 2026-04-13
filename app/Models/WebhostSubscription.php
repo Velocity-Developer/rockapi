@@ -20,6 +20,9 @@ class WebhostSubscription extends Model
         'description',
         'payment_status',
         'paid_at',
+        'provider_status',
+        'provider_expiry_date',
+        'is_whmcs_mismatch',
     ];
 
     protected $casts = [
@@ -27,6 +30,8 @@ class WebhostSubscription extends Model
         'end_date' => 'date',
         'renewed_from_date' => 'date',
         'paid_at' => 'date',
+        'provider_expiry_date' => 'date',
+        'is_whmcs_mismatch' => 'boolean',
         'nominal' => 'decimal:2',
     ];
 

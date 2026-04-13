@@ -74,6 +74,19 @@ class WebhostSubscriptionsController extends Controller
             $q->whereIn('payment_status', $paymentStatus);
         });
 
+        $query->when($request->query('provider_status'), function ($q) use ($request) {
+            $providerStatus = $request->query('provider_status');
+            $providerStatus = is_array($providerStatus) ? $providerStatus : [$providerStatus];
+            $q->whereIn('provider_status', $providerStatus);
+        });
+
+        $query->when($request->query('is_whmcs_mismatch'), function ($q) use ($request) {
+            $value = filter_var($request->query('is_whmcs_mismatch'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            if ($value !== null) {
+                $q->where('is_whmcs_mismatch', $value);
+            }
+        });
+
         $query->when($request->query('search_nama_web'), function ($q) use ($request) {
             $keyword = trim((string) $request->query('search_nama_web'));
 
@@ -218,6 +231,9 @@ class WebhostSubscriptionsController extends Controller
             'status' => 'nullable|string|max:100',
             'payment_status' => 'nullable|string|max:100',
             'paid_at' => 'nullable|date',
+            'provider_status' => 'nullable|string|max:100',
+            'provider_expiry_date' => 'nullable|date',
+            'is_whmcs_mismatch' => 'nullable|boolean',
             'nominal' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
         ]);
@@ -274,6 +290,7 @@ class WebhostSubscriptionsController extends Controller
         $validated['service_type'] = $validated['service_type'] ?? 'hosting';
         $validated['status'] = $validated['status'] ?? 'active';
         $validated['payment_status'] = $validated['payment_status'] ?? 'unpaid';
+        $validated['is_whmcs_mismatch'] = $validated['is_whmcs_mismatch'] ?? false;
 
         return $validated;
     }
