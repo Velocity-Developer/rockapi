@@ -91,67 +91,65 @@ class GenerateWebhostDomainSubscriptions extends Command
             $batchNumber++;
             $this->info("Memproses batch {$batchNumber} ({$webhosts->count()} webhost)...");
 
+            $periodeMonths = 12; // default 1 tahun
+
             foreach ($webhosts as $webhost) {
                 $domain = $webhost->whmcs_domain;
+
+                // Jika tidak punya domain, skip.
                 if (! $domain) {
                     continue;
                 }
 
-                $expiryDate = $domain->expirydate ? Carbon::parse($domain->expirydate)->startOfDay() : null;
-                $providerStatus = $domain->status ?: null;
+                $rows = [];
+
+                $registrationDate = $domain->registrationdate ? Carbon::parse($domain->registrationdate)->startOfDay() : null;
+                $expiryDomain = $domain->expirydate ? Carbon::parse($domain->expirydate)->startOfDay() : null;
+                $statusDomain = $domain->status ?: null;
+                $firstProjectDate = null;
+
+                // Ambil anchor tanggal-bulan dari registerdate_domain
+                $anchor = Carbon::parse($domain->registrationdate);
+
+                $startDateLifecycle = $domain->registrationdate ? Carbon::parse($domain->registrationdate)->startOfDay() : null;
 
                 /**
-                 * Step 1.
-                 * Cari project seed untuk memulai lifecycle internal.
-                 *
-                 * Prioritas:
-                 * - project pembuatan
-                 * - fallback ke project pertama yang punya tgl_masuk valid
-                 *
-                 * tgl_masuk project seed dipakai sebagai:
-                 * - paid_at pertama
-                 * - start_date subscription pertama
+                 * Step 1. Cari project pembuatan awal sebagai acuan utama.
+                 * jika tidak ada, lanjutkan dengan project perpanjangan pertama.
                  */
                 $pembuatanProject = $webhost->csMainProjects
-                    ->first(fn($project) => in_array($project->jenis, $this->jenisPembuatan, true));
+                    ->first(fn($project) => in_array($project->jenis, $this->jenisPembuatan, true) && $this->resolveComparableDate($project->tgl_masuk) !== null);
 
-                $seedProject = $pembuatanProject
-                    ?: $webhost->csMainProjects->first(fn($project) => $this->resolveComparableDate($project->tgl_masuk) !== null);
+                if ($pembuatanProject) {
 
-                $seedPaidAt = $this->resolveComparableDate($seedProject?->tgl_masuk);
-                if (! $seedPaidAt) {
-                    continue;
+                    $firstProjectDate = $pembuatanProject->tgl_masuk ? Carbon::parse($pembuatanProject->tgl_masuk)->startOfDay() : null;
+
+                    // Ambil tahun dari tgl_masuk project
+                    $year = Carbon::parse($pembuatanProject->tgl_masuk)->year;
+
+                    // Buat start_date dengan Carbon::create
+                    $startDate = Carbon::create($year, $anchor->month, $anchor->day);
+
+                    // Hitung end_date
+                    $endDate = $startDate->copy()->addMonths($periodeMonths);
+
+                    //jika ada tambahkan dalam row preview
+                    $rows[] = [
+                        'webhost_id' => $pembuatanProject->id_webhost,
+                        'cs_main_project_id' => $pembuatanProject->id,
+                        'parent_subscription_id' => null,
+                        'source_type' => 'csmainproject',
+                        'service_type' => 'domain',
+                        'start_date' => $startDate->toDateString(),
+                        'end_date' => $endDate->toDateString(),
+                        'nextduedate' => $endDate->toDateString(),
+                        'payment_status' => $this->resolvePaymentStatus(
+                            $pembuatanProject?->dibayar,
+                            $pembuatanProject?->biaya ?? $pembuatanProject?->dibayar
+                        ),
+                        'paid_at' => $this->resolvePaidAt($pembuatanProject?->tgl_masuk),
+                    ];
                 }
-
-                $renewalProjects = $webhost->csMainProjects
-                    ->filter(fn($project) => $project->jenis === 'Perpanjangan')
-                    ->values();
-
-                $rows = [];
-                $currentStartDate = $seedPaidAt->copy();
-                $currentEndDate = $currentStartDate->copy()->addYear();
-
-                $rows[] = [
-                    'webhost_id' => $webhost->id_webhost,
-                    'cs_main_project_id' => $seedProject?->id,
-                    'parent_subscription_id' => null,
-                    'source_type' => $seedProject ? 'csmainproject' : 'manual',
-                    'service_type' => 'domain',
-                    'start_date' => $currentStartDate->toDateString(),
-                    'end_date' => $currentEndDate->toDateString(),
-                    'renewed_from_date' => null,
-                    'status' => 'expired',
-                    'payment_status' => $this->resolvePaymentStatus(
-                        $seedProject?->dibayar,
-                        $seedProject?->biaya ?? $seedProject?->dibayar
-                    ),
-                    'paid_at' => $this->resolvePaidAt($seedProject?->tgl_masuk),
-                    'provider_status' => $providerStatus,
-                    'provider_expiry_date' => $expiryDate?->toDateString(),
-                    'is_whmcs_mismatch' => false,
-                    'nominal' => $seedProject?->dibayar ?? 0,
-                    'description' => $seedProject?->deskripsi ?: 'Generated from CsMainProject tgl_masuk',
-                ];
 
                 /**
                  * Step 2.
@@ -166,90 +164,73 @@ class GenerateWebhostDomainSubscriptions extends Command
                  * - paid_at tetap bulan pembayaran
                  * - periode baru tetap dimulai dari akhir periode lama
                  */
+
+                $renewalProjects = $webhost->csMainProjects
+                    ->filter(fn($project) => $project->jenis === 'Perpanjangan')
+                    ->values();
+
                 foreach ($renewalProjects as $project) {
+                    //cek jika tidak ada tgl_masuk, skip.
                     $projectPaidAt = $this->resolveComparableDate($project->tgl_masuk);
                     if (! $projectPaidAt) {
                         continue;
                     }
 
-                    if ($this->isRenewalAnomaly($projectPaidAt, $currentEndDate)) {
-                        $this->warn(
-                            "Skip anomali webhost {$webhost->id_webhost} ({$webhost->nama_web}) " .
-                                "project {$project->id} tgl_masuk={$project->tgl_masuk} " .
-                                "terdeteksi jauh dari akhir periode sebelumnya, tetapi tetap dicatat."
-                        );
+                    //jika pembuatan tidak ada, gunakan perpanjangan pertama.
+                    if (! $pembuatanProject) {
+                        $firstProjectDate = $project->tgl_masuk ? Carbon::parse($project->tgl_masuk)->startOfDay() : null;
                     }
 
-                    $renewedFromDate = $currentEndDate->copy();
-                    $nextStartDate = $currentEndDate->copy();
-                    $nextEndDate = $nextStartDate->copy()->addYear();
 
+                    // Ambil tahun dari tgl_masuk project
+                    $year = Carbon::parse($project->tgl_masuk)->year;
+
+                    // Buat start_date dengan Carbon::create
+                    $startDate = Carbon::create($year, $anchor->month, $anchor->day);
+
+                    // Hitung end_date
+                    $endDate = $startDate->copy()->addMonths($periodeMonths);
+
+                    //tambahkan ke row
                     $rows[] = [
-                        'webhost_id' => $webhost->id_webhost,
+                        'webhost_id' => $project->id_webhost,
                         'cs_main_project_id' => $project->id,
                         'parent_subscription_id' => null,
                         'source_type' => 'csmainproject',
                         'service_type' => 'domain',
-                        'start_date' => $nextStartDate->toDateString(),
-                        'end_date' => $nextEndDate->toDateString(),
-                        'renewed_from_date' => $renewedFromDate->toDateString(),
-                        'status' => 'expired',
-                        'payment_status' => $this->resolvePaymentStatus($project->dibayar, $project->biaya),
-                        'paid_at' => $this->resolvePaidAt($project->tgl_masuk),
-                        'provider_status' => $providerStatus,
-                        'provider_expiry_date' => $expiryDate?->toDateString(),
-                        'is_whmcs_mismatch' => false,
-                        'nominal' => $project->dibayar ?? 0,
-                        'description' => $project->deskripsi,
+                        'start_date' => $startDate->toDateString(),
+                        'end_date' => $endDate->toDateString(),
+                        'nextduedate' => $endDate->toDateString(),
+                        'payment_status' => $this->resolvePaymentStatus(
+                            $project?->dibayar,
+                            $project?->biaya ?? $project?->dibayar
+                        ),
+                        'paid_at' => $this->resolvePaidAt($project?->tgl_masuk),
                     ];
-
-                    $currentStartDate = $nextStartDate->copy();
-                    $currentEndDate = $nextEndDate->copy();
-                }
-
-                /**
-                 * Step 3.
-                 * Data WHMCS hanya dipakai sebagai snapshot provider:
-                 * - boleh memperpanjang end_date jika provider lebih maju
-                 * - tidak boleh memundurkan lifecycle internal
-                 */
-                if ($expiryDate && ! empty($rows)) {
-                    $lastRowIndex = array_key_last($rows);
-                    $localEndDate = Carbon::parse($rows[$lastRowIndex]['end_date'])->startOfDay();
-
-                    // WHMCS hanya boleh memperpanjang end date, bukan memundurkan
-                    // periode yang sudah dihitung dari histori renewal lokal.
-                    if ($expiryDate->gte($localEndDate)) {
-                        $rows[$lastRowIndex]['end_date'] = $expiryDate->toDateString();
-                    }
                 }
 
                 if (! empty($rows)) {
                     $lastRowIndex = array_key_last($rows);
                     $rows[$lastRowIndex]['status'] = $this->resolveStatus($rows[$lastRowIndex]['end_date']);
-                    $rows[$lastRowIndex]['is_whmcs_mismatch'] = $this->resolveWhmcsMismatch(
-                        $providerStatus,
-                        $expiryDate,
-                        $rows[$lastRowIndex]['end_date']
-                    );
                 }
 
                 $processedWebhosts++;
-                if (count($rowsPreview) < 20) {
-                    $rowsPreview[] = [
-                        $webhost->id_webhost,
-                        $webhost->nama_web,
-                        $seedPaidAt->toDateString(),
-                        $expiryDate?->toDateString(),
-                        count($rows),
-                    ];
-                }
+                $rowsPreview[] = [
+                    $webhost->id_webhost,
+                    $webhost->nama_web,
+                    $firstProjectDate->toDateString(),
+                    $registrationDate->toDateString(),
+                    $expiryDomain?->toDateString(),
+                    $anchor->month . '-' . $anchor->day,
+                    count($rows),
+                ];
 
                 if ($dryRun) {
                     $createdRows += count($rows);
                     continue;
                 }
 
+                // simpan subscription
                 $parentId = null;
                 foreach ($rows as $row) {
                     $existingSubscription = WebhostSubscription::where('webhost_id', $row['webhost_id'])
@@ -272,14 +253,14 @@ class GenerateWebhostDomainSubscriptions extends Command
 
         if (! empty($rowsPreview)) {
             $this->table(
-                ['ID Webhost', 'Nama Web', 'Registration Date', 'Expiry Date', 'Rows'],
+                ['ID Webhost', 'Nama Web', 'First Project Date', 'Registration Date', 'Expiry Date', 'Month Renewal', 'Rows'],
                 $rowsPreview
             );
         }
 
         $summaryMessage = $dryRun
-            ? "Dry run selesai. {$processedWebhosts} webhost diproses, {$createdRows} row akan dibuat."
-            : "Generate selesai. {$processedWebhosts} webhost diproses, {$createdRows} row dibuat.";
+            ? "Dry run selesai. {$processedWebhosts} webhost diproses, {$createdRows} webhost_subscriptions akan dibuat."
+            : "Generate selesai. {$processedWebhosts} webhost diproses, {$createdRows} webhost_subscriptions dibuat.";
 
         $this->info($summaryMessage);
 
