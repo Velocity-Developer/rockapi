@@ -100,18 +100,26 @@ class GenerateWebhostDomainSubscriptions extends Command
                 $expiryDate = $domain->expirydate ? Carbon::parse($domain->expirydate)->startOfDay() : null;
                 $providerStatus = $domain->status ?: null;
 
+                /**
+                 * Step 1.
+                 * Cari project seed untuk memulai lifecycle internal.
+                 *
+                 * Prioritas:
+                 * - project pembuatan
+                 * - fallback ke project pertama yang punya tgl_masuk valid
+                 *
+                 * tgl_masuk project seed dipakai sebagai:
+                 * - paid_at pertama
+                 * - start_date subscription pertama
+                 */
                 $pembuatanProject = $webhost->csMainProjects
                     ->first(fn($project) => in_array($project->jenis, $this->jenisPembuatan, true));
 
-                $initialStartDate = $this->resolveComparableDate($pembuatanProject?->tgl_masuk);
-                if (! $initialStartDate) {
-                    $fallbackProject = $webhost->csMainProjects
-                        ->first(fn($project) => $this->resolveComparableDate($project->tgl_masuk) !== null);
+                $seedProject = $pembuatanProject
+                    ?: $webhost->csMainProjects->first(fn($project) => $this->resolveComparableDate($project->tgl_masuk) !== null);
 
-                    $initialStartDate = $this->resolveComparableDate($fallbackProject?->tgl_masuk);
-                }
-
-                if (! $initialStartDate) {
+                $seedPaidAt = $this->resolveComparableDate($seedProject?->tgl_masuk);
+                if (! $seedPaidAt) {
                     continue;
                 }
 
@@ -120,46 +128,61 @@ class GenerateWebhostDomainSubscriptions extends Command
                     ->values();
 
                 $rows = [];
-                $cursorStart = $initialStartDate->copy();
+                $currentStartDate = $seedPaidAt->copy();
+                $currentEndDate = $currentStartDate->copy()->addYear();
 
                 $rows[] = [
                     'webhost_id' => $webhost->id_webhost,
-                    'cs_main_project_id' => $pembuatanProject?->id,
+                    'cs_main_project_id' => $seedProject?->id,
                     'parent_subscription_id' => null,
-                    'source_type' => $pembuatanProject ? 'csmainproject' : 'manual',
+                    'source_type' => $seedProject ? 'csmainproject' : 'manual',
                     'service_type' => 'domain',
-                    'start_date' => $cursorStart->toDateString(),
-                    'end_date' => $cursorStart->copy()->addYear()->toDateString(),
+                    'start_date' => $currentStartDate->toDateString(),
+                    'end_date' => $currentEndDate->toDateString(),
                     'renewed_from_date' => null,
                     'status' => 'expired',
                     'payment_status' => $this->resolvePaymentStatus(
-                        $pembuatanProject?->dibayar,
-                        $pembuatanProject?->biaya ?? $pembuatanProject?->dibayar
+                        $seedProject?->dibayar,
+                        $seedProject?->biaya ?? $seedProject?->dibayar
                     ),
-                    'paid_at' => $this->resolvePaidAt($pembuatanProject?->tgl_masuk),
+                    'paid_at' => $this->resolvePaidAt($seedProject?->tgl_masuk),
                     'provider_status' => $providerStatus,
                     'provider_expiry_date' => $expiryDate?->toDateString(),
                     'is_whmcs_mismatch' => false,
-                    'nominal' => $pembuatanProject?->dibayar ?? 0,
-                    'description' => $pembuatanProject?->deskripsi ?: 'Generated from CsMainProject tgl_masuk',
+                    'nominal' => $seedProject?->dibayar ?? 0,
+                    'description' => $seedProject?->deskripsi ?: 'Generated from CsMainProject tgl_masuk',
                 ];
 
+                /**
+                 * Step 2.
+                 * Bentuk renewal secara berantai.
+                 *
+                 * Aturan:
+                 * - paid_at = tgl_masuk project renewal
+                 * - start_date = end_date subscription sebelumnya
+                 * - end_date = start_date + 1 tahun
+                 *
+                 * Jadi kalau klien bayar 2 bulan sebelum expired:
+                 * - paid_at tetap bulan pembayaran
+                 * - periode baru tetap dimulai dari akhir periode lama
+                 */
                 foreach ($renewalProjects as $project) {
-                    $projectDate = $this->resolveComparableDate($project->tgl_masuk);
-                    if (! $projectDate) {
+                    $projectPaidAt = $this->resolveComparableDate($project->tgl_masuk);
+                    if (! $projectPaidAt) {
                         continue;
                     }
 
-                    if ($this->isRenewalAnomaly($projectDate, $cursorStart)) {
+                    if ($this->isRenewalAnomaly($projectPaidAt, $currentEndDate)) {
                         $this->warn(
                             "Skip anomali webhost {$webhost->id_webhost} ({$webhost->nama_web}) " .
                                 "project {$project->id} tgl_masuk={$project->tgl_masuk} " .
-                                "terdeteksi jauh dari subscription sebelumnya, tetapi tetap dicatat."
+                                "terdeteksi jauh dari akhir periode sebelumnya, tetapi tetap dicatat."
                         );
                     }
 
-                    $renewedFromDate = $cursorStart->copy()->addYear();
-                    $nextEndDate = $projectDate->copy()->addYear();
+                    $renewedFromDate = $currentEndDate->copy();
+                    $nextStartDate = $currentEndDate->copy();
+                    $nextEndDate = $nextStartDate->copy()->addYear();
 
                     $rows[] = [
                         'webhost_id' => $webhost->id_webhost,
@@ -167,7 +190,7 @@ class GenerateWebhostDomainSubscriptions extends Command
                         'parent_subscription_id' => null,
                         'source_type' => 'csmainproject',
                         'service_type' => 'domain',
-                        'start_date' => $projectDate->toDateString(),
+                        'start_date' => $nextStartDate->toDateString(),
                         'end_date' => $nextEndDate->toDateString(),
                         'renewed_from_date' => $renewedFromDate->toDateString(),
                         'status' => 'expired',
@@ -180,9 +203,16 @@ class GenerateWebhostDomainSubscriptions extends Command
                         'description' => $project->deskripsi,
                     ];
 
-                    $cursorStart = $projectDate->copy();
+                    $currentStartDate = $nextStartDate->copy();
+                    $currentEndDate = $nextEndDate->copy();
                 }
 
+                /**
+                 * Step 3.
+                 * Data WHMCS hanya dipakai sebagai snapshot provider:
+                 * - boleh memperpanjang end_date jika provider lebih maju
+                 * - tidak boleh memundurkan lifecycle internal
+                 */
                 if ($expiryDate && ! empty($rows)) {
                     $lastRowIndex = array_key_last($rows);
                     $localEndDate = Carbon::parse($rows[$lastRowIndex]['end_date'])->startOfDay();
@@ -209,7 +239,7 @@ class GenerateWebhostDomainSubscriptions extends Command
                     $rowsPreview[] = [
                         $webhost->id_webhost,
                         $webhost->nama_web,
-                        $initialStartDate->toDateString(),
+                        $seedPaidAt->toDateString(),
                         $expiryDate?->toDateString(),
                         count($rows),
                     ];
@@ -319,11 +349,11 @@ class GenerateWebhostDomainSubscriptions extends Command
         }
     }
 
-    private function isRenewalAnomaly(Carbon $projectDate, Carbon $renewalStartDate): bool
+    private function isRenewalAnomaly(Carbon $projectPaidAt, Carbon $previousEndDate): bool
     {
-        // Renewal normalnya dekat dengan tanggal jatuh tempo tahunan.
-        // Jika slot hasil hitung lebih dari ~1 tahun dari tanggal project,
-        // besar kemungkinan histori renewal ganda / tidak sinkron.
-        return abs($projectDate->diffInDays($renewalStartDate, false)) > 370;
+        // Warning only:
+        // pembayaran renewal yang terlalu jauh dari akhir periode sebelumnya
+        // biasanya menandakan data internal tidak rapi, tetapi tetap kita catat.
+        return abs($projectPaidAt->diffInDays($previousEndDate, false)) > 370;
     }
 }

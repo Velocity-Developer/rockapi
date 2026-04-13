@@ -579,14 +579,21 @@ class KlienPerpanjangController extends Controller
             ->unique()
             ->count();
 
-        $ppjDariBulanLain = $paymentEntries
-            ->filter(fn($entry) => ! ((int) $entry['payment_date']->month === $monthNumber && (int) $entry['payment_date']->year === $year))
+        $ppjBulanIniTerbayarBulanLalu = $paymentEntries
+            ->filter(fn($entry) => $entry['payment_date']->between($previousMonthStart, $previousMonthEnd))
             ->pluck('webhost_id')
             ->unique()
             ->count();
 
-        $ppjBulanIniTerbayarBulanLalu = $paymentEntries
-            ->filter(fn($entry) => $entry['payment_date']->between($previousMonthStart, $previousMonthEnd))
+        $ppjDariBulanLain = $paymentEntries
+            ->filter(function ($entry) use ($monthNumber, $year, $previousMonthStart, $previousMonthEnd) {
+                $isPaidThisMonth = (int) $entry['payment_date']->month === $monthNumber
+                    && (int) $entry['payment_date']->year === $year;
+
+                $isPaidPreviousMonth = $entry['payment_date']->between($previousMonthStart, $previousMonthEnd);
+
+                return ! $isPaidThisMonth && ! $isPaidPreviousMonth;
+            })
             ->pluck('webhost_id')
             ->unique()
             ->count();
