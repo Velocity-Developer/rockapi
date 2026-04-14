@@ -92,6 +92,7 @@ class GenerateWebhostDomainSubscriptions extends Command
             $this->info("Memproses batch {$batchNumber} ({$webhosts->count()} webhost)...");
 
             $periodeMonths = 12; // default 1 tahun
+            $nowDate = Carbon::now();
 
             foreach ($webhosts as $webhost) {
                 $domain = $webhost->whmcs_domain;
@@ -148,6 +149,7 @@ class GenerateWebhostDomainSubscriptions extends Command
                             $pembuatanProject?->biaya ?? $pembuatanProject?->dibayar
                         ),
                         'paid_at' => $this->resolvePaidAt($pembuatanProject?->tgl_masuk),
+                        'status' => $endDate->greaterThan($nowDate) ? 'active' : 'expired',
                     ];
                 }
 
@@ -206,6 +208,7 @@ class GenerateWebhostDomainSubscriptions extends Command
                             $project?->biaya ?? $project?->dibayar
                         ),
                         'paid_at' => $this->resolvePaidAt($project?->tgl_masuk),
+                        'status' => $endDate->greaterThan($nowDate) ? 'active' : 'expired',
                     ];
                 }
 

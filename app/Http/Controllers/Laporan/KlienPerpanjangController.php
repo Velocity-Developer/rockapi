@@ -454,7 +454,7 @@ class KlienPerpanjangController extends Controller
                 ->join('tb_webhost as w', 'w.id_webhost', '=', 'ws.webhost_id')
                 ->leftJoin('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
                 ->leftJoin('tb_cs_main_project as p', 'p.id', '=', 'ws.cs_main_project_id')
-                ->whereNotNull('ws.renewed_from_date')
+                ->whereNotNull('ws.parent_subscription_id')
                 ->whereMonth('ws.start_date', $monthNumber)
                 ->whereYear('ws.start_date', $year)
                 ->select(
@@ -462,13 +462,13 @@ class KlienPerpanjangController extends Controller
                     'w.nama_web',
                     'w.tgl_mulai',
                     'ws.id as subscription_id',
+                    'ws.parent_subscription_id',
                     'ws.start_date',
                     'ws.end_date',
-                    'ws.renewed_from_date',
+                    'ws.nextduedate',
                     'ws.status as subscription_status',
                     'ws.payment_status',
                     'ws.paid_at',
-                    'ws.nominal',
                     'p.id as cs_main_project_id',
                     'p.tgl_masuk',
                     'p.deskripsi',
@@ -484,15 +484,15 @@ class KlienPerpanjangController extends Controller
         } else {
             $rows = DB::table('webhost_subscriptions as ws')
                 ->join('tb_webhost as w', 'w.id_webhost', '=', 'ws.webhost_id')
-                ->leftJoin('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
+                ->join('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
                 ->whereMonth('ws.end_date', $monthNumber)
                 ->whereYear('ws.end_date', $year)
-                ->where('ws.status', 'expired')
+                ->where('ws.status', 'Expired')
                 ->whereNotExists(function ($query) use ($monthNumber, $year) {
                     $query->select(DB::raw(1))
                         ->from('webhost_subscriptions as renewal')
                         ->whereColumn('renewal.webhost_id', 'ws.webhost_id')
-                        ->whereNotNull('renewal.renewed_from_date')
+                        ->whereNotNull('renewal.parent_subscription_id')
                         ->whereMonth('renewal.start_date', $monthNumber)
                         ->whereYear('renewal.start_date', $year);
                 })
@@ -501,12 +501,13 @@ class KlienPerpanjangController extends Controller
                     'w.nama_web',
                     'w.tgl_mulai',
                     'ws.id as subscription_id',
+                    'ws.parent_subscription_id',
                     'ws.start_date',
                     'ws.end_date',
+                    'ws.nextduedate',
                     'ws.status as subscription_status',
                     'ws.payment_status',
                     'ws.paid_at',
-                    'ws.nominal',
                     'wd.domain',
                     'wd.status as whmcs_status',
                     'wd.expirydate'
@@ -533,25 +534,37 @@ class KlienPerpanjangController extends Controller
         $previousMonthEnd = $monthStart->copy()->subMonth()->endOfMonth();
 
         $perpanjangRows = DB::table('webhost_subscriptions as ws')
-            ->whereNotNull('ws.renewed_from_date')
+            ->leftJoin('tb_cs_main_project as p', 'p.id', '=', 'ws.cs_main_project_id')
+            ->whereNotNull('ws.parent_subscription_id')
             ->whereMonth('ws.start_date', $monthNumber)
             ->whereYear('ws.start_date', $year)
-            ->select('ws.id', 'ws.webhost_id', 'ws.start_date', 'ws.end_date', 'ws.paid_at', 'ws.nominal')
+            ->select(
+                'ws.id',
+                'ws.webhost_id',
+                'ws.parent_subscription_id',
+                'ws.start_date',
+                'ws.end_date',
+                'ws.nextduedate',
+                'ws.paid_at',
+                'ws.cs_main_project_id',
+                'p.dibayar'
+            )
             ->get();
 
         $tidakPerpanjangRows = DB::table('webhost_subscriptions as ws')
+            ->join('whmcs_domains as wd', 'wd.webhost_id', '=', 'ws.webhost_id')
             ->whereMonth('ws.end_date', $monthNumber)
             ->whereYear('ws.end_date', $year)
-            ->where('ws.status', 'expired')
+            ->where('ws.status', 'Expired')
             ->whereNotExists(function ($query) use ($monthNumber, $year) {
                 $query->select(DB::raw(1))
                     ->from('webhost_subscriptions as renewal')
                     ->whereColumn('renewal.webhost_id', 'ws.webhost_id')
-                    ->whereNotNull('renewal.renewed_from_date')
+                    ->whereNotNull('renewal.parent_subscription_id')
                     ->whereMonth('renewal.start_date', $monthNumber)
                     ->whereYear('renewal.start_date', $year);
             })
-            ->select('ws.id', 'ws.webhost_id', 'ws.start_date', 'ws.end_date', 'ws.paid_at', 'ws.nominal')
+            ->select('ws.id', 'ws.webhost_id', 'ws.parent_subscription_id', 'ws.start_date', 'ws.end_date', 'ws.nextduedate', 'ws.paid_at')
             ->get();
 
         $perpanjangIds = $perpanjangRows->pluck('webhost_id')->unique()->values();
@@ -568,7 +581,7 @@ class KlienPerpanjangController extends Controller
                 return [
                     'webhost_id' => $row->webhost_id,
                     'payment_date' => Carbon::parse($row->paid_at),
-                    'amount' => (float) $row->nominal,
+                    'amount' => (float) ($row->dibayar ?? 0),
                 ];
             })
             ->values();
