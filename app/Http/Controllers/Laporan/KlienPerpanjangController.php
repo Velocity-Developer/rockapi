@@ -624,6 +624,8 @@ class KlienPerpanjangController extends Controller
                 'Webhost Perpanjang' => $perpanjang,
                 'Webhost Tidak Perpanjang' => $tidak_perpanjang,
                 'Ratio Perpanjang (%)' => $ratio,
+            ],
+            'rincian_bulan' => [
                 'Total Pemasukkan Perpanjang' => $paymentEntries->sum('amount'),
                 'PPJ dari bulan ini' => $ppjDariBulanIni,
                 'PPJ dari bulan lain' => $ppjDariBulanLain,
