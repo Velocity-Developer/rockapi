@@ -532,6 +532,21 @@ class KlienPerpanjangController extends Controller
         $monthStart = Carbon::create($year, $monthNumber, 1)->startOfMonth();
         $previousMonthStart = $monthStart->copy()->subMonth()->startOfMonth();
         $previousMonthEnd = $monthStart->copy()->subMonth()->endOfMonth();
+        $totalPemasukkanPerpanjang = (float) DB::table('tb_cs_main_project')
+            ->where('jenis', 'Perpanjangan')
+            ->whereMonth('tgl_masuk', $monthNumber)
+            ->whereYear('tgl_masuk', $year)
+            ->sum('biaya');
+        $totalDataPerpanjang = DB::table('tb_cs_main_project')
+            ->where('jenis', 'Perpanjangan')
+            ->whereMonth('tgl_masuk', $monthNumber)
+            ->whereYear('tgl_masuk', $year)
+            ->count();
+        $perpanjangTermahal = (float) DB::table('tb_cs_main_project')
+            ->where('jenis', 'Perpanjangan')
+            ->whereMonth('tgl_masuk', $monthNumber)
+            ->whereYear('tgl_masuk', $year)
+            ->max('biaya');
 
         $perpanjangRows = DB::table('webhost_subscriptions as ws')
             ->leftJoin('tb_cs_main_project as p', 'p.id', '=', 'ws.cs_main_project_id')
@@ -626,12 +641,12 @@ class KlienPerpanjangController extends Controller
                 'Ratio Perpanjang (%)' => $ratio,
             ],
             'rincian_bulan' => [
-                'Total Pemasukkan Perpanjang' => $paymentEntries->sum('amount'),
+                'Total Pemasukkan Perpanjang' => $totalPemasukkanPerpanjang,
                 'PPJ dari bulan ini' => $ppjDariBulanIni,
                 'PPJ dari bulan lain' => $ppjDariBulanLain,
                 'PPJ bulan ini yang terbayar di bulan lalu' => $ppjBulanIniTerbayarBulanLalu,
-                'Rata-rata biaya perpanjang' => $perpanjang > 0 ? round($paymentEntries->sum('amount') / $perpanjang, 2) : 0,
-                'Perpanjang termahal' => $paymentEntries->max('amount') ?? 0,
+                'Rata-rata biaya perpanjang' => $totalDataPerpanjang > 0 ? round($totalPemasukkanPerpanjang / $totalDataPerpanjang, 2) : 0,
+                'Perpanjang termahal' => $perpanjangTermahal,
             ],
         ];
     }
