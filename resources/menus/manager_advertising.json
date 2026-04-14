@@ -179,5 +179,11 @@
         "label": "Improve Chat",
         "route": "/improve-chat",
         "icon": "lucide:message-square-diff"
+    },
+    {
+        "key": "laporan_pembuatan",
+        "label": "Laporan Pembuatan",
+        "route": "/laporan/pembuatan",
+        "icon": "lucide:chart-no-axes-combined"
     }
 ]

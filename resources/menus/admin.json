@@ -141,6 +141,11 @@
                 "key": "improve_chat",
                 "label": "Improve Chat",
                 "route": "/improve-chat"
+            },
+            {
+                "key": "laporan_pembuatan",
+                "label": "Laporan Pembuatan",
+                "route": "/laporan/pembuatan"
             }
         ]
     },
