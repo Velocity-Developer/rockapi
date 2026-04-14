@@ -5,6 +5,7 @@ use App\Http\Controllers\Laporan\PerpanjangWebJangkaController;
 use App\Http\Controllers\Laporan\ProjectProfitController;
 use App\Http\Controllers\Laporan\KlienPerpanjangController;
 use App\Http\Controllers\Laporan\OrderKumulatifController;
+use App\Http\Controllers\Laporan\PembuatanController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -18,4 +19,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('laporan/klien_perpanjang_expired_whmcs', [KlienPerpanjangController::class, 'expiredWhmcs']);
     Route::get('laporan/klien_perpanjang_grafik', [KlienPerpanjangController::class, 'grafik']);
     Route::get('laporan/klien_perpanjang_grafik_data', [KlienPerpanjangController::class, 'grafikData']);
+    Route::get('laporan/pembuatan_bulanan', [PembuatanController::class, 'bulanan']);
 });
