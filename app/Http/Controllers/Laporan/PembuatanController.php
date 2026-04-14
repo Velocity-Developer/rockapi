@@ -45,9 +45,26 @@ class PembuatanController extends Controller
                 'total_bulan_ini' => $totalBulanIni,
                 'total_bulan_sebelumnya' => $totalBulanSebelumnya,
                 'total' => $totalBulanIni + $totalBulanSebelumnya,
-                'selisih' => $totalBulanIni - $totalBulanSebelumnya,
             ];
         })->values();
+
+        $sumTotal = $data->sum('total');
+
+        $data = $data->map(function ($item) use ($sumTotal) {
+            $item['kontribusi'] = $sumTotal > 0
+                ? round(($item['total'] / $sumTotal) * 100, 2)
+                : 0;
+
+            return $item;
+        })->values();
+
+        $data->push([
+            'via' => 'Total',
+            'total_bulan_ini' => $data->sum('total_bulan_ini'),
+            'total_bulan_sebelumnya' => $data->sum('total_bulan_sebelumnya'),
+            'total' => $data->sum('total'),
+            'kontribusi' => null,
+        ]);
 
         return response()->json([
             'bulan' => $bulan,
