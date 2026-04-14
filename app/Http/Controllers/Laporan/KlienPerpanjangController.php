@@ -78,7 +78,7 @@ class KlienPerpanjangController extends Controller
         $perpanjang_bulan_ini_nominal = $perpanjang_bulan_ini
             ->flatMap->csMainProjects // gabungkan semua csMainProjects jadi satu collection
             ->where('jenis', 'Perpanjangan')
-            ->sum('dibayar');
+            ->sum('biaya');
 
         /**
          * Perpanjang Baru
@@ -123,7 +123,7 @@ class KlienPerpanjangController extends Controller
                 return Carbon::parse($item->tgl_masuk)->year == $tahun
                     && Carbon::parse($item->tgl_masuk)->month == $bulan;
             })
-            ->sum('dibayar');
+            ->sum('biaya');
 
         /**
          * Tidak Perpanjang
@@ -175,7 +175,7 @@ class KlienPerpanjangController extends Controller
                 return \Carbon\Carbon::parse($item->tgl_masuk)->year == $tahun_lalu
                     && \Carbon\Carbon::parse($item->tgl_masuk)->month == $bulan_lalu;
             })
-            ->sum('dibayar');
+            ->sum('biaya');
 
         $results['data'] = [
             'perpanjang' => [
@@ -221,7 +221,7 @@ class KlienPerpanjangController extends Controller
                             $q2->select('id_webhost', 'nama_web', 'tgl_mulai')
                                 ->with([
                                     'csMainProjects' => function ($q3) {
-                                        $q3->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'deskripsi', 'dibayar')
+                                        $q3->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'deskripsi', 'biaya')
                                             ->where('jenis', 'Perpanjangan')
                                             ->orderByDesc('tgl_masuk')
                                             ->limit(1);
@@ -233,7 +233,7 @@ class KlienPerpanjangController extends Controller
                                             'jenis',
                                             'tgl_masuk',
                                             'deskripsi',
-                                            'dibayar'
+                                            'biaya'
                                         );
                                     }
                                 ]);
@@ -249,7 +249,7 @@ class KlienPerpanjangController extends Controller
                             $q2->select('id_webhost', 'nama_web', 'tgl_mulai')
                                 ->with([
                                     'csMainProjects' => function ($q3) {
-                                        $q3->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'deskripsi', 'dibayar')
+                                        $q3->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'deskripsi', 'biaya')
                                             ->where('jenis', 'Perpanjangan')
                                             ->orderByDesc('tgl_masuk')
                                             ->limit(1);
@@ -261,7 +261,7 @@ class KlienPerpanjangController extends Controller
                                             'jenis',
                                             'tgl_masuk',
                                             'deskripsi',
-                                            'dibayar'
+                                            'biaya'
                                         );
                                     }
                                 ]);
@@ -472,7 +472,7 @@ class KlienPerpanjangController extends Controller
                     'p.id as cs_main_project_id',
                     'p.tgl_masuk',
                     'p.deskripsi',
-                    'p.dibayar',
+                    'p.biaya',
                     'wd.domain',
                     'wd.status as whmcs_status',
                     'wd.expirydate'
@@ -547,7 +547,7 @@ class KlienPerpanjangController extends Controller
                 'ws.nextduedate',
                 'ws.paid_at',
                 'ws.cs_main_project_id',
-                'p.dibayar'
+                'p.biaya'
             )
             ->get();
 
@@ -581,7 +581,7 @@ class KlienPerpanjangController extends Controller
                 return [
                     'webhost_id' => $row->webhost_id,
                     'payment_date' => Carbon::parse($row->paid_at),
-                    'amount' => (float) ($row->dibayar ?? 0),
+                    'amount' => (float) ($row->biaya ?? 0),
                 ];
             })
             ->values();
