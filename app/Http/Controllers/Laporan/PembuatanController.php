@@ -49,6 +49,8 @@ class PembuatanController extends Controller
         })->values();
 
         $sumTotal = $data->sum('total');
+        $sumTotalBulanIni = $data->sum('total_bulan_ini');
+        $sumTotalBulanSebelumnya = $data->sum('total_bulan_sebelumnya');
 
         $data = $data->map(function ($item) use ($sumTotal) {
             $item['kontribusi'] = $sumTotal > 0
@@ -58,11 +60,26 @@ class PembuatanController extends Controller
             return $item;
         })->values();
 
+        $chart = $data->map(function ($item) {
+            return [
+                'via' => $item['via'],
+                'total_bulan_ini' => $item['total_bulan_ini'],
+                'total_bulan_sebelumnya' => $item['total_bulan_sebelumnya'],
+            ];
+        })->values();
+
         $data->push([
             'via' => 'Total',
-            'total_bulan_ini' => $data->sum('total_bulan_ini'),
-            'total_bulan_sebelumnya' => $data->sum('total_bulan_sebelumnya'),
-            'total' => $data->sum('total'),
+            'total_bulan_ini' => $sumTotalBulanIni,
+            'total_bulan_sebelumnya' => $sumTotalBulanSebelumnya,
+            'total' => $sumTotal,
+            'kontribusi' => null,
+        ]);
+        $data->push([
+            'via' => null,
+            'total_bulan_ini' => $sumTotal > 0 ? round(($sumTotalBulanIni / $sumTotal) * 100, 2) : 0,
+            'total_bulan_sebelumnya' => $sumTotal > 0 ? round(($sumTotalBulanSebelumnya / $sumTotal) * 100, 2) : 0,
+            'total' => null,
             'kontribusi' => null,
         ]);
 
@@ -70,6 +87,7 @@ class PembuatanController extends Controller
             'bulan' => $bulan,
             'bulan_sebelumnya' => $bulanSebelumnya->format('Y-m'),
             'opsi_via' => $this->via,
+            'chart' => $chart,
             'data' => $data,
         ]);
     }
