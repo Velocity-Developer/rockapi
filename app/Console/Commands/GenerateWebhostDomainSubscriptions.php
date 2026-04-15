@@ -125,11 +125,12 @@ class GenerateWebhostDomainSubscriptions extends Command
 
                     $firstProjectDate = $pembuatanProject->tgl_masuk ? Carbon::parse($pembuatanProject->tgl_masuk)->startOfDay() : null;
 
-                    // Ambil tahun dari tgl_masuk project
-                    $year = Carbon::parse($pembuatanProject->tgl_masuk)->year;
+                    // Subscription awal mengikuti lifecycle domain, bukan tahun pembayaran project.
+                    $startDate = $startDateLifecycle?->copy();
 
-                    // Buat start_date dengan Carbon::create
-                    $startDate = Carbon::create($year, $anchor->month, $anchor->day);
+                    if (! $startDate) {
+                        continue;
+                    }
 
                     // Hitung end_date
                     $endDate = $startDate->copy()->addMonths($periodeMonths);
@@ -151,6 +152,8 @@ class GenerateWebhostDomainSubscriptions extends Command
                         'paid_at' => $this->resolvePaidAt($pembuatanProject?->tgl_masuk),
                         'status' => $endDate->greaterThan($nowDate) ? 'active' : 'expired',
                     ];
+
+                    $startDateLifecycle = $endDate->copy();
                 }
 
                 /**
@@ -183,12 +186,13 @@ class GenerateWebhostDomainSubscriptions extends Command
                         $firstProjectDate = $project->tgl_masuk ? Carbon::parse($project->tgl_masuk)->startOfDay() : null;
                     }
 
+                    // Renewal selalu dimulai dari akhir subscription sebelumnya,
+                    // jadi pembayaran lebih awal tetap masuk ke bulan renewal yang benar.
+                    $startDate = $startDateLifecycle?->copy();
 
-                    // Ambil tahun dari tgl_masuk project
-                    $year = Carbon::parse($project->tgl_masuk)->year;
-
-                    // Buat start_date dengan Carbon::create
-                    $startDate = Carbon::create($year, $anchor->month, $anchor->day);
+                    if (! $startDate) {
+                        continue;
+                    }
 
                     // Hitung end_date
                     $endDate = $startDate->copy()->addMonths($periodeMonths);
@@ -210,6 +214,8 @@ class GenerateWebhostDomainSubscriptions extends Command
                         'paid_at' => $this->resolvePaidAt($project?->tgl_masuk),
                         'status' => $endDate->greaterThan($nowDate) ? 'active' : 'expired',
                     ];
+
+                    $startDateLifecycle = $endDate->copy();
                 }
 
                 if (! empty($rows)) {
