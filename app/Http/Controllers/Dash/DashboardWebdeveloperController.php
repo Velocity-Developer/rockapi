@@ -25,6 +25,10 @@ class DashboardWebdeveloperController extends Controller
         $totalCsMainProject = CsMainProject::whereMonth('tgl_masuk', date('m'))
             ->whereYear('tgl_masuk', date('Y'))
             ->whereIn('jenis', $this->jenis_project_webdeveloper)
+            ->where(function ($query) {
+                $query->where('dikerjakan_oleh', 'like', '%,12%')
+                    ->orWhere('dikerjakan_oleh', 'like', '%,10%');
+            })
             ->count();
 
         // tanggal sekarang
@@ -37,6 +41,10 @@ class DashboardWebdeveloperController extends Controller
 
         $totalCsMainProjectLastMonth = CsMainProject::whereBetween('tgl_masuk', [$start, $end])
             ->whereIn('jenis', $this->jenis_project_webdeveloper)
+            ->where(function ($query) {
+                $query->where('dikerjakan_oleh', 'like', '%,12%')
+                    ->orWhere('dikerjakan_oleh', 'like', '%,10%');
+            })
             ->count();
 
         // hitung persentase
@@ -101,8 +109,8 @@ class DashboardWebdeveloperController extends Controller
             $date = $now->copy()->subMonths($i);
             $monthName = $bulan[$date->month - 1];
             $year = $date->year;
-            $labels[] = $monthName.' '.$year;
-            $setlabel[$date->month.'-'.$year] = $i;
+            $labels[] = $monthName . ' ' . $year;
+            $setlabel[$date->month . '-' . $year] = $i;
         }
 
         // Inisialisasi data untuk setiap kategori
@@ -200,10 +208,10 @@ class DashboardWebdeveloperController extends Controller
 
         $chartData = [
             'labels' => [
-                'Biasa - belum dikerjakan : '.$projects_biasa,
-                'Biasa - dalam pengerjaan : '.$projects_biasa_run,
-                'Custom - belum dikerjakan : '.$projects_custom,
-                'Custom - dalam pengerjaan : '.$projects_custom_run,
+                'Biasa - belum dikerjakan : ' . $projects_biasa,
+                'Biasa - dalam pengerjaan : ' . $projects_biasa_run,
+                'Custom - belum dikerjakan : ' . $projects_custom,
+                'Custom - dalam pengerjaan : ' . $projects_custom_run,
             ],
             'datas' => [
                 $projects_biasa,
