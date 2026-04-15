@@ -642,6 +642,7 @@ class KlienPerpanjangController extends Controller
             ],
             'rincian_bulan' => [
                 'Total Pemasukkan Perpanjang' => $totalPemasukkanPerpanjang,
+                'Total Data Perpanjang' => $totalDataPerpanjang,
                 'PPJ dari bulan ini' => $ppjDariBulanIni,
                 'PPJ dari bulan lain' => $ppjDariBulanLain,
                 'PPJ bulan ini yang terbayar di bulan lalu' => $ppjBulanIniTerbayarBulanLalu,
