@@ -333,6 +333,12 @@
                 "label": "Admin Tools",
                 "icon": "lucide:shield-cog-corner",
                 "route": "/dash/admin-tools"
+            },
+            {
+                "key": "dash_koreksi_webhost",
+                "label": "Koreksi Webhost",
+                "icon": "lucide:book-open-check",
+                "route": "/dash/koreksi-webhost"
             }
         ]
     }

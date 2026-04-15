@@ -185,5 +185,11 @@
         "label": "Laporan Pembuatan",
         "route": "/laporan/pembuatan",
         "icon": "lucide:chart-no-axes-combined"
+    },
+    {
+        "key": "dash_koreksi_webhost",
+        "label": "Koreksi Webhost",
+        "icon": "lucide:book-open-check",
+        "route": "/dash/koreksi-webhost"
     }
 ]
