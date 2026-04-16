@@ -15,10 +15,28 @@ class WhmcsUserController extends Controller
     {
         $query = WhmcsUser::query();
 
+        $with = $request->input('with');
+        if ($with) {
+            $with = explode(';', $with);
+            $with = array_map('trim', $with);
+            $query->with($with);
+        }
+
         if ($request->input('search')) {
             $query->where('firstname', 'like', '%' . $request->input('search') . '%')
                 ->orWhere('lastname', 'like', '%' . $request->input('search') . '%')
                 ->orWhere('email', 'like', '%' . $request->input('search') . '%');
+        }
+
+        //search domain dari relasi domains dan hostings
+        //jika domain ada di relasi domains atau hostings, maka akan diambil
+        if ($request->input('search_domain')) {
+            $query->whereHas('domains', function ($query) use ($request) {
+                $query->where('domain', 'like', '%' . $request->input('search_domain') . '%');
+            })
+                ->orWhereHas('hostings', function ($query) use ($request) {
+                    $query->where('domain', 'like', '%' . $request->input('search_domain') . '%');
+                });
         }
 
         $per_page = $request->input('per_page', 20);
