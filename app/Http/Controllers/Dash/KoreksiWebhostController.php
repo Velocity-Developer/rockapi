@@ -32,11 +32,11 @@ class KoreksiWebhostController extends Controller
 
     public function detail(Request $request)
     {
-        $nama_web = $request->input('nama_web');
+        $nama_web = $request->input('nama_web', ' ');
         $webhost = Webhost::with('paket', 'csMainProjects:id_webhost,jenis', 'whmcs_domain:webhost_id,expirydate')
             ->whereLike('nama_web', "%{$nama_web}%")
             ->select('id_webhost', 'nama_web', 'tgl_mulai', 'email', 'hp', 'id_paket')
-            ->limit(100)
+            ->limit(50)
             ->get();
 
         if (!$webhost) {
