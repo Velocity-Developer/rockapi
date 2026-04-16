@@ -32,7 +32,9 @@ class PermissionsSeeder extends Seeder
             'timsupport-journal-perform-tim',
             'timads-journal-perform-tim',
             'edit-cuti',
-            'kelola-improve-chat'
+            'kelola-improve-chat',
+            'manage-csmainproject',
+            'manage-webhostsubscription',
         ];
 
         foreach ($permissions as $permission) {
