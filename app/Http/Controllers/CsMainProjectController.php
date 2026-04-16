@@ -647,4 +647,41 @@ class CsMainProjectController extends Controller
 
         return response()->json($cs_main_project);
     }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update_origin(CsMainProjectRequest $request, string $id)
+    {
+        // get cs_main_project
+        $cs_main_project = CsMainProject::find($id);
+
+        // jika cs_main_project tidak ditemukan, error
+        if (! $cs_main_project) {
+            return response()->json([
+                'message' => 'cs_main_project tidak ditemukan',
+            ], 404);
+        }
+
+        return DB::transaction(function () use ($request, $cs_main_project) {
+
+            // =============================
+            // 1. Update cs_main_project
+            //    simpan data ke tabel cs_main_project
+            // =============================
+            $cs_main_project->update([
+                'id_webhost' => $request->input('id_webhost'),
+                'jenis' => $request->input('jenis'),
+                'deskripsi' => $request->input('deskripsi'),
+                'trf' => $request->input('trf'),
+                'tgl_masuk' => $request->input('tgl_masuk'),
+                'tgl_deadline' => $request->input('tgl_deadline'),
+                'biaya' => $request->input('biaya'),
+                'dibayar' => $request->input('dibayar'),
+                'dikerjakan_oleh' => $request->input('di_kerjakan_oleh'),
+            ]);
+
+            return response()->json($cs_main_project);
+        });
+    }
 }
