@@ -37,7 +37,7 @@ class ImproveChatPolicy
      */
     public function update(User $user, ImproveChat $ImproveChat): bool
     {
-        if ($user->hasRole('admin')) {
+        if ($user->hasPermissionTo('kelola-improve-chat', 'web')) {
             return true;
         }
 
@@ -49,7 +49,7 @@ class ImproveChatPolicy
      */
     public function delete(User $user, ImproveChat $ImproveChat): bool
     {
-        if ($user->hasRole('admin')) {
+        if ($user->hasPermissionTo('kelola-improve-chat', 'web')) {
             return true;
         }
 
