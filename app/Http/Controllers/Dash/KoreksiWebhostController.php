@@ -52,7 +52,7 @@ class KoreksiWebhostController extends Controller
     {
         // Mencari nama_web yang mengandung huruf besar
         $webhosts = Webhost::select('nama_web', 'id_webhost')
-            ->whereRaw("REGEXP_LIKE(nama_web, '[A-Z]', 'c')") // mengandung huruf besar A–Z
+            ->whereRaw("BINARY nama_web REGEXP '[A-Z]'") // mengandung huruf besar A–Z
             ->paginate(100);
         $webhosts->withPath('');
 
