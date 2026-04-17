@@ -13,6 +13,12 @@ class KoreksiWebhostController extends Controller
     {
         if ($subject == 'ganda') {
             $result = $this->ganda();
+        } else if ($subject == 'xxx') {
+            $result = $this->xxx();
+        } else if ($subject == 'uppercase') {
+            $result = $this->uppercase();
+        } else if ($subject == 'kosong') {
+            $result = $this->kosong();
         } else {
             $result = $subject;
         }
@@ -21,13 +27,51 @@ class KoreksiWebhostController extends Controller
 
     private function ganda()
     {
-        $duplicates = Webhost::select('nama_web', DB::raw('COUNT(*) as total'))
+        $webhosts = Webhost::select('nama_web', DB::raw('COUNT(*) as total'))
             ->groupBy('nama_web')
             ->having('total', '>', 1)
             ->orderByDesc('total')
-            ->get();
+            ->paginate(100);
+        $webhosts->withPath('');
 
-        return $duplicates;
+        return $webhosts;
+    }
+
+    private function xxx()
+    {
+        // Mencari nama_web yang mengandung XXX, XX, atau X
+        $webhosts = Webhost::select('nama_web', 'id_webhost')
+            ->whereRaw("nama_web REGEXP 'XXX|(^.*XX[^X].*$)|X$'")
+            ->paginate(100);
+        $webhosts->withPath('');
+
+        return $webhosts;
+    }
+
+    private function uppercase()
+    {
+        // Mencari nama_web yang mengandung huruf besar
+        $webhosts = Webhost::select('nama_web', 'id_webhost')
+            ->whereRaw("REGEXP_LIKE(nama_web, '[A-Z]', 'c')") // mengandung huruf besar A–Z
+            ->paginate(100);
+        $webhosts->withPath('');
+
+        return $webhosts;
+    }
+
+    private function kosong()
+    {
+        // Mencari nama_web yang kosong
+        $webhosts = Webhost::select('nama_web', 'id_webhost')
+            ->where(function ($q) {
+                $q->where('nama_web', '=', '')          // string kosong
+                    ->orWhere('nama_web', '=', '  ')      // hanya spasi
+                    ->orWhereNull('nama_web');            // NULL
+            })
+            ->paginate(100);
+        $webhosts->withPath('');
+
+        return $webhosts;
     }
 
     public function detail(Request $request)
