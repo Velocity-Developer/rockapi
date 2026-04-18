@@ -41,17 +41,71 @@ class CutiController extends Controller
         'Afif'
     ];
 
-    private function tambahJamMenit(string $jam1, string $jam2): string
+    private function totalMenit(array $times): int
     {
-        [$h1, $m1] = array_map('intval', explode(':', $jam1));
-        [$h2, $m2] = array_map('intval', explode(':', $jam2));
+        $totalMenit = 0;
 
-        $totalMenit = ($h1 * 60 + $m1) + ($h2 * 60 + $m2);
+        foreach ($times as $time) {
+            if (is_numeric($time)) {
+                $totalMenit += (int) $time * 60;
+                continue;
+            }
 
-        $jam   = floor($totalMenit / 60) % 24;
-        $menit = $totalMenit % 60;
+            if (!is_string($time) || !str_contains($time, ':')) {
+                continue;
+            }
 
-        return sprintf('%02d:%02d', $jam, $menit);
+            [$jam, $menit] = array_map('intval', explode(':', $time));
+            $totalMenit += ($jam * 60) + $menit;
+        }
+
+        return $totalMenit;
+    }
+
+    private function formatHariDecimal(array $times): string|int
+    {
+        $totalJam = $this->totalMenit($times) / 60;
+
+        // jika total jam 0, maka return 0
+        if ($totalJam === 0) {
+            return 0;
+        }
+
+        $hasil = $totalJam / 7;
+
+        // jika bilangan bulat, tampilkan tanpa .00
+        if ($hasil == floor($hasil)) {
+            return (int) $hasil;
+        }
+
+        return number_format($hasil, 2, '.', '');
+    }
+
+    private function formatHariJamMenit(array $times): string|bool
+    {
+        $totalMenit = $this->totalMenit($times);
+
+        if ($totalMenit === 0) {
+            return false;
+        }
+
+        $totalJam   = intdiv($totalMenit, 60);
+        $sisaMenit  = $totalMenit % 60;
+
+        $hari = intdiv($totalJam, 7);
+        $jam  = $totalJam % 7;
+
+        $result = [];
+
+        // tampilkan hari hanya jika > 0
+        if ($hari > 0) {
+            $result[] = sprintf('%02d Hari', $hari);
+        }
+
+        $result[] = sprintf('%02d Jam', $jam);
+        $result[] = sprintf('%02d Menit', $sisaMenit);
+
+        return implode(' ', $result);
     }
 
     /**
@@ -94,23 +148,8 @@ class CutiController extends Controller
         $items = $query->get();
 
         $grouped = $items->groupBy('nama')->map(function ($rows, $nama) {
-
-            $sakit = 0;
-            $cuti = 0;
-            $blm_diganti = '00:00';
             $total = $tambahan = [];
             foreach ($rows->values() as $item) {
-
-                if ($item->detail == 'Sakit' && $item->time == "00:00") {
-                    $sakit += 1;
-                }
-                if ($item->detail == 'Cuti' && $item->jenis == 'Full') {
-                    $cuti += 1;
-                }
-                if ($item->jenis == 'Jam' && $item->time !== "00:00" && $item->tipe == "Belum diganti") {
-                    $blm_diganti = $this->tambahJamMenit($blm_diganti, $item->time);
-                }
-
                 if ($item['jenis'] == 'Full') {
                     $total[$item['detail']][] = $item['tanggal'];
                 }
@@ -120,7 +159,8 @@ class CutiController extends Controller
             }
 
             $tambahan['Sakit'][] = isset($total['Sakit']) ? (count($total['Sakit']) * 7) : 0;
-            $tambahan['Belum diganti'][] = isset($total['Cuti']) ? (count($total['Cuti']) * 7) : 0;
+            $cutiFull = isset($total['Cuti']) ? (count($total['Cuti']) * 7) : 0;
+            $blmdiganti = $this->formatHariJamMenit($tambahan['Belum diganti'] ?? []);
 
             return [
                 'nama'      => $nama,
@@ -129,10 +169,13 @@ class CutiController extends Controller
                 'totals'    => $total,
                 'tambahan'  => $tambahan,
                 'detail'    => [
-                    'Sakit' => $sakit,
-                    'Cuti' => $cuti,
-                    'Blm diganti' => $blm_diganti,
+                    'Sakit' => $this->formatHariDecimal($tambahan['Sakit'] ?? []),
+                    'Cuti' => $this->formatHariDecimal([$cutiFull]),
+                    'Blm diganti' => $this->formatHariJamMenit($tambahan['Belum diganti'] ?? []),
                 ],
+                'sakit' => $this->formatHariDecimal($tambahan['Sakit'] ?? []),
+                'cuti' => $this->formatHariDecimal([$cutiFull]),
+                'blmdiganti' => $blmdiganti,
             ];
         })->values();
 
