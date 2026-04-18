@@ -651,8 +651,22 @@ class CsMainProjectController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update_origin(CsMainProjectRequest $request, string $id)
+    public function update_origin(Request $request, string $id)
     {
+
+        //validate request
+        $request->validate([
+            'id_webhost' => 'required|integer',
+            'jenis' => 'required|string',
+            'deskripsi' => 'nullable|string',
+            'trf' => 'nullable|string',
+            'tgl_masuk' => 'nullable|date_format:Y-m-d',
+            'tgl_deadline' => 'nullable|date_format:Y-m-d',
+            'biaya' => 'nullable|numeric',
+            'dibayar' => 'nullable|numeric',
+            'dikerjakan_oleh' => 'nullable|array',
+        ]);
+
         // get cs_main_project
         $cs_main_project = CsMainProject::find($id);
 
