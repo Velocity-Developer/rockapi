@@ -46,5 +46,11 @@
         "label": "Improve Chat",
         "route": "/improve-chat",
         "icon": "lucide:message-square-diff"
+    },
+    {
+        "key": "kelola_cuti",
+        "label": "Data Cuti",
+        "icon": "lucide:calendar-clock",
+        "route": "/kelola_cuti"
     }
 ]

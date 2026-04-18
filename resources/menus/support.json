@@ -74,5 +74,11 @@
         "label": "Module Projects",
         "route": "/other/module-projects",
         "icon": "lucide:github"
+    },
+    {
+        "key": "kelola_cuti",
+        "label": "Data Cuti",
+        "icon": "lucide:calendar-clock",
+        "route": "/kelola_cuti"
     }
 ]

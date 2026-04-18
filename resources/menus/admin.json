@@ -301,6 +301,12 @@
                 "key": "webhost_subscriptions",
                 "label": "Webhost Subscriptions",
                 "route": "/webhost-subscriptions"
+            },
+            {
+                "key": "kelola_cuti",
+                "label": "Data Cuti",
+                "icon": "lucide:calendar-clock",
+                "route": "/kelola_cuti"
             }
         ]
     },

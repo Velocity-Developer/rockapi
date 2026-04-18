@@ -46,5 +46,11 @@
         "label": "Customer",
         "icon": "lucide:users-round",
         "route": "/customer"
+    },
+    {
+        "key": "kelola_cuti",
+        "label": "Data Cuti",
+        "icon": "lucide:calendar-clock",
+        "route": "/kelola_cuti"
     }
 ]

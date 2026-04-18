@@ -64,5 +64,11 @@
         "label": "Kelola Quality",
         "icon": "lucide:circle-check-big",
         "route": "/kelola_quality"
+    },
+    {
+        "key": "kelola_cuti",
+        "label": "Data Cuti",
+        "icon": "lucide:calendar-clock",
+        "route": "/kelola_cuti"
     }
 ]

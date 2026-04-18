@@ -191,5 +191,11 @@
         "label": "Koreksi Webhost",
         "icon": "lucide:book-open-check",
         "route": "/dash/koreksi-webhost"
+    },
+    {
+        "key": "kelola_cuti",
+        "label": "Data Cuti",
+        "icon": "lucide:calendar-clock",
+        "route": "/kelola_cuti"
     }
 ]
