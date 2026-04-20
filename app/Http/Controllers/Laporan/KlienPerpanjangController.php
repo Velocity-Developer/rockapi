@@ -203,8 +203,13 @@ class KlienPerpanjangController extends Controller
 
     public function expiredWhmcs(Request $request)
     {
-
         $month = $request->input('month', date('Y-m'));
+        return response()->json($this->buildExpiredWhmcsSummary($month));
+    }
+
+    private function buildExpiredWhmcsSummary(string $month): array
+    {
+        $month = $month ?: date('Y-m');
 
         $m = date('m', strtotime($month));
         $y = date('Y', strtotime($month));
@@ -298,7 +303,7 @@ class KlienPerpanjangController extends Controller
             // mengambil data hosting expired dari WHMCS
             (new WHMCSSyncServices())->syncHostingExpired($start, $end);
 
-            return response()->json([]);
+            return [];
         }
 
         foreach ($whmcsUsers as $user) {
@@ -383,7 +388,7 @@ class KlienPerpanjangController extends Controller
             return $item['status'] === true;
         })->count();
 
-        return response()->json([
+        return [
             'total' => $total,
             'total_domain' => $whmcsUsers->sum(function ($item) {
                 return $item->domains->count();
@@ -394,7 +399,7 @@ class KlienPerpanjangController extends Controller
             'total_perpanjang' => $total_perpanjang,
             'total_tidak_perpanjang' => ($total - $total_perpanjang),
             'data' => $reindexed_array
-        ]);
+        ];
     }
 
     public function grafik(Request $request)
@@ -666,6 +671,132 @@ class KlienPerpanjangController extends Controller
         })->values();
     }
 
+    private function getExpiredWhmcsRowsByMonth(int $year, int $monthNumber)
+    {
+        $today = now()->startOfDay();
+
+        $whmcsUsers = WhmcsUser::with([
+            'hostings' => function ($q) use ($monthNumber, $year) {
+                $q->whereMonth('nextduedate', $monthNumber)
+                    ->whereYear('nextduedate', $year)
+                    ->whereHas('webhost')
+                    ->with([
+                        'webhost' => function ($q2) {
+                            $q2->select('id_webhost', 'nama_web', 'tgl_mulai')
+                                ->with([
+                                    'csMainProjects' => function ($q3) {
+                                        $q3->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'deskripsi', 'biaya')
+                                            ->where('jenis', 'Perpanjangan')
+                                            ->orderByDesc('tgl_masuk')
+                                            ->limit(1);
+                                    },
+                                ]);
+                        }
+                    ]);
+            },
+            'domains' => function ($q) use ($monthNumber, $year) {
+                $q->whereMonth('expirydate', $monthNumber)
+                    ->whereYear('expirydate', $year)
+                    ->whereHas('webhost')
+                    ->with([
+                        'webhost' => function ($q2) {
+                            $q2->select('id_webhost', 'nama_web', 'tgl_mulai')
+                                ->with([
+                                    'csMainProjects' => function ($q3) {
+                                        $q3->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'deskripsi', 'biaya')
+                                            ->where('jenis', 'Perpanjangan')
+                                            ->orderByDesc('tgl_masuk')
+                                            ->limit(1);
+                                    },
+                                ]);
+                        }
+                    ]);
+            }
+        ])
+            ->where(function ($q) use ($monthNumber, $year) {
+                $q->whereHas('hostings', function ($q2) use ($monthNumber, $year) {
+                    $q2->whereMonth('nextduedate', $monthNumber)
+                        ->whereYear('nextduedate', $year)
+                        ->whereHas('webhost');
+                })
+                    ->orWhereHas('domains', function ($q2) use ($monthNumber, $year) {
+                        $q2->whereMonth('expirydate', $monthNumber)
+                            ->whereYear('expirydate', $year)
+                            ->whereHas('webhost');
+                    });
+            })
+            ->get();
+
+        $data = [];
+
+        foreach ($whmcsUsers as $user) {
+            if ($user->email === 'bantuanvelocity@gmail.com') {
+                continue;
+            }
+
+            foreach ($user->domains as $domain) {
+                $webhost = $domain->webhost ?? null;
+                $domainName = strtolower($domain->domain);
+
+                $data[$domainName]['status'] = false;
+                $data[$domainName]['domain'] = $domain;
+                $data[$domainName]['domain_name'] = $domain->domain;
+                $data[$domainName]['user'] = [
+                    'id' => $user->id,
+                    'whmcs_id' => $user->whmcs_id,
+                    'email' => $user->email,
+                    'firstname' => $user->firstname,
+                    'lastname' => $user->lastname,
+                ];
+                $data[$domainName]['webhost'] = $webhost;
+                $data[$domainName]['webhost_available'] = $webhost ? 1 : 0;
+                $data[$domainName]['project'] = $webhost?->csMainProjects[0] ?? null;
+                $data[$domainName]['project_available'] = $data[$domainName]['project'] ? 1 : 0;
+
+                if ($domain->expirydate) {
+                    $data[$domainName]['expiry'] = $domain->expirydate;
+                    $data[$domainName]['status'] = Carbon::parse($domain->expirydate)->startOfDay()->gte($today);
+                }
+            }
+
+            foreach ($user->hostings as $hosting) {
+                $webhost = $hosting->webhost ?? null;
+                $domainName = strtolower($hosting->domain);
+
+                $data[$domainName]['hosting'] = $hosting;
+                $data[$domainName]['domain_name'] = $hosting->domain;
+                $data[$domainName]['user'] = [
+                    'id' => $user->id,
+                    'whmcs_id' => $user->whmcs_id,
+                    'email' => $user->email,
+                    'firstname' => $user->firstname,
+                    'lastname' => $user->lastname,
+                ];
+
+                if (empty($data[$domainName]['webhost'])) {
+                    $data[$domainName]['status'] = $data[$domainName]['status'] ?? false;
+                    $data[$domainName]['webhost'] = $webhost;
+                    $data[$domainName]['webhost_available'] = $webhost ? 1 : 0;
+                }
+
+                if (empty($data[$domainName]['project'])) {
+                    $data[$domainName]['project'] = $webhost?->csMainProjects[0] ?? null;
+                    $data[$domainName]['project_available'] = $data[$domainName]['project'] ? 1 : 0;
+                }
+
+                if (empty($data[$domainName]['expiry'])) {
+                    $data[$domainName]['expiry'] = $hosting->nextduedate;
+                }
+
+                if ($hosting->nextduedate && Carbon::parse($hosting->nextduedate)->startOfDay()->gte($today)) {
+                    $data[$domainName]['status'] = true;
+                }
+            }
+        }
+
+        return collect(array_values($data));
+    }
+
     private function getGrafikDetailRows(int $year, int $monthNumber, string $detailKey)
     {
         $perpanjangRows = $this->getGrafikPerpanjangRows($year, $monthNumber, false);
@@ -723,49 +854,13 @@ class KlienPerpanjangController extends Controller
         $perpanjangProjectRows = $this->getGrafikPerpanjangProjectRows($year, $monthNumber);
         $perpanjangProjectRowsByWebhost = $this->summarizeGrafikPerpanjangProjectRowsByWebhost($perpanjangProjectRows);
         $renewalPaidOutsideSelectedMonthRows = $this->getGrafikRenewalPaidOutsideSelectedMonthRows($year, $monthNumber);
+        $expiredWhmcsSummary = $this->buildExpiredWhmcsSummary(sprintf('%04d-%02d', $year, $monthNumber));
         $totalPemasukkanPerpanjang = (float) $perpanjangProjectRows->sum('biaya');
         $totalDataPerpanjang = $perpanjangProjectRowsByWebhost->count();
         $perpanjangTermahal = (float) $perpanjangProjectRows->max('biaya');
 
-        $perpanjangRows = DB::table('webhost_subscriptions as ws')
-            ->leftJoin('tb_cs_main_project as p', 'p.id', '=', 'ws.cs_main_project_id')
-            ->whereNotNull('ws.parent_subscription_id')
-            ->whereMonth('ws.start_date', $monthNumber)
-            ->whereYear('ws.start_date', $year)
-            ->select(
-                'ws.id',
-                'ws.webhost_id',
-                'ws.parent_subscription_id',
-                'ws.start_date',
-                'ws.end_date',
-                'ws.nextduedate',
-                'ws.paid_at',
-                'ws.cs_main_project_id',
-                'p.biaya'
-            )
-            ->get();
-
-        $tidakPerpanjangRows = DB::table('webhost_subscriptions as ws')
-            ->join('whmcs_domains as wd', 'wd.webhost_id', '=', 'ws.webhost_id')
-            ->whereMonth('ws.end_date', $monthNumber)
-            ->whereYear('ws.end_date', $year)
-            ->where('ws.status', 'Expired')
-            ->whereNotExists(function ($query) use ($monthNumber, $year) {
-                $query->select(DB::raw(1))
-                    ->from('webhost_subscriptions as renewal')
-                    ->whereColumn('renewal.webhost_id', 'ws.webhost_id')
-                    ->whereNotNull('renewal.parent_subscription_id')
-                    ->whereMonth('renewal.start_date', $monthNumber)
-                    ->whereYear('renewal.start_date', $year);
-            })
-            ->select('ws.id', 'ws.webhost_id', 'ws.parent_subscription_id', 'ws.start_date', 'ws.end_date', 'ws.nextduedate', 'ws.paid_at')
-            ->get();
-
-        $perpanjangIds = $perpanjangRows->pluck('webhost_id')->unique()->values();
-        $tidakPerpanjangIds = $tidakPerpanjangRows->pluck('webhost_id')->unique()->values();
-
-        $perpanjang = $perpanjangIds->count();
-        $tidak_perpanjang = $tidakPerpanjangIds->count();
+        $perpanjang = (int) ($expiredWhmcsSummary['total_perpanjang'] ?? 0);
+        $tidak_perpanjang = (int) ($expiredWhmcsSummary['total_tidak_perpanjang'] ?? 0);
         $total = $perpanjang + $tidak_perpanjang;
         $ratio = $total > 0 ? round(($perpanjang / $total) * 100, 1) : 0;
 
