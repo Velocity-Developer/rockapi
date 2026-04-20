@@ -440,91 +440,178 @@ class KlienPerpanjangController extends Controller
         $year = (int) $request->input('tahun', now()->year);
         $monthNumber = (int) $request->input('bulan');
         $jenis = $request->input('jenis');
+        $detailKey = $request->input('detail_key');
 
         if ($monthNumber < 1 || $monthNumber > 12) {
             return response()->json(['message' => 'Bulan tidak valid'], 422);
         }
 
-        if (! in_array($jenis, ['perpanjang', 'tidak_perpanjang'], true)) {
+        if (! in_array($jenis, ['perpanjang', 'tidak_perpanjang', 'detail'], true)) {
             return response()->json(['message' => 'Jenis tidak valid'], 422);
         }
 
-        if ($jenis === 'perpanjang') {
-            $rows = DB::table('webhost_subscriptions as ws')
-                ->join('tb_webhost as w', 'w.id_webhost', '=', 'ws.webhost_id')
-                ->leftJoin('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
-                ->leftJoin('tb_cs_main_project as p', 'p.id', '=', 'ws.cs_main_project_id')
-                ->whereNotNull('ws.parent_subscription_id')
-                ->whereMonth('ws.start_date', $monthNumber)
-                ->whereYear('ws.start_date', $year)
-                ->select(
-                    'w.id_webhost',
-                    'w.nama_web',
-                    'w.tgl_mulai',
-                    'ws.id as subscription_id',
-                    'ws.parent_subscription_id',
-                    'ws.start_date',
-                    'ws.end_date',
-                    'ws.nextduedate',
-                    'ws.status as subscription_status',
-                    'ws.payment_status',
-                    'ws.paid_at',
-                    'p.id as cs_main_project_id',
-                    'p.tgl_masuk',
-                    'p.deskripsi',
-                    'p.biaya',
-                    'wd.domain',
-                    'wd.status as whmcs_status',
-                    'wd.expirydate'
-                )
-                ->orderBy('ws.start_date')
-                ->get()
-                ->unique('id_webhost')
-                ->values();
+        if ($jenis === 'detail') {
+            if (empty($detailKey)) {
+                return response()->json(['message' => 'Detail key wajib diisi'], 422);
+            }
+
+            $rows = $this->getGrafikDetailRows($year, $monthNumber, $detailKey);
         } else {
-            $rows = DB::table('webhost_subscriptions as ws')
-                ->join('tb_webhost as w', 'w.id_webhost', '=', 'ws.webhost_id')
-                ->join('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
-                ->whereMonth('ws.end_date', $monthNumber)
-                ->whereYear('ws.end_date', $year)
-                ->where('ws.status', 'Expired')
-                ->whereNotExists(function ($query) use ($monthNumber, $year) {
-                    $query->select(DB::raw(1))
-                        ->from('webhost_subscriptions as renewal')
-                        ->whereColumn('renewal.webhost_id', 'ws.webhost_id')
-                        ->whereNotNull('renewal.parent_subscription_id')
-                        ->whereMonth('renewal.start_date', $monthNumber)
-                        ->whereYear('renewal.start_date', $year);
-                })
-                ->select(
-                    'w.id_webhost',
-                    'w.nama_web',
-                    'w.tgl_mulai',
-                    'ws.id as subscription_id',
-                    'ws.parent_subscription_id',
-                    'ws.start_date',
-                    'ws.end_date',
-                    'ws.nextduedate',
-                    'ws.status as subscription_status',
-                    'ws.payment_status',
-                    'ws.paid_at',
-                    'wd.domain',
-                    'wd.status as whmcs_status',
-                    'wd.expirydate'
-                )
-                ->orderBy('ws.end_date')
-                ->get()
-                ->unique('id_webhost')
-                ->values();
+            $rows = $jenis === 'perpanjang'
+                ? $this->getGrafikPerpanjangRows($year, $monthNumber)
+                : $this->getGrafikTidakPerpanjangRows($year, $monthNumber);
         }
 
         return response()->json([
             'year' => $year,
             'bulan' => $monthNumber,
             'jenis' => $jenis,
+            'detail_key' => $detailKey,
             'total' => $rows->count(),
             'data' => $rows,
         ]);
+    }
+
+    private function getGrafikPerpanjangRows(int $year, int $monthNumber, bool $uniqueWebhost = true)
+    {
+        $rows = DB::table('webhost_subscriptions as ws')
+            ->join('tb_webhost as w', 'w.id_webhost', '=', 'ws.webhost_id')
+            ->leftJoin('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
+            ->leftJoin('tb_cs_main_project as p', 'p.id', '=', 'ws.cs_main_project_id')
+            ->whereNotNull('ws.parent_subscription_id')
+            ->whereMonth('ws.start_date', $monthNumber)
+            ->whereYear('ws.start_date', $year)
+            ->select(
+                'w.id_webhost',
+                'w.nama_web',
+                'w.tgl_mulai',
+                'ws.id as subscription_id',
+                'ws.parent_subscription_id',
+                'ws.start_date',
+                'ws.end_date',
+                'ws.nextduedate',
+                'ws.status as subscription_status',
+                'ws.payment_status',
+                'ws.paid_at',
+                'p.id as cs_main_project_id',
+                'p.tgl_masuk',
+                'p.deskripsi',
+                DB::raw('COALESCE(p.biaya, 0) as dibayar'),
+                'wd.domain',
+                'wd.status as whmcs_status',
+                'wd.expirydate'
+            )
+            ->orderBy('ws.start_date')
+            ->get()
+            ->unique('subscription_id')
+            ->values();
+
+        return $uniqueWebhost ? $rows->unique('id_webhost')->values() : $rows->values();
+    }
+
+    private function getGrafikTidakPerpanjangRows(int $year, int $monthNumber, bool $uniqueWebhost = true)
+    {
+        $rows = DB::table('webhost_subscriptions as ws')
+            ->join('tb_webhost as w', 'w.id_webhost', '=', 'ws.webhost_id')
+            ->join('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
+            ->whereMonth('ws.end_date', $monthNumber)
+            ->whereYear('ws.end_date', $year)
+            ->where('ws.status', 'Expired')
+            ->whereNotExists(function ($query) use ($monthNumber, $year) {
+                $query->select(DB::raw(1))
+                    ->from('webhost_subscriptions as renewal')
+                    ->whereColumn('renewal.webhost_id', 'ws.webhost_id')
+                    ->whereNotNull('renewal.parent_subscription_id')
+                    ->whereMonth('renewal.start_date', $monthNumber)
+                    ->whereYear('renewal.start_date', $year);
+            })
+            ->select(
+                'w.id_webhost',
+                'w.nama_web',
+                'w.tgl_mulai',
+                'ws.id as subscription_id',
+                'ws.parent_subscription_id',
+                'ws.start_date',
+                'ws.end_date',
+                'ws.nextduedate',
+                'ws.status as subscription_status',
+                'ws.payment_status',
+                'ws.paid_at',
+                DB::raw('NULL as cs_main_project_id'),
+                DB::raw('NULL as tgl_masuk'),
+                DB::raw('NULL as deskripsi'),
+                DB::raw('0 as dibayar'),
+                'wd.domain',
+                'wd.status as whmcs_status',
+                'wd.expirydate'
+            )
+            ->orderBy('ws.end_date')
+            ->get()
+            ->unique('subscription_id')
+            ->values();
+
+        return $uniqueWebhost ? $rows->unique('id_webhost')->values() : $rows->values();
+    }
+
+    private function getGrafikDetailRows(int $year, int $monthNumber, string $detailKey)
+    {
+        $monthStart = Carbon::create($year, $monthNumber, 1)->startOfMonth();
+        $previousMonthStart = $monthStart->copy()->subMonth()->startOfMonth();
+        $previousMonthEnd = $monthStart->copy()->subMonth()->endOfMonth();
+
+        $perpanjangRows = $this->getGrafikPerpanjangRows($year, $monthNumber, false);
+        $perpanjangUniqueRows = $perpanjangRows->unique('id_webhost')->values();
+        $tidakPerpanjangRows = $this->getGrafikTidakPerpanjangRows($year, $monthNumber, false);
+        $tidakPerpanjangUniqueRows = $tidakPerpanjangRows->unique('id_webhost')->values();
+
+        return match ($detailKey) {
+            'total_webhost', 'ratio_perpanjang_webhost' => $perpanjangUniqueRows
+                ->concat($tidakPerpanjangUniqueRows)
+                ->unique('id_webhost')
+                ->values(),
+            'webhost_perpanjang' => $perpanjangUniqueRows,
+            'webhost_tidak_perpanjang' => $tidakPerpanjangUniqueRows,
+            'total_pemasukkan_perpanjang', 'total_data_perpanjang', 'rata_rata_biaya_perpanjang' => $perpanjangRows->values(),
+            'ppj_dari_bulan_ini' => $perpanjangRows
+                ->filter(function ($row) use ($monthNumber, $year) {
+                    if (empty($row->paid_at)) {
+                        return false;
+                    }
+
+                    $paidAt = Carbon::parse($row->paid_at);
+                    return (int) $paidAt->month === $monthNumber && (int) $paidAt->year === $year;
+                })
+                ->values(),
+            'ppj_dari_bulan_lain' => $perpanjangRows
+                ->filter(function ($row) use ($monthNumber, $year, $previousMonthStart, $previousMonthEnd) {
+                    if (empty($row->paid_at)) {
+                        return false;
+                    }
+
+                    $paidAt = Carbon::parse($row->paid_at);
+                    $isPaidThisMonth = (int) $paidAt->month === $monthNumber && (int) $paidAt->year === $year;
+                    $isPaidPreviousMonth = $paidAt->between($previousMonthStart, $previousMonthEnd);
+
+                    return ! $isPaidThisMonth && ! $isPaidPreviousMonth;
+                })
+                ->values(),
+            'ppj_bulan_ini_terbayar_bulan_lalu' => $perpanjangRows
+                ->filter(function ($row) use ($previousMonthStart, $previousMonthEnd) {
+                    if (empty($row->paid_at)) {
+                        return false;
+                    }
+
+                    return Carbon::parse($row->paid_at)->between($previousMonthStart, $previousMonthEnd);
+                })
+                ->values(),
+            'perpanjang_termahal' => $perpanjangRows
+                ->filter(function ($row) use ($perpanjangRows) {
+                    $maxBiaya = (float) $perpanjangRows->max('dibayar');
+                    return (float) $row->dibayar === $maxBiaya && $maxBiaya > 0;
+                })
+                ->values(),
+            default => response()->json(['message' => 'Detail key tidak valid'], 422)->throwResponse(),
+        };
     }
 
     private function buildGrafikMonthData(int $year, int $monthNumber): array
@@ -634,21 +721,6 @@ class KlienPerpanjangController extends Controller
             'tidak_perpanjang' => $tidak_perpanjang,
             'total' => $total,
             'ratio' => $ratio,
-            'rincian' => [
-                'Total Webhost' => $total,
-                'Webhost Perpanjang' => $perpanjang,
-                'Webhost Tidak Perpanjang' => $tidak_perpanjang,
-                'Ratio Perpanjang (%)' => $ratio,
-            ],
-            'rincian_bulan' => [
-                'Total Pemasukkan Perpanjang' => $totalPemasukkanPerpanjang,
-                'Total Data Perpanjang' => $totalDataPerpanjang,
-                'PPJ dari bulan ini' => $ppjDariBulanIni,
-                'PPJ dari bulan lain' => $ppjDariBulanLain,
-                'PPJ bulan ini yang terbayar di bulan lalu' => $ppjBulanIniTerbayarBulanLalu,
-                'Rata-rata biaya perpanjang' => $totalDataPerpanjang > 0 ? round($totalPemasukkanPerpanjang / $totalDataPerpanjang, 2) : 0,
-                'Perpanjang termahal' => $perpanjangTermahal,
-            ],
             'detail' => [
                 [
                     'key' => 'total_webhost',
