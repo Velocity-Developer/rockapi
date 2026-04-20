@@ -553,6 +553,42 @@ class KlienPerpanjangController extends Controller
         return $uniqueWebhost ? $rows->unique('id_webhost')->values() : $rows->values();
     }
 
+    private function getGrafikPerpanjangProjectRows(int $year, int $monthNumber)
+    {
+        return DB::table('tb_cs_main_project as p')
+            ->leftJoin('tb_webhost as w', 'w.id_webhost', '=', 'p.id_webhost')
+            ->leftJoin('whmcs_domains as wd', 'wd.webhost_id', '=', 'w.id_webhost')
+            ->where('p.jenis', 'Perpanjangan')
+            ->whereMonth('p.tgl_masuk', $monthNumber)
+            ->whereYear('p.tgl_masuk', $year)
+            ->select(
+                'w.id_webhost',
+                'w.nama_web',
+                'w.tgl_mulai',
+                DB::raw('NULL as subscription_id'),
+                DB::raw('NULL as parent_subscription_id'),
+                DB::raw('NULL as start_date'),
+                DB::raw('NULL as end_date'),
+                DB::raw('NULL as nextduedate'),
+                DB::raw('NULL as subscription_status'),
+                DB::raw('NULL as payment_status'),
+                DB::raw('NULL as paid_at'),
+                'p.id as cs_main_project_id',
+                'p.tgl_masuk',
+                'p.deskripsi',
+                DB::raw('COALESCE(p.dibayar, p.biaya, 0) as dibayar'),
+                'p.biaya',
+                'p.tgl_masuk',
+                'wd.domain',
+                'wd.status as whmcs_status',
+                'wd.expirydate'
+            )
+            ->orderBy('p.tgl_masuk')
+            ->get()
+            ->unique('cs_main_project_id')
+            ->values();
+    }
+
     private function getGrafikDetailRows(int $year, int $monthNumber, string $detailKey)
     {
         $monthStart = Carbon::create($year, $monthNumber, 1)->startOfMonth();
@@ -563,6 +599,7 @@ class KlienPerpanjangController extends Controller
         $perpanjangUniqueRows = $perpanjangRows->unique('id_webhost')->values();
         $tidakPerpanjangRows = $this->getGrafikTidakPerpanjangRows($year, $monthNumber, false);
         $tidakPerpanjangUniqueRows = $tidakPerpanjangRows->unique('id_webhost')->values();
+        $perpanjangProjectRows = $this->getGrafikPerpanjangProjectRows($year, $monthNumber);
 
         return match ($detailKey) {
             'total_webhost', 'ratio_perpanjang_webhost' => $perpanjangUniqueRows
@@ -571,43 +608,40 @@ class KlienPerpanjangController extends Controller
                 ->values(),
             'webhost_perpanjang' => $perpanjangUniqueRows,
             'webhost_tidak_perpanjang' => $tidakPerpanjangUniqueRows,
-            'total_pemasukkan_perpanjang', 'total_data_perpanjang', 'rata_rata_biaya_perpanjang' => $perpanjangRows->values(),
-            'ppj_dari_bulan_ini' => $perpanjangRows
+            'total_pemasukkan_perpanjang', 'total_data_masuk_perpanjang', 'rata_rata_biaya_perpanjang' => $perpanjangProjectRows->values(),
+            'ppj_masuk_dari_bulan_ini' => $perpanjangProjectRows
                 ->filter(function ($row) use ($monthNumber, $year) {
-                    if (empty($row->paid_at)) {
+                    if (empty($row->tgl_mulai)) {
                         return false;
                     }
 
-                    $paidAt = Carbon::parse($row->paid_at);
-                    return (int) $paidAt->month === $monthNumber && (int) $paidAt->year === $year;
+                    $tanggalMulai = Carbon::parse($row->tgl_mulai);
+                    return (int) $tanggalMulai->month === $monthNumber && (int) $tanggalMulai->year === $year;
                 })
                 ->values(),
-            'ppj_dari_bulan_lain' => $perpanjangRows
-                ->filter(function ($row) use ($monthNumber, $year, $previousMonthStart, $previousMonthEnd) {
-                    if (empty($row->paid_at)) {
+            'ppj_masuk_dari_bulan_lain' => $perpanjangProjectRows
+                ->filter(function ($row) use ($monthNumber, $year) {
+                    if (empty($row->tgl_mulai)) {
                         return false;
                     }
 
-                    $paidAt = Carbon::parse($row->paid_at);
-                    $isPaidThisMonth = (int) $paidAt->month === $monthNumber && (int) $paidAt->year === $year;
-                    $isPaidPreviousMonth = $paidAt->between($previousMonthStart, $previousMonthEnd);
-
-                    return ! $isPaidThisMonth && ! $isPaidPreviousMonth;
+                    $tanggalMulai = Carbon::parse($row->tgl_mulai);
+                    return (int) $tanggalMulai->month !== $monthNumber || (int) $tanggalMulai->year !== $year;
                 })
                 ->values(),
-            'ppj_bulan_ini_terbayar_bulan_lalu' => $perpanjangRows
+            'ppj_masuk_bulan_ini_terbayar_bulan_lalu' => $perpanjangProjectRows
                 ->filter(function ($row) use ($previousMonthStart, $previousMonthEnd) {
-                    if (empty($row->paid_at)) {
+                    if (empty($row->tgl_masuk)) {
                         return false;
                     }
 
-                    return Carbon::parse($row->paid_at)->between($previousMonthStart, $previousMonthEnd);
+                    return Carbon::parse($row->tgl_masuk)->between($previousMonthStart, $previousMonthEnd);
                 })
                 ->values(),
-            'perpanjang_termahal' => $perpanjangRows
-                ->filter(function ($row) use ($perpanjangRows) {
-                    $maxBiaya = (float) $perpanjangRows->max('dibayar');
-                    return (float) $row->dibayar === $maxBiaya && $maxBiaya > 0;
+            'perpanjang_masuk_termahal' => $perpanjangProjectRows
+                ->filter(function ($row) use ($perpanjangProjectRows) {
+                    $maxBiaya = (float) $perpanjangProjectRows->max('biaya');
+                    return (float) $row->biaya === $maxBiaya && $maxBiaya > 0;
                 })
                 ->values(),
             default => response()->json(['message' => 'Detail key tidak valid'], 422)->throwResponse(),
