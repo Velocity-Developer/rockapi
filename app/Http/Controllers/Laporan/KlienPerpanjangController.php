@@ -589,6 +589,40 @@ class KlienPerpanjangController extends Controller
             ->values();
     }
 
+    private function summarizeGrafikPerpanjangProjectRowsByWebhost($rows)
+    {
+        return $rows
+            ->filter(fn($row) => !empty($row->id_webhost))
+            ->groupBy('id_webhost')
+            ->map(function ($group) {
+                $first = $group->sortBy('tgl_masuk')->first();
+
+                return (object) [
+                    'id_webhost' => $first->id_webhost,
+                    'nama_web' => $first->nama_web,
+                    'tgl_mulai' => $first->tgl_mulai,
+                    'subscription_id' => null,
+                    'parent_subscription_id' => null,
+                    'start_date' => null,
+                    'end_date' => null,
+                    'nextduedate' => null,
+                    'subscription_status' => null,
+                    'payment_status' => null,
+                    'paid_at' => null,
+                    'cs_main_project_id' => $first->cs_main_project_id,
+                    'tgl_masuk' => $first->tgl_masuk,
+                    'deskripsi' => $group->pluck('deskripsi')->filter()->unique()->implode(' | '),
+                    'dibayar' => (float) $group->sum(fn($row) => (float) ($row->dibayar ?? 0)),
+                    'biaya' => (float) $group->sum(fn($row) => (float) ($row->biaya ?? 0)),
+                    'tgl_masuk' => $first->tgl_masuk,
+                    'domain' => $first->domain,
+                    'whmcs_status' => $first->whmcs_status,
+                    'expirydate' => $first->expirydate,
+                ];
+            })
+            ->values();
+    }
+
     private function getGrafikDetailRows(int $year, int $monthNumber, string $detailKey)
     {
         $monthStart = Carbon::create($year, $monthNumber, 1)->startOfMonth();
@@ -600,6 +634,7 @@ class KlienPerpanjangController extends Controller
         $tidakPerpanjangRows = $this->getGrafikTidakPerpanjangRows($year, $monthNumber, false);
         $tidakPerpanjangUniqueRows = $tidakPerpanjangRows->unique('id_webhost')->values();
         $perpanjangProjectRows = $this->getGrafikPerpanjangProjectRows($year, $monthNumber);
+        $perpanjangProjectRowsByWebhost = $this->summarizeGrafikPerpanjangProjectRowsByWebhost($perpanjangProjectRows);
 
         return match ($detailKey) {
             'total_webhost', 'ratio_perpanjang_webhost' => $perpanjangUniqueRows
@@ -608,7 +643,8 @@ class KlienPerpanjangController extends Controller
                 ->values(),
             'webhost_perpanjang' => $perpanjangUniqueRows,
             'webhost_tidak_perpanjang' => $tidakPerpanjangUniqueRows,
-            'total_pemasukkan_perpanjang', 'total_data_masuk_perpanjang', 'rata_rata_biaya_perpanjang' => $perpanjangProjectRows->values(),
+            'total_pemasukkan_perpanjang' => $perpanjangProjectRows->values(),
+            'total_data_masuk_perpanjang', 'rata_rata_biaya_perpanjang' => $perpanjangProjectRowsByWebhost->values(),
             'ppj_masuk_dari_bulan_ini' => $perpanjangProjectRows
                 ->filter(function ($row) use ($monthNumber, $year) {
                     if (empty($row->tgl_mulai)) {
@@ -654,8 +690,9 @@ class KlienPerpanjangController extends Controller
         $previousMonthStart = $monthStart->copy()->subMonth()->startOfMonth();
         $previousMonthEnd = $monthStart->copy()->subMonth()->endOfMonth();
         $perpanjangProjectRows = $this->getGrafikPerpanjangProjectRows($year, $monthNumber);
+        $perpanjangProjectRowsByWebhost = $this->summarizeGrafikPerpanjangProjectRowsByWebhost($perpanjangProjectRows);
         $totalPemasukkanPerpanjang = (float) $perpanjangProjectRows->sum('biaya');
-        $totalDataPerpanjang = $perpanjangProjectRows->count();
+        $totalDataPerpanjang = $perpanjangProjectRowsByWebhost->count();
         $perpanjangTermahal = (float) $perpanjangProjectRows->max('biaya');
 
         $perpanjangRows = DB::table('webhost_subscriptions as ws')
@@ -724,11 +761,11 @@ class KlienPerpanjangController extends Controller
 
         $ppjBulanIniTerbayarBulanLalu = $perpanjangProjectRows
             ->filter(function ($row) use ($previousMonthStart, $previousMonthEnd) {
-                if (empty($row->created_at)) {
+                if (empty($row->tgl_masuk)) {
                     return false;
                 }
 
-                return Carbon::parse($row->created_at)->between($previousMonthStart, $previousMonthEnd);
+                return Carbon::parse($row->tgl_masuk)->between($previousMonthStart, $previousMonthEnd);
             })
             ->count();
 
