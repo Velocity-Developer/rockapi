@@ -649,6 +649,65 @@ class KlienPerpanjangController extends Controller
                 'Rata-rata biaya perpanjang' => $totalDataPerpanjang > 0 ? round($totalPemasukkanPerpanjang / $totalDataPerpanjang, 2) : 0,
                 'Perpanjang termahal' => $perpanjangTermahal,
             ],
+            'detail' => [
+                [
+                    'key' => 'total_webhost',
+                    'label' => 'Total Webhost',
+                    'value' => $total,
+                ],
+                [
+                    'key' => 'webhost_perpanjang',
+                    'label' => 'Webhost Perpanjang',
+                    'value' => $perpanjang,
+                ],
+                [
+                    'key' => 'webhost_tidak_perpanjang',
+                    'label' => 'Webhost Tidak Perpanjang',
+                    'value' => $tidak_perpanjang,
+                ],
+                [
+                    'key' => 'ratio_perpanjang_webhost',
+                    'label' => 'Ratio Perpanjang',
+                    'value' => $ratio,
+                ],
+            ],
+            'detail_perpanjang' => [
+                [
+                    'key' => 'total_pemasukkan_perpanjang',
+                    'label' => 'Total Pemasukkan Perpanjang',
+                    'value' => $totalPemasukkanPerpanjang,
+                ],
+                [
+                    'key' => 'total_data_perpanjang',
+                    'label' => 'Total Data Perpanjang',
+                    'value' => $totalDataPerpanjang,
+                ],
+                [
+                    'key' => 'ppj_dari_bulan_ini',
+                    'label' => 'PPJ dari bulan ini',
+                    'value' => $ppjDariBulanIni,
+                ],
+                [
+                    'key' => 'ppj_dari_bulan_lain',
+                    'label' => 'PPJ dari bulan lain',
+                    'value' => $ppjDariBulanLain,
+                ],
+                [
+                    'key' => 'ppj_bulan_ini_terbayar_bulan_lalu',
+                    'label' => 'PPJ bulan ini yang terbayar di bulan lalu',
+                    'value' => $ppjBulanIniTerbayarBulanLalu,
+                ],
+                [
+                    'key' => 'rata_rata_biaya_perpanjang',
+                    'label' => 'Rata-rata biaya perpanjang',
+                    'value' => $totalDataPerpanjang > 0 ? round($totalPemasukkanPerpanjang / $totalDataPerpanjang, 2) : 0,
+                ],
+                [
+                    'key' => 'perpanjang_termahal',
+                    'label' => 'Perpanjang termahal',
+                    'value' => $perpanjangTermahal,
+                ],
+            ]
         ];
     }
 }
