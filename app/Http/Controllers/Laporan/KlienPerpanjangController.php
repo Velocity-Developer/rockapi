@@ -750,22 +750,22 @@ class KlienPerpanjangController extends Controller
                     'value' => $totalPemasukkanPerpanjang,
                 ],
                 [
-                    'key' => 'total_data_perpanjang',
+                    'key' => 'total_data_masuk_perpanjang',
                     'label' => 'Total Data Perpanjang',
                     'value' => $totalDataPerpanjang,
                 ],
                 [
-                    'key' => 'ppj_dari_bulan_ini',
+                    'key' => 'ppj_masuk_dari_bulan_ini',
                     'label' => 'PPJ dari bulan ini',
                     'value' => $ppjDariBulanIni,
                 ],
                 [
-                    'key' => 'ppj_dari_bulan_lain',
+                    'key' => 'ppj_masuk_dari_bulan_lain',
                     'label' => 'PPJ dari bulan lain',
                     'value' => $ppjDariBulanLain,
                 ],
                 [
-                    'key' => 'ppj_bulan_ini_terbayar_bulan_lalu',
+                    'key' => 'ppj_masuk_bulan_ini_terbayar_bulan_lalu',
                     'label' => 'PPJ bulan ini yang terbayar di bulan lalu',
                     'value' => $ppjBulanIniTerbayarBulanLalu,
                 ],
@@ -775,7 +775,7 @@ class KlienPerpanjangController extends Controller
                     'value' => $totalDataPerpanjang > 0 ? round($totalPemasukkanPerpanjang / $totalDataPerpanjang, 2) : 0,
                 ],
                 [
-                    'key' => 'perpanjang_termahal',
+                    'key' => 'perpanjang_masuk_termahal',
                     'label' => 'Perpanjang termahal',
                     'value' => $perpanjangTermahal,
                 ],
