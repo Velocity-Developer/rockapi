@@ -623,18 +623,60 @@ class KlienPerpanjangController extends Controller
             ->values();
     }
 
+    private function getGrafikRenewalPaidOutsideSelectedMonthRows(int $year, int $monthNumber)
+    {
+        return $this->getGrafikPerpanjangRows($year, $monthNumber, true)
+            ->filter(function ($row) use ($year, $monthNumber) {
+                if (empty($row->paid_at)) {
+                    return false;
+                }
+
+                $paidAt = Carbon::parse($row->paid_at);
+
+                return (int) $paidAt->month !== $monthNumber || (int) $paidAt->year !== $year;
+            })
+            ->values();
+    }
+
+    private function mapSubscriptionRowsToProjectLikeRows($rows)
+    {
+        return $rows->map(function ($row) {
+            return (object) [
+                'id_webhost' => $row->id_webhost,
+                'nama_web' => $row->nama_web,
+                'tgl_mulai' => $row->tgl_mulai,
+                'subscription_id' => $row->subscription_id,
+                'parent_subscription_id' => $row->parent_subscription_id,
+                'start_date' => $row->start_date,
+                'end_date' => $row->end_date,
+                'nextduedate' => $row->nextduedate,
+                'subscription_status' => $row->subscription_status,
+                'payment_status' => $row->payment_status,
+                'paid_at' => $row->paid_at,
+                'cs_main_project_id' => $row->cs_main_project_id,
+                'tgl_masuk' => $row->paid_at ?: $row->tgl_masuk,
+                'deskripsi' => $row->deskripsi,
+                'dibayar' => (float) ($row->dibayar ?? 0),
+                'biaya' => (float) ($row->dibayar ?? 0),
+                'created_at' => $row->paid_at,
+                'domain' => $row->domain,
+                'whmcs_status' => $row->whmcs_status,
+                'expirydate' => $row->expirydate,
+            ];
+        })->values();
+    }
+
     private function getGrafikDetailRows(int $year, int $monthNumber, string $detailKey)
     {
-        $monthStart = Carbon::create($year, $monthNumber, 1)->startOfMonth();
-        $previousMonthStart = $monthStart->copy()->subMonth()->startOfMonth();
-        $previousMonthEnd = $monthStart->copy()->subMonth()->endOfMonth();
-
         $perpanjangRows = $this->getGrafikPerpanjangRows($year, $monthNumber, false);
         $perpanjangUniqueRows = $perpanjangRows->unique('id_webhost')->values();
         $tidakPerpanjangRows = $this->getGrafikTidakPerpanjangRows($year, $monthNumber, false);
         $tidakPerpanjangUniqueRows = $tidakPerpanjangRows->unique('id_webhost')->values();
         $perpanjangProjectRows = $this->getGrafikPerpanjangProjectRows($year, $monthNumber);
         $perpanjangProjectRowsByWebhost = $this->summarizeGrafikPerpanjangProjectRowsByWebhost($perpanjangProjectRows);
+        $renewalPaidOutsideSelectedMonthRows = $this->mapSubscriptionRowsToProjectLikeRows(
+            $this->getGrafikRenewalPaidOutsideSelectedMonthRows($year, $monthNumber)
+        );
 
         return match ($detailKey) {
             'total_webhost', 'ratio_perpanjang_webhost' => $perpanjangUniqueRows
@@ -665,15 +707,7 @@ class KlienPerpanjangController extends Controller
                     return (int) $tanggalMulai->month !== $monthNumber;
                 })
                 ->values(),
-            'ppj_masuk_bulan_ini_terbayar_bulan_lalu' => $perpanjangProjectRows
-                ->filter(function ($row) use ($previousMonthStart, $previousMonthEnd) {
-                    if (empty($row->tgl_masuk)) {
-                        return false;
-                    }
-
-                    return Carbon::parse($row->tgl_masuk)->between($previousMonthStart, $previousMonthEnd);
-                })
-                ->values(),
+            'ppj_masuk_bulan_ini_terbayar_bulan_lalu' => $renewalPaidOutsideSelectedMonthRows->values(),
             'perpanjang_masuk_termahal' => $perpanjangProjectRows
                 ->filter(function ($row) use ($perpanjangProjectRows) {
                     $maxBiaya = (float) $perpanjangProjectRows->max('biaya');
@@ -686,11 +720,9 @@ class KlienPerpanjangController extends Controller
 
     private function buildGrafikMonthData(int $year, int $monthNumber): array
     {
-        $monthStart = Carbon::create($year, $monthNumber, 1)->startOfMonth();
-        $previousMonthStart = $monthStart->copy()->subMonth()->startOfMonth();
-        $previousMonthEnd = $monthStart->copy()->subMonth()->endOfMonth();
         $perpanjangProjectRows = $this->getGrafikPerpanjangProjectRows($year, $monthNumber);
         $perpanjangProjectRowsByWebhost = $this->summarizeGrafikPerpanjangProjectRowsByWebhost($perpanjangProjectRows);
+        $renewalPaidOutsideSelectedMonthRows = $this->getGrafikRenewalPaidOutsideSelectedMonthRows($year, $monthNumber);
         $totalPemasukkanPerpanjang = (float) $perpanjangProjectRows->sum('biaya');
         $totalDataPerpanjang = $perpanjangProjectRowsByWebhost->count();
         $perpanjangTermahal = (float) $perpanjangProjectRows->max('biaya');
@@ -759,15 +791,7 @@ class KlienPerpanjangController extends Controller
             })
             ->count();
 
-        $ppjBulanIniTerbayarBulanLalu = $perpanjangProjectRows
-            ->filter(function ($row) use ($previousMonthStart, $previousMonthEnd) {
-                if (empty($row->tgl_masuk)) {
-                    return false;
-                }
-
-                return Carbon::parse($row->tgl_masuk)->between($previousMonthStart, $previousMonthEnd);
-            })
-            ->count();
+        $ppjBulanIniTerbayarBulanLalu = $renewalPaidOutsideSelectedMonthRows->count();
 
         return [
             'month' => Carbon::create($year, $monthNumber, 1)->translatedFormat('F'),
@@ -822,7 +846,7 @@ class KlienPerpanjangController extends Controller
                 ],
                 [
                     'key' => 'ppj_masuk_bulan_ini_terbayar_bulan_lalu',
-                    'label' => 'PPJ bulan ini yang terbayar di bulan lalu',
+                    'label' => 'PPJ bulan ini yang terbayar di bulan lain',
                     'value' => $ppjBulanIniTerbayarBulanLalu,
                 ],
                 [
