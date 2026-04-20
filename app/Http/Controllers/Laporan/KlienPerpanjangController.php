@@ -645,24 +645,24 @@ class KlienPerpanjangController extends Controller
             'webhost_tidak_perpanjang' => $tidakPerpanjangUniqueRows,
             'total_pemasukkan_perpanjang' => $perpanjangProjectRows->values(),
             'total_data_masuk_perpanjang', 'rata_rata_biaya_perpanjang' => $perpanjangProjectRowsByWebhost->values(),
-            'ppj_masuk_dari_bulan_ini' => $perpanjangProjectRows
+            'ppj_masuk_dari_bulan_ini' => $perpanjangProjectRowsByWebhost
                 ->filter(function ($row) use ($monthNumber, $year) {
                     if (empty($row->tgl_mulai)) {
                         return false;
                     }
 
                     $tanggalMulai = Carbon::parse($row->tgl_mulai);
-                    return (int) $tanggalMulai->month === $monthNumber && (int) $tanggalMulai->year === $year;
+                    return (int) $tanggalMulai->month === $monthNumber;
                 })
                 ->values(),
-            'ppj_masuk_dari_bulan_lain' => $perpanjangProjectRows
-                ->filter(function ($row) use ($monthNumber, $year) {
+            'ppj_masuk_dari_bulan_lain' => $perpanjangProjectRowsByWebhost
+                ->filter(function ($row) use ($monthNumber) {
                     if (empty($row->tgl_mulai)) {
                         return false;
                     }
 
                     $tanggalMulai = Carbon::parse($row->tgl_mulai);
-                    return (int) $tanggalMulai->month !== $monthNumber || (int) $tanggalMulai->year !== $year;
+                    return (int) $tanggalMulai->month !== $monthNumber;
                 })
                 ->values(),
             'ppj_masuk_bulan_ini_terbayar_bulan_lalu' => $perpanjangProjectRows
@@ -737,25 +737,25 @@ class KlienPerpanjangController extends Controller
         $total = $perpanjang + $tidak_perpanjang;
         $ratio = $total > 0 ? round(($perpanjang / $total) * 100, 1) : 0;
 
-        $ppjDariBulanIni = $perpanjangProjectRows
-            ->filter(function ($row) use ($monthNumber, $year) {
+        $ppjDariBulanIni = $perpanjangProjectRowsByWebhost
+            ->filter(function ($row) use ($monthNumber) {
                 if (empty($row->tgl_mulai)) {
                     return false;
                 }
 
                 $tanggalMulai = Carbon::parse($row->tgl_mulai);
-                return (int) $tanggalMulai->month === $monthNumber && (int) $tanggalMulai->year === $year;
+                return (int) $tanggalMulai->month === $monthNumber;
             })
             ->count();
 
-        $ppjDariBulanLain = $perpanjangProjectRows
-            ->filter(function ($row) use ($monthNumber, $year) {
+        $ppjDariBulanLain = $perpanjangProjectRowsByWebhost
+            ->filter(function ($row) use ($monthNumber) {
                 if (empty($row->tgl_mulai)) {
                     return false;
                 }
 
                 $tanggalMulai = Carbon::parse($row->tgl_mulai);
-                return (int) $tanggalMulai->month !== $monthNumber || (int) $tanggalMulai->year !== $year;
+                return (int) $tanggalMulai->month !== $monthNumber;
             })
             ->count();
 
