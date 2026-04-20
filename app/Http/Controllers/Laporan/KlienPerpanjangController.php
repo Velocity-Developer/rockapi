@@ -653,21 +653,10 @@ class KlienPerpanjangController extends Controller
         $monthStart = Carbon::create($year, $monthNumber, 1)->startOfMonth();
         $previousMonthStart = $monthStart->copy()->subMonth()->startOfMonth();
         $previousMonthEnd = $monthStart->copy()->subMonth()->endOfMonth();
-        $totalPemasukkanPerpanjang = (float) DB::table('tb_cs_main_project')
-            ->where('jenis', 'Perpanjangan')
-            ->whereMonth('tgl_masuk', $monthNumber)
-            ->whereYear('tgl_masuk', $year)
-            ->sum('biaya');
-        $totalDataPerpanjang = DB::table('tb_cs_main_project')
-            ->where('jenis', 'Perpanjangan')
-            ->whereMonth('tgl_masuk', $monthNumber)
-            ->whereYear('tgl_masuk', $year)
-            ->count();
-        $perpanjangTermahal = (float) DB::table('tb_cs_main_project')
-            ->where('jenis', 'Perpanjangan')
-            ->whereMonth('tgl_masuk', $monthNumber)
-            ->whereYear('tgl_masuk', $year)
-            ->max('biaya');
+        $perpanjangProjectRows = $this->getGrafikPerpanjangProjectRows($year, $monthNumber);
+        $totalPemasukkanPerpanjang = (float) $perpanjangProjectRows->sum('biaya');
+        $totalDataPerpanjang = $perpanjangProjectRows->count();
+        $perpanjangTermahal = (float) $perpanjangProjectRows->max('biaya');
 
         $perpanjangRows = DB::table('webhost_subscriptions as ws')
             ->leftJoin('tb_cs_main_project as p', 'p.id', '=', 'ws.cs_main_project_id')
@@ -711,40 +700,36 @@ class KlienPerpanjangController extends Controller
         $total = $perpanjang + $tidak_perpanjang;
         $ratio = $total > 0 ? round(($perpanjang / $total) * 100, 1) : 0;
 
-        $paymentEntries = $perpanjangRows
-            ->filter(fn($row) => ! empty($row->paid_at))
-            ->map(function ($row) {
-                return [
-                    'webhost_id' => $row->webhost_id,
-                    'payment_date' => Carbon::parse($row->paid_at),
-                    'amount' => (float) ($row->biaya ?? 0),
-                ];
-            })
-            ->values();
+        $ppjDariBulanIni = $perpanjangProjectRows
+            ->filter(function ($row) use ($monthNumber, $year) {
+                if (empty($row->tgl_mulai)) {
+                    return false;
+                }
 
-        $ppjDariBulanIni = $paymentEntries
-            ->filter(fn($entry) => (int) $entry['payment_date']->month === $monthNumber && (int) $entry['payment_date']->year === $year)
-            ->pluck('webhost_id')
-            ->unique()
+                $tanggalMulai = Carbon::parse($row->tgl_mulai);
+                return (int) $tanggalMulai->month === $monthNumber && (int) $tanggalMulai->year === $year;
+            })
             ->count();
 
-        $ppjBulanIniTerbayarBulanLalu = $paymentEntries
-            ->filter(fn($entry) => $entry['payment_date']->between($previousMonthStart, $previousMonthEnd))
-            ->pluck('webhost_id')
-            ->unique()
+        $ppjDariBulanLain = $perpanjangProjectRows
+            ->filter(function ($row) use ($monthNumber, $year) {
+                if (empty($row->tgl_mulai)) {
+                    return false;
+                }
+
+                $tanggalMulai = Carbon::parse($row->tgl_mulai);
+                return (int) $tanggalMulai->month !== $monthNumber || (int) $tanggalMulai->year !== $year;
+            })
             ->count();
 
-        $ppjDariBulanLain = $paymentEntries
-            ->filter(function ($entry) use ($monthNumber, $year, $previousMonthStart, $previousMonthEnd) {
-                $isPaidThisMonth = (int) $entry['payment_date']->month === $monthNumber
-                    && (int) $entry['payment_date']->year === $year;
+        $ppjBulanIniTerbayarBulanLalu = $perpanjangProjectRows
+            ->filter(function ($row) use ($previousMonthStart, $previousMonthEnd) {
+                if (empty($row->created_at)) {
+                    return false;
+                }
 
-                $isPaidPreviousMonth = $entry['payment_date']->between($previousMonthStart, $previousMonthEnd);
-
-                return ! $isPaidThisMonth && ! $isPaidPreviousMonth;
+                return Carbon::parse($row->created_at)->between($previousMonthStart, $previousMonthEnd);
             })
-            ->pluck('webhost_id')
-            ->unique()
             ->count();
 
         return [
