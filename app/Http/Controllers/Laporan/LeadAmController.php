@@ -20,6 +20,7 @@ class LeadAmController extends Controller
             : now()->toDateString();
 
         $ma = trim((string) $request->input('ma', ''));
+        $namaWeb = trim((string) $request->input('nama_web', ''));
         $perPage = (int) $request->input('per_page', $ma !== '' ? 10000 : 100);
         $perPage = max(1, min($perPage, 10000));
 
@@ -27,6 +28,7 @@ class LeadAmController extends Controller
             'tgl_masuk' => 'tb_cs_main_project.tgl_masuk',
             'wa' => 'tb_webhost.wa',
             'paket' => 'tb_paket.paket',
+            'nama_web' => 'tb_webhost.nama_web',
             'staff' => 'tb_cs_main_project.staff',
             'via' => 'tb_webhost.via',
             'konfirmasi_order' => 'tb_webhost.konfirmasi_order',
@@ -42,6 +44,10 @@ class LeadAmController extends Controller
 
         if ($ma !== '') {
             $baseQuery->where('tb_cs_main_project.staff', $ma);
+        }
+
+        if ($namaWeb !== '') {
+            $baseQuery->where('tb_webhost.nama_web', 'like', '%'.$namaWeb.'%');
         }
 
         $leadQuery = (clone $baseQuery)
@@ -80,6 +86,7 @@ class LeadAmController extends Controller
             'dari' => $dari,
             'sampai' => $sampai,
             'ma' => $ma,
+            'nama_web' => $namaWeb,
             'data' => $leads,
             'dini_summary' => $diniSummary,
         ]);
