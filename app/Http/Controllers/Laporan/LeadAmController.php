@@ -40,9 +40,10 @@ class LeadAmController extends Controller
         $sortOrder = strtolower((string) $request->input('sort_order', 'desc')) === 'asc' ? 'asc' : 'desc';
 
         // Step 4: Buat query dasar yang sama untuk tabel utama dan ringkasan.
+        // Gunakan left join agar project tetap tampil meski data webhost/paket tidak lengkap.
         $baseQuery = CsMainProject::query()
-            ->join('tb_webhost', 'tb_webhost.id_webhost', '=', 'tb_cs_main_project.id_webhost')
-            ->join('tb_paket', 'tb_webhost.id_paket', '=', 'tb_paket.id_paket')
+            ->leftJoin('tb_webhost', 'tb_webhost.id_webhost', '=', 'tb_cs_main_project.id_webhost')
+            ->leftJoin('tb_paket', 'tb_webhost.id_paket', '=', 'tb_paket.id_paket')
             ->whereDate('tb_cs_main_project.tgl_masuk', '>=', $dari)
             ->whereDate('tb_cs_main_project.tgl_masuk', '<=', $sampai);
 
@@ -53,7 +54,7 @@ class LeadAmController extends Controller
 
         // Step 6: Terapkan filter nama web/domain jika user mengisi pencarian.
         if ($namaWeb !== '') {
-            $baseQuery->where('tb_webhost.nama_web', 'like', '%'.$namaWeb.'%');
+            $baseQuery->where('tb_webhost.nama_web', 'like', '%' . $namaWeb . '%');
         }
 
         // Step 7: Ambil data tabel lead AM sesuai filter, sorting, dan pagination.
