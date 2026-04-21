@@ -29,7 +29,7 @@ class OptionsController extends Controller
 
     private function roles()
     {
-        return Cache::remember('options.roles', now()->addHours(6), function () {
+        return Cache::remember('option.roles', now()->addHours(6), function () {
             return Role::query()
                 ->select('id', 'name')
                 ->get()

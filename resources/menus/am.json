@@ -1,0 +1,62 @@
+[
+    {
+        "key": "dashboard",
+        "label": "Dashboard",
+        "icon": "lucide:layout-grid",
+        "route": "/"
+    },
+    {
+        "key": "todos",
+        "label": "TodoList",
+        "icon": "lucide:check-square",
+        "route": "/todos"
+    },
+    {
+        "key": "invoice",
+        "label": "Invoice",
+        "icon": "lucide:file-text",
+        "route": "/invoice"
+    },
+    {
+        "key": "billing",
+        "label": "Billing",
+        "icon": "lucide:briefcase",
+        "route": "/billing"
+    },
+    {
+        "key": "bill_dataweb",
+        "label": "Database Web",
+        "icon": "lucide:globe",
+        "route": "/bill_dataweb"
+    },
+    {
+        "key": "customer",
+        "label": "Customer",
+        "icon": "lucide:users-round",
+        "route": "/customer"
+    },
+    {
+        "key": "laporan_lead_am",
+        "label": "Lead AM",
+        "route": "/laporan/lead_am",
+        "icon": "lucide:chart-pie"
+    },
+    {
+        "key": "laporan_klien_perpanjang",
+        "label": "Klien Perpanjang",
+        "route": "/laporan/klien-perpanjang",
+        "icon": "lucide:file-chart-line"
+    },
+    {     
+        "key": "improve_chat",
+        "label": "Improve Chat",
+        "route": "/improve-chat",
+        "icon": "lucide:message-square-diff"
+    },
+    {
+        "key": "kelola_cuti",
+        "label": "Data Cuti",
+        "icon": "lucide:calendar-clock",
+        "route": "/kelola_cuti"
+    }
+]

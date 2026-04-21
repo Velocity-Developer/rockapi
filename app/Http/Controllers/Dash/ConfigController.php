@@ -24,21 +24,21 @@ class ConfigController extends Controller
 
         $app_logo = Setting::get('app_logo');
         if ($app_logo) {
-            $results['app_logo'] = asset('storage/'.$app_logo);
+            $results['app_logo'] = asset('storage/' . $app_logo);
         }
         $app_logo_small = Setting::get('app_logo_small');
         if ($app_logo_small) {
-            $results['app_logo_small'] = asset('storage/'.$app_logo_small);
+            $results['app_logo_small'] = asset('storage/' . $app_logo_small);
         }
         $app_favicon = Setting::get('app_favicon');
         if ($app_favicon) {
-            $results['app_favicon'] = asset('storage/'.$app_favicon);
+            $results['app_favicon'] = asset('storage/' . $app_favicon);
         }
 
         // bg welcome
         $bg_welcome = Setting::get('bg_welcome');
         if ($bg_welcome) {
-            $results['bg_welcome'] = asset('storage/'.$bg_welcome);
+            $results['bg_welcome'] = asset('storage/' . $bg_welcome);
         } else {
             $results['bg_welcome'] = asset('assets/images/bg-welcome.webp');
         }
@@ -188,6 +188,7 @@ class ConfigController extends Controller
             'customer_service',
             'revisi',
             'advertising',
+            'am'
         ];
 
         if (array_intersect($ready, $roles)) {
@@ -195,7 +196,7 @@ class ConfigController extends Controller
             $results = [];
             foreach ($roles as $role) {
                 // get file json
-                $path = resource_path('menus/'.$role.'.json');
+                $path = resource_path('menus/' . $role . '.json');
 
                 // Decode ke array asosiatif (true sebagai parameter kedua)
                 $results = json_decode(file_get_contents($path), true);
