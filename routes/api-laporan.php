@@ -7,6 +7,7 @@ use App\Http\Controllers\Laporan\KlienPerpanjangController;
 use App\Http\Controllers\Laporan\OrderKumulatifController;
 use App\Http\Controllers\Laporan\PembuatanController;
 use App\Http\Controllers\Laporan\LeadAmController;
+use App\Http\Controllers\Laporan\RincianTransaksiController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -23,4 +24,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('laporan/pembuatan_bulanan', [PembuatanController::class, 'bulanan']);
     Route::get('laporan/lead_am', [LeadAmController::class, 'index']);
     Route::put('laporan/lead_am/{project}/staff', [LeadAmController::class, 'updateStaff']);
+    Route::get('laporan/rincian_transaksi', [RincianTransaksiController::class, 'index']);
 });
