@@ -181,6 +181,12 @@
         "icon": "lucide:message-square-diff"
     },
     {
+        "key": "laporan_lead_am",
+        "label": "Laporan Lead AM",
+        "route": "/laporan/lead_am",
+        "icon": "lucide:chart-pie"
+    },
+    {
         "key": "laporan_pembuatan",
         "label": "Laporan Pembuatan",
         "route": "/laporan/pembuatan",

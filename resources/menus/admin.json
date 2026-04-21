@@ -108,7 +108,7 @@
     },
     {
         "key": "laporan",
-        "label": "Laporan Man.Adv",
+        "label": "Laporan Adv",
         "icon": "lucide:file-chart-line",
         "items": [
             {
@@ -141,6 +141,11 @@
                 "key": "improve_chat",
                 "label": "Improve Chat",
                 "route": "/improve-chat"
+            },
+            {
+                "key": "laporan_lead_am",
+                "label": "Laporan Lead AM",
+                "route": "/laporan/lead_am"
             },
             {
                 "key": "laporan_pembuatan",
