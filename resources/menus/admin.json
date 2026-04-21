@@ -144,7 +144,7 @@
             },
             {
                 "key": "laporan_lead_am",
-                "label": "Laporan Lead AM",
+                "label": "Lead AM",
                 "route": "/laporan/lead_am"
             },
             {
