@@ -25,4 +25,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('laporan/lead_am', [LeadAmController::class, 'index']);
     Route::put('laporan/lead_am/{project}/staff', [LeadAmController::class, 'updateStaff']);
     Route::get('laporan/rincian_transaksi', [RincianTransaksiController::class, 'index']);
+    Route::get('laporan/rincian_transaksi_tgl', [RincianTransaksiController::class, 'rincian_tanggal']);
 });
