@@ -358,35 +358,26 @@ class RincianTransaksiController extends Controller
     {
         $moneyColumns = [
             ['field' => 'bulan', 'header' => 'Bulan', 'type' => 'text'],
-            ['field' => 'tanggal', 'header' => 'Tanggal', 'type' => 'text'],
             ['field' => 'jumlah_web', 'header' => 'Jumlah Web', 'type' => 'number'],
             ['field' => 'nominal', 'header' => 'Nominal', 'type' => 'money'],
         ];
 
-        $domainColumns = [
-            ...$moneyColumns,
-            ['field' => 'domain', 'header' => 'Domain', 'type' => 'money'],
-            ['field' => 'profit', 'header' => 'Profit Kotor', 'type' => 'money'],
-            ['field' => 'biaya_iklan', 'header' => 'Biaya Iklan', 'type' => 'money'],
-            ['field' => 'net_profit', 'header' => 'Net Profit', 'type' => 'money'],
-        ];
-
-        $perpanjanganColumns = [
-            ...$moneyColumns,
-            ['field' => 'domain', 'header' => 'Domain', 'type' => 'money'],
-            ['field' => 'profit', 'header' => 'Nett Profit', 'type' => 'money'],
+        $transactionColumns = [
+            ['field' => 'bulan', 'header' => 'Bulan', 'type' => 'text'],
+            ['field' => 'jumlah_web', 'header' => 'Transaksi Masuk', 'type' => 'number'],
+            ['field' => 'nominal', 'header' => 'Nominal', 'type' => 'money'],
         ];
 
         return [
             [
                 'name' => 'Pembuatan',
-                'columns' => $domainColumns,
+                'columns' => $moneyColumns,
                 'rows' => $this->rincian($this->pembuatanJenis, 150000, '', 'Pembuatan', $dari, $sampai, $formatter, $tglDari, $tglSampai),
-                'wide' => true,
+                'wide' => false,
             ],
             [
                 'name' => 'Perpanjangan',
-                'columns' => $perpanjanganColumns,
+                'columns' => $moneyColumns,
                 'rows' => $this->rincian(['Perpanjangan'], 0, '', 'Perpanjangan', $dari, $sampai, $formatter, $tglDari, $tglSampai),
             ],
             [
@@ -430,13 +421,13 @@ class RincianTransaksiController extends Controller
                 'rows' => $this->rincian(['Deposit Iklan Google'], 0, 'hpads', 'Deposit Iklan Google (HP Ads)', $dari, $sampai, $formatter, $tglDari, $tglSampai),
             ],
             [
-                'name' => 'Omzet',
-                'columns' => $moneyColumns,
+                'name' => 'Omsett',
+                'columns' => $transactionColumns,
                 'rows' => $this->rincian('all', 0, 'semuahp', 'Omzet', $dari, $sampai, $formatter, $tglDari, $tglSampai),
             ],
             [
                 'name' => 'AM Dini',
-                'columns' => $moneyColumns,
+                'columns' => $transactionColumns,
                 'rows' => $this->rincian('all', 0, 'semuahp', 'AM', $dari, $sampai, $formatter, $tglDari, $tglSampai),
             ],
         ];
@@ -516,6 +507,6 @@ class RincianTransaksiController extends Controller
 
     private function tanggalLabel(int $tglDari, int $tglSampai): string
     {
-        return str_pad((string) $tglDari, 2, '0', STR_PAD_LEFT).'-'.str_pad((string) $tglSampai, 2, '0', STR_PAD_LEFT);
+        return str_pad((string) $tglDari, 2, '0', STR_PAD_LEFT) . '-' . str_pad((string) $tglSampai, 2, '0', STR_PAD_LEFT);
     }
 }
