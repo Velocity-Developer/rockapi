@@ -149,8 +149,18 @@
             },
             {
                 "key": "laporan_pembuatan",
-                "label": "Laporan Pembuatan",
+                "label": "Pembuatan",
                 "route": "/laporan/pembuatan"
+            },
+            {
+                "key": "laporan_rincian_transaksi",
+                "label": "Rincian Transaksi",
+                "route": "/laporan/rincian_transaksi"
+            },
+            {
+                "key": "laporan_rincian_transaksi_tgl",
+                "label": "Rincian Transaksi Tgl",
+                "route": "/laporan/rincian_transaksi_tgl"
             }
         ]
     },
