@@ -463,8 +463,8 @@ class KlienPerpanjangController extends Controller
             $rows = $this->getGrafikDetailRows($year, $monthNumber, $detailKey);
         } else {
             $rows = $jenis === 'perpanjang'
-                ? $this->getGrafikPerpanjangRows($year, $monthNumber)
-                : $this->getGrafikTidakPerpanjangRows($year, $monthNumber);
+                ? $this->getGrafikExpiredWhmcsSummaryRows($year, $monthNumber, true)
+                : $this->getGrafikExpiredWhmcsSummaryRows($year, $monthNumber, false);
         }
 
         return response()->json([
@@ -475,6 +475,20 @@ class KlienPerpanjangController extends Controller
             'total' => $rows->count(),
             'data' => $rows,
         ]);
+    }
+
+    private function getGrafikExpiredWhmcsSummaryRows(int $year, int $monthNumber, ?bool $status = null)
+    {
+        $summary = $this->buildExpiredWhmcsSummary(sprintf('%04d-%02d', $year, $monthNumber));
+        $rows = collect($summary['data'] ?? []);
+
+        if ($status === null) {
+            return $rows->values();
+        }
+
+        return $rows
+            ->filter(fn($row) => ($row['status'] ?? false) === $status)
+            ->values();
     }
 
     private function getGrafikPerpanjangRows(int $year, int $monthNumber, bool $uniqueWebhost = true)
@@ -799,10 +813,13 @@ class KlienPerpanjangController extends Controller
 
     private function getGrafikDetailRows(int $year, int $monthNumber, string $detailKey)
     {
-        $perpanjangRows = $this->getGrafikPerpanjangRows($year, $monthNumber, false);
-        $perpanjangUniqueRows = $perpanjangRows->unique('id_webhost')->values();
-        $tidakPerpanjangRows = $this->getGrafikTidakPerpanjangRows($year, $monthNumber, false);
-        $tidakPerpanjangUniqueRows = $tidakPerpanjangRows->unique('id_webhost')->values();
+        $expiredWhmcsRows = $this->getGrafikExpiredWhmcsSummaryRows($year, $monthNumber);
+        $perpanjangUniqueRows = $expiredWhmcsRows
+            ->filter(fn($row) => ($row['status'] ?? false) === true)
+            ->values();
+        $tidakPerpanjangUniqueRows = $expiredWhmcsRows
+            ->filter(fn($row) => ($row['status'] ?? false) === false)
+            ->values();
         $perpanjangProjectRows = $this->getGrafikPerpanjangProjectRows($year, $monthNumber);
         $perpanjangProjectRowsByWebhost = $this->summarizeGrafikPerpanjangProjectRowsByWebhost($perpanjangProjectRows);
         $renewalPaidOutsideSelectedMonthRows = $this->mapSubscriptionRowsToProjectLikeRows(
@@ -810,10 +827,7 @@ class KlienPerpanjangController extends Controller
         );
 
         return match ($detailKey) {
-            'total_webhost', 'ratio_perpanjang_webhost' => $perpanjangUniqueRows
-                ->concat($tidakPerpanjangUniqueRows)
-                ->unique('id_webhost')
-                ->values(),
+            'total_webhost', 'ratio_perpanjang_webhost' => $expiredWhmcsRows->values(),
             'webhost_perpanjang' => $perpanjangUniqueRows,
             'webhost_tidak_perpanjang' => $tidakPerpanjangUniqueRows,
             'total_pemasukkan_perpanjang' => $perpanjangProjectRows->values(),
