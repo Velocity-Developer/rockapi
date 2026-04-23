@@ -421,7 +421,7 @@ class RincianTransaksiController extends Controller
                 'rows' => $this->rincian(['Deposit Iklan Google'], 0, 'hpads', 'Deposit Iklan Google (HP Ads)', $dari, $sampai, $formatter, $tglDari, $tglSampai),
             ],
             [
-                'name' => 'Omsett',
+                'name' => 'Omset',
                 'columns' => $transactionColumns,
                 'rows' => $this->rincian('all', 0, 'semuahp', 'Omzet', $dari, $sampai, $formatter, $tglDari, $tglSampai),
             ],
