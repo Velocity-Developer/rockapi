@@ -10,6 +10,10 @@ class Journal extends Model
 {
     use HasFactory;
 
+    protected $appends = [
+        'time',
+    ];
+
     protected $fillable = [
         'title',
         'description',
@@ -64,5 +68,14 @@ class Journal extends Model
     {
         return $query->whereMonth('start', Carbon::now()->month)
             ->whereYear('start', Carbon::now()->year);
+    }
+
+    public function getTimeAttribute(): int
+    {
+        if (empty($this->start) || empty($this->end)) {
+            return 0;
+        }
+
+        return (int) Carbon::parse($this->start)->diffInSeconds(Carbon::parse($this->end));
     }
 }
