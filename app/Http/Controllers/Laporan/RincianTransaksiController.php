@@ -10,6 +10,8 @@ use App\Models\HargaDomain;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 
 class RincianTransaksiController extends Controller
 {
@@ -161,7 +163,7 @@ class RincianTransaksiController extends Controller
         }
 
         if ($jenisFilter === 'hpads') {
-            $query->whereHas('webhost', fn($webhost) => $webhost->where('hpads', 'ya'));
+            $query->whereHas('webhost', fn ($webhost) => $webhost->where('hpads', 'ya'));
         }
 
         if ($namaTabel === 'AM') {
@@ -169,17 +171,19 @@ class RincianTransaksiController extends Controller
         }
 
         $grouped = $query->get()->groupBy(
-            fn($item) => Carbon::parse($item->tgl_masuk)->format('Y-m')
+            fn ($item) => Carbon::parse($item->tgl_masuk)->format('Y-m')
         )->sortKeysDesc();
 
-        return $grouped->map(function ($items, $month) use ($formatter, $tglDari, $tglSampai) {
+        return $grouped->map(function ($items, $month) use ($formatter, $namaTabel, $tglDari, $tglSampai) {
             $label = $formatter->toIndonesianMonthYear($month);
             $jumlahWeb = $items->count();
             $nominal = (int) $items->sum('biaya');
             $hargaDomain = $this->domainPrice($label);
-            $domain = $jumlahWeb * $hargaDomain;
+            $domain = in_array($namaTabel, ['Pembuatan', 'Perpanjangan'], true) ? $jumlahWeb * $hargaDomain : 0;
             $profit = $nominal - $domain;
-            $biayaIklan = $this->adsPrice($month, $tglDari, $tglSampai);
+            $biayaIklan = $namaTabel === 'Pembuatan' && $jumlahWeb > 0
+                ? $this->adsPrice($month, $tglDari, $tglSampai)
+                : 0;
 
             return [
                 'key' => $month,
@@ -208,7 +212,7 @@ class RincianTransaksiController extends Controller
             'Jasa update iklan google' => ['rows' => $this->rincian(['Jasa update iklan google'], 0, '', 'Jasa update iklan google', $dari, $sampai, $formatter), 'field' => 'nominal'],
         ];
 
-        $indexed = collect($categories)->map(fn($config) => collect($config['rows'])->keyBy('key'));
+        $indexed = collect($categories)->map(fn ($config) => collect($config['rows'])->keyBy('key'));
         $rows = [];
 
         foreach ($this->months($dari, $sampai, $formatter) as $index => $month) {
@@ -275,9 +279,9 @@ class RincianTransaksiController extends Controller
             ->where('tb_followup_advertiser.status_ads', 'Sudah iklan')
             ->select('tb_cs_main_project.*')
             ->get()
-            ->groupBy(fn($item) => Carbon::parse($item->tgl_masuk)->format('Y-m'))
+            ->groupBy(fn ($item) => Carbon::parse($item->tgl_masuk)->format('Y-m'))
             ->sortKeysDesc()
-            ->map(fn($items, $month) => [
+            ->map(fn ($items, $month) => [
                 'key' => $month,
                 'bulan' => $formatter->toIndonesianMonthYear($month),
                 'jumlah_web' => $items->count(),
@@ -291,7 +295,7 @@ class RincianTransaksiController extends Controller
         $period = CarbonPeriod::create($dari->copy()->startOfMonth(), '1 month', $sampai->copy()->startOfMonth());
 
         return collect($period)
-            ->map(fn(Carbon $date) => [
+            ->map(fn (Carbon $date) => [
                 'key' => $date->format('Y-m'),
                 'label' => $formatter->toIndonesianMonthYear($date->format('Y-m')),
             ])
@@ -310,25 +314,64 @@ class RincianTransaksiController extends Controller
 
     private function adsPrice(string $month, ?int $tglDari = null, ?int $tglSampai = null): int
     {
-        $total = (int) (BiayaAds::where('bulan', $month)
-            ->where('kategori', 'ads')
-            ->sum('biaya') ?? 0);
-
         if ($tglDari === null || $tglSampai === null) {
-            return $total;
+            return (int) (BiayaAds::where('bulan', $month)
+                ->where('kategori', 'ads')
+                ->sum('biaya') ?? 0);
         }
 
-        $date = Carbon::createFromFormat('Y-m', $month);
+        [$dateFrom, $dateTo] = $this->adsDateRange($month, $tglDari, $tglSampai);
+
+        if (! $dateFrom || ! $dateTo) {
+            return 0;
+        }
+
+        return $this->fetchAdsCostRange($dateFrom, $dateTo);
+    }
+
+    private function adsDateRange(string $month, int $tglDari, int $tglSampai): array
+    {
+        $date = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
         $startDay = max(1, min($tglDari, $date->daysInMonth));
         $endDay = max(1, min($tglSampai, $date->daysInMonth));
 
         if ($endDay < $startDay) {
-            return 0;
+            return [null, null];
         }
 
-        $days = ($endDay - $startDay) + 1;
+        return [
+            $date->copy()->day($startDay)->format('Y-m-d'),
+            $date->copy()->day($endDay)->format('Y-m-d'),
+        ];
+    }
 
-        return (int) round(($total / $date->daysInMonth) * $days);
+    private function fetchAdsCostRange(string $dateFrom, string $dateTo): int
+    {
+        $cacheKey = 'rincian_transaksi_ads_cost_'.md5($dateFrom.'|'.$dateTo);
+
+        return (int) Cache::remember($cacheKey, now()->addHours(6), function () use ($dateFrom, $dateTo) {
+            try {
+                $response = Http::timeout(6)
+                    ->connectTimeout(3)
+                    ->withHeaders([
+                        'Referer' => 'https://velocitydeveloper.net/index.php?pg=rincian_transaksi_tgl',
+                    ])
+                    ->get('https://api.velocitydeveloper.com/ads_metrics_range.php', [
+                        'key' => 'hutara000',
+                        'campaign_id' => 1019866753,
+                        'date_from' => $dateFrom,
+                        'date_to' => $dateTo,
+                    ]);
+
+                if (! $response->ok()) {
+                    return 0;
+                }
+
+                return (int) round((float) ($response->json('cost') ?? 0));
+            } catch (\Throwable) {
+                return 0;
+            }
+        });
     }
 
     public function rincian_tanggal(Request $request)
@@ -437,7 +480,7 @@ class RincianTransaksiController extends Controller
     {
         $categories = [
             'Pembuatan' => ['rows' => $this->rincian($this->pembuatanJenis, 150000, '', 'Pembuatan', $dari, $sampai, $formatter, $tglDari, $tglSampai), 'field' => 'net_profit'],
-            'Perpanjangan' => ['rows' => $this->rincian(['Perpanjangan'], 0, '', 'Perpanjangan', $dari, $sampai, $formatter, $tglDari, $tglSampai), 'field' => 'profit'],
+            'Perpanjangan' => ['rows' => $this->rincian(['Perpanjangan'], 150000, '', 'Perpanjangan', $dari, $sampai, $formatter, $tglDari, $tglSampai), 'field' => 'net_profit'],
             'Tambah Space' => ['rows' => $this->rincian(['Tambah Space'], 0, '', 'Tambah Space', $dari, $sampai, $formatter, $tglDari, $tglSampai), 'field' => 'nominal'],
             'Jasa Update Web' => ['rows' => $this->rincian(['Jasa Update Web'], 0, '', 'Jasa Update Web', $dari, $sampai, $formatter, $tglDari, $tglSampai), 'field' => 'nominal'],
             'Lain - lain' => ['rows' => $this->rincian(['Lain-lain', 'Lain - Lain'], 0, '', 'Lain - lain', $dari, $sampai, $formatter, $tglDari, $tglSampai), 'field' => 'nominal'],
@@ -445,7 +488,7 @@ class RincianTransaksiController extends Controller
             'Jasa update iklan google' => ['rows' => $this->rincian(['Jasa update iklan google', ' Jasa update iklan google'], 0, '', 'Jasa update iklan google', $dari, $sampai, $formatter, $tglDari, $tglSampai), 'field' => 'nominal'],
         ];
 
-        $indexed = collect($categories)->map(fn($config) => collect($config['rows'])->keyBy('key'));
+        $indexed = collect($categories)->map(fn ($config) => collect($config['rows'])->keyBy('key'));
         $rows = [];
 
         foreach ($this->months($dari, $sampai, $formatter) as $index => $month) {
@@ -480,8 +523,8 @@ class RincianTransaksiController extends Controller
                 $row['omzet'] += $value;
             }
 
-            if ($index === 0 && now()->day > 0) {
-                $row['prediksi'] = (int) round(($row['omzet'] / now()->day) * now()->daysInMonth);
+            if ($index === 0 && $tglSampai > 0) {
+                $row['prediksi'] = (int) round(($row['omzet'] / $tglSampai) * now()->daysInMonth);
             }
 
             $rows[] = $row;
@@ -507,6 +550,6 @@ class RincianTransaksiController extends Controller
 
     private function tanggalLabel(int $tglDari, int $tglSampai): string
     {
-        return str_pad((string) $tglDari, 2, '0', STR_PAD_LEFT) . '-' . str_pad((string) $tglSampai, 2, '0', STR_PAD_LEFT);
+        return str_pad((string) $tglDari, 2, '0', STR_PAD_LEFT).'-'.str_pad((string) $tglSampai, 2, '0', STR_PAD_LEFT);
     }
 }
