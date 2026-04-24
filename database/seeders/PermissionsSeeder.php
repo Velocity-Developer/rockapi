@@ -35,6 +35,7 @@ class PermissionsSeeder extends Seeder
             'kelola-improve-chat',
             'manage-csmainproject',
             'manage-webhostsubscription',
+            'manage-absensi',
         ];
 
         foreach ($permissions as $permission) {
