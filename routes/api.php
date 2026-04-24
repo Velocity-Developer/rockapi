@@ -3,6 +3,9 @@
 use App\Http\Controllers\BankTransaksiController;
 use App\Http\Controllers\BillDataWebController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\AbsensiController;
+use App\Http\Controllers\AbsensiRevisiController;
+use App\Http\Controllers\AbsensiShiftController;
 use App\Http\Controllers\CheckPaketController;
 use App\Http\Controllers\ClientSupportController;
 use App\Http\Controllers\CsMainProjectController;
@@ -91,6 +94,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'whmcs-hosting' => WhmcsHostingController::class,
         'improve-chat' => ImproveChatController::class,
         'webhost-subscription' => WebhostSubscriptionsController::class,
+        'absensi' => AbsensiController::class,
+        'absensi-shift' => AbsensiShiftController::class,
+        'absensi-revisi' => AbsensiRevisiController::class,
     ]);
 
     // data_opsi
