@@ -122,6 +122,11 @@
                 "route": "/laporan/net_profit"
             },
             {
+                "key": "laporan_order_kumulatif",
+                "label": "Order Kumulatif",
+                "route": "/laporan/order_kumulatif"
+            },
+            {
                 "key": "laporan_klien_perpanjang",
                 "label": "Klien Perpanjang",
                 "route": "/laporan/klien-perpanjang"
