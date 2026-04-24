@@ -30,6 +30,8 @@ class AbsensiRevisi extends Model
 
     public const JENIS_KURANG = 'Kurang';
 
+    public const SUMBER = ['Tambah Jam Pulang', 'Masuk Lebih Awal', 'Kerja Saat Istirahat', 'Lembur', 'Penyesuaian Admin'];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
