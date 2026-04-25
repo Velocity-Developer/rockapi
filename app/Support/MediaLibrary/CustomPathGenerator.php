@@ -9,12 +9,11 @@ class CustomPathGenerator implements PathGenerator
 {
     public function getPath(Media $media): string
     {
+        $year = $media->created_at->format('Y');
+        $month = $media->created_at->format('m');
+        $model = class_basename($media->model_type);
 
-        $date = $this->created_at ?? now(); // fallback kalau null
-        $year = $date->format('Y');
-        $month = $date->format('m');
-
-        return "media/{$year}/{$month}/{$media->id}/";
+        return "{$model}/{$year}-{$month}/{$media->id}/";
     }
 
     public function getPathForConversions(Media $media): string
@@ -24,6 +23,6 @@ class CustomPathGenerator implements PathGenerator
 
     public function getPathForResponsiveImages(Media $media): string
     {
-        return $this->getPath($media).'responsive-images/';
+        return $this->getPath($media) . 'responsive-images/';
     }
 }
