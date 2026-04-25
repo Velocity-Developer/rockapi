@@ -23,6 +23,10 @@ class ImproveChat extends Model
         'user_id',
     ];
 
+    protected $casts = [
+        'user_id' => 'integer',
+    ];
+
     // relasi ke User
     public function user()
     {
