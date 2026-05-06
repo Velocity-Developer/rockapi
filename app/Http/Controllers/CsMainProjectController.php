@@ -554,7 +554,7 @@ class CsMainProjectController extends Controller
             }
 
             // =============================
-            // 11. Update waktu_plus CsMainProjectInfo
+            // 7. Update waktu_plus CsMainProjectInfo
             // =============================
             if ($request->has('waktu_plus')) {
                 $cs_main_project->cs_main_project_info()->update([
@@ -562,8 +562,24 @@ class CsMainProjectController extends Controller
                 ]);
             }
 
+
             // =============================
-            // 12. Return response
+            // 8. Update customer_id
+            // =============================
+            //if customer_id is not empty,
+            if ($request->input('customer_id')) {
+                // update relasi ke customer_webhost
+                DB::table('customer_webhost')->where('webhost_id', $webhost->id_webhost)->update([
+                    'customer_id' => $request->input('customer_id'),
+                ]);
+                // update relasi ke customer_cs_main_project_info
+                DB::table('customer_cs_main_project')->where('cs_main_project_id', $cs_main_project->id)->update([
+                    'customer_id' => $request->input('customer_id'),
+                ]);
+            }
+
+            // =============================
+            // 9. Return response
             // =============================
 
             // get WmProject where id = $cs_main_project->id
