@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Absensi;
+use App\Models\AbsensiShift;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -72,6 +74,7 @@ class AbsensiController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate($this->rules());
+        $validated = $this->fillAutomaticWorkDuration($validated);
 
         $absensi = Absensi::create($validated)->load(['user', 'shift']);
 
@@ -88,6 +91,7 @@ class AbsensiController extends Controller
     public function update(Request $request, string $id)
     {
         $validated = $request->validate($this->rules());
+        $validated = $this->fillAutomaticWorkDuration($validated);
 
         $absensi = Absensi::findOrFail($id);
         $absensi->update($validated);
@@ -138,5 +142,61 @@ class AbsensiController extends Controller
             'jadwal_masuk' => ['nullable', 'date_format:H:i:s'],
             'jadwal_pulang' => ['nullable', 'date_format:H:i:s'],
         ];
+    }
+
+    private function fillAutomaticWorkDuration(array $data): array
+    {
+        $jamMasuk = $this->parseDateTime($data['jam_masuk'] ?? null);
+
+        if (! $jamMasuk) {
+            $data['total_detik_kerja'] = 0;
+
+            return $data;
+        }
+
+        $jamPulang = $this->parseDateTime($data['jam_pulang'] ?? null);
+        $targetPulang = $jamPulang ?? $this->scheduledCheckoutAt($data, $jamMasuk);
+
+        if (! $targetPulang) {
+            $data['total_detik_kerja'] = 0;
+
+            return $data;
+        }
+
+        if (! $targetPulang->greaterThan($jamMasuk)) {
+            $targetPulang = $targetPulang->copy()->addDay();
+        }
+
+        $data['total_detik_kerja'] = (int) max($jamMasuk->diffInSeconds($targetPulang, false), 0);
+
+        return $data;
+    }
+
+    private function scheduledCheckoutAt(array $data, Carbon $jamMasuk): ?Carbon
+    {
+        $jadwalPulang = $data['jadwal_pulang'] ?? null;
+
+        if (! $jadwalPulang && ! empty($data['absensi_shift_id'])) {
+            $jadwalPulang = AbsensiShift::query()
+                ->whereKey($data['absensi_shift_id'])
+                ->value('pulang');
+        }
+
+        if (! $jadwalPulang) {
+            return null;
+        }
+
+        $tanggal = $data['tanggal'] ?? $jamMasuk->toDateString();
+
+        return Carbon::parse($tanggal.' '.$jadwalPulang);
+    }
+
+    private function parseDateTime(mixed $value): ?Carbon
+    {
+        if (! $value) {
+            return null;
+        }
+
+        return Carbon::parse($value);
     }
 }
