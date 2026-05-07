@@ -117,6 +117,16 @@ class WHMCSSyncServices
                     'package_name_id' => $hosting['package_name_id'],
                 ]
             );
+
+            // menyimpan data user ke tabel whmcs_users
+            WhmcsUser::updateOrCreate(
+                ['whmcs_id' => $hosting['userid']],
+                [
+                    'email' => $hosting['user_email'],
+                    'firstname' => $hosting['user_first_name'],
+                    'lastname' => $hosting['user_last_name'],
+                ]
+            );
         }
 
         return $hostings;
