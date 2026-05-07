@@ -183,6 +183,11 @@
                 "key": "whmcs_user",
                 "label": "User",
                 "route": "/whmcs-users"
+            },
+            {
+                "key": "whmcs_hosting",
+                "label": "Hosting",
+                "route": "/whmcs-hosting"
             }
         ]
     },
