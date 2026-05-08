@@ -115,6 +115,7 @@ class WHMCSSyncServices
                     'package_name' => $hosting['package_name'],
                     'package_servertype' => $hosting['package_servertype'],
                     'package_name_id' => $hosting['package_name_id'],
+                    'regdate' => $hosting['regdate'],
                 ]
             );
 
