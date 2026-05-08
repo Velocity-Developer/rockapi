@@ -10,6 +10,7 @@ class WhmcsHosting extends Model
         'whmcs_id',
         'whmcs_userid',
         'domain',
+        'regdate',
         'nextduedate',
         'billingcycle',
         'domainstatus',

@@ -48,6 +48,14 @@ class WhmcsHostingController extends Controller
             $query->where('whmcs_userid', $request->input('whmcs_userid'));
         }
 
+        if ($request->input('regdate_from')) {
+            $query->whereDate('regdate', '>=', $request->input('regdate_from'));
+        }
+
+        if ($request->input('regdate_to')) {
+            $query->whereDate('regdate', '<=', $request->input('regdate_to'));
+        }
+
         if ($request->input('nextduedate_from')) {
             $query->whereDate('nextduedate', '>=', $request->input('nextduedate_from'));
         }
@@ -154,6 +162,7 @@ class WhmcsHostingController extends Controller
             'whmcs_id' => [$required, 'nullable', 'integer'],
             'whmcs_userid' => [$required, 'nullable', 'integer'],
             'domain' => [$required, 'nullable', 'string', 'max:255'],
+            'regdate' => [$required, 'nullable', 'date'],
             'nextduedate' => [$required, 'nullable', 'date'],
             'billingcycle' => [$required, 'nullable', 'string', 'max:255'],
             'domainstatus' => [$required, 'nullable', 'string', 'max:255'],
