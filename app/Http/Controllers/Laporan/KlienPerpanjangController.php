@@ -317,12 +317,12 @@ class KlienPerpanjangController extends Controller
             $domain_name = '';
             foreach ($user->domains as $domain) {
 
-                $webhost = $domain->webhost ?? null;
-                $webhostTahun = $webhost ? date("Y", strtotime($webhost->tgl_mulai)) : null;
-                //jika webhost.tgl_mulai 
-                if ($webhostTahun && $webhostTahun == $y) {
+                //jika tgl registrasi sama dengan tahun ini, skip
+                $year_reg = date("Y", strtotime($domain->registrationdate));
+                if ($domain->registrationdate && $year_reg == $y) {
                     continue;
                 }
+
 
                 $domain_name = strtolower($domain->domain);
                 $data[$domain_name]['status'] = false;
@@ -348,12 +348,12 @@ class KlienPerpanjangController extends Controller
             //hostings
             foreach ($user->hostings as $hosting) {
 
-                $webhost = $hosting->webhost ?? null;
-                $webhostTahun = $webhost ? date("Y", strtotime($webhost->tgl_mulai)) : null;
-                //jika webhost.tgl_mulai 
-                if ($webhostTahun && $webhostTahun == $y) {
+                //jika tgl registrasi sama dengan tahun ini, skip
+                $year_reg = date("Y", strtotime($hosting->regdate));
+                if ($hosting->regdate && $year_reg == $y) {
                     continue;
                 }
+
 
                 $domain_name = strtolower($hosting->domain);
                 $data[$domain_name]['hosting'] = $hosting;
