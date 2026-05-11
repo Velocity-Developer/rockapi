@@ -12,7 +12,7 @@ class CekServerTimSupportController extends Controller
      */
     public function index(Request $request)
     {
-        $query = CekServerTimSupport::with('server:id,name', 'user:id,name,username');
+        $query = CekServerTimSupport::with('server:id,name,hostname', 'user:id,name,username');
 
         if ($request->filled('server_id')) {
             $query->where('server_id', $request->server_id);
