@@ -125,6 +125,11 @@
                 "key": "journal_timsupport_rangkuman",
                 "label": "Rangkuman",
                 "route": "/journal/timsupport-rangkuman"
+            },
+            {
+                "key": "cek_server_tim_support",
+                "label": "Cek Server Tim Support",
+                "route": "/cek-server-tim-support"
             }
         ]
     },
