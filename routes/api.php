@@ -40,6 +40,7 @@ use App\Http\Controllers\HargaDomainController;
 use App\Http\Controllers\QualityController;
 use App\Http\Controllers\CutiController;
 use App\Http\Controllers\BiayaAdsController;
+use App\Http\Controllers\CekServerTimSupportController;
 use App\Http\Controllers\WhmcsCustomController;
 use App\Http\Controllers\WhmcsUserController;
 use App\Http\Controllers\WhmcsDomainController;
@@ -97,6 +98,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'absensi' => AbsensiController::class,
         'absensi-shift' => AbsensiShiftController::class,
         'absensi-revisi' => AbsensiRevisiController::class,
+        'cek-server-tim-support' => CekServerTimSupportController::class,
     ]);
 
     // data_opsi
