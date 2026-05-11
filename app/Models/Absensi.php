@@ -58,6 +58,16 @@ class Absensi extends Model
 
     public const STATUS_SETENGAH_HARI = 'Setengah Hari';
 
+    public function getStatusAttribute(?string $value): string
+    {
+        return $value === self::STATUS_TERLAMBAT ? self::STATUS_HADIR : ($value ?? self::STATUS_HADIR);
+    }
+
+    public function setStatusAttribute(?string $value): void
+    {
+        $this->attributes['status'] = $value === self::STATUS_TERLAMBAT ? self::STATUS_HADIR : ($value ?? self::STATUS_HADIR);
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

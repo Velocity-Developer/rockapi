@@ -31,7 +31,14 @@ class AbsensiController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->input('status'));
+            if ($request->input('status') === Absensi::STATUS_HADIR) {
+                $query->whereIn('status', [
+                    Absensi::STATUS_HADIR,
+                    Absensi::STATUS_TERLAMBAT,
+                ]);
+            } else {
+                $query->where('status', $request->input('status'));
+            }
         }
 
         if ($request->filled('absensi_shift_id')) {
@@ -73,6 +80,7 @@ class AbsensiController extends Controller
 
     public function store(Request $request)
     {
+        $this->normalizeRequestStatus($request);
         $validated = $request->validate($this->rules());
         $validated = $this->fillAutomaticWorkDuration($validated);
 
@@ -90,6 +98,7 @@ class AbsensiController extends Controller
 
     public function update(Request $request, string $id)
     {
+        $this->normalizeRequestStatus($request);
         $validated = $request->validate($this->rules());
         $validated = $this->fillAutomaticWorkDuration($validated);
 
@@ -121,7 +130,6 @@ class AbsensiController extends Controller
                 'string',
                 Rule::in([
                     Absensi::STATUS_HADIR,
-                    Absensi::STATUS_TERLAMBAT,
                     Absensi::STATUS_IZIN,
                     Absensi::STATUS_SAKIT,
                     Absensi::STATUS_CUTI,
@@ -142,6 +150,13 @@ class AbsensiController extends Controller
             'jadwal_masuk' => ['nullable', 'date_format:H:i:s'],
             'jadwal_pulang' => ['nullable', 'date_format:H:i:s'],
         ];
+    }
+
+    private function normalizeRequestStatus(Request $request): void
+    {
+        if ($request->input('status') === Absensi::STATUS_TERLAMBAT) {
+            $request->merge(['status' => Absensi::STATUS_HADIR]);
+        }
     }
 
     private function fillAutomaticWorkDuration(array $data): array

@@ -26,7 +26,6 @@ return new class extends Migration
             $table->unsignedBigInteger('absensi_shift_id')->nullable();
             $table->enum('status', [
                 'Hadir',
-                'Terlambat',
                 'Izin',
                 'Sakit',
                 'Cuti',

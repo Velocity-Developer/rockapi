@@ -76,12 +76,11 @@ class AbsensiSeeder extends Seeder
                 $pulang = Carbon::parse($tanggal . ' ' . $jamPulangShift)->addMinutes(max(0, $dayIndex - 1) * 10);
 
                 $status = match (true) {
-                    $dayIndex === 1 && $index === 1 => Absensi::STATUS_TERLAMBAT,
                     $dayIndex === 2 && $index === 2 => Absensi::STATUS_SETENGAH_HARI,
                     default => Absensi::STATUS_HADIR,
                 };
 
-                $detikTelat = $status === Absensi::STATUS_TERLAMBAT
+                $detikTelat = $dayIndex === 1 && $index === 1
                     ? Carbon::parse($tanggal . ' ' . $jamMasukShift)->diffInSeconds($masuk)
                     : 0;
 
