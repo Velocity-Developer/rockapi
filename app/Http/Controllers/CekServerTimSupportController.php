@@ -12,10 +12,14 @@ class CekServerTimSupportController extends Controller
      */
     public function index(Request $request)
     {
-        $query = CekServerTimSupport::with('server:id,name');
+        $query = CekServerTimSupport::with('server:id,name', 'user:id,name,username');
 
         if ($request->filled('server_id')) {
             $query->where('server_id', $request->server_id);
+        }
+
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
         }
 
         if ($request->filled('cek_error_idrac')) {
@@ -26,6 +30,7 @@ class CekServerTimSupportController extends Controller
         $allowedOrderBy = [
             'id',
             'server_id',
+            'user_id',
             'hapus_backup_admin',
             'kapasitas_ssh',
             'cek_error_idrac',
@@ -58,8 +63,10 @@ class CekServerTimSupportController extends Controller
             'error_idrac' => 'nullable|string',
         ]);
 
+        $data['user_id'] = $request->user()->id;
+
         $cekServer = CekServerTimSupport::create($data);
-        $cekServer->load('server:id,name');
+        $cekServer->load('server:id,name', 'user:id,name,username');
 
         return response()->json($cekServer, 201);
     }
@@ -69,7 +76,7 @@ class CekServerTimSupportController extends Controller
      */
     public function show(string $id)
     {
-        $cekServer = CekServerTimSupport::with('server:id,name')->findOrFail($id);
+        $cekServer = CekServerTimSupport::with('server:id,name', 'user:id,name,username')->findOrFail($id);
 
         return response()->json($cekServer);
     }
@@ -89,7 +96,7 @@ class CekServerTimSupportController extends Controller
 
         $cekServer = CekServerTimSupport::findOrFail($id);
         $cekServer->update($data);
-        $cekServer->load('server:id,name');
+        $cekServer->load('server:id,name', 'user:id,name,username');
 
         return response()->json($cekServer);
     }
