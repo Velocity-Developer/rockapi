@@ -78,6 +78,55 @@ class AbsensiController extends Controller
         return response()->json($data);
     }
 
+    public function totalStatusByUser(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+            'tanggal_mulai' => ['nullable', 'date'],
+            'tanggal_selesai' => ['nullable', 'date'],
+        ]);
+
+        $statuses = [
+            Absensi::STATUS_HADIR,
+            Absensi::STATUS_IZIN,
+            Absensi::STATUS_SAKIT,
+            Absensi::STATUS_CUTI,
+            Absensi::STATUS_ALPHA,
+            Absensi::STATUS_LIBUR,
+            Absensi::STATUS_SETENGAH_HARI,
+        ];
+
+        $rows = Absensi::query()
+            ->selectRaw('status, COUNT(*) as total')
+            ->where('user_id', $validated['user_id'])
+            ->when($validated['tanggal_mulai'] ?? null, function ($query, $tanggalMulai) {
+                $query->whereDate('tanggal', '>=', $tanggalMulai);
+            })
+            ->when($validated['tanggal_selesai'] ?? null, function ($query, $tanggalSelesai) {
+                $query->whereDate('tanggal', '<=', $tanggalSelesai);
+            })
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $byStatus = collect($statuses)
+            ->mapWithKeys(function ($status) use ($rows) {
+                return [$status => (int) ($rows[$status] ?? 0)];
+            })
+            ->all();
+
+        if (isset($rows[Absensi::STATUS_TERLAMBAT])) {
+            $byStatus[Absensi::STATUS_HADIR] += (int) $rows[Absensi::STATUS_TERLAMBAT];
+        }
+
+        return response()->json([
+            'user_id' => (int) $validated['user_id'],
+            'tanggal_mulai' => $validated['tanggal_mulai'] ?? null,
+            'tanggal_selesai' => $validated['tanggal_selesai'] ?? null,
+            'total' => array_sum($byStatus),
+            'by_status' => $byStatus,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $this->normalizeRequestStatus($request);

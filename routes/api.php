@@ -67,6 +67,7 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('cek_server_tim_support_latest', [CekServerTimSupportController::class, 'latestServerCheck']);
+    Route::get('absensi-total-status-by-user', [AbsensiController::class, 'totalStatusByUser']);
 
     Route::apiResources([
         'posts' => PostsController::class,
