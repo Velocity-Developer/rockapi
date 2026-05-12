@@ -4,9 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Absensi extends Model
+class Absensi extends Model implements HasMedia
 {
+    use InteractsWithMedia;
+
     protected $table = 'absensi';
 
     protected $fillable = [
@@ -40,6 +44,14 @@ class Absensi extends Model
         'total_detik_kerja' => 'integer',
         'jadwal_masuk' => 'datetime:H:i:s',
         'jadwal_pulang' => 'datetime:H:i:s',
+    ];
+
+    protected $appends = [
+        'lampiran_izin',
+    ];
+
+    protected $hidden = [
+        'media',
     ];
 
     public const STATUS_HADIR = 'Hadir';
@@ -76,5 +88,27 @@ class Absensi extends Model
     public function shift(): BelongsTo
     {
         return $this->belongsTo(AbsensiShift::class, 'absensi_shift_id');
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('lampiran_izin')->singleFile();
+    }
+
+    public function getLampiranIzinAttribute(): ?array
+    {
+        $media = $this->getFirstMedia('lampiran_izin');
+
+        if (! $media) {
+            return null;
+        }
+
+        return [
+            'id' => $media->id,
+            'name' => $media->file_name,
+            'url' => $media->getFullUrl(),
+            'mime_type' => $media->mime_type,
+            'size' => $media->size,
+        ];
     }
 }

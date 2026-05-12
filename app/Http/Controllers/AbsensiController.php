@@ -12,7 +12,7 @@ class AbsensiController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Absensi::with(['user', 'shift']);
+        $query = Absensi::with(['user', 'shift', 'media']);
 
         if ($request->filled('user_id')) {
             $query->where('user_id', $request->input('user_id'));
@@ -84,14 +84,16 @@ class AbsensiController extends Controller
         $validated = $request->validate($this->rules());
         $validated = $this->fillAutomaticWorkDuration($validated);
 
-        $absensi = Absensi::create($validated)->load(['user', 'shift']);
+        $absensi = Absensi::create($validated);
+        $this->syncLampiranIzin($request, $absensi);
+        $absensi->load(['user', 'shift', 'media']);
 
         return response()->json($absensi, 201);
     }
 
     public function show(string $id)
     {
-        $absensi = Absensi::with(['user', 'shift'])->findOrFail($id);
+        $absensi = Absensi::with(['user', 'shift', 'media'])->findOrFail($id);
 
         return response()->json($absensi);
     }
@@ -104,8 +106,9 @@ class AbsensiController extends Controller
 
         $absensi = Absensi::findOrFail($id);
         $absensi->update($validated);
+        $this->syncLampiranIzin($request, $absensi);
 
-        return response()->json($absensi->load(['user', 'shift']));
+        return response()->json($absensi->load(['user', 'shift', 'media']));
     }
 
     public function destroy(string $id)
@@ -149,7 +152,23 @@ class AbsensiController extends Controller
             'nama_shift' => ['nullable', 'string', 'max:255'],
             'jadwal_masuk' => ['nullable', 'date_format:H:i:s'],
             'jadwal_pulang' => ['nullable', 'date_format:H:i:s'],
+            'lampiran_izin' => ['nullable', 'file', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
         ];
+    }
+
+    private function syncLampiranIzin(Request $request, Absensi $absensi): void
+    {
+        if ($absensi->status !== Absensi::STATUS_SAKIT) {
+            $absensi->clearMediaCollection('lampiran_izin');
+
+            return;
+        }
+
+        if ($request->hasFile('lampiran_izin') && $request->file('lampiran_izin')->isValid()) {
+            $absensi->clearMediaCollection('lampiran_izin');
+            $absensi->addMedia($request->file('lampiran_izin'))
+                ->toMediaCollection('lampiran_izin');
+        }
     }
 
     private function normalizeRequestStatus(Request $request): void
