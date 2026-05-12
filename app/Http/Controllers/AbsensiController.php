@@ -82,9 +82,14 @@ class AbsensiController extends Controller
     {
         $validated = $request->validate([
             'user_id' => ['required', 'integer', 'exists:users,id'],
+            'year' => ['nullable', 'integer', 'min:2000', 'max:2100'],
             'tanggal_mulai' => ['nullable', 'date'],
             'tanggal_selesai' => ['nullable', 'date'],
         ]);
+
+        $year = (int) ($validated['year'] ?? now()->year);
+        $tanggalMulai = Carbon::create($year, 1, 1)->toDateString();
+        $tanggalSelesai = Carbon::create($year, 12, 31)->toDateString();
 
         $statuses = [
             Absensi::STATUS_HADIR,
@@ -99,12 +104,8 @@ class AbsensiController extends Controller
         $rows = Absensi::query()
             ->selectRaw('status, COUNT(*) as total')
             ->where('user_id', $validated['user_id'])
-            ->when($validated['tanggal_mulai'] ?? null, function ($query, $tanggalMulai) {
-                $query->whereDate('tanggal', '>=', $tanggalMulai);
-            })
-            ->when($validated['tanggal_selesai'] ?? null, function ($query, $tanggalSelesai) {
-                $query->whereDate('tanggal', '<=', $tanggalSelesai);
-            })
+            ->whereDate('tanggal', '>=', $tanggalMulai)
+            ->whereDate('tanggal', '<=', $tanggalSelesai)
             ->groupBy('status')
             ->pluck('total', 'status');
 
@@ -120,8 +121,9 @@ class AbsensiController extends Controller
 
         return response()->json([
             'user_id' => (int) $validated['user_id'],
-            'tanggal_mulai' => $validated['tanggal_mulai'] ?? null,
-            'tanggal_selesai' => $validated['tanggal_selesai'] ?? null,
+            'year' => $year,
+            'tanggal_mulai' => $tanggalMulai,
+            'tanggal_selesai' => $tanggalSelesai,
             'total' => array_sum($byStatus),
             'by_status' => $byStatus,
         ]);
