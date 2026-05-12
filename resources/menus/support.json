@@ -70,6 +70,12 @@
         "route": "/client_support"
     },
     {
+        "key": "cek_server_tim_support",
+        "label": "Cek Server",
+        "icon": "lucide:database-search",
+        "route": "/cek-server-tim-support"
+    },
+    {
         "key": "other_module_projects",
         "label": "Module Projects",
         "route": "/other/module-projects",
