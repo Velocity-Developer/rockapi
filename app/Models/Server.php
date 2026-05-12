@@ -52,4 +52,15 @@ class Server extends Model
     {
         return $this->hasMany(ServerUser::class, 'server_package_id');
     }
+
+    // relasi ke tabel cek_server_tim_support
+    public function cek_server_tim_supports()
+    {
+        return $this->hasMany(CekServerTimSupport::class, 'server_id');
+    }
+
+    public function cek_server_tim_support_latest()
+    {
+        return $this->hasOne(CekServerTimSupport::class, 'server_id')->latestOfMany('id');
+    }
 }

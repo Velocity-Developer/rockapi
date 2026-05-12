@@ -66,6 +66,8 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('cek_server_tim_support_latest', [CekServerTimSupportController::class, 'latestServerCheck']);
+
     Route::apiResources([
         'posts' => PostsController::class,
         'terms' => TermsController::class,
@@ -214,6 +216,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // cs_main_project origin
     Route::put('/cs_main_project_origin/{id}', [CsMainProjectController::class, 'update_origin']);
+
 });
 
 // Invoice PDF route

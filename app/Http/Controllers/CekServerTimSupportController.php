@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CekServerTimSupport;
+use App\Models\Server;
 use Illuminate\Http\Request;
 
 class CekServerTimSupportController extends Controller
@@ -113,5 +114,48 @@ class CekServerTimSupportController extends Controller
             'success' => true,
             'message' => 'Cek server tim support deleted successfully',
         ]);
+    }
+
+    // server dan riwayat cek terakhir
+    public function latestServerCheck(Request $request)
+    {
+        $query = Server::query()
+            ->select('id', 'name', 'type', 'ip_address', 'hostname', 'is_active')
+            ->with([
+                'cek_server_tim_support_latest' => function ($query) {
+                    $query->with('user:id,name,username');
+                },
+            ]);
+
+        if ($request->filled('server_id')) {
+            $query->where('id', $request->server_id);
+        }
+
+        if ($request->filled('cek_error_idrac')) {
+            $query->whereHas('cek_server_tim_support_latest', function ($query) use ($request) {
+                $query->where('cek_error_idrac', filter_var($request->cek_error_idrac, FILTER_VALIDATE_BOOLEAN));
+            });
+        }
+
+        $orderBy = $request->input('order_by', 'id');
+        $allowedOrderBy = [
+            'id',
+            'name',
+            'type',
+            'ip_address',
+            'hostname',
+            'is_active',
+        ];
+
+        if (! in_array($orderBy, $allowedOrderBy, true)) {
+            $orderBy = 'id';
+        }
+
+        $order = strtolower($request->input('order', 'asc')) === 'desc' ? 'desc' : 'asc';
+        $query->orderBy($orderBy, $order);
+
+        $perPage = (int) $request->input('per_page', 25);
+
+        return response()->json($query->paginate($perPage));
     }
 }
