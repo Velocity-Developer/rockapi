@@ -7,6 +7,7 @@ use App\Models\Webhost;
 use App\Models\WhmcsUser;
 use App\Models\WhmcsHosting;
 use App\Models\WhmcsDomain;
+use App\Models\FollowUpPerpanjang;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -383,6 +384,7 @@ class KlienPerpanjangController extends Controller
         }
 
         $reindexed_array = array_values($data);
+        $reindexed_array = $this->attachFollowUpPerpanjang($reindexed_array);
         $total = count($reindexed_array);
         $total_perpanjang = collect($reindexed_array)->filter(function ($item) {
             return $item['status'] === true;
@@ -400,6 +402,65 @@ class KlienPerpanjangController extends Controller
             'total_tidak_perpanjang' => ($total - $total_perpanjang),
             'data' => $reindexed_array
         ];
+    }
+
+    private function attachFollowUpPerpanjang(array $rows): array
+    {
+        if (empty($rows)) {
+            return $rows;
+        }
+
+        $whmcsUserIds = collect($rows)->pluck('user.id')->filter()->unique()->values();
+        $whmcsDomainIds = collect($rows)->pluck('domain.id')->filter()->unique()->values();
+        $whmcsHostingIds = collect($rows)->pluck('hosting.id')->filter()->unique()->values();
+        $webhostIds = collect($rows)->pluck('webhost.id_webhost')->filter()->unique()->values();
+
+        if ($whmcsUserIds->isEmpty() && $whmcsDomainIds->isEmpty() && $whmcsHostingIds->isEmpty() && $webhostIds->isEmpty()) {
+            return collect($rows)->map(function ($row) {
+                $row['follow_up_perpanjang'] = null;
+
+                return $row;
+            })->all();
+        }
+
+        $followUps = FollowUpPerpanjang::query()
+            ->select('id', 'status', 'tanggal', 'whmcs_user_id', 'whmcs_domain_id', 'whmcs_hosting_id', 'webhost_id', 'user_id', 'keterangan', 'alasan', 'created_at')
+            ->where(function ($query) use ($whmcsUserIds, $whmcsDomainIds, $whmcsHostingIds, $webhostIds) {
+                if ($whmcsUserIds->isNotEmpty()) {
+                    $query->orWhereIn('whmcs_user_id', $whmcsUserIds);
+                }
+
+                if ($whmcsDomainIds->isNotEmpty()) {
+                    $query->orWhereIn('whmcs_domain_id', $whmcsDomainIds);
+                }
+
+                if ($whmcsHostingIds->isNotEmpty()) {
+                    $query->orWhereIn('whmcs_hosting_id', $whmcsHostingIds);
+                }
+
+                if ($webhostIds->isNotEmpty()) {
+                    $query->orWhereIn('webhost_id', $webhostIds);
+                }
+            })
+            ->orderByDesc('tanggal')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return collect($rows)->map(function ($row) use ($followUps) {
+            $domainId = data_get($row, 'domain.id');
+            $hostingId = data_get($row, 'hosting.id');
+            $webhostId = data_get($row, 'webhost.id_webhost');
+            $whmcsUserId = data_get($row, 'user.id');
+
+            $row['follow_up_perpanjang'] = $followUps->first(function ($followUp) use ($domainId, $hostingId, $webhostId, $whmcsUserId) {
+                return ($domainId && (int) $followUp->whmcs_domain_id === (int) $domainId)
+                    || ($hostingId && (int) $followUp->whmcs_hosting_id === (int) $hostingId)
+                    || ($webhostId && (int) $followUp->webhost_id === (int) $webhostId)
+                    || ($whmcsUserId && (int) $followUp->whmcs_user_id === (int) $whmcsUserId);
+            });
+
+            return $row;
+        })->all();
     }
 
     public function grafik(Request $request)
