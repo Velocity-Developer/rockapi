@@ -58,6 +58,7 @@ class WhmcsUserController extends Controller
             'lastname' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
             'whmcs_id' => 'required|integer',
+            'alasan' => 'nullable|string',
         ]);
 
         //create whmcs user
@@ -66,6 +67,7 @@ class WhmcsUserController extends Controller
             'lastname' => $validated['lastname'],
             'email' => $validated['email'],
             'whmcs_id' => $validated['whmcs_id'],
+            'alasan' => $validated['alasan'] ?? null,
         ]);
 
         return response()->json($whmcsUser);
@@ -111,6 +113,7 @@ class WhmcsUserController extends Controller
             'lastname' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
             'whmcs_id' => 'required|integer',
+            'alasan' => 'nullable|string',
         ]);
 
         //get whmcs user by id
@@ -126,6 +129,7 @@ class WhmcsUserController extends Controller
             'lastname' => $validated['lastname'],
             'email' => $validated['email'],
             'whmcs_id' => $validated['whmcs_id'],
+            'alasan' => $validated['alasan'] ?? null,
         ]);
 
         return response()->json($whmcsUser);

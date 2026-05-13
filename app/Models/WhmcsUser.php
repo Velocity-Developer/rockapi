@@ -11,6 +11,7 @@ class WhmcsUser extends Model
         'email',
         'firstname',
         'lastname',
+        'alasan',
     ];
 
     //relasi one to many dengan whmcs_domain
