@@ -384,7 +384,7 @@ class KlienPerpanjangController extends Controller
         }
 
         $reindexed_array = array_values($data);
-        $reindexed_array = $this->attachFollowUpPerpanjang($reindexed_array);
+        $reindexed_array = $this->attachFollowUpPerpanjang($reindexed_array, (int) $y);
         $total = count($reindexed_array);
         $total_perpanjang = collect($reindexed_array)->filter(function ($item) {
             return $item['status'] === true;
@@ -404,7 +404,7 @@ class KlienPerpanjangController extends Controller
         ];
     }
 
-    private function attachFollowUpPerpanjang(array $rows): array
+    private function attachFollowUpPerpanjang(array $rows, int $year): array
     {
         if (empty($rows)) {
             return $rows;
@@ -425,6 +425,7 @@ class KlienPerpanjangController extends Controller
 
         $followUps = FollowUpPerpanjang::query()
             ->select('id', 'status', 'tanggal', 'whmcs_user_id', 'whmcs_domain_id', 'whmcs_hosting_id', 'webhost_id', 'user_id', 'keterangan', 'alasan', 'created_at')
+            ->whereYear('tanggal', $year)
             ->where(function ($query) use ($whmcsUserIds, $whmcsDomainIds, $whmcsHostingIds, $webhostIds) {
                 if ($whmcsUserIds->isNotEmpty()) {
                     $query->orWhereIn('whmcs_user_id', $whmcsUserIds);
