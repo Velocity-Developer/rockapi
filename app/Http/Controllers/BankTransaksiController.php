@@ -23,7 +23,7 @@ class BankTransaksiController extends Controller
         $req_bank = $request->input('bank');
 
         // get data sorting, by bank dan bulan
-        $sorting = BankSorting::where('bulan', 'like', '%'.$req_bulan.'%')
+        $sorting = BankSorting::where('bulan', 'like', '%' . $req_bulan . '%')
             ->where('bank', $req_bank)
             ->get();
 
@@ -43,7 +43,7 @@ class BankTransaksiController extends Controller
 
         // get data bank, berdasarkan LIKE tahun-bulan di tgl
         $banks = Bank::orderBy('tgl', 'asc')
-            ->where('tgl', 'like', '%'.$req_bulan.'%')
+            ->where('tgl', 'like', '%' . $req_bulan . '%')
             ->where('bank', $req_bank)
             ->with(
                 'TransaksiKeluar',
@@ -66,7 +66,7 @@ class BankTransaksiController extends Controller
         if ($banks) {
             foreach ($banks as $key => $bank) {
                 $nomor = str_replace('-', '', $bank->tgl);
-                $bank->nomor = $nomor.$bank->id;
+                $bank->nomor = $nomor . $bank->id;
 
                 // jika jenis transaksi adalah 'masuk'
                 if ($bank->jenis_transaksi == 'masuk') {
@@ -114,7 +114,7 @@ class BankTransaksiController extends Controller
             SUM(CASE WHEN jenis_transaksi = 'masuk' THEN nominal ELSE 0 END) as total_masuk,
             SUM(CASE WHEN jenis_transaksi = 'keluar' THEN nominal ELSE 0 END) as total_keluar
         ")
-            ->where('tgl', 'like', $req_tahun.'-%') // misal grafik 1 tahun
+            ->where('tgl', 'like', $req_tahun . '-%') // misal grafik 1 tahun
             ->where('keterangan_bank', 'like', '%prive%') // hanya prive
             ->groupBy('bulan')
             ->orderBy('bulan', 'asc')
@@ -291,7 +291,7 @@ class BankTransaksiController extends Controller
 
         // search TransaksiKeluar: jenis by keyword, 1 tahun terakhir
         $transaksi_keluar = TransaksiKeluar::with('bank')
-            ->where('jenis', 'like', '%'.$keyword.'%')
+            ->where('jenis', 'like', '%' . $keyword . '%')
             // ->where('tgl', '>=', $tgl_1_tahun_terakhir)
             ->orderBy('tgl', 'desc')
             ->limit(30)
@@ -300,7 +300,7 @@ class BankTransaksiController extends Controller
         // search CsMainProject with webhost: webhost.nama_web by keyword, limit 10
         $cs_main_project = CsMainProject::with('Webhost', 'bank')
             ->whereHas('Webhost', function ($query) use ($keyword) {
-                $query->where('nama_web', 'like', '%'.$keyword.'%');
+                $query->where('nama_web', 'like', '%' . $keyword . '%');
             })
             // ->where('tgl_masuk', '>=', $tgl_1_tahun_terakhir)
             ->orderBy('tgl_masuk', 'desc')
@@ -344,7 +344,7 @@ class BankTransaksiController extends Controller
 
         // get data bank, berdasarkan LIKE tahun-bulan di tgl
         $banks = Bank::orderBy('tgl', 'asc')
-            ->where('tgl', 'like', '%'.$req_bulan.'%')
+            ->where('tgl', 'like', '%' . $req_bulan . '%')
             ->where('bank', $req_bank)
             ->with(
                 'TransaksiKeluar',
@@ -362,8 +362,8 @@ class BankTransaksiController extends Controller
 
         // susun ulang data untuk export
 
+        $results = [];
         if ($banks) {
-            $results = [];
             foreach ($banks as $key => $bank) {
                 // jika jenis transaksi adalah 'masuk'
                 if ($bank->jenis_transaksi == 'masuk') {
@@ -379,16 +379,16 @@ class BankTransaksiController extends Controller
 
                 if ($bank->CsMainProject) {
                     foreach ($bank->CsMainProject as $key => $value) {
-                        $ket_jenis .= $value->tgl_masuk.' - ';
-                        $ket_jenis .= $value->jenis.' - ';
-                        $ket_jenis .= $value->webhost->nama_web.' - ';
+                        $ket_jenis .= $value->tgl_masuk . ' - ';
+                        $ket_jenis .= $value->jenis . ' - ';
+                        $ket_jenis .= $value->webhost->nama_web . ' - ';
                         $ket_jenis .= $value->dibayar;
                     }
                 }
                 if ($bank->TransaksiKeluar) {
                     foreach ($bank->TransaksiKeluar as $key => $value) {
-                        $ket_jenis .= $value->tgl.' - ';
-                        $ket_jenis .= $value->jenis.' - ';
+                        $ket_jenis .= $value->tgl . ' - ';
+                        $ket_jenis .= $value->jenis . ' - ';
                         $ket_jenis .= $value->jml;
                     }
                 }
@@ -405,7 +405,7 @@ class BankTransaksiController extends Controller
                     'Keluar' => $bank->jenis_transaksi == 'keluar'
                         ? number_format($bank->nominal, 2, ',', '.')
                         : '',
-                    'Saldo' => 'Rp '.number_format($saldo, 2, ',', '.'),
+                    'Saldo' => 'Rp ' . number_format($saldo, 2, ',', '.'),
                 ];
             }
         }
