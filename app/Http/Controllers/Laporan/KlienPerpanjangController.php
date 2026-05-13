@@ -335,6 +335,7 @@ class KlienPerpanjangController extends Controller
                     'email' => $user->email,
                     'firstname' => $user->firstname,
                     'lastname' => $user->lastname,
+                    'alasan' => $user->alasan,
                 ];
                 $data[$domain_name]['webhost'] = $domain->webhost;
                 $data[$domain_name]['webhost_available'] = $domain->webhost ? 1 : 0;
@@ -365,6 +366,7 @@ class KlienPerpanjangController extends Controller
                     'email' => $user->email,
                     'firstname' => $user->firstname,
                     'lastname' => $user->lastname,
+                    'alasan' => $user->alasan,
                 ];
                 if (!isset($data[$domain_name]['webhost']) || isset($data[$domain_name]['webhost']) && empty($data[$domain_name]['webhost'])) {
                     $data[$domain_name]['status'] = isset($data[$domain_name]['status']) ? $data[$domain_name]['status'] : false;
@@ -823,6 +825,7 @@ class KlienPerpanjangController extends Controller
                     'email' => $user->email,
                     'firstname' => $user->firstname,
                     'lastname' => $user->lastname,
+                    'alasan' => $user->alasan,
                 ];
                 $data[$domainName]['webhost'] = $webhost;
                 $data[$domainName]['webhost_available'] = $webhost ? 1 : 0;
@@ -847,6 +850,7 @@ class KlienPerpanjangController extends Controller
                     'email' => $user->email,
                     'firstname' => $user->firstname,
                     'lastname' => $user->lastname,
+                    'alasan' => $user->alasan,
                 ];
 
                 if (empty($data[$domainName]['webhost'])) {

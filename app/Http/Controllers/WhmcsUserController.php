@@ -54,10 +54,10 @@ class WhmcsUserController extends Controller
     {
         //validate request
         $validated = $request->validate([
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
-            'whmcs_id' => 'required|integer',
+            'firstname' => 'sometimes|required|string|max:255',
+            'lastname' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|string|email|max:255',
+            'whmcs_id' => 'sometimes|required|integer',
             'alasan' => 'nullable|string',
         ]);
 
@@ -124,13 +124,7 @@ class WhmcsUserController extends Controller
         }
 
         //update whmcs user
-        $whmcsUser->update([
-            'firstname' => $validated['firstname'],
-            'lastname' => $validated['lastname'],
-            'email' => $validated['email'],
-            'whmcs_id' => $validated['whmcs_id'],
-            'alasan' => $validated['alasan'] ?? null,
-        ]);
+        $whmcsUser->update($validated);
 
         return response()->json($whmcsUser);
     }
@@ -150,5 +144,30 @@ class WhmcsUserController extends Controller
         $whmcsUser->delete();
 
         return response()->json(['message' => 'Whmcs User deleted successfully']);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update_alasan(Request $request, string $id)
+    {
+        //validate request
+        $validated = $request->validate([
+            'alasan' => 'nullable|string',
+        ]);
+
+        //get whmcs user by id
+        $whmcsUser = WhmcsUser::find($id);
+
+        if (!$whmcsUser) {
+            return response()->json(['message' => 'Whmcs User not found'], 404);
+        }
+
+        //update whmcs user
+        $whmcsUser->update([
+            'alasan' => $validated['alasan'] ?? null,
+        ]);
+
+        return response()->json($whmcsUser);
     }
 }

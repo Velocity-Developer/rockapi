@@ -220,6 +220,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // cs_main_project origin
     Route::put('/cs_main_project_origin/{id}', [CsMainProjectController::class, 'update_origin']);
 
+    Route::post('/whmcs_user_alasan/{id}', [WhmcsUserController::class, 'update_alasan']);
 });
 
 // Invoice PDF route
