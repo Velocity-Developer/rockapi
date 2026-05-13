@@ -36,6 +36,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\WebhostController;
 use App\Http\Controllers\WmProjectController;
 use App\Http\Controllers\FollowupAdvertiserController;
+use App\Http\Controllers\FollowUpPerpanjangController;
 use App\Http\Controllers\HargaDomainController;
 use App\Http\Controllers\QualityController;
 use App\Http\Controllers\CutiController;
@@ -89,6 +90,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'rekap-form' => RekapFormController::class,
         'rekap-chat' => RekapChatController::class,
         'followup-advertiser' => FollowupAdvertiserController::class,
+        'follow-up-perpanjang' => FollowUpPerpanjangController::class,
         'harga-domain' => HargaDomainController::class,
         'quality' => QualityController::class,
         'cuti' => CutiController::class,
