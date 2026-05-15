@@ -115,34 +115,44 @@ class DataOpsiController extends Controller
     private function bank($kategori = null)
     {
         $data_banks = [
+            // [
+            //     'value' => 'bca',
+            //     'label' => 'BCA',
+            //     'kategori' => 'umum',
+            // ],
+            // [
+            //     'value' => 'bca stok',
+            //     'label' => 'BCA Stok',
+            //     'kategori' => 'umum',
+            // ],
+            // [
+            //     'value' => 'mandiri',
+            //     'label' => 'Mandiri',
+            //     'kategori' => 'umum',
+            // ],
+            // [
+            //     'value' => 'bni',
+            //     'label' => 'BNI',
+            //     'kategori' => 'umum',
+            // ],
+            // [
+            //     'value' => 'bri',
+            //     'label' => 'BRI',
+            //     'kategori' => 'umum',
+            // ],
+            // [
+            //     'value' => 'dbs',
+            //     'label' => 'DBS',
+            //     'kategori' => 'umum',
+            // ],
             [
-                'value' => 'bca',
-                'label' => 'BCA',
+                'value' => 'jago_penyusutan',
+                'label' => 'Jago Penyusutan',
                 'kategori' => 'umum',
             ],
             [
-                'value' => 'bca stok',
-                'label' => 'BCA Stok',
-                'kategori' => 'umum',
-            ],
-            [
-                'value' => 'mandiri',
-                'label' => 'Mandiri',
-                'kategori' => 'umum',
-            ],
-            [
-                'value' => 'bni',
-                'label' => 'BNI',
-                'kategori' => 'umum',
-            ],
-            [
-                'value' => 'bri',
-                'label' => 'BRI',
-                'kategori' => 'umum',
-            ],
-            [
-                'value' => 'dbs',
-                'label' => 'DBS',
+                'value' => 'jago_laci',
+                'label' => 'Jago Laci',
                 'kategori' => 'umum',
             ],
             [
