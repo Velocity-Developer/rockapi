@@ -76,6 +76,9 @@ class DataOpsiController extends Controller
             case 'kategori_web':
                 $result = $this->kategori_web();
                 break;
+            case 'alasan_whmcs_user':
+                $result = $this->alasan_whmcs_user();
+                break;
             default:
                 $result = [];
         }
@@ -370,6 +373,34 @@ class DataOpsiController extends Controller
             }
 
             $item = ucwords(strtolower(trim($item))); // normalisasi: trim + lowercase + ucwords
+
+            // skip jika sudah ada sebelumnya
+            if (in_array($item, $usedValues, true)) {
+                continue;
+            }
+
+            $usedValues[] = $item;
+
+            $result[] = [
+                'value' => $item,
+                'label' => $item,
+            ];
+        }
+
+        return $result;
+    }
+
+    private function alasan_whmcs_user()
+    {
+        $alasan_whmcs_user = Setting::get('alasan_whmcs_user') ?? ['No respon'];
+
+        $result = [];
+        $usedValues = []; // tracker untuk deteksi duplikasi setelah normalisasi
+
+        foreach ($alasan_whmcs_user as $item) {
+            if (! $item) {
+                continue;
+            }
 
             // skip jika sudah ada sebelumnya
             if (in_array($item, $usedValues, true)) {
