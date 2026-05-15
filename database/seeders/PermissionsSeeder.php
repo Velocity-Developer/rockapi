@@ -36,18 +36,27 @@ class PermissionsSeeder extends Seeder
             'manage-csmainproject',
             'manage-webhostsubscription',
             'manage-absensi',
+            'manage-klienperpanjang'
         ];
 
         foreach ($permissions as $permission) {
             // check permission
             if (! Permission::where('name', $permission)->exists()) {
-                Permission::create(['name' => $permission]);
+                Permission::create(['name' => $permission, 'guard_name' => 'web']);
                 $this->command->info('Permission created: ' . $permission);
             }
         }
 
-        //give admin all
-        $role_admin = Role::where('name', 'admin')->first();
-        $role_admin->givePermissionTo(Permission::all());
+        // Ambil role admin (pastikan mengambil modelnya secara tepat)
+        $role_admin = Role::where('name', 'admin')->where('guard_name', 'web')->first();
+
+        if ($role_admin) {
+            // Ambil nama semua permission ber-guard 'web' dalam bentuk array
+            $web_permissions = Permission::where('guard_name', 'web')->pluck('name')->toArray();
+
+            // Sinkronkan menggunakan array nama/ID
+            $role_admin->syncPermissions($web_permissions);
+            $this->command->info('Berhasil memberikan semua permission ke Admin.');
+        }
     }
 }
