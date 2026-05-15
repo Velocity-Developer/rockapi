@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\WhmcsUser;
+use App\Models\Setting;
 
 
 class WhmcsUserController extends Controller
@@ -167,6 +168,14 @@ class WhmcsUserController extends Controller
         $whmcsUser->update([
             'alasan' => $validated['alasan'] ?? null,
         ]);
+
+        //simpan alasan ke setting
+        $daftar_alasan = Setting::get('alasan_whmcs_user') ?? [];
+        // jika input alasan tidak ada di daftar maka tambahkan ke array
+        if (! in_array($validated['alasan'] ?? null, $daftar_alasan)) {
+            array_push($daftar_alasan, $validated['alasan'] ?? null);
+            Setting::set('alasan_whmcs_user', $daftar_alasan);
+        }
 
         return response()->json($whmcsUser);
     }
