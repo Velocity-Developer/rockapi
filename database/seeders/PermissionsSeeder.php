@@ -42,7 +42,7 @@ class PermissionsSeeder extends Seeder
         foreach ($permissions as $permission) {
             // check permission
             if (! Permission::where('name', $permission)->exists()) {
-                Permission::create(['name' => $permission, 'guard_name' => 'web']);
+                Permission::findOrCreate($permission, 'web');
                 $this->command->info('Permission created: ' . $permission);
             }
         }
