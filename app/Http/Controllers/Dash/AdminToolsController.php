@@ -20,6 +20,11 @@ class AdminToolsController extends Controller
             'name' => 'Migrate Database',
             'icon' => 'lucide:database',
         ],
+        [
+            'key' => 'db:seed --class=PermissionsSeeder',
+            'name' => 'Seeder Permissions',
+            'icon' => 'lucide:shield-user',
+        ],
     ];
 
     /**
