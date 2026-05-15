@@ -96,6 +96,27 @@ class CekServerTimSupportController extends Controller
         ]);
 
         $cekServer = CekServerTimSupport::findOrFail($id);
+
+        if (
+            array_key_exists('kapasitas_ssh', $data)
+            && $cekServer->kapasitas_ssh !== $data['kapasitas_ssh']
+        ) {
+            $data['tanggal_update_kapasitas_ssh'] = now();
+        }
+
+        if (array_key_exists('cek_error_idrac', $data)) {
+            $currentCekErrorIdrac = is_null($cekServer->cek_error_idrac)
+                ? null
+                : (bool) $cekServer->cek_error_idrac;
+            $newCekErrorIdrac = is_null($data['cek_error_idrac'])
+                ? null
+                : (bool) $data['cek_error_idrac'];
+
+            if ($currentCekErrorIdrac !== $newCekErrorIdrac) {
+                $data['tanggal_update_cek_error_idrac'] = now();
+            }
+        }
+
         $cekServer->update($data);
         $cekServer->load('server:id,name', 'user:id,name,username');
 
