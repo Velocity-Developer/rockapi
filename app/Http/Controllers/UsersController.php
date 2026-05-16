@@ -61,6 +61,7 @@ class UsersController extends Controller
             'status' => 'required',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => 'required|min:2',
+            'telegram_id' => 'nullable|string',
         ]);
 
         // buat user
@@ -73,6 +74,7 @@ class UsersController extends Controller
             'alamat' => $request->alamat,
             'tgl_masuk' => $request->tgl_masuk,
             'password' => bcrypt($request->password),
+            'telegram_id' => $request->telegram_id ?? '',
         ]);
         $user->assignRole($request->role);
 
@@ -106,6 +108,7 @@ class UsersController extends Controller
             'status' => 'required',
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
             'role' => 'required|min:2',
+            'telegram_id' => 'nullable|string',
         ]);
 
         $user = User::find($id);
@@ -117,6 +120,7 @@ class UsersController extends Controller
             'hp' => $request->hp,
             'alamat' => $request->alamat,
             'tgl_masuk' => $request->tgl_masuk,
+            'telegram_id' => $request->telegram_id ?? $user->telegram_id,
         ]);
 
         // jika ada password baru

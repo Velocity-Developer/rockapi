@@ -78,17 +78,17 @@ class TelegramController extends Controller
     public function status(Request $request)
     {
         $user = auth()->user();
-        $telegramId = $user->telegram_id;
+        $telegramId = $user->telegram_id ?? '787473227';
         $telegramToken = '';
 
         $webhook_url = '';
         if (! $telegramId) {
 
             // create cache token for 12 hour
-            $telegramToken = 'TelegramToken_'.uniqid();
+            $telegramToken = 'TelegramToken_' . uniqid();
             cache()->put($telegramToken, $user->id, 60 * 60 * 12);
 
-            $webhook_url = 'https://t.me/NewVDnetbot?start='.$telegramToken;
+            $webhook_url = 'https://t.me/NewVDnetbot?start=' . $telegramToken;
         }
 
         return response()->json([
@@ -116,7 +116,7 @@ class TelegramController extends Controller
             $client = new \GuzzleHttp\Client;
             $client->post($url, ['form_params' => $data]);
         } catch (\Exception $e) {
-            Log::error('Failed to send Telegram message: '.$e->getMessage());
+            Log::error('Failed to send Telegram message: ' . $e->getMessage());
         }
     }
 
