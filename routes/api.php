@@ -221,6 +221,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/cs_main_project_origin/{id}', [CsMainProjectController::class, 'update_origin']);
 
     Route::post('/whmcs_user_alasan/{id}', [WhmcsUserController::class, 'update_alasan']);
+
+    Route::get('/telegram/test_notif_user', [TelegramController::class, 'test_notif_user']);
+    Route::post('/telegram/update', [TelegramController::class, 'user_update_telegram_id']);
 });
 
 // Invoice PDF route

@@ -78,7 +78,7 @@ class TelegramController extends Controller
     public function status(Request $request)
     {
         $user = auth()->user();
-        $telegramId = $user->telegram_id ?? '787473227';
+        $telegramId = $user->telegram_id ?? '';
         $telegramToken = '';
 
         $webhook_url = '';
@@ -95,6 +95,42 @@ class TelegramController extends Controller
             'telegram_id' => $telegramId,
             'webhook_url' => $webhook_url,
             'telegram_token' => $telegramToken,
+        ]);
+    }
+
+    public function user_update_telegram_id(Request $request)
+    {
+        // validate request
+        $request->validate([
+            'telegram_id' => 'nullable|string',
+        ]);
+
+        $user = auth()->user();
+
+        //update telegram_id
+        $user->telegram_id = $request->telegram_id;
+        $user->save();
+
+        return response()->json($user);
+    }
+
+    // status notifikasi user login
+    public function test_notif_user(Request $request)
+    {
+        $user = auth()->user();
+        $telegramId = $user->telegram_id ?? '';
+
+        if ($telegramId) {
+            $this->sendMessage($telegramId, 'Test Notifikasi');
+
+            return response()->json([
+                'success' => true,
+                'telegram_id' => $telegramId,
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
         ]);
     }
 
