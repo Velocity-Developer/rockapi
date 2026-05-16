@@ -120,7 +120,7 @@ class UsersController extends Controller
             'hp' => $request->hp,
             'alamat' => $request->alamat,
             'tgl_masuk' => $request->tgl_masuk,
-            'telegram_id' => $request->telegram_id ?? $user->telegram_id,
+            'telegram_id' => $request->telegram_id,
         ]);
 
         // jika ada password baru
