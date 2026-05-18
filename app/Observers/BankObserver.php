@@ -9,7 +9,10 @@ use App\Services\TelegramServices;
 
 class BankObserver
 {
-    private const MINIMUM_SALDO = 10000000;
+    private const MINIMUM_SALDO_BY_BANK = [
+        'jago' => 10000000,
+        'vcc_jago_ads' => 3000000,
+    ];
 
     /**
      * Handle the Bank "created" event.
@@ -62,15 +65,16 @@ class BankObserver
             return;
         }
 
-        //pastikan bank = jago
-        if ($bank->jenis != 'jago') {
+        $minimumSaldo = self::MINIMUM_SALDO_BY_BANK[$bank->bank] ?? null;
+
+        if (! $minimumSaldo) {
             return;
         }
 
         $bulan = date('Y-m');
         $saldoSaatIni = $this->getSaldoSaatIni($bulan, $bank->bank);
 
-        if ($saldoSaatIni >= self::MINIMUM_SALDO) {
+        if ($saldoSaatIni >= $minimumSaldo) {
             return;
         }
 
@@ -80,7 +84,7 @@ class BankObserver
             . ' - saldo saat ini: '
             . $this->formatRupiah($saldoSaatIni)
             . ', kurang dari '
-            . $this->formatRupiah(self::MINIMUM_SALDO);
+            . $this->formatRupiah($minimumSaldo);
 
         $users = User::role('manager_advertising')
             ->whereNotNull('telegram_id')
