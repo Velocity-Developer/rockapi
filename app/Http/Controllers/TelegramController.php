@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use App\Models\User;
+use App\Services\TelegramServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class TelegramController extends Controller
 {
     // webhook get chat id
-    public function webhook(Request $request)
+    public function webhook(Request $request, TelegramServices $telegramServices)
     {
         $message = $request->input('message');
         if (! $message) {
@@ -27,7 +28,7 @@ class TelegramController extends Controller
 
         // Kalau user belum kirim apa-apa, kirim pesan welcome
         if ($text === '' || $text === '/start') {
-            $this->sendMessage($telegramId, "👋 Selamat datang di *Nglorok Bot!*\n\nKirim kode Token Telegram yang kamu dapat dari dashboard untuk menghubungkan akun.", true);
+            $telegramServices->sendMessage($telegramId, "👋 Selamat datang di *Nglorok Bot!*\n\nKirim kode Token Telegram yang kamu dapat dari dashboard untuk menghubungkan akun.", true);
 
             return response()->json(['ok' => true]);
         }
@@ -39,7 +40,7 @@ class TelegramController extends Controller
             $userId = intval(cache()->get($text));
 
             if (! $userId) {
-                $this->sendMessage($telegramId, '❌ Kode verifikasi tidak valid atau sudah kadaluarsa.');
+                $telegramServices->sendMessage($telegramId, '❌ Kode verifikasi tidak valid atau sudah kadaluarsa.');
 
                 return response()->json(['ok' => false, 'message' => 'invalid token']);
             }
@@ -47,7 +48,7 @@ class TelegramController extends Controller
             // Cek user
             $user = User::find($userId);
             if (! $user) {
-                $this->sendMessage($telegramId, '❌ User tidak ditemukan di sistem.');
+                $telegramServices->sendMessage($telegramId, '❌ User tidak ditemukan di sistem.');
 
                 return response()->json(['ok' => false, 'message' => 'user not found']);
             }
@@ -60,7 +61,7 @@ class TelegramController extends Controller
             cache()->forget($text);
 
             // Kirim pesan sukses
-            $this->sendMessage($telegramId, "✅ Verifikasi berhasil!\nAkun kamu sudah terhubung dengan bot Telegram ini.");
+            $telegramServices->sendMessage($telegramId, "✅ Verifikasi berhasil!\nAkun kamu sudah terhubung dengan bot Telegram ini.");
 
             return response()->json(['ok' => true]);
         }
@@ -68,7 +69,7 @@ class TelegramController extends Controller
         // kalau text ada 'invoice=' di awal, itu invoice
         if (strpos($text, 'invoice=') === 0) {
             $msg = $this->checkInvoice($text);
-            $this->sendMessage($telegramId, $msg);
+            $telegramServices->sendMessage($telegramId, $msg);
         }
 
         return response()->json(['ok' => true]);
@@ -115,13 +116,13 @@ class TelegramController extends Controller
     }
 
     // status notifikasi user login
-    public function test_notif_user(Request $request)
+    public function test_notif_user(Request $request, TelegramServices $telegramServices)
     {
         $user = auth()->user();
         $telegramId = $user->telegram_id ?? '';
 
         if ($telegramId) {
-            $this->sendMessage($telegramId, 'Test Notifikasi');
+            $telegramServices->sendMessage($telegramId, 'Test Notifikasi');
 
             return response()->json([
                 'success' => true,
@@ -132,28 +133,6 @@ class TelegramController extends Controller
         return response()->json([
             'success' => false,
         ]);
-    }
-
-    private function sendMessage($chatId, $text, $parseMarkdown = false)
-    {
-        $token = env('TELEGRAM_BOT_TOKEN');
-        $url = "https://api.telegram.org/bot{$token}/sendMessage";
-
-        $data = [
-            'chat_id' => $chatId,
-            'text' => $text,
-        ];
-
-        if ($parseMarkdown) {
-            $data['parse_mode'] = 'Markdown';
-        }
-
-        try {
-            $client = new \GuzzleHttp\Client;
-            $client->post($url, ['form_params' => $data]);
-        } catch (\Exception $e) {
-            Log::error('Failed to send Telegram message: ' . $e->getMessage());
-        }
     }
 
     private function checkInvoice($text)
