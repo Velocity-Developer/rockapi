@@ -80,11 +80,10 @@ class BankObserver
 
         $telegramServices = app(TelegramServices::class);
 
-        $message = $bank->bank
-            . ' - saldo saat ini: '
-            . $this->formatRupiah($saldoSaatIni)
-            . ', kurang dari '
-            . $this->formatRupiah($minimumSaldo);
+        $message = 'Saldo bank ' . $bank->bank . ' saat ini kurang dari '
+            . $this->formatRupiah($minimumSaldo)
+            . "\n\nSaldo bank:\n"
+            . $this->getSaldoBankMessage($bulan);
 
         $users = User::role('manager_advertising')
             ->whereNotNull('telegram_id')
@@ -124,6 +123,21 @@ class BankObserver
         }
 
         return $saldo;
+    }
+
+    private function getSaldoBankMessage(string $bulan): string
+    {
+        $messages = [];
+        $label_bank = [
+            'jago' => 'Jago',
+            'vcc_jago_ads' => 'VCC Jago Ads',
+        ];
+
+        foreach (array_keys(self::MINIMUM_SALDO_BY_BANK) as $bank) {
+            $messages[] = ' - ' . $label_bank[$bank] . ' : ' . $this->formatRupiah($this->getSaldoSaatIni($bulan, $bank));
+        }
+
+        return implode("\n", $messages);
     }
 
     private function formatRupiah(float|int $nominal): string
