@@ -16,6 +16,14 @@ class ServerUserController extends Controller
         $users = ServerUser::where('server_id', $server_id);
         $users = $users->with('server:id,name', 'server_package:id,name');
 
+        $search = trim((string) $request->input('search', ''));
+        if ($search !== '') {
+            $users = $users->where(function ($query) use ($search) {
+                $query->where('username', 'like', "%{$search}%")
+                    ->orWhere('domain', 'like', "%{$search}%");
+            });
+        }
+
         // order by name
         $order_by = $request->input('order_by', 'username');
         $order = $request->input('order', 'asc');
