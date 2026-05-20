@@ -154,4 +154,45 @@ class WHMCSCustomService
             return ['success' => false, 'type' => 'other', 'message' => $e->getMessage()];
         }
     }
+
+    public function getHosting(?string $id = null): array
+    {
+        $params = [
+            'id'           => $id,
+            'responsetype' => 'json',
+            'timeout'      => 30,
+        ];
+
+        $url = rtrim($this->apiUrl, '/') . '/get-hosting.php';
+
+        try {
+            $response = Http::timeout(30)->get($url, $params);
+
+            if ($response->failed()) {
+                return [
+                    'success' => false,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'json' => $response->json(),
+                    'url'    => $url . '?' . http_build_query($params),
+                ];
+            }
+
+            return $response->json() ?? [];
+        } catch (ConnectionException $e) {
+            return ['success' => false, 'type' => 'connection', 'message' => $e->getMessage()];
+        } catch (RequestException $e) {
+            // biasanya muncul kalau pakai ->throw()
+            return [
+                'success' => false,
+                'type' => 'request',
+                'status' => optional($e->response)->status(),
+                'body' => optional($e->response)->body(),
+                'message' => $e->getMessage(),
+                'url'    => $url . '?' . http_build_query($params),
+            ];
+        } catch (\Throwable $e) {
+            return ['success' => false, 'type' => 'other', 'message' => $e->getMessage()];
+        }
+    }
 }

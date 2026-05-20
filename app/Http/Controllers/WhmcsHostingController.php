@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\WhmcsHosting;
+use App\Services\WHMCSCustomService;
 
 class WhmcsHostingController extends Controller
 {
@@ -176,5 +177,19 @@ class WhmcsHostingController extends Controller
             'package_servertype' => [$required, 'nullable', 'string', 'max:255'],
             'package_name_id' => [$required, 'nullable', 'string', 'max:255'],
         ]);
+    }
+
+
+    public function getHostingWhmcs(string $id, WHMCSCustomService $whmcsCustomService)
+    {
+        $whmcsHosting = WhmcsHosting::find($id);
+
+        if (!$whmcsHosting) {
+            return response()->json(['message' => 'Whmcs Hosting not found'], 404);
+        }
+
+        $whmcsHosting->whmcsHosting = $whmcsCustomService->getHosting($whmcsHosting->whmcs_id);
+
+        return response()->json($whmcsHosting);
     }
 }
