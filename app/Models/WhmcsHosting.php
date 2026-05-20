@@ -14,6 +14,11 @@ class WhmcsHosting extends Model
         'nextduedate',
         'billingcycle',
         'domainstatus',
+        'username',
+        'diskusage',
+        'disklimit',
+        'bwusage',
+        'bwlimit',
         'package_name',
         'package_servertype',
         'package_name_id'

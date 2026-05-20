@@ -23,6 +23,7 @@ class WhmcsHostingController extends Controller
             $search = $request->input('search');
             $query->where(function ($query) use ($search) {
                 $query->where('domain', 'like', "%{$search}%")
+                    ->orWhere('username', 'like', "%{$search}%")
                     ->orWhere('package_name', 'like', "%{$search}%")
                     ->orWhere('package_servertype', 'like', "%{$search}%");
             });
@@ -166,6 +167,11 @@ class WhmcsHostingController extends Controller
             'nextduedate' => [$required, 'nullable', 'date'],
             'billingcycle' => [$required, 'nullable', 'string', 'max:255'],
             'domainstatus' => [$required, 'nullable', 'string', 'max:255'],
+            'username' => [$required, 'nullable', 'string', 'max:255'],
+            'diskusage' => [$required, 'nullable', 'integer'],
+            'disklimit' => [$required, 'nullable', 'integer'],
+            'bwusage' => [$required, 'nullable', 'integer'],
+            'bwlimit' => [$required, 'nullable', 'integer'],
             'package_name' => [$required, 'nullable', 'string', 'max:255'],
             'package_servertype' => [$required, 'nullable', 'string', 'max:255'],
             'package_name_id' => [$required, 'nullable', 'string', 'max:255'],
