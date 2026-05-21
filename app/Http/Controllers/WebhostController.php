@@ -135,21 +135,18 @@ class WebhostController extends Controller
         // hapus http:// dan https:// dari keyword
         $keyword = $keyword ? preg_replace('/^https?:\/\//', '', $keyword) : $keyword;
 
-        $cacheKey = 'webhost_search_' . $keyword;
-
-        $webhosts = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($keyword) {
-            $gets = Webhost::where('nama_web', 'like', '%' . $keyword . '%')
-                ->select('nama_web', 'id_webhost', 'kategori')
-                ->limit(200)
-                ->get();
-            return $gets ? array_values($gets->toArray()) : [];
-        });
+        $webhosts = Webhost::where('nama_web', 'like', '%' . $keyword . '%')
+            ->select('nama_web', 'id_webhost', 'kategori')
+            ->limit(200)
+            ->get();
 
         // jika kosong
         if (empty($webhosts)) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);
         }
 
-        return response()->json($webhosts);
+        $result = $webhosts ? array_values($webhosts->toArray()) : [];
+
+        return response()->json($result);
     }
 }
