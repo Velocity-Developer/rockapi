@@ -201,6 +201,7 @@ class WhmcsHostingController extends Controller
             'disklimit' => $data['data'][0]['disklimit'],
             'bwusage' => $data['data'][0]['bwusage'],
             'bwlimit' => $data['data'][0]['bwlimit'],
+            'username' => $data['data'][0]['username'],
         ]);
 
         return response()->json($whmcsHosting);
