@@ -188,7 +188,20 @@ class WhmcsHostingController extends Controller
             return response()->json(['message' => 'Whmcs Hosting not found'], 404);
         }
 
-        $whmcsHosting->whmcsHosting = $whmcsCustomService->getHosting($whmcsHosting->whmcs_id);
+        $data = $whmcsCustomService->getHosting($whmcsHosting->whmcs_id);
+
+        //if false, return error
+        if (!$data['success']) {
+            return response()->json(['message' => 'Whmcs Hosting not found'], 404);
+        }
+
+        //update hosting
+        $whmcsHosting->update([
+            'diskusage' => $data['data'][0]['diskusage'],
+            'disklimit' => $data['data'][0]['disklimit'],
+            'bwusage' => $data['data'][0]['bwusage'],
+            'bwlimit' => $data['data'][0]['bwlimit'],
+        ]);
 
         return response()->json($whmcsHosting);
     }
