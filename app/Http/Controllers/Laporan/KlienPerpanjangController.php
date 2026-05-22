@@ -224,7 +224,7 @@ class KlienPerpanjangController extends Controller
                     // ->whereHas('webhost') // WAJIB ADA WEBHOST
                     ->with([
                         'webhost' => function ($q2) {
-                            $q2->select('id_webhost', 'nama_web', 'tgl_mulai')
+                            $q2->select('id_webhost', 'nama_web', 'tgl_mulai', 'hp')
                                 ->with([
                                     'csMainProjects' => function ($q3) {
                                         $q3->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'deskripsi', 'biaya')
@@ -252,7 +252,7 @@ class KlienPerpanjangController extends Controller
                     // ->whereHas('webhost') // WAJIB ADA WEBHOST
                     ->with([
                         'webhost' => function ($q2) {
-                            $q2->select('id_webhost', 'nama_web', 'tgl_mulai')
+                            $q2->select('id_webhost', 'nama_web', 'tgl_mulai', 'hp')
                                 ->with([
                                     'csMainProjects' => function ($q3) {
                                         $q3->select('id', 'id_webhost', 'jenis', 'tgl_masuk', 'deskripsi', 'biaya')
