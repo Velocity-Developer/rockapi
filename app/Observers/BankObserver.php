@@ -10,8 +10,26 @@ use App\Services\TelegramServices;
 class BankObserver
 {
     private const MINIMUM_SALDO_BY_BANK = [
-        'jago' => 10000000,
-        'vcc_jago_ads' => 3000000,
+        'jago' => [
+            'label' => 'Jago',
+            'min' => 10000000,
+            'label_currency' => 'Rp',
+        ],
+        'vcc_jago_ads' => [
+            'label' => 'VCC Jago Ads',
+            'min' => 3000000,
+            'label_currency' => 'Rp',
+        ],
+        'resellercamp' => [
+            'label' => 'RESELLERCAMP',
+            'min' => 100,
+            'label_currency' => '$',
+        ],
+        'srsx' => [
+            'label' => 'SRSX',
+            'min' => 600000,
+            'label_currency' => 'Rp',
+        ],
     ];
 
     /**
@@ -65,7 +83,8 @@ class BankObserver
             return;
         }
 
-        $minimumSaldo = self::MINIMUM_SALDO_BY_BANK[$bank->bank] ?? null;
+        $minimumSaldoConfig = self::MINIMUM_SALDO_BY_BANK[$bank->bank] ?? null;
+        $minimumSaldo = $minimumSaldoConfig['min'] ?? null;
 
         if (! $minimumSaldo) {
             return;
@@ -80,8 +99,8 @@ class BankObserver
 
         $telegramServices = app(TelegramServices::class);
 
-        $message = 'Saldo bank ' . $bank->bank . ' saat ini kurang dari '
-            . $this->formatRupiah($minimumSaldo)
+        $message = 'Saldo bank ' . $minimumSaldoConfig['label'] . ' saat ini kurang dari '
+            . $this->formatCurrency($minimumSaldo, $minimumSaldoConfig['label_currency'])
             . "\n\nSaldo bank:\n"
             . $this->getSaldoBankMessage($bulan);
 
@@ -128,20 +147,20 @@ class BankObserver
     private function getSaldoBankMessage(string $bulan): string
     {
         $messages = [];
-        $label_bank = [
-            'jago' => 'Jago',
-            'vcc_jago_ads' => 'VCC Jago Ads',
-        ];
 
-        foreach (array_keys(self::MINIMUM_SALDO_BY_BANK) as $bank) {
-            $messages[] = ' - ' . $label_bank[$bank] . ' : ' . $this->formatRupiah($this->getSaldoSaatIni($bulan, $bank));
+        foreach (self::MINIMUM_SALDO_BY_BANK as $bank => $minimumSaldoConfig) {
+            $messages[] = ' - ' . $minimumSaldoConfig['label'] . ' : '
+                . $this->formatCurrency(
+                    $this->getSaldoSaatIni($bulan, $bank),
+                    $minimumSaldoConfig['label_currency']
+                );
         }
 
         return implode("\n", $messages);
     }
 
-    private function formatRupiah(float|int $nominal): string
+    private function formatCurrency(float|int $nominal, string $labelCurrency): string
     {
-        return 'Rp ' . number_format($nominal, 0, ',', '.');
+        return $labelCurrency . ' ' . number_format($nominal, 0, ',', '.');
     }
 }
