@@ -13,6 +13,7 @@ class FollowUpPerpanjang extends Model
     protected $fillable = [
         'status',
         'tanggal',
+        'followup_terakhir',
         'whmcs_user_id',
         'whmcs_domain_id',
         'whmcs_hosting_id',
