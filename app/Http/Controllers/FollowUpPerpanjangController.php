@@ -65,7 +65,7 @@ class FollowUpPerpanjangController extends Controller
         return $request->validate([
             'status' => 'nullable|boolean',
             'tanggal' => 'required|date',
-            'followup_terakhir' => 'nullable|date',
+            'followup_terakhir' => 'nullable|string',
             'whmcs_user_id' => 'nullable|integer',
             'whmcs_domain_id' => 'nullable|integer',
             'whmcs_hosting_id' => 'nullable|integer',

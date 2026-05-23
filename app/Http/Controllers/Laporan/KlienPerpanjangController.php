@@ -426,7 +426,7 @@ class KlienPerpanjangController extends Controller
         }
 
         $followUps = FollowUpPerpanjang::query()
-            ->select('id', 'status', 'tanggal', 'whmcs_user_id', 'whmcs_domain_id', 'whmcs_hosting_id', 'webhost_id', 'user_id', 'keterangan', 'alasan', 'created_at')
+            ->select('id', 'status', 'tanggal', 'followup_terakhir', 'whmcs_user_id', 'whmcs_domain_id', 'whmcs_hosting_id', 'webhost_id', 'user_id', 'keterangan', 'alasan', 'created_at')
             ->whereYear('tanggal', $year)
             ->where(function ($query) use ($whmcsUserIds, $whmcsDomainIds, $whmcsHostingIds, $webhostIds) {
                 if ($whmcsUserIds->isNotEmpty()) {
