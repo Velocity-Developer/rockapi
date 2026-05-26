@@ -48,6 +48,7 @@ use App\Http\Controllers\WhmcsDomainController;
 use App\Http\Controllers\WhmcsHostingController;
 use App\Http\Controllers\ImproveChatController;
 use App\Http\Controllers\WebhostSubscriptionsController;
+use App\Http\Controllers\OngkirVDController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -225,6 +226,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/telegram/test_notif_user', [TelegramController::class, 'test_notif_user']);
     Route::post('/telegram/update', [TelegramController::class, 'user_update_telegram_id']);
+
+    //ongkir VD
+    Route::get('/ongkir-vd/shipping-logs', [OngkirVDController::class, 'getShippingLogs']);
 });
 
 // Invoice PDF route
