@@ -53,4 +53,9 @@ return [
         'mode' => env('APP_MODE', 'production'),
         'url_production' => env('APP_URL_PRODUCTION', env('APP_URL')),
     ],
+
+    'ongkir_vd' => [
+        'key' => env('ONGKIR_VD_API_KEY'),
+        'url' => env('ONGKIR_VD_API_URL', 'https://ongkir.velocitydeveloper.id/api'),
+    ],
 ];
