@@ -12,6 +12,9 @@ class OngkirVDController extends Controller
     {
         $params = $request->all();
         $result = $services->getShippingLogs($params);
-        return $this->success($result);
+
+        return response()->json([
+            'data' => $result,
+        ]);
     }
 }
