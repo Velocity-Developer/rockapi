@@ -16,6 +16,11 @@ class AdminToolsController extends Controller
             'icon' => 'lucide:trash-2',
         ],
         [
+            'key' => 'config:clear',
+            'name' => 'Clear Config Cache',
+            'icon' => 'lucide:brush-cleaning',
+        ],
+        [
             'key' => 'migrate',
             'name' => 'Migrate Database',
             'icon' => 'lucide:database',
