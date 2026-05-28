@@ -230,6 +230,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //ongkir VD
     Route::get('/ongkir-vd/shipping-logs', [OngkirVDController::class, 'getShippingLogs']);
     Route::get('/ongkir-vd/kodepos-logs', [OngkirVDController::class, 'getKodePosLogs']);
+    Route::get('/ongkir-vd/couriers', [OngkirVDController::class, 'getCouriers']);
 });
 
 // Invoice PDF route
