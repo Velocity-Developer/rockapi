@@ -13,8 +13,15 @@ class OngkirVDController extends Controller
         $params = $request->all();
         $result = $services->getShippingLogs($params);
 
-        return response()->json([
-            'data' => $result,
-        ]);
+        return response()->json($result);
+    }
+
+    //get kodepos logs
+    public function getKodePosLogs(Request $request, OngkirVDServices $services)
+    {
+        $params = $request->all();
+        $result = $services->getKodePosLogs($params);
+
+        return response()->json($result);
     }
 }
