@@ -24,4 +24,13 @@ class OngkirVDController extends Controller
 
         return response()->json($result);
     }
+
+    //get couriers list
+    public function getCouriers(Request $request, OngkirVDServices $services)
+    {
+        $params = $request->all();
+        $result = $services->getCouriers($params);
+
+        return response()->json($result);
+    }
 }

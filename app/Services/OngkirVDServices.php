@@ -100,6 +100,47 @@ class OngkirVDServices
         }
     }
 
+    public function getCouriers(array $params = []): array
+    {
+        $url = $this->apiUrl . '/couriers';
+
+        try {
+            $response = Http::timeout(30)
+                ->withHeaders($this->getAuthHeader())
+                ->get($url, $params);
+
+            if ($response->failed()) {
+                return [
+                    'success' => false,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'json' => $response->json(),
+                    'url' => $url . ($params ? '?' . http_build_query($params) : ''),
+                ];
+            }
+
+            return $response->json() ?? [];
+        } catch (ConnectionException $e) {
+            return [
+                'success' => false,
+                'type' => 'connection',
+                'message' => $e->getMessage(),
+                'url' => $url . ($params ? '?' . http_build_query($params) : ''),
+            ];
+        } catch (RequestException $e) {
+            return [
+                'success' => false,
+                'type' => 'request',
+                'status' => optional($e->response)->status(),
+                'body' => optional($e->response)->body(),
+                'message' => $e->getMessage(),
+                'url' => $url . ($params ? '?' . http_build_query($params) : ''),
+            ];
+        } catch (\Throwable $e) {
+            return ['success' => false, 'type' => 'other', 'message' => $e->getMessage()];
+        }
+    }
+
     private function getAuthHeader(): array
     {
         return [
