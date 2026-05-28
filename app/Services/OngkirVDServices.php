@@ -14,7 +14,7 @@ class OngkirVDServices
 
     public function __construct()
     {
-        $this->apiUrl = rtrim(config('services.ongkir_vd.url'), '/');
+        $this->apiUrl = rtrim(config('services.ongkir_vd.url') ?: 'https://ongkir.velocitydeveloper.id/api', '/');
         $this->apiKey = config('services.ongkir_vd.key');
     }
 
@@ -39,7 +39,12 @@ class OngkirVDServices
 
             return $response->json() ?? [];
         } catch (ConnectionException $e) {
-            return ['success' => false, 'type' => 'connection', 'message' => $e->getMessage()];
+            return [
+                'success' => false,
+                'type' => 'connection',
+                'message' => $e->getMessage(),
+                'url' => $url . ($params ? '?' . http_build_query($params) : ''),
+            ];
         } catch (RequestException $e) {
             return [
                 'success' => false,
@@ -75,7 +80,12 @@ class OngkirVDServices
 
             return $response->json() ?? [];
         } catch (ConnectionException $e) {
-            return ['success' => false, 'type' => 'connection', 'message' => $e->getMessage()];
+            return [
+                'success' => false,
+                'type' => 'connection',
+                'message' => $e->getMessage(),
+                'url' => $url . ($params ? '?' . http_build_query($params) : ''),
+            ];
         } catch (RequestException $e) {
             return [
                 'success' => false,
