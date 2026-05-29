@@ -49,6 +49,6 @@ class OngkirVDController extends Controller
         $params = $request->all();
         $result = $services->getShippingLogChart($params);
 
-        return response()->json($result);
+        return response()->json($result && $result['data'] ? $result['data'] : []);
     }
 }
