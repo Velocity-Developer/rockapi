@@ -166,6 +166,11 @@
                 "key": "laporan_rincian_transaksi_tgl",
                 "label": "Rincian Transaksi Tgl",
                 "route": "/laporan/rincian_transaksi_tgl"
+            },
+            {
+                "key": "reminder_cs",
+                "label": "Reminder CS",
+                "route": "/reminder-cs"
             }
         ]
     },
