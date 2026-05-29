@@ -25,10 +25,7 @@ class ReminderCSController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function ($query) use ($search) {
-                $query->where('jam', 'like', "%{$search}%")
-                    ->orWhere('keterangan', 'like', "%{$search}%");
-            });
+            $query->where('keterangan', 'like', "%{$search}%");
         }
 
         $orderBy = $request->input('order_by', 'id');
