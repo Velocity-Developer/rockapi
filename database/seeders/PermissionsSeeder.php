@@ -36,7 +36,8 @@ class PermissionsSeeder extends Seeder
             'manage-csmainproject',
             'manage-webhostsubscription',
             'manage-absensi',
-            'manage-klienperpanjang'
+            'manage-klienperpanjang',
+            'manage-remindercs'
         ];
 
         foreach ($permissions as $permission) {
