@@ -93,6 +93,12 @@ class User extends Authenticatable
         return $this->hasMany(WebhostClientSupport::class, 'user_id');
     }
 
+    //relasi ke reminder_cs
+    public function reminder_cs()
+    {
+        return $this->hasMany(ReminderCS::class, 'user_id');
+    }
+
     // permissions
     public function get_permissions()
     {
@@ -115,16 +121,16 @@ class User extends Authenticatable
     public function getAvatarUrlAttribute()
     {
         if ($this->avatar && $this->avatar && config('services.app.mode') == 'production') {
-            return asset('storage/'.$this->avatar);
+            return asset('storage/' . $this->avatar);
         } elseif ($this->avatar && $this->avatar && config('services.app.mode') == 'development') {
-            return config('services.app.url_production').'/storage/'.$this->avatar;
+            return config('services.app.url_production') . '/storage/' . $this->avatar;
         }
         // return asset('assets/images/default-avatar.jpg');
         // samarkan id
         $id = str_replace(['=', '/', '+'], '', base64_encode($this->id));
 
         // tampilkan avatar dari dicebear
-        return 'https://api.dicebear.com/9.x/bottts-neutral/svg?seed='.$id.'9v0';
+        return 'https://api.dicebear.com/9.x/bottts-neutral/svg?seed=' . $id . '9v0';
     }
 
     // boot
