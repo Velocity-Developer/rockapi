@@ -36,6 +36,12 @@
         "icon": "lucide:github"
     },
     {
+        "key": "ongkir_api",
+        "label": "Api Ongkir",
+        "route": "/dash/ongkir",
+        "icon": "lucide:truck"
+    },
+    {
         "key": "kelola_cuti",
         "label": "Data Cuti",
         "icon": "lucide:calendar-clock",
