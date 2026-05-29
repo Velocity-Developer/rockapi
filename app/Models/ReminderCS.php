@@ -14,4 +14,10 @@ class ReminderCS extends Model
         'keterangan',
         'user_id',
     ];
+
+    // relasi many ke tabel user
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
