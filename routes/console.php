@@ -34,3 +34,6 @@ Schedule::command('whmcs:sync-domain-expired')->dailyAt('07:10');
 
 // cron setiap hari jam 7:15 untuk synchronize hosting expired
 Schedule::command('whmcs:sync-hosting-expired')->dailyAt('07:15');
+
+// cron setiap menit untuk kirim reminder CS via Telegram sesuai field jam
+Schedule::command('reminder-cs:kirim-notif-telegram')->everyMinute();
