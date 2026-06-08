@@ -52,13 +52,13 @@ class KirimNotifReminderCSCommand extends Command
             ->get();
 
         // $users = User::role(['customer_service', 'manager_advertising'])
-        $users = User::role(['manager_advertising'])
+        $users = User::role(['customer_service'])
             ->whereNotNull('telegram_id')
             ->where('telegram_id', '!=', '')
             ->get();
 
         if ($users->isEmpty()) {
-            $this->warn('Tidak ada user penerima dengan role customer_service atau manager_advertising yang memiliki telegram_id.');
+            $this->warn('Tidak ada user penerima dengan role customer_service yang memiliki telegram_id.');
 
             return self::SUCCESS;
         }
