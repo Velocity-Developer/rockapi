@@ -109,9 +109,47 @@ class ReminderCSController extends Controller
 
     private function validatedData(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'jam' => 'nullable|string|max:255',
             'keterangan' => 'nullable|string',
         ]);
+
+        if (array_key_exists('jam', $data)) {
+            $data['jam'] = $this->formatJam($data['jam']);
+        }
+
+        return $data;
+    }
+
+    private function formatJam(?string $jam): ?string
+    {
+        if ($jam === null) {
+            return null;
+        }
+
+        $jam = trim($jam);
+
+        if ($jam === '') {
+            return $jam;
+        }
+
+        $normalizedJam = str_replace('.', ':', $jam);
+
+        if (preg_match('/^(\d{1,2})(?::(\d{1,2}))?(?::\d{1,2})?$/', $normalizedJam, $matches)) {
+            $hour = (int) $matches[1];
+            $minute = isset($matches[2]) ? (int) $matches[2] : 0;
+
+            if ($hour >= 0 && $hour <= 23 && $minute >= 0 && $minute <= 59) {
+                return sprintf('%02d:%02d', $hour, $minute);
+            }
+        }
+
+        $timestamp = strtotime($normalizedJam);
+
+        if ($timestamp !== false) {
+            return date('H:i', $timestamp);
+        }
+
+        return $jam;
     }
 }
