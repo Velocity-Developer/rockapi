@@ -47,12 +47,12 @@ class KirimNotifReminderCSCommand extends Command
             return self::SUCCESS;
         }
 
-        $allReminders = ReminderCS::orderBy('jam')
+        $remindersToSend = ReminderCS::where('jam', '<=', $jam)
+            ->orderBy('jam')
             ->orderBy('id')
             ->get();
 
-        // $users = User::role(['customer_service', 'manager_advertising'])
-        $users = User::role(['customer_service'])
+        $users = User::role(['customer_service', 'manager_advertising'])
             ->whereNotNull('telegram_id')
             ->where('telegram_id', '!=', '')
             ->get();
@@ -63,7 +63,7 @@ class KirimNotifReminderCSCommand extends Command
             return self::SUCCESS;
         }
 
-        $message = $this->buildMessage($allReminders, $jam);
+        $message = $this->buildMessage($remindersToSend, $jam);
         $sentCount = 0;
 
         foreach ($users as $user) {
