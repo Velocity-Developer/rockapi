@@ -50,6 +50,7 @@ use App\Http\Controllers\ImproveChatController;
 use App\Http\Controllers\WebhostSubscriptionsController;
 use App\Http\Controllers\OngkirVDController;
 use App\Http\Controllers\ReminderCSController;
+use App\Http\Controllers\FormOrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -107,6 +108,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'absensi-revisi' => AbsensiRevisiController::class,
         'cek-server-tim-support' => CekServerTimSupportController::class,
         'reminder-cs' => ReminderCSController::class,
+        'form-order' => FormOrderController::class,
     ]);
 
     // data_opsi

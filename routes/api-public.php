@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\RekapFormController;
+use App\Http\Controllers\FormOrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['api_public_verify'])->prefix('public')->group(function () {
@@ -11,4 +12,6 @@ Route::middleware(['api_public_verify'])->prefix('public')->group(function () {
     Route::get('rekap-form-konversi-nominal-ads', [RekapFormController::class, 'get_konversi_nominal_ads']);
     Route::post('rekap-form-update-konversi-nominal-ads', [RekapFormController::class, 'update_cek_konversi_nominal_ads']);
     Route::post('rekap-form-update-failed', [RekapFormController::class, 'update_failed']);
+
+    Route::post('form-order', [FormOrderController::class, 'store']);
 });
