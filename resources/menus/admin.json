@@ -171,6 +171,11 @@
                 "key": "reminder_cs",
                 "label": "Reminder CS",
                 "route": "/reminder-cs"
+            },
+            {
+                "key": "form_order",
+                "label": "Form Order",
+                "route": "/form-order"
             }
         ]
     },
