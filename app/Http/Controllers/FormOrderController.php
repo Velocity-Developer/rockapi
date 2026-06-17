@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\FormOrder;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Services\TelegramServices;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class FormOrderController extends Controller
 {
@@ -120,13 +120,12 @@ class FormOrderController extends Controller
         ]);
     }
 
-
     /**
      * Store a newly created resource in storage.
      */
     public function public_store(Request $request, TelegramServices $telegramServices): JsonResponse
     {
-        $users = User::role(['customer_service', 'manager_advertising'])
+        $users = User::role(['admin'])
             ->whereNotNull('telegram_id')
             ->where('telegram_id', '!=', '')
             ->get();

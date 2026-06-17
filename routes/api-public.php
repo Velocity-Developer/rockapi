@@ -1,10 +1,12 @@
 <?php
 
-use App\Http\Controllers\RekapFormController;
 use App\Http\Controllers\FormOrderController;
+use App\Http\Controllers\RekapFormController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['api_public_verify'])->prefix('public')->group(function () {
+Route::middleware(['allow_any_origin', 'api_public_verify'])->prefix('public')->group(function () {
+    Route::options('{any}', fn() => response()->noContent())->where('any', '.*');
+
     Route::post('rekap-form', [RekapFormController::class, 'store']);
     Route::get('rekap-form/{id}', [RekapFormController::class, 'show']);
     Route::get('rekap-form-konversi-ads', [RekapFormController::class, 'get_konversi_ads']);
