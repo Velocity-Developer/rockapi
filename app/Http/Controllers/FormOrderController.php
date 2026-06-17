@@ -130,7 +130,12 @@ class FormOrderController extends Controller
             ->where('telegram_id', '!=', '')
             ->get();
 
-        $message = "🔔 Ada klik form order baru dari {$request->input('nama')} di {$request->input('source')}. kebutuhan : {$request->input('kebutuhan')}";
+        $source = $request->input('source');
+        // avoid telegram link preview / og image
+        $source = str_replace(['https://', 'http://'], '', $source);
+        $source = "`{$source}`";
+
+        $message = "🔔 Ada klik form order baru dari {$source}.\n\nNama : {$request->input('nama')}\nNo WA : {$request->input('hp')}\nKebutuhan : {$request->input('kebutuhan')}";
 
         foreach ($users as $user) {
             $telegramServices->sendMessage($user->telegram_id, $message);
