@@ -125,12 +125,12 @@ class FormOrderController extends Controller
      */
     public function public_store(Request $request, TelegramServices $telegramServices): JsonResponse
     {
-        $users = User::role(['admin'])
+        $users = User::role(['customer_service', 'manager_advertising'])
             ->whereNotNull('telegram_id')
             ->where('telegram_id', '!=', '')
             ->get();
 
-        $message = "Ada klik form order baru dari {$request->input('nama')} di {$request->input('source')}";
+        $message = "🔔 Ada klik form order baru dari {$request->input('nama')} di {$request->input('source')}. kebutuhan : {$request->input('kebutuhan')}";
 
         foreach ($users as $user) {
             $telegramServices->sendMessage($user->telegram_id, $message);
