@@ -23,7 +23,7 @@ beforeEach(function () {
         $table->string('source');
         $table->string('nama');
         $table->string('hp');
-        $table->unsignedTinyInteger('usia');
+        $table->unsignedTinyInteger('usia')->nullable();
         $table->text('kebutuhan');
         $table->timestamps();
     });
@@ -67,4 +67,20 @@ test('form order controller handles crud operations', function () {
 
     expect($destroyResponse->getStatusCode())->toBe(200)
         ->and(FormOrder::count())->toBe(0);
+});
+
+test('form order controller stores order without usia', function () {
+    $controller = new FormOrderController;
+
+    $response = $controller->store(Request::create('/form-orders', 'POST', [
+        'source' => 'website',
+        'nama' => 'Budi',
+        'hp' => '081234567890',
+        'kebutuhan' => 'Pembuatan website',
+    ]));
+
+    $formOrder = FormOrder::firstOrFail();
+
+    expect($response->getStatusCode())->toBe(201)
+        ->and($formOrder->usia)->toBeNull();
 });

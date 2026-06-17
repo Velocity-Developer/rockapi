@@ -115,7 +115,7 @@ class FormOrderController extends Controller
             'source' => [$presenceRule, 'string', 'max:255'],
             'nama' => [$presenceRule, 'string', 'max:255'],
             'hp' => [$presenceRule, 'string', 'max:255'],
-            'usia' => [$presenceRule, 'integer', 'min:1', 'max:150'],
+            'usia' => ['nullable', 'integer', 'min:1', 'max:150'],
             'kebutuhan' => [$presenceRule, 'string'],
         ]);
     }
