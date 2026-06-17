@@ -25,3 +25,16 @@ test('allow any origin middleware handles preflight requests', function () {
     expect($response->getStatusCode())->toBe(204)
         ->and($response->headers->get('Access-Control-Allow-Origin'))->toBe('*');
 });
+
+test('public form order preflight allows any origin before laravel cors handles it', function () {
+    $response = $this->withHeaders([
+        'Origin' => 'https://external-example.test',
+        'Access-Control-Request-Method' => 'POST',
+        'Access-Control-Request-Headers' => 'content-type, authorization',
+    ])->options('/api/public/form-order');
+
+    $response->assertNoContent();
+    $response->assertHeader('Access-Control-Allow-Origin', '*');
+    $response->assertHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    $response->assertHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+});

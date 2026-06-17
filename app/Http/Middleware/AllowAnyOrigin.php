@@ -15,6 +15,10 @@ class AllowAnyOrigin
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if (! $request->is('api/public/*')) {
+            return $next($request);
+        }
+
         if ($request->isMethod('OPTIONS')) {
             return $this->addCorsHeaders(response()->noContent());
         }
