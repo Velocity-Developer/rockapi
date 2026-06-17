@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\FormOrder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Services\TelegramServices;
 
 class FormOrderController extends Controller
 {
@@ -116,5 +118,30 @@ class FormOrderController extends Controller
             'usia' => [$presenceRule, 'integer', 'min:1', 'max:150'],
             'kebutuhan' => [$presenceRule, 'string'],
         ]);
+    }
+
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function public_store(Request $request, TelegramServices $telegramServices): JsonResponse
+    {
+        $users = User::role(['customer_service', 'manager_advertising'])
+            ->whereNotNull('telegram_id')
+            ->where('telegram_id', '!=', '')
+            ->get();
+
+        $message = "Ada klik form order baru dari {$request->input('nama')} di {$request->input('source')}";
+
+        foreach ($users as $user) {
+            $telegramServices->sendMessage($user->telegram_id, $message);
+        }
+
+        $formOrder = FormOrder::create($this->validatedData($request));
+
+        return response()->json([
+            'message' => 'Data berhasil disimpan',
+            'data' => $formOrder,
+        ], 201);
     }
 }
